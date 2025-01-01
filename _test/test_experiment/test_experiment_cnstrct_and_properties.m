@@ -25,21 +25,21 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             function throw1()
                 expt.samples{1};
             end
-            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
+            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
 
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
             end
-            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_subscript');
+            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
 
             assertTrue( isa( expt.detector_arrays, 'unique_references_container' ) );
             assertEqual( expt.detector_arrays.n_runs, 0 );
             function throw3()
                 expt.detector_arrays{1};
             end
-            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_subscript');
+            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
 
             assertTrue(isempty(expt.expdata));
         end
@@ -65,6 +65,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             detectors = repmat(IX_detector_array(),1,numel(exp));
 
             lastwarn('');
+            clOwr =set_temporary_warning('off','HORACE:Experiment:lattice_undefined');            
             exper= Experiment(detectors,instruments,samples,exp);
             % at this point the samples have not been given lattice
             % definitions so a warning will be issued
@@ -107,7 +108,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             instrument = IX_inst_DGfermi();
             sample = IX_sample();
             info = IX_experiment();
-            clOwr =set_temporary_warning('off','HORACE:Experiment:invalid_argument');
+            clOwr =set_temporary_warning('off','HORACE:Experiment:invalid_argument','HORACE:Experiment:lattice_undefined');
             expt = Experiment(detector_array, instrument, sample,info);
 
             assertEqual(expt.samples{1}, sample);
@@ -238,13 +239,13 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             function throw1()
                 expt.samples{1};
             end
-            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_subscript');
+            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
             end
-            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_subscript');
+            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
             assertEqual(expt.detector_arrays.n_runs, 0);
         end
 
@@ -257,7 +258,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             end
             assertExceptionThrown(@throw1, ...
                 'HORACE:Experiment:invalid_argument');
-
+            clOwr =set_temporary_warning('off','HORACE:Experiment:lattice_undefined');
             % cannot add instruments if there are no runs defined
             assertEqual(expt.instruments.n_runs, 0);
 
@@ -291,7 +292,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             % as only 1 run, set it here and then the final comparison will
             % work (otherwise it's 1 vs. NaN)
             expdata.run_id = 1;
-
+            clOwr =set_temporary_warning('off','HORACE:Experiment:lattice_undefined');
             expt = Experiment(detectors, instruments, samples,expdata);
             % expt.samples = {samples};
 
@@ -384,7 +385,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 assertEqual(expt.detector_arrays{1}, detector_arrays);
             end
             assertExceptionThrown(@throw2, ...
-                'HERBERT:unique_references_container:invalid_subscript');
+                'HERBERT:unique_references_container:invalid_argument');
         end
 
         function test_detector_arrays_setter_raises_error_for_invalid_value(~)

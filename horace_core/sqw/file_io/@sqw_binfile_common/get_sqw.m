@@ -70,11 +70,9 @@ if ~(opts.head||opts.his)
     if ~isempty(detpar)
         if  isstruct(detpar) && IX_detector_array.check_detpar_parms(detpar)
             detector = IX_detector_array(detpar);
-            det_arrays = exp_info.detector_arrays;
             if exp_info.detector_arrays.n_runs == 0
-                det_arrays = det_arrays.add_copies_(detector, exp_info.n_runs);
-                exp_info.detector_arrays = det_arrays;
-
+                exp_info.detector_arrays = detector;                
+                exp_info.detector_arrays = exp_info.detector_arrays.replicate_runs(exp_info.n_runs);
             elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
                 exp_info.detector_arrays = exp_info.detector_arrays.replace_all(detector);
             else

@@ -285,14 +285,14 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
-            
+
             obj.experiment_info_ = Experiment();
 
             if nargin==0 % various serializers need empty constructor
                 obj.data_ = d0d();
                 return;
             end
-            
+
             obj = obj.init(varargin{:});
         end
         % initialization of empty sqw object or main part of constructor
@@ -334,12 +334,11 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             %TODO: implement checks for validity
             if isa(val,'unique_references_container')
                 obj.experiment_info_.detector_arrays = val;
-             elseif isstruct(val)
-                detector = IX_detector_array(val);
+            elseif isstruct(val)
                 if obj.experiment_info_.detector_arrays.n_runs == 0
+                    obj.experiment_info_.detector_arrays = IX_detector_array(val);
                     obj.experiment_info_.detector_arrays = ...
-                        obj.experiment_info_.detector_arrays.add_copies_( ...
-                                          detector,obj.experiment_info_.n_runs);
+                        obj.experiment_info_.detector_arrays.replicate_runs(obj.experiment_info_.n_runs);
                 end
             elseif isempty(val) && obj.experiment_info_.detector_arrays.n_runs > 0
                 ; % pass, do nothing, info already in experiment_info
@@ -475,7 +474,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods(Access = protected)
         % Check if two sqw objects are equal to a given tolerance
         [ok, mess] = equal_to_tol_single(w1, w2, varargin)
-        
+
         % Re #962 TODO: probably delete it
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object

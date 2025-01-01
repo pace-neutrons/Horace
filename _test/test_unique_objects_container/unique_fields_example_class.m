@@ -15,6 +15,7 @@ classdef unique_fields_example_class < hashable
             % - field : the object to be stored in property myfield
             obj.myfield = field;
             obj.mydisc = disc;
+            obj.hash_value_ = [];
         end
         
         function ver = classVersion(~)

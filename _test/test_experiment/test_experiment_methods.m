@@ -167,7 +167,7 @@ classdef test_experiment_methods < TestCase
             % the reconstruction via hdrs_cell. To ensure that exp does
             % have the required detector_array data, do this test
             assertEqual(exp.detector_arrays.n_objects, 3);
-            assertEqual(exp.detector_arrays.n_unique_objects, 1);
+            assertEqual(exp.detector_arrays.n_unique, 1);
         end
 
 

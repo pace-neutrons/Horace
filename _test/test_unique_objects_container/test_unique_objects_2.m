@@ -16,7 +16,7 @@ classdef test_unique_objects_2 < TestCase
                 name  = 'test_unique_objects_2';
             end
             obj = obj@TestCase(name);
-            
+
             % clear the urc global container for id HHH
             % NB urc == unique_references_container
             unique_obj_store.instance().clear('unique_fields_example_class');
@@ -53,7 +53,7 @@ classdef test_unique_objects_2 < TestCase
             for ii=1:numel(obj.idx)
                 obj.o2{ii} = u1{ obj.idx(ii) };
             end
-           
+
             % repeat the process - ec999 now has the same myfield value as
             % ec333 but ec333 and ec999 differ in the mydisc field so urcs
             % of ec values will differ between these but an urc of their
@@ -61,12 +61,12 @@ classdef test_unique_objects_2 < TestCase
             ec333 =unique_fields_example_class('333',IX_inst('name','333'));
             ec666 =unique_fields_example_class('666',IX_inst('name','666'));
             ec999 =unique_fields_example_class('999',IX_inst('name','333'));
-            u1 = unique_references_container('HHH','unique_fields_example_class');
+            u1 = unique_references_container('unique_fields_example_class');
             u1 = u1.add(ec333);
             u1 = u1.add(ec666);
             u1 = u1.add(ec999);
             obj.u1 = u1;
-            obj.u3 = unique_references_container('HHH','unique_fields_example_class');
+            obj.u3 = unique_references_container('unique_fields_example_class');
             for ii=1:numel(obj.idx)
                 obj.u3{ii} = u1{ obj.idx(ii) };
             end
@@ -74,6 +74,9 @@ classdef test_unique_objects_2 < TestCase
             for ii=1:numel(obj.idx)
                 obj.o3{ii} = u1{ obj.idx(ii) };
             end
+        end
+        function delete(~)
+            unique_obj_store.instance().clear('unique_fields_example_class');
         end
         %
         %------------------------------------------------------------------
@@ -83,7 +86,7 @@ classdef test_unique_objects_2 < TestCase
             assertEqual(u1{1}.myfield.name,'333');
             assertEqual(u1{2}.myfield.name,'666');
             assertEqual(u1{3}.myfield.name,'333');
-            
+
             % test copies of u2 according to the name of its myfield
             % property
             u2 = obj.u2;
@@ -97,71 +100,10 @@ classdef test_unique_objects_2 < TestCase
                     assertEqual(name,'999');
                 else
                     error('HORACE:test_unique_objects_2:bad_test_construction', ...
-                          'myfield name should be 333 666 or 999');
+                        'myfield name should be 333 666 or 999');
                 end
             end
         end
         %
-        %------------------------------------------------------------------
-        function test_get_unique_field_references(obj)
-            % test props of u2
-            u2 = obj.u2;
-            assertTrue( strcmp(u2.stored_baseclass,'unique_fields_example_class') );
-            
-            % get unique_field myfield from u2
-            % and check the field value container properties and contents
-            ufld = u2.get_unique_field('myfield');
-            assertTrue( strcmp(ufld.stored_baseclass,'IX_inst') );
-            assertEqual(ufld.idx, u2.idx);
-            for ii=1:numel(u2.idx)
-                assertEqual(ufld{ii}.name, u2{ii}.myfield.name);
-            end
-
-            % repeat with u3 where the objects in u3 are different between
-            % the 333 and 999 mydisc objects but their myfield values are
-            % the same for these values
-            u3 = obj.u3;
-            assertTrue( strcmp(u3.stored_baseclass,'unique_fields_example_class') );
-            ufld3 = u3.get_unique_field('myfield');
-            assertTrue( strcmp(ufld.stored_baseclass,'IX_inst') );
-            for ii=1:numel(u3.idx)
-                assertEqual(ufld3{ii}.name, u3{ii}.myfield.name);
-                ix = ufld3.idx(ii);
-                % u3 and unfld unique indices should be equal if 1 or 2
-                ux = u3.idx(ii);
-                if ux<3
-                    assertEqual(ix,ux);
-                % u3 and ufld indices should differ (ufld index == 1) if 3
-                % or 4. NB indices for external index 3 should be 4 as
-                % ec999 is changed between u2 and u3 so making a 4th unique
-                % object
-                else
-                    assertEqual(ix,1);
-                end
-            end
-        end
-        %%-----------------------------------------------------------------
-        function test_get_unique_field_objects(obj)
-            o2 = obj.o2;
-            o2fld = o2.get_unique_field('myfield');
-            o3 = obj.o3;
-            o3fld = o3.get_unique_field('myfield');
-            for ii=1:numel(o3.idx)
-                assertEqual(o3fld{ii}.name, o3{ii}.myfield.name);
-                ix = o3fld.idx(ii);
-                % u3 and unfld unique indices should be equal if 1 or 2
-                ox = o3.idx(ii);
-                if ox<3
-                    assertEqual(ix,ox);
-                % u3 and ufld indices should differ (ufld index == 1) if 3
-                % or 4. NB indices for external index 3 should be 4 as
-                % ec999 is changed between u2 and u3 so making a 4th unique
-                % object
-                else
-                    assertEqual(ix,1);
-                end
-            end
-        end
- 
     end
 end

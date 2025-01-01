@@ -258,7 +258,7 @@ classdef test_unique_objects < TestCase
             assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
             clear cl0b;
 
-            assertEqual( nuix, 0 );
+            assertTrue(isempty(nuix));
             assertEqual( numel(voc.unique_objects), 1);
             assertEqual( numel(voc.idx), 1);
         end

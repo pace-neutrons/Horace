@@ -527,6 +527,9 @@ classdef Experiment < serializable
 
         function obj = add_input_with_checks(obj, val,type)
             % ADD_INPUT_WITH_CHECKS
+            %
+            % TODO: This is what should be done in check_combo_arg()
+            %
             % Add val to one of the unique_reference_container properties.
             % This makes sure that the right thing is added and any
             % duplicates are handled.
@@ -584,6 +587,7 @@ classdef Experiment < serializable
                 % assume we're adding n_runs identical copies
                 %
                 % add to default compressed container
+               
                 obj.(field) = obj.(field).add_copies_(val, obj.n_runs);
 
             elseif isempty(val)
