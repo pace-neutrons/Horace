@@ -7,7 +7,7 @@ n_header = numel(header);
 exper = repmat(IX_experiment,1,n_header);
 samp = unique_references_container('IX_samp'); %cell(n_header,1);
 inst = unique_references_container('IX_inst'); %cell(n_header,1);
-detc = unique_references_container('IX_detector_array'); 
+%detc = unique_references_container('IX_detector_array'); 
 for i=1:n_header
     if iscell(header)
         hdr = header{i};

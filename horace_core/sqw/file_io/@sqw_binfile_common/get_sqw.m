@@ -65,6 +65,7 @@ end
 
 % Get detector parameters
 % -----------------------
+exp_info.do_check_combo_arg = false;
 if ~(opts.head||opts.his)
     detpar = obj.get_detpar();
     if ~isempty(detpar)
@@ -89,7 +90,8 @@ if ~(opts.head||opts.his)
         ; % there was no detpar info in the file; currently do nothing, not an error state
     end
 end
-
+exp_info.do_check_combo_arg = true;
+exp_info = exp_info.check_combo_arg();
 % Get data
 % --------
 if opts.verbatim || opts.keep_original

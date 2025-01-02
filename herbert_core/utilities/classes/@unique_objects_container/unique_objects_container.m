@@ -523,7 +523,7 @@ classdef unique_objects_container < serializable
             % container is implicit in the size of idx_.
 
             % process addition of multiple objects at once.
-            if ~ischar(obj) && numel(obj)>1
+            if ~ischar(obj) && numel(obj)>1 || iscell(obj) 
                 nobj = numel(obj);
                 nuix = zeros(1,nobj);
                 if iscell(obj)

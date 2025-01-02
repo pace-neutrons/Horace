@@ -26,7 +26,7 @@ if size(pm_par,1) == 1
 else
     set_single_par = false;
     n_tot_runs = arrayfun(@(x)x.experiment_info.n_runs,obj);
-    n_unique_runs = arrayfun(@(x)x.experiment_info.instruments.n_unique_objects,obj);
+    n_unique_runs = arrayfun(@(x)x.experiment_info.instruments.n_unique,obj);
     n_tot_runs = sum(n_tot_runs);
     n_unique_runs = sum(n_unique_runs);
     num_params = size(pm_par,1);

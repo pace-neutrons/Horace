@@ -41,6 +41,7 @@ classdef test_set_instrument_data< TestCase
             end
         end
         function test_set_moderator_params_on_mix(obj)
+            clMem = set_temporary_global_obj_state();
             % Set moderator parameters - OK
             ei=300+(1:29);
             pulse_model = 'ikcarp';
@@ -78,6 +79,7 @@ classdef test_set_instrument_data< TestCase
         end
 
         function test_set_moderator_params_with_ei(obj)
+            clMem = set_temporary_global_obj_state();
             % Set moderator parameters - OK
             ei=300+(1:29);
             pulse_model = 'ikcarp';
@@ -100,7 +102,7 @@ classdef test_set_instrument_data< TestCase
             assertEqual(pulse_model_obj,pulse_model_file);
         end
         function test_get_moderator_params_file_vs_memory(obj)
-
+            clMem = set_temporary_global_obj_state();
             %% --------------------------------------------------------------------------------------------------
             % New moderator parameters
             % ---------------------------
@@ -138,6 +140,7 @@ classdef test_set_instrument_data< TestCase
             % assertThrowsNothing!
         end
         function test_set_ei_on_two(obj)
+            clMem = set_temporary_global_obj_state();
             % Set incident energies - OK
             ei=1000+(1:29);
             ei = [ei,ei];
