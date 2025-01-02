@@ -15,10 +15,9 @@ function [self,uidx] = add_if_new_single_(self,obj)
 
 % check that obj is of the appropriate base class
 if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
-    warning('HERBERT:unique_objects_container:invalid_argument', ...
-        'not correct base class; object was not added');
-    uidx = [];
-    return;
+    error('HERBERT:unique_objects_container:invalid_argument', ...
+        'Adding object of class: "%s" to reference container of class "%s" is not allowed', ...
+        class(obj),self.baseclass_);
 end
 
 % if ix and hash are not specified, call find_in_container to get them

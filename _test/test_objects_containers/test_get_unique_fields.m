@@ -33,11 +33,12 @@ classdef test_get_unique_fields < TestCase
             assertTrue( strcmp(u3{1}.name, '333') );
             assertEqual( u3.n_runs, 2 );
 
-            % Why would you want this?
-            % u2 = u1.get_unique_field('myfield');
-            % assertEqual(u2.n_runs, 3);
-            % assertTrue( isa(u2{1}, 'IX_inst'));
-            % assertTrue( strcmp(u3{2}.name, '666') );
+            % Why would you want this? Especially using unique references
+            % container
+            u2 = u1.get_unique_field('myfield');
+            assertEqual(u2.n_runs, 3);
+            assertTrue( isa(u2{1}, 'IX_inst'));
+            assertTrue( strcmp(u3{2}.name, '666') );
         end
         function delete(obj)
             % avoid side effects from this test

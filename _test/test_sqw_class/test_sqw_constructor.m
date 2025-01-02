@@ -54,7 +54,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             function throwinst()
                 sqw_obj.experiment_info.instruments{1};
             end
-            assertExceptionThrown( @throwinst,'HERBERT:unique_references_container:invalid_subscript');
+            assertExceptionThrown( @throwinst,'HERBERT:unique_references_container:invalid_argument');
             assertTrue((sqw_obj.experiment_info.samples.n_runs==0));
             function throwsamp()
                 sqw_obj.experiment_info.samples{1};

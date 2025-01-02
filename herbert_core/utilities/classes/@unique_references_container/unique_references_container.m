@@ -419,7 +419,7 @@ classdef unique_references_container < serializable
 
         function [obj_idx,obj] = find_in_container(self, obj)
             obj_idx = [];
-            storage = unique_obj_store.instance().get_objects(obj.stored_baseclass);
+            storage = unique_obj_store.instance().get_objects(selt.baseclass);
             igx = storage.find_in_container(obj);
             if isempty(igx )
                 return;
@@ -427,6 +427,22 @@ classdef unique_references_container < serializable
             inglc = find(igx == self.idx_,1);
             if ~isempty(inglc)
                 obj_idx = self.igx_(inglc);
+            end
+        end
+
+        function subc = get_unique_field(self,fieldname)
+            %GET_UNIQUE_FIELD each of the unique objects referred to by self
+            % should have a property named 'field'. The code below takes each of the
+            % referred objects in turn, extracts the object referred to by
+            % 'field' and stores it in the unique_OBJECTS_container field_vals
+            % created here. field_vals will then contain unique copies of all
+            % the values of 'field' within the objects referred to in self, indexed
+            % in the same way as the original referred objects.
+            storage    = unique_obj_store.instance().get_objects(self.baseclass);
+            targ_class = class(storage(self.idx_(1)).(fieldname));
+            subc       = unique_references_container(targ_class);
+            for i=1:self.n_objects
+                subc = subc.add(storage{self.idx_(i)}.(fieldname));
             end
         end
     end
@@ -649,7 +665,7 @@ classdef unique_references_container < serializable
         end
 
     end
-    properties (Constant, Access=private) % serializable interface
+    properties (Constant, Access=private) % serializable igetnterface
         fields_to_save_ = { ...
             'baseclass', ...
             'unique_objects', ...
