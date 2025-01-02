@@ -559,9 +559,9 @@ classdef unique_objects_container < serializable
 
             % check that obj is of the appropriate base class
             if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
-                warning('HERBERT:unique_objects_container:invalid_argument', ...
-                    'not correct base class; object was not replaced');
-                return;
+                error('HERBERT:unique_objects_container:invalid_argument', ...
+                    'Can not place object of class "%s" in the container with baseclass: "%s"', ...
+                    class(obj),self.baseclass_);
             end
 
             % check if you're trying to replace an object with an identical

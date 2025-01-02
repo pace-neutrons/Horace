@@ -5,9 +5,7 @@ classdef test_unique_references < TestCase
         nul_sm1;
 
         % Place for useful contents of the current unique_obj_store.
-        urc_instruments_current
-        urc_samples_current
-        urc_detectors_current
+        clStore
     end
 
     methods
@@ -25,20 +23,15 @@ classdef test_unique_references < TestCase
             obj.nul_sm1 = IX_null_sample();
             % Store current contents of the unique_store for future usage
             % and clear store to have defined initial state for the tests.
-            obj.urc_instruments_current = unique_obj_store.instance().get_objects('IX_inst');
-            unique_obj_store.instance().clear('IX_inst');
-            obj.urc_samples_current  = unique_obj_store.instance().get_objects('IX_samp');
-            unique_obj_store.instance().clear('IX_samp');
-            obj.urc_detectors_current = unique_obj_store.instance().get_objects('IX_detector_array');
-            unique_obj_store.instance().clear('IX_detector_array');
+            % 
+            % These tests rely on defined initial store state
+            obj.clStore = set_temporary_global_obj_state();
         end
         function delete(obj)
             % retrive essential store state, present before this test was
             % runing
             %unique_obj_store.instance('clear');
-            unique_obj_store.instance().set_objects(obj.urc_instruments_current);
-            unique_obj_store.instance().set_objects(obj.urc_samples_current);
-            unique_obj_store.instance().set_objects(obj.urc_detectors_current);
+            obj.clStore = [];
         end
 
         function test_unique_reference_non_pollute_ws(obj)
@@ -556,19 +549,23 @@ classdef test_unique_references < TestCase
             assertEqual(urc2.n_runs,1);
             assertEqual(urc2.n_objects,1);
 
-            urc2(2) = obj.mi1;
-            [lwn,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
-            assertTrue(strcmp(lwn,'Attempt to assign object of class "IX_inst_DGfermi" to container with baseclass "char" ignored'));
+            function thrower()
+                urc2(2) = obj.mi1;                
+            end
+            ex = assertExceptionThrown(@thrower,'HERBERT:unique_references_container:invalid_argument');
+            assertTrue(strcmp(ex.message, ...
+                'Attempt to assign object of class: "IX_inst_DGfermi" to container with baseclass: "char" is prohibited'));
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
             lastwarn('');
 
             % fail inserting with wrong type
-            urc2(1) = obj.mi1;
-            [lwn,lw]=lastwarn;
-            assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
-            assertTrue(strcmp(lwn,'Attempt to assign object of class "IX_inst_DGfermi" to container with baseclass "char" ignored'));
+            function thrower2()
+                urc2(1) = obj.mi1;
+            end
+            ex = assertExceptionThrown(@thrower2,'HERBERT:unique_references_container:invalid_argument');            
+            assertTrue(strcmp(ex.message, ...
+                'Attempt to assign object of class "IX_inst_DGfermi" to container with baseclass: "char" is prohibited'));
             assertEqual( urc2(1),'aaaaa'); % warning was issued and object was not replaced
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
@@ -733,7 +730,6 @@ classdef test_unique_references < TestCase
         end
         %----------------------------------------------------------------
         function test_subscripting_type(obj)
-            clwarn = set_temporary_warning('off', 'HERBERT:unique_references_container:invalid_argument');
             function clearer()
                 unique_obj_store.instance().clear('IX_inst');
             end
@@ -741,10 +737,11 @@ classdef test_unique_references < TestCase
 
             urc = unique_references_container('IX_inst');
             urc{1} = obj.mi1;
-            urc{2} = obj.nul_sm1;
-            [lwn,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_references_container:invalid_argument');
-            assertEqual(lwn,'Attempt to assign object of class "IX_null_sample" to container with baseclass "IX_inst" ignored');
+            function thrower()
+                urc{2} = obj.nul_sm1;
+            end
+            ex = assertExceptionThrown(@thrower,'HERBERT:unique_references_container:invalid_argument');
+            assertEqual(ex.message,'Attempt to assign object of class: "IX_null_sample" to container with baseclass: "IX_inst" is prohibited');
             assertEqual( urc.n_unique, 1);
         end
         %----------------------------------------------------------------

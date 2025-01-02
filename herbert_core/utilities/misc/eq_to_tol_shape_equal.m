@@ -42,7 +42,7 @@ else
     sz2 = size(obj2);
 end
 if all(sz1 == sz2)
-    return;
+    return;   
 end
 if nargin<3
     name_a = 'input_1';
@@ -52,5 +52,14 @@ if nargin<4
 end
 
 is = false;
+if istext(obj1)
+   mess = sprintf('Char arrays are different. "%s" has size: [%s] and "%s" size: [%s]', ...
+        name_a,disp2str(sz1),name_b,disp2str(sz2));    
+   if numel(sz1)==2 && numel(sz2)==2 && sz1(1)==1 && sz2(1)==1
+       mess = sprintf('%s\n Strings contain:\n first : "%s"\n second: "%s"', ...
+           mess,obj1,obj2);
+   end
+else
 mess = sprintf('Objects "%s" have different sizes. "%s" has size: [%s] and "%s" size: [%s]', ...
     class(obj1),name_a,disp2str(sz1),name_b,disp2str(sz2));
+end
