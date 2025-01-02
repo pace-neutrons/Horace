@@ -564,8 +564,8 @@ classdef test_unique_references < TestCase
                 urc2(1) = obj.mi1;
             end
             ex = assertExceptionThrown(@thrower2,'HERBERT:unique_references_container:invalid_argument');            
-            assertTrue(strcmp(ex.message, ...
-                'Attempt to assign object of class "IX_inst_DGfermi" to container with baseclass: "char" is prohibited'));
+            assertEqual(ex.message, ...
+                'Attempt to assign object of class: "IX_inst_DGfermi" to container with baseclass: "char" is prohibited');
             assertEqual( urc2(1),'aaaaa'); % warning was issued and object was not replaced
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
