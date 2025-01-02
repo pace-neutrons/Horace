@@ -7,15 +7,17 @@ function cleanup_handle = set_temporary_global_obj_state(varargin)
 
 % >> cleanup_handle = set_temporary_global_obj_state();
 %
+%WARNING: Temporary procedure. Should be unnecessary and removed when
+%         proper object release at dereferences is implemented
 
 mem_contents = struct();
 mem_contents.inst = unique_obj_store.instance().get_objects('IX_inst');
 mem_contents.samp = unique_obj_store.instance().get_objects('IX_samp');
-mem_contents.det  = unique_obj_store.instance().get_objects('IX_detector_arrays');
+mem_contents.det  = unique_obj_store.instance().get_objects('IX_detector_array');
 
 unique_obj_store.instance().clear('IX_inst');
 unique_obj_store.instance().clear('IX_samp');
-unique_obj_store.instance().clear('IX_detector_arrays');
+unique_obj_store.instance().clear('IX_detector_array');
 
 cleanup_handle = onCleanup(@() restore(mem_contents));
 % stop changes from being stored on disk.
@@ -32,7 +34,7 @@ end
 function restore(mem_contents)
 unique_obj_store.instance().clear('IX_inst');
 unique_obj_store.instance().clear('IX_samp');
-unique_obj_store.instance().clear('IX_detector_arrays');
+unique_obj_store.instance().clear('IX_detector_array');
 
 unique_obj_store.instance().set_objects(mem_contents.inst);
 unique_obj_store.instance().set_objects(mem_contents.samp);
