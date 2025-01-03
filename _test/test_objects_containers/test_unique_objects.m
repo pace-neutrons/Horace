@@ -181,7 +181,6 @@ classdef test_unique_objects < TestCase
         end
         %----------------------------------------------------------------
         function test_add_different_types(obj)
-            %disp('Test: test_add_different_types');
 
             uoc = unique_objects_container();
             uoc = uoc.add(obj.mi1);
@@ -194,13 +193,11 @@ classdef test_unique_objects < TestCase
             [voc,nuix] = voc.add(obj.mi1);
 
             assertTrue( nuix>0 );
-            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
-            [voc,nuix] = voc.add(obj.nul_sm1);
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            clear cl0b;
+            function thrower()
+                [voc,nuix] = voc.add(obj.nul_sm1);
+            end
+            assertExceptionThrown(@thrower,'HERBERT:unique_objects_container:invalid_argument');
 
-            assertTrue(isempty(nuix));
             assertEqual( numel(voc.unique_objects), 1);
             assertEqual( numel(voc.idx), 1);
         end
@@ -216,32 +213,24 @@ classdef test_unique_objects < TestCase
 
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc = uoc.add(obj.mi1);
-
-            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
-            uoc = uoc.add(obj.nul_sm1);
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
+            function thrower()
+                uoc = uoc.add(obj.nul_sm1);
+            end
+            assertExceptionThrown(@thrower,'HERBERT:unique_objects_container:invalid_argument');
             assertEqual( numel(uoc.unique_objects), 1);
-            %{
-            Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing this bit.
-            assertEqual( u1, uoc.stored_hashes(1,:) );
-            %}
         end
         function test_constructor_arguments_type_serializer(obj)
 
             uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialize);
 
             uoc = uoc.add(obj.mi1);
-            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
-            uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.unique_objects), 1);
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
 
-            %{
-            Turns out that hashes are not portable between all Matlab
-            %}
+            function thrower()
+                uoc = uoc.add(obj.nul_sm1);
+            end
+            assertExceptionThrown(@thrower,'HERBERT:unique_objects_container:invalid_argument');
+            
+            assertEqual( numel(uoc.unique_objects), 1);
         end
 
         function test_subscripting_no_type(obj)
@@ -303,7 +292,7 @@ classdef test_unique_objects < TestCase
             function set_uoc()
                 uoc{2} = obj.mi1;
             end
-            ex = assertExceptionThrown(@()set_uoc,'HERBERT:unique_objects_container:invalid_argument');
+            ex = assertExceptionThrown(@()set_uoc,'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(ex.message, ...
                 'Some or all input indices: [2..2] are outside allowed range [1:1] for this container')
         end
@@ -312,7 +301,7 @@ classdef test_unique_objects < TestCase
             function set_uoc()
                 uoc{-1} = obj.mi1;
             end
-            ex = assertExceptionThrown(@()set_uoc,'HERBERT:unique_objects_container:invalid_argument');
+            ex = assertExceptionThrown(@()set_uoc,'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(ex.message, ...
                 'Some or all input indices: [-1..-1] are outside allowed range [1:1] for this container')
 
@@ -400,7 +389,7 @@ classdef test_unique_objects < TestCase
                 assertEqual(urc{1}.data, 222);
                 urc{2}.data = 666;
             end
-            me = assertExceptionThrown(@throw1, 'HERBERT:unique_objects_container:invalid_argument');
+            me = assertExceptionThrown(@throw1, 'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(me.message, ...
                 'Some or all input indices: [2..2] are outside allowed range [1:1] for this container');
         end

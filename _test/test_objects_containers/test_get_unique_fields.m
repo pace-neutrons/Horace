@@ -38,7 +38,7 @@ classdef test_get_unique_fields < TestCase
             u2 = u1.get_unique_field('myfield');
             assertEqual(u2.n_runs, 3);
             assertTrue( isa(u2{1}, 'IX_inst'));
-            assertTrue( strcmp(u3{2}.name, '666') );
+            assertTrue( strcmp(u2{3}.name, '666') );
         end
         function delete(obj)
             % avoid side effects from this test

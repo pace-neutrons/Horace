@@ -107,13 +107,8 @@ classdef unique_objects_container < ObjContainersBase
             if nargin == 0
                 return;
             end
-
-            flds = self.saveableFields();
-            % standard serializable constructor
-            self = self.set_positional_and_key_val_arguments(...
-                flds,false,varargin{:});
+            self = self.init(varargin{:});
         end
-        
         %
         function x = get.stored_hashes(self)
             %GET.STORED_HASHES - list the hashes corresponding to the unique
@@ -123,6 +118,10 @@ classdef unique_objects_container < ObjContainersBase
         %
         function x = get.n_duplicates(self)
             x = self.n_duplicates_;
+        end
+        function self = set.n_duplicates(self,val)
+            % temporary setter. Should be removed in a nearest future
+            self.n_duplicates_ = val;
         end
     end
     %----------------------------------------------------------------------
@@ -169,6 +168,9 @@ classdef unique_objects_container < ObjContainersBase
             % - ix   : the index of the unique object in self.unique_objects_,
             %          if it is stored, otherwise empty []
             % - hash : the hash of the object from hashify
+            % 
+            % - obj  : input object. If hashable, contains calculated hash
+            %          value, if this value have not been there initially
             %
             [obj,hash] = build_hash(obj);
             if isempty(self.stored_hashes_)
@@ -221,7 +223,6 @@ classdef unique_objects_container < ObjContainersBase
                     for i = 1:nobj
                         [self,nuix(i)]=self.add(obj(i));
                     end
-
                 end
                 return;
             end
@@ -260,10 +261,11 @@ classdef unique_objects_container < ObjContainersBase
             %
             self.check_if_range_allowed(nuix);
             ix = self.idx_(nuix);
-            obj = self.unique_objects{ix};
-            % alternative implementation would use subsref for '()' case, but this
-            % requires additional code to deal with '.' when calling
-            % methods.
+            if numel(nuix) == 1
+                obj = self.unique_objects{ix};
+            else
+                obj = cellfun(@(ii)self.unique_objects{ii},ix);
+            end
         end
 
         function newself = reorder(self)
@@ -282,58 +284,14 @@ classdef unique_objects_container < ObjContainersBase
             end
         end
         %
-        function field_vals = get_unique_field(self, field)
-            % determine type of unique_objects_container to make from the
-            % object feld type, and construct the container
-            s1 = self.get(1);
-            v = s1.(field);
-            field_vals = unique_objects_container(class(v));
-
-            % make container of possible field values from the unique contents of self
-            % this will do the minimal hashing of the field values
-            poss_field_vals = unique_objects_container(class(v));
-            uix = unique( self.idx_, 'stable' );
-            for ii=1:numel(uix)
-                sii = self.get( uix(ii) );
-                v = sii.(field);
-                poss_field_vals = poss_field_vals.add_single_(v);
-            end
-
-            % make a container for the fields in order of the objects in self using the hash
-            % info previously put into poss_field_vaues
-            for ii=1:self.n_runs
-                sii = self.get(ii);
-                v = sii.(field);
-                index = self.idx_(ii);
-                [~,loc] = ismember(index,uix);
-                hash = poss_field_vals.hash(loc);
-                [~,hashloc] = ismember(hash,field_vals.stored_hashes_);
-                if hashloc>0
-                    field_vals = field_vals.add_single_(v,hashloc,hash);
-                else
-                    field_vals = field_vals.add_single_(v,[],hash);
-                end
-            end
-        end
+        function val = hash(self,index)
+            % accessor for the stored hashes
+            val = self.stored_hashes_{ self.idx_(index) };
+        end        
     end
     %----------------------------------------------------------------------
-    % Satisfy OBJContainersBase interface
-    methods(Access=protected)        
-        function check_if_range_allowed(self,nuix,plus)
-            % Validates if input non-unique index is in the range of indices
-            % allowed for current state of the container
-            if nargin==3
-                upper_range = self.n_objects+1;
-            else
-                upper_range = self.n_objects;                
-            end
-            if any(nuix < 1) || any(nuix > upper_range)
-                error('HERBERT:unique_objects_container:invalid_argument', ...
-                    'Some or all input indices: [%d..%d] are outside allowed range [1:%d] for this container', ...
-                    nuix(1),nuix(end),upper_range);
-            end
-        end
-
+    % satisfy ObjContainersBase protected interface
+    methods(Access=protected)
         function uo = get_unique_objects(self,varargin)
             %GET_UNIQUE_OBJECTS Return the cell array containing the unique
             % objects in this container.
@@ -348,7 +306,7 @@ classdef unique_objects_container < ObjContainersBase
                 uidx = self.idx_(nuidx );
                 if numel(uidx)==1
                     uo = self.unique_objects_{uidx};
-                else % this makes {a:b}  behave like (a:b). 
+                else % this makes {a:b}  behave like (a:b).
                     % TODO: May be should be modified and extended.
                     uo = self.unique_objects_(uidx);
                     uo = [uo{:}];
@@ -377,17 +335,16 @@ classdef unique_objects_container < ObjContainersBase
                 self = self.check_combo_arg(check_existing);
             end
         end
+        function n = get_n_nunique(self)
+            % get number of unique objects in the container
+            n = numel(self.unique_objects_);
+        end
     end
     %----------------------------------------------------------------------
     % UNIQUE_OBJ CONTAINERS SPECIFIC. Think about removing or making private
     % at least for majority of them.
     %----------------------------------------------------------------------
     methods
-        function val = hash(self,index)
-            % accessor for the stored hashes
-            val = self.stored_hashes_{ self.idx_(index) };
-        end
-
         function self = clear(self)
             % empty container. unique_object_container interface request.
             % TODO: remove?
@@ -448,8 +405,7 @@ classdef unique_objects_container < ObjContainersBase
         end
     end
 
-    methods
-    end % end methods (general)
+ 
     % SERIALIZABLE interface
     %------------------------------------------------------------------
     properties(Constant,Access=private)
@@ -501,11 +457,6 @@ classdef unique_objects_container < ObjContainersBase
             % save-able class
             obj = unique_objects_container();
             obj = loadobj@serializable(S,obj);
-            % not doing a check combo arg here as it is done in the loadobj
-            % of serializable above
-            %if obj.do_check_combo_arg
-            %    obj.check_combo_arg(true,true);
-            %end
         end
 
         function out = concatenate(objs, type)
@@ -566,16 +517,4 @@ classdef unique_objects_container < ObjContainersBase
         end
 
     end % static methods
-    methods(Access=protected)
-        function  [S,obj] = convert_old_struct (obj, S, ver)
-            % convert old structure of unique object container into the
-            % one, which support unique_object_storage and number of
-            % duplicates
-            if ver == 1
-                S.n_duplicates = accumarray(S.idx',1)';
-            end
-
-        end
-    end
-
 end % classdef unique_objects_container

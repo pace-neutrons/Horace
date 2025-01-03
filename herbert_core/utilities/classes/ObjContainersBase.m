@@ -2,7 +2,7 @@ classdef ObjContainersBase < serializable
     % ObjContainersBase Provides common interface for various object
     % containers
     properties (Dependent)
-        baseclass;        % Name of the class or parent class, this container holds        
+        baseclass;        % Name of the class or parent class, this container holds
         n_objects;        % number of unique objects referred by this container
         n_unique;         % number of unique objects among all objects container refers
         %
@@ -20,7 +20,7 @@ classdef ObjContainersBase < serializable
     properties (Access=protected)
         baseclass_      = '';         % if not empty, name of the baseclass
         %                              this container holds. Should be suitable for isa() calls
-        idx_            = zeros(1,0); %  array of unique global indices for each object stored        
+        idx_            = zeros(1,0); %  array of unique global indices for each object stored
         unique_objects_ = cell(1,0);  % storage for unique objects.
     end
     %----------------------------------------------------------------------
@@ -37,8 +37,11 @@ classdef ObjContainersBase < serializable
             %SET.BASECLASS - (re)set the baseclass. If any existing items
             % contained here do not conform to the new baseclass, then abort
             % the process.
-            if ~(ischar(val)||isstring(val))
+            if ~istext(val)
                 val = class(val);
+            end
+            if self.n_objects>0
+                
             end
             self.baseclass_ = val;
 
@@ -69,7 +72,7 @@ classdef ObjContainersBase < serializable
             if self.do_check_combo_arg_
                 self = self.check_combo_arg(false);
             end
-        end        
+        end
         %
         function n = get.n_objects(self)
             %GET.N_OBJECTS - retrieve size of container without duplicate
@@ -88,7 +91,7 @@ classdef ObjContainersBase < serializable
             n = get_nruns(self);
         end
         function n = get.n_unique(self)
-            n = numel(self.unique_objects_);
+            n = get_n_nunique(self);
         end
         %------------------------------------------------------------------
         % helper methods
@@ -121,7 +124,7 @@ classdef ObjContainersBase < serializable
                 disp([num2str(i) '; uix=' num2str(uix)]);
                 disp(fld);
             end
-        end      
+        end
         %-----------------------------------------------------------------
         % Overloaded indexers
         function varargout = subsref(self,idxstr)
@@ -185,6 +188,41 @@ classdef ObjContainersBase < serializable
                     self = builtin('subsasgn',self,idxstr,varargin{:});
             end
         end % subsasgn
+        %------------------------------------------------------------------
+        % generic methods
+        function self = init(self, varargin)
+            %INIT - constructor implementation for initializing empty
+            %container
+            if nargin==0
+                return
+            end
+            flds = self.saveableFields();
+            % standard serializable constructor
+            self = self.set_positional_and_key_val_arguments(...
+                flds,false,varargin{:});
+        end
+        %
+        function subc = get_unique_field(self,fieldname)
+            %GET_UNIQUE_FIELD each of the unique objects referred to by self
+            % should have a property named 'field'. The code below takes each of the
+            % referred objects in turn, extracts the object referred to by
+            % 'field' and stores it in the appropriate type container
+            % created here. 
+
+            storage    = unique_obj_store.instance().get_objects(self.baseclass);
+            targ_class = class(storage.get(1).(fieldname));
+            % create container of the self type to keep objects of
+            % the class, defined by fieldname.
+            clName = class(self);
+            subc    = feval(clName);
+            subc.baseclass = targ_class;
+            % extract subclasses of the class requested
+            for i=1:self.n_objects
+                subobj = storage.get(self.idx_(i)).(fieldname);
+                subc   = subc.add(subobj);
+            end
+        end
+
     end
     %  Setter/getters for common interface with class-specific
     %  implementation
@@ -207,43 +245,56 @@ classdef ObjContainersBase < serializable
             % loadobj which disable combo arg checking
             self  = set_unique_objects(self,val);
         end
-        %
+    end
+    methods(Access=protected)
+        function check_if_range_allowed(self,nuix,plus)
+            % Validates if input non-unique index is in the range of indices
+            % allowed for current state of the container
+            if nargin==3
+                upper_range = self.n_objects+1;
+            else
+                upper_range = self.n_objects;
+            end
+            if any(nuix < 1) || any(nuix > upper_range)
+                error('HERBERT:ObjContainersBase:invalid_argument', ...
+                    'Some or all input indices: [%d..%d] are outside allowed range [1:%d] for this container', ...
+                    nuix(1),nuix(end),upper_range);
+            end
+        end
     end
     methods(Abstract)
-            % check if the container has the objects of the class "value"
-            % if the value is char, or the the object equal value, if the
-            % value is the object of the kind, stored in container        
-           [is,unique_ind,obj] = contains(obj,value)
-            % expand container onto specified number of runs.
-            % only single unique object allowed to be present in the
-            obj = replicate_runs(obj,n_objects)           
+        % check if the container has the objects of the class "value"
+        % if the value is char, or the the object equal value, if the
+        % value is the object of the kind, stored in container
+        [is,unique_ind,obj] = contains(obj,value)
+        % expand container onto specified number of runs.
+        % only single unique object allowed to be present in the
+        obj = replicate_runs(obj,n_objects)
 
-            %Finds if obj is contained in self
-            [ix, hash,obj] = find_in_container(self,obj)            
-            % retrieve appropriate container with objects, identified by
-            % its inpu indices
-            sset = get_subset(self,indices)
-            %ADD adds an object to the container
-            [self,nuix] = add(self,obj)  
-            %REPLACE replaces the object at specified non-unique index nuix
-            self = replace(self,obj,nuix)
-            % get object stored in the container given non-unique index
-            % associated with this object
-            obj = get(self,nuix)
-            % return container ordered in a particular way. Redundant?
-            newself = reorder(self)
-            % Retrieve container with collection of subobjects, for the
-            % objects currently in container. Fancy
-            field_vals = get_unique_field(self, field)
+        %Finds if obj is contained in self
+        [ix, hash,obj] = find_in_container(self,obj)
+        % retrieve appropriate container with objects, identified by
+        % its inpu indices
+        sset = get_subset(self,indices)
+        %ADD adds an object to the container
+        [self,nuix] = add(self,obj)
+        %REPLACE replaces the object at specified non-unique index nuix
+        self = replace(self,obj,nuix)
+        % get object stored in the container given non-unique index
+        % associated with this object
+        obj = get(self,nuix)
+        % return container ordered in a particular way. Redundant?
+        newself = reorder(self)
+        % get hash for component with index provided
+        val = hash(self,index)        
     end
     methods(Abstract,Access=protected)
-        % Validates if input non-unique index is in the range of indices
-        % allowed for current state of the container
-        check_if_range_allowed(self,nuix,varargin);
         % main getter for unique objects
-        x = get_unique_objects(self,varargin);        
+        x = get_unique_objects(self,varargin);
         % main setter for the unique objects property
-        self  = set_unique_objects(self,val);        
+        self  = set_unique_objects(self,val);
+        % get number of unique objects
+        n = get_n_nunique(self);        
     end
     % SERIALIZABLE interface
     %------------------------------------------------------------------
@@ -253,7 +304,8 @@ classdef ObjContainersBase < serializable
             % the consistency of the changes against all other relevant
             % properties
             %
-            if any( cellfun( @(x) ~isa(x,self.baseclass_), self.unique_objects_) )
+
+            if self.n_objects>0 && ~isa(self.get(1),self.baseclass)
                 error('HERBERT:ObjContainerBase:invalid_argument', ...
                     'Unique objects in the container do not conform to the baseclass %s', ...
                     self.baseclass_ );

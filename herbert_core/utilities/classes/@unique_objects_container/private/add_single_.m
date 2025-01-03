@@ -22,10 +22,8 @@ function [self,nuix] = add_single_(self,obj,ix,hash)
 
 % check that obj is of the appropriate base class
 if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
-    warning('HERBERT:unique_objects_container:invalid_argument', ...
+    error('HERBERT:unique_objects_container:invalid_argument', ...
         'not correct base class; object was not added');
-    nuix = [];
-    return;
 end
 
 % if ix and hash are not specified, call find_in_container to get them
