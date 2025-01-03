@@ -50,7 +50,7 @@ for i=1:numel(obj)
         if set_total
             n_runs = obj(i).experiment_info.n_runs;
         else % split unique
-            n_runs = obj(i).experiment_info.instruments.n_unique_objects;
+            n_runs = obj(i).experiment_info.instruments.n_unique;
         end
         obj(i).experiment_info = obj(i).experiment_info.set_mod_pulse( ...
             pulse_model,pm_par(n_run_set+1:n_run_set+n_runs,:));

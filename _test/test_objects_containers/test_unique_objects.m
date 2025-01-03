@@ -101,7 +101,7 @@ classdef test_unique_objects < TestCase
             assertEqual(obj.li, uoc.get(6) );
         end
         function test_replace_unique_different_number_throw(~)
-
+            clWar = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');
             uoc = unique_objects_container();
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
@@ -117,7 +117,7 @@ classdef test_unique_objects < TestCase
 
         end
         function test_replace_with_nonunique_same_number_throw(~)
-
+            clWarn = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');
             uoc = unique_objects_container();
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
@@ -131,6 +131,7 @@ classdef test_unique_objects < TestCase
         end
 
         function test_save_load(~)
+            clWarn = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');            
             uoc = unique_objects_container();
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
@@ -143,77 +144,18 @@ classdef test_unique_objects < TestCase
         end
 
         function test_replace_unique_same_number_works(~)
-
+            clWarn = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');
             uoc = unique_objects_container();
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
             uoc(3) = 'bbbb';
             % just replaced unique objects. Why to prohibit it
-            uoc.unique_objects = {'dd','cc'};            
+            uoc.unique_objects = {'dd','cc'};
 
             assertEqual(uoc(1),'dd')
             assertEqual(uoc(2),'cc')
             assertEqual(uoc(3),'cc')
         end
-
-
-        function test_remove_noncomplying_first_kept(obj)
-
-            uoc = unique_objects_container();
-            uoc(1) = obj.mi1;
-            uoc(2) = 'aaaaa';
-            uoc(3) = obj.mi1;
-            uoc(4) = 10;
-            uoc(5) = obj.li;
-            uoc(6) = 20;
-            uoc(7) = obj.li;
-            uoc(8) = 'aaaaa';
-
-            assertEqual(uoc.n_objects,8);
-            assertEqual(uoc.n_unique,5);
-
-            % resetting the baseclass will invalidate some of the contents
-            % and hence is not approved for normal use; this just checks
-            % the rest of the contents is compliant with the new
-            % restriction
-            function throw()
-                uoc.baseclass = 'IX_inst';
-            end
-            assertExceptionThrown(@throw, 'HERBERT:unique_objects_container:invalid_argument');
-            uoc = uoc.remove_noncomplying_members_('IX_inst');
-            assertEqual(uoc.n_objects,4)
-            assertEqual(uoc.n_unique,2)
-            assertEqual(uoc.n_duplicates,[2,2])
-        end
-
-        function test_remove_noncomplying_first_removed(obj)
-
-            uoc = unique_objects_container();
-            uoc(1) = 'aaaaa';
-            uoc(2) = 'aaaaa';
-            uoc(3) = obj.mi1;
-            uoc(4) = 10;
-            uoc(5) = obj.li;
-            uoc(6) = 20;
-            uoc(7) = obj.li;
-
-            assertEqual(uoc.n_objects,7);
-            assertEqual(uoc.n_unique,5);
-
-            % resetting the baseclass will invalidate some of the contents
-            % and hence is not approved for normal use; this just checks
-            % the rest of the contents is compliant with the new
-            % restriction
-            function throw()
-                uoc.baseclass = 'IX_inst';
-            end
-            assertExceptionThrown(@throw, 'HERBERT:unique_objects_container:invalid_argument');
-            uoc = uoc.remove_noncomplying_members_('IX_inst');
-            assertEqual(uoc.n_objects,3)
-            assertEqual(uoc.n_unique,2)
-            assertEqual(uoc.n_duplicates,[1,2])
-        end
-
         %----------------------------------------------------------------
         function test_add_similar_non_unique_objects(obj)
             %disp('Test: test_add_similar_non_unique_objects');
@@ -303,21 +245,29 @@ classdef test_unique_objects < TestCase
         end
 
         function test_subscripting_no_type(obj)
+            clWarn = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');
             % repeats test_constructor_arguments using subscripting
             uoc = unique_objects_container();
-            uoc{1} = obj.mi1;
-            uoc{2} = obj.nul_sm1;
-            assertEqual( numel(uoc.unique_objects), 2);
+            uoc{1} = obj.mi1; % first asignment have defined the container type
+            function thrower()
+                uoc{2} = obj.nul_sm1;   % this one should throw
+            end
+            me = assertExceptionThrown(@thrower,'HERBERT:ObjContainerBase:invalid_argument');
+            assertEqual(me.message, ...
+                'Assigning object of class: "IX_null_sample" to container with baseclass: "IX_inst_DGfermi" is prohibited');
+            assertEqual( numel(uoc.unique_objects), 1);
+
         end
         function test_subscripting_type(obj)
 
             uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
-            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
-            uoc{2} = obj.nul_sm1;
-            [lwn,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            assertEqual(lwn,'not correct base class; object was not added');
+            function thrower()
+                uoc{2} = obj.nul_sm1;
+            end
+            ex = assertExceptionThrown(@thrower,'HERBERT:ObjContainerBase:invalid_argument');
+            assertEqual(ex.message, ...
+                'Assigning object of class: "IX_null_sample" to container with baseclass: "IX_inst" is prohibited');
             assertEqual( numel(uoc.unique_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
@@ -326,14 +276,15 @@ classdef test_unique_objects < TestCase
             %}
         end
         function test_subscripting_type_hlp_ser(obj)
-            clOb = set_temporary_warning('off','HERBERT:unique_objects_container:invalid_argument');
 
-            uoc = unique_objects_container('baseclass','IX_inst','convert_to_stream_f',@hlp_serialize);
+            uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
-            uoc{2} = obj.nul_sm1;
-            [lwn,lw] = lastwarn;
-            assertEqual(lw,'HERBERT:unique_objects_container:invalid_argument')
-            assertEqual(lwn,'not correct base class; object was not added');
+            function thrower()
+                uoc{2} = obj.nul_sm1;
+            end
+            me = assertExceptionThrown(@thrower,'HERBERT:ObjContainerBase:invalid_argument');
+            assertEqual(me.message, ...
+                'Assigning object of class: "IX_null_sample" to container with baseclass: "IX_inst" is prohibited');
             assertEqual( numel(uoc.unique_objects), 1);
             %{
             Turns out that hashes are not portable between all Matlab
@@ -353,7 +304,8 @@ classdef test_unique_objects < TestCase
                 uoc{2} = obj.mi1;
             end
             ex = assertExceptionThrown(@()set_uoc,'HERBERT:unique_objects_container:invalid_argument');
-            assertEqual(ex.message,'index outside legal range')
+            assertEqual(ex.message, ...
+                'Some or all input indices: [2..2] are outside allowed range [1:1] for this container')
         end
         function test_subscripting_type_hlp_ser_wrong_subscript_minus(obj)
             uoc = unique_objects_container('baseclass','IX_inst');
@@ -361,7 +313,8 @@ classdef test_unique_objects < TestCase
                 uoc{-1} = obj.mi1;
             end
             ex = assertExceptionThrown(@()set_uoc,'HERBERT:unique_objects_container:invalid_argument');
-            assertEqual(ex.message,'non-positive index not allowed')
+            assertEqual(ex.message, ...
+                'Some or all input indices: [-1..-1] are outside allowed range [1:1] for this container')
 
         end
         function test_expand_to_nruns(obj)
@@ -447,9 +400,9 @@ classdef test_unique_objects < TestCase
                 assertEqual(urc{1}.data, 222);
                 urc{2}.data = 666;
             end
-            me = assertExceptionThrown(@throw1, 'HERBERT:unique_objects_container:invalid_subscript');
-            assertTrue(strcmp(me.message, ...
-            'when adding to the end of a container, additionally setting properties is not permitted'));
+            me = assertExceptionThrown(@throw1, 'HERBERT:unique_objects_container:invalid_argument');
+            assertEqual(me.message, ...
+                'Some or all input indices: [2..2] are outside allowed range [1:1] for this container');
         end
         %-----------------------------------------------------------------
         function test_arrays_of_containers(~)
@@ -469,7 +422,7 @@ classdef test_unique_objects < TestCase
             arr = {urc1 urc2};
             assertTrue(isa(arr{2},'unique_objects_container'));
         end
-        
+
         function test_hashing_preserved_over_save_and_load(obj)
             uoc = unique_objects_container('IX_inst');
             uoc{1} = obj.mi1;
@@ -479,7 +432,7 @@ classdef test_unique_objects < TestCase
                 [~,~,is_calculated] = build_hash(tobj);
                 assertFalse(is_calculated); % hash restored
             end
-            
+
             test_data = 'store2020_1.mat';
             clOb = onCleanup(@()delete(test_data));
             save(test_data,'uoc');
@@ -490,7 +443,7 @@ classdef test_unique_objects < TestCase
                 [~,~,is_calculated] = build_hash(tobj);
                 assertFalse(is_calculated); % hash restored
             end
-            
+
         end
         function test_hashing_preserved_over_to_from_struct(obj)
             uoc = unique_objects_container('IX_inst');
@@ -501,7 +454,7 @@ classdef test_unique_objects < TestCase
                 [~,~,is_calculated] = build_hash(tobj);
                 assertFalse(is_calculated); % hash restored
             end
-            
+
             Suoc   = uoc.to_struct();
             uocr = serializable.from_struct(Suoc);
             for i=1:2
@@ -510,7 +463,7 @@ classdef test_unique_objects < TestCase
                 assertFalse(is_calculated); % hash restored
             end
 
-            assertEqual(uoc.stored_hashes, uocr.stored_hashes);            
-        end                
+            assertEqual(uoc.stored_hashes, uocr.stored_hashes);
+        end
     end
 end

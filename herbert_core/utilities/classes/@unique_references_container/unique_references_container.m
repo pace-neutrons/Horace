@@ -398,8 +398,8 @@ classdef unique_references_container < serializable
                     self = self.add(val);
                     return;
                 end
-                c = self.get(nuix);
                 if numel(idxstr)>1
+                    c = self.get(nuix);                    
                     idx2 = idxstr(2:end);
                     c = builtin('subsasgn',c,idx2,varargin{:});
                     self = self.replace(c,nuix);
