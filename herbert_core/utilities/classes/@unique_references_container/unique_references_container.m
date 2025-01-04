@@ -103,10 +103,10 @@ classdef unique_references_container < ObjContainersBase
             % Either
             % - no arguments (loadobj invocation only)
             % Or
-            % - glname: categopry name of singleton unique_objects_container
-            %           for current contents
             % - basecl: base class for all objects contained
-            %
+            % Or
+            % -- standard set of input parameters, used by serializable
+            % constructor
             if nargin==0
                 return
             end
@@ -128,37 +128,6 @@ classdef unique_references_container < ObjContainersBase
             uidx = unique(self.idx_);
             % retrieve unique objects referred here as a cell array for external use
             uoca = arrayfun(@(idx)(storage(idx)),uidx,'UniformOutput',false);
-        end
-        
-        function [is, first_index,item] = contains(self, item)
-            %CONTAINS - find if item is present in the container,
-            %
-            % Input
-            % -----
-            % - item: the object to be found in the container
-            %
-            % Output:
-            % -------
-            % - is:           logical true if item is in the container, else false
-            % - first_index:  first locations in the unique references container
-            %                 if it is found
-            %            ==[] if not found
-
-            % get out the global container for this container
-            is = false;
-            first_index = [];
-            if ~isa(item,self.baseclass)
-                return;
-            end
-            storage = unique_obj_store.instance().get_objects(self.baseclass);
-            [igdx,~,item] = storage.find_in_container(item);
-            if isempty(igdx)
-                return;
-            end
-            first_index = find(igdx == self.idx_,1);
-            if ~isempty(first_index)
-                is = true;
-            end
         end
         %
         function self = replicate_runs(self, n_objects)
@@ -220,6 +189,8 @@ classdef unique_references_container < ObjContainersBase
         end
 
         function sset = get_subset(self, indices)
+            % retrieve set of objects, defined by input indices
+            % and arrange then into appropriate unique references container
             sset = unique_objects_container('baseclass', self.baseclass);
             for i=indices
                 item = self.get(i);
@@ -255,15 +226,15 @@ classdef unique_references_container < ObjContainersBase
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             n_present = self.n_objects;
             if ischar(obj)
-                [storage,uidx] = storage.add_if_new(obj);
+                [storage,uidx] = storage.add(obj);
                 idx_add = uidx;
                 nuidx   = n_present+1;
             elseif iscell(obj)
                 idx_add = zeros(1,n_add_obj);
                 nuidx = zeros(1,n_add_obj);
                 for i=1:n_add_obj
-                    [storage,igdx] = storage.add_if_new(obj{i});
-                    idx_add(i) = igdx;
+                    [storage,uidx] = storage.add(obj{i});
+                    idx_add(i) = uidx;
                     nuidx(i) = n_present+i;
                 end
             else
@@ -273,8 +244,8 @@ classdef unique_references_container < ObjContainersBase
                 idx_add = zeros(1,n_add_obj);
                 nuidx = zeros(1,n_add_obj);
                 for i=1:n_add_obj
-                    [storage,igdx] = storage.add_if_new(obj(i));
-                    idx_add(i) = igdx;
+                    [storage,uidx] = storage.add(obj(i));
+                    idx_add(i) = uidx;
                     nuidx(i)   = n_present+i;
                 end
             end
@@ -299,7 +270,7 @@ classdef unique_references_container < ObjContainersBase
             gidx = self.idx_(nuix);
             if storage.n_duplicates(gidx)>1 % this needs proper destruction
                 % of presious references not to increase unique storage unnecessary
-                [storage,gidx_new]= storage.add_if_new(obj);
+                [storage,gidx_new]= storage.add(obj);
                 % if this is new object, decrease its number of copies by
                 % one
                 if gidx ~= gidx_new
@@ -325,8 +296,7 @@ classdef unique_references_container < ObjContainersBase
         function val = hash(self,index)
             %HASH - for a given `index` into the container, return the associated hash
             % this prevents the calling code from having to recalculate the hash since it is already known
-            storage  = unique_obj_store.instance().get_objects(self.baseclass);
-            obj      = storage{ self.idx(index) };
+            obj      = unique_obj_store.instance().get_value(self.baseclass, self.idx(index));
             val      = build_hash(obj);
         end
     end
@@ -394,16 +364,24 @@ classdef unique_references_container < ObjContainersBase
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             self.idx_ = zeros(1,val.n_objects);
             for i=1:val.n_objects
-                [storage,gidx] = storage.add_if_new(val(i));
+                [storage,gidx] = storage.add(val(i));
                 self.idx_(i) = gidx;
             end
             unique_obj_store.instance().set_objects(storage);
         end
-        function n = get_n_nunique(self)
+        function n = get_n_unique(self)
             % get number of unique objects in the container
             n = numel(unique(self.idx_));
         end
-
+        %
+        function nd = get_n_duplicates(self)
+            % retrieve number of duplicates, stored in the container
+            nd = accumarray(self.idx_',1)';
+        end
+        function self = set_n_duplicates(varargin)
+            error('HERBERT:unique_references_container:invalid_argument',...
+                'unique_references_container does not allow external change in number of duplicated objects')
+        end
     end
     %----------------------------------------------------------------------
     % unique_references_container specific. Consider making proteced or

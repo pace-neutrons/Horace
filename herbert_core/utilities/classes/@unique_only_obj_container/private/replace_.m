@@ -32,10 +32,9 @@ end
 % reduce the number of duplicates of the item to be replaced by
 % 1.
 oldix = self.idx_(nuix);
-n_duplicates_ = self.n_duplicates;
-n_duplicates_(oldix) = n_duplicates_(oldix)-1;
+self.n_duplicates_(oldix) = self.n_duplicates_(oldix)-1;
 % all existing objects with the hash specified were removed.
-no_more_duplicates = n_duplicates_(oldix) == 0;
+no_more_duplicates = self.n_duplicates_(oldix) == 0;
 
 % Find if the object is already in the container. ix is
 % returned as the index to the object in the container.
@@ -50,12 +49,14 @@ no_more_duplicates = n_duplicates_(oldix) == 0;
 if isempty(ix) % means obj not in container and should be added
     if no_more_duplicates
         self.unique_objects_{oldix} = obj;
-        self.stored_hashes_{oldix}  = hash;        
+        self.stored_hashes_{oldix} = hash;
+        self.n_duplicates_(oldix) = self.n_duplicates_(oldix)+1;
     else
         self.unique_objects_ = [self.unique_objects_(:);{obj}]';
 
         self.stored_hashes_ = [self.stored_hashes_(:);hash]';
-        self.idx_(nuix)     = numel(self.unique_objects_);
+        self.idx_(nuix) = numel(self.unique_objects_);
+        self.n_duplicates_ = [self.n_duplicates_(:)', 1];
     end
     % if it is in the container, then ix is the unique object index
     % in unique_objects_ and is put into idx_ as the unique index
@@ -77,6 +78,8 @@ else
             % duplicates, put the last object here
             self.unique_objects_{oldix} = lastobj;
             self.stored_hashes_{oldix} = lasthash;
+            self.n_duplicates_(oldix) = self.n_duplicates_(lastidx);
+
             % reference all non-unique objects equivalent to the
             % last unique object as now referring to this oldix
             % location
@@ -92,12 +95,15 @@ else
         % reduce the size of the unique object arrays
         self.unique_objects_(end)=[];
         self.stored_hashes_(end) = [];
+        self.n_duplicates_(end) = [];
 
         % do the replacement
         self.idx_(nuix) = ix;
+        self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
 
     else
         self.idx_(nuix) = ix;
+        self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
     end
 end
 end % replace()

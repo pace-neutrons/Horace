@@ -6,10 +6,14 @@ classdef ObjContainersBase < serializable
         n_objects;        % number of unique objects referred by this container
         n_unique;         % number of unique objects among all objects container refers
         %
-        idx;               % object indices to retrieve object from a container
-        unique_objects;    % return class-appropriate unique objects.
-        %                    Differs for different children! (TODO --
-        %                    redesign)
+        idx;              % object indices pointing to positions of actual
+        %                   objects in the container
+        unique_objects;   % return class-appropriate unique objects.
+        %                   result differs for different children! (TODO --
+        %                   redesign?)
+        % number of duplicated references to the objects, stored in the
+        % container
+        n_duplicates;
     end
     properties (Dependent,Hidden=true)
         % equvalent to n_objects but used in cases where it has physical
@@ -95,8 +99,17 @@ classdef ObjContainersBase < serializable
             n = get_nruns(self);
         end
         function n = get.n_unique(self)
-            n = get_n_nunique(self);
+            n = get_n_unique(self);
         end
+        %
+        function x = get.n_duplicates(self)
+            x = get_n_duplicates(self);
+        end
+        function self = set.n_duplicates(self,val)
+            % temporary setter. Should be removed in a nearest future
+            self = set_n_duplicates(self,val);
+        end
+
         %------------------------------------------------------------------
         % helper methods
         function n =  get_nruns(self)
@@ -269,16 +282,13 @@ classdef ObjContainersBase < serializable
     methods(Abstract)
         % expose cellarray of unique objects this container subscribes to.
         uoca = expose_unique_objects(self)
-        % check if the container has the objects of the class "value"
-        % if the value is char, or the the object equal value, if the
-        % value is the object of the kind, stored in container
-        [is,unique_ind,obj] = contains(obj,value)
-        % expand container onto specified number of runs.
-        % only single unique object allowed to be present in the
-        obj = replicate_runs(obj,n_objects)
 
         %Finds if obj is contained in self
         [ix, hash,obj] = find_in_container(self,obj)
+
+        % expand container onto specified number of runs.
+        % only single unique object allowed to be present in the
+        obj = replicate_runs(obj,n_objects)
         % retrieve appropriate container with objects, identified by
         % its inpu indices
         sset = get_subset(self,indices)
@@ -300,7 +310,10 @@ classdef ObjContainersBase < serializable
         % main setter for the unique objects property
         self  = set_unique_objects(self,val);
         % get number of unique objects
-        n = get_n_nunique(self);
+        n = get_n_unique(self);
+        %
+        x    = get_n_duplicates(self);
+        self = set_n_duplicates(self,val);
     end
     % SERIALIZABLE interface
     %------------------------------------------------------------------
@@ -311,11 +324,14 @@ classdef ObjContainersBase < serializable
             % properties
             %
             if self.n_objects>0
+                if isempty(self.baseclass_name_trial_) % no invoked setter for baseclass
+                    self.baseclass_name_trial_ = self.baseclass_;
+                end
                 uobj = self.expose_unique_objects();
-                invalid = cellfun(@(x)~isa(x,selt.baseclass_name_trial_),uobj);
+                invalid = cellfun(@(x)~isa(x,self.baseclass_name_trial_),uobj);
                 if any(invalid)
                     error('HERBERT:ObjContainerBase:invalid_argument', ...
-                        'Unique objects in the container do not conform to the baseclass name: %s', ...
+                        'One or more objects in the container are not isa(..,baseclass name: %s)', ...
                         self.baseclass_ );
                 end
             end

@@ -1,89 +1,12 @@
-classdef unique_objects_container < ObjContainersBase
-    %UNIQUE_OBJECTS_CONTAINER
-    % This container stores objects of a common baseclass so that if some
-    % contained objects are duplicates, only one unique object is stored
-    % for all the duplicates.
+classdef unique_only_obj_container < ObjContainersBase
+    %UNQUE_ONLY_OBJ_CONTAINER contains only unique objects prviding
+    %permanent references (pointers) to these objects
     %
-    % The following documentation on use is usefully supplemented by the
-    % tests in the test_unqiue_objects_container suite.
-    %
-    % Duplicates are only compressed to a single copy for this instance of
-    % unique_objects_container; other unique_objects_containers will have
-    % their own copy of an object even if this container also contains a
-    % copy. If you wish to have many containers share a set of unique
-    % objects to increase the compression of the storage, then use
-    % unique_references_container.
-    %
-    % Note that unique_references_container uses unique_objects_container
-    % as the underlying storage singleton container for its contents.
-    %
-    % The overall aim here is - minimise memory for storage of objects in
-    % this container.
-    %
-    % If you do also need the elimination of duplicates between containers,
-    % then use unique_references_container instead of unique_object_container.
-    %
-    % The usage of this container is that it emulates an array or cell
-    % array. Thus
-    % >> u{1} = 'a'; % sets the first element of u to 'a'.
-    % >> u(9) = 'b'; % sets the 9th element of u to 'b'.
-    % Either kind of brace or parenthesis may be used.
-    % For u(9) = 'b', at least 8 elements must already be present in u.
-    % If the 9th element does not already exist, the container will be
-    % extended to accommodate it.
-    % An element may always be added to the end of the container by
-    % >> u = u.add('c'); % here 'c' is added as the new last element
-    % regardless of the size. Note that this is not a handle class and the
-    % resized container must be copied back to u.  Multiple elements may be
-    % added at the same time via a cell array.
-    %
-    % Elements in the container may be used as with an array or cell array;
-    % thus:
-    % >> a = u{3}; will copy the third element of u to variable a.
-    % NOTE! As a limitation in the current implementation, if an element is
-    % a struct or class instance, its fields may not be referenced immediately, but
-    % must be copied to be reset. Thus
-    % >> u{3}.info = 'new_info' is not allowed for an instance or struct field .info.
-    % Instead you must do
-    % >> s = u{3};
-    % >> s.info = 'new_info';
-    % >> u{3} = s.
-    %
-    % The constructor takes 2 keyword arguments:
-    % >> uoc = unique_objects_container('baseclass', bc,             ...
-    %                                   'convert_to_stream_f', cf);
-    % where
-    %    - bc = the common baseclass for all objects in the contain
-    %    - cf = serializer function to create a hash from the objects
-    % Both are optional:
-    %    - if bc is not specified, objects can be of any type.
-    %    - if cf is not specified, it defaults to the undocumented
-    %      function getByteStreamFromArray to perform the conversion.
-    %
-    %
-    % Usage issues:
-    % It is possible to extract the cell array containing the unique
-    % objects with the get.unique_objects property. This may be used to
-    % scan properties of the container without duplicating items in the
-    % scan. This is a by-product of the availability of get.unique_objects
-    % due to its use by saveobj; users may wish to consider if this should
-    % be used as it breaks encapsulation. The cell-array list may be modified
-    % outside of the container and returned to it due to the availability
-    % of set.unique_objects; it is not recommended that this be used as the
-    % changes may break the container's consistency.
-    %
-    % The number of objects in a container is retrieved via
-    % container.n_objects. As Horace instruments and samples are conceptually
-    % stored per run, this size can also be retrieved as container.n_runs.
-    %
-    % NOTE: unique_references_container uses unique_objects_container to
-    % implement its storage. Ensure that any changes here in
-    % unique_objects_container are reflected in unique_references_container
-    % if required.
 
     properties (Access=protected)
         stored_hashes_ = cell(1,0);  % their hashes are stored
         % (default respecified in constructor inputParser)
+        n_duplicates_ = zeros(1,0);
     end
     properties(Dependent,Hidden)
         % property containing list of stored hashes for unique objects for
@@ -93,8 +16,8 @@ classdef unique_objects_container < ObjContainersBase
     %----------------------------------------------------------------------
     % Dependent properties set/get functions specific to subclass.
     methods
-        function self = unique_objects_container(varargin)
-            %UNIQUE_OBJECTS_CONTAINER construct the container
+        function self = unique_only_obj_container(varargin)
+            %UNIQUE_ONLY_OBJ_CONTAINER construct the container
             % Input:
             % - parameter: 'basecase' - charstring name of basecase of
             %                           contained objects
@@ -111,7 +34,6 @@ classdef unique_objects_container < ObjContainersBase
             % objects. Only really useful for debugging.
             x = self.stored_hashes_;
         end
-        %
     end
     %----------------------------------------------------------------------
     % SATISFY CONTAINERS INTERFACE
@@ -120,6 +42,36 @@ classdef unique_objects_container < ObjContainersBase
         function uoca = expose_unique_objects(self)
             % expose cellarray of unique objects this container subscribes to.
             uoca = get_unique_objects(self);
+        end
+        function [is,unique_ind,obj] = contains(obj,value)
+            % check if the container has the objects of the class "value"
+            % if the value is char, or the the object equal value, if the
+            % value is the object of the kind, stored in container
+            % Inputs:
+            % value  -- the sample, to verify presence in the container
+            % Outputs:
+            % is      -- true if the sample is present in the container and
+            %            false -- otherwise.
+            % unique_ind
+            %         -- if requested, the positions of the sample in the
+            %            unique objects container
+            % obj     -- obj, which if hashable, contains calculated hash
+            [is,unique_ind,obj] = contains_(obj,value,nargout);
+        end
+
+        function obj = replicate_runs(obj,n_objects)
+            % function expands container onto specified number of runs.
+            % only single unique object allowed to be present in the
+            % container initially
+            validateattributes(n_objects, {'numeric'}, {'>', 0, 'scalar'})
+            if obj.n_unique ~= 1
+                error('HERBERT:unique_objects_container:invalid_argument',...
+                    'The method works only on containers containing a single unique run. This container contains %d unique runs.', ...
+                    obj.n_unique);
+            end
+
+            obj.idx_ = ones(1,n_objects);
+            obj.n_duplicates_(1) = n_objects;
         end
 
         function [ix, hash,obj] = find_in_container(self,obj)
@@ -149,20 +101,6 @@ classdef unique_objects_container < ObjContainersBase
             end
         end
 
-        function obj = replicate_runs(obj,n_objects)
-            % function expands container onto specified number of runs.
-            % only single unique object allowed to be present in the
-            % container initially
-            validateattributes(n_objects, {'numeric'}, {'>', 0, 'scalar'})
-            if obj.n_unique ~=1
-                error('HERBERT:unique_objects_container:invalid_argument',...
-                    'The method works only on containers containing a single unique run. This container contains %d unique runs.', ...
-                    obj.n_unique);
-            end
-
-            obj.idx_ = ones(1,n_objects);
-        end
-
         function sset = get_subset(self,indices)
             sset = unique_objects_container('baseclass',self.baseclass);
             for i = indices
@@ -170,42 +108,32 @@ classdef unique_objects_container < ObjContainersBase
                 [sset,~] = sset.add(item);
             end
         end
-
-        function [self,nuix] = add(self,obj)
-            %ADD adds an object to the container
-            % Input:
-            % - obj : the object to be added. This may duplicate an object
-            %         in the container, but it will be noted as a duplicate
-            %         and will be given its own index, which it returns
-            %    or   cellarray or array of objects to add
-            % Output:
-            % - self : the changed container (as this is a value class)
-            % - nuix : the non-unique index for this object
-            %     or   array of such indexes if multiple objects were
-            %          added
+        function [self,uidx] = add(self,obj)
+            %ADD_IF_NEW adds an object to the container if it is not
+            %already there. If object is already in the container,
+            %number of object duplicates increases.
             %
-            % it may be a duplicate but it is still the n'th object you
-            % added to the container. The number of additions to the
-            % container is implicit in the size of idx_.
-
-            % process addition of multiple objects at once.
+            % Returns:
+            % self   -- modified container with object present or duplicate
+            %           counter increased.
+            % uidx   -- unique index of object in the container
+            %
             if ~ischar(obj) && numel(obj)>1 || iscell(obj)
                 nobj = numel(obj);
-                nuix = zeros(1,nobj);
+                uidx = zeros(1,nobj);
                 if iscell(obj)
                     for i = 1:nobj
-                        [self,nuix(i)]=self.add(obj{i});
+                        [self,uidx(i)]=self.add(obj{i});
                     end
                 else
                     for i = 1:nobj
-                        [self,nuix(i)]=self.add(obj(i));
+                        [self,uidx(i)]=self.add(obj(i));
                     end
                 end
                 return;
             end
-            [self,nuix] = add_single_(self,obj);
+            [self,uidx] = add_if_new_single_(self,obj);
         end % add()
-
         function self = replace(self,obj,nuix)
             %REPLACE replaces the object at non-unique index nuix in the container
             % Input:
@@ -310,7 +238,7 @@ classdef unique_objects_container < ObjContainersBase
                     'If container is not empty, number of unique objects to' ...
                     ' set must be equal to the number of exisiting unique objects\n' ...
                     'n_unique_objects = %d; number of candidates to set = %d'], ...
-                    self.n_unique,numel(val));
+                    self.n_objects,numel(val));
             end
 
             self.unique_objects_ = val;
@@ -320,18 +248,9 @@ classdef unique_objects_container < ObjContainersBase
                 self = self.check_combo_arg(check_existing);
             end
         end
-        function n = get_n_unique(self)
+        function n = get_n_nunique(self)
             % get number of unique objects in the container
-            n = numel(unique(self.idx_));
-        end
-        %
-        function nd = get_n_duplicates(self)
-            % retrieve number of duplicates, stored in the container
-            nd = accumarray(self.idx_',1)';
-        end
-        function self = set_n_duplicates(varargin)
-            error('HERBERT:unique_objects_container:invalid_argument',...
-                'Unique_objects_container does not allow external change in number of duplicated objects')
+            n = numel(self.unique_objects_);
         end
     end
     %----------------------------------------------------------------------
@@ -339,14 +258,6 @@ classdef unique_objects_container < ObjContainersBase
     % at least for majority of them.
     %----------------------------------------------------------------------
     methods
-        function self = clear(self)
-            % empty container. unique_object_container interface request.
-            % TODO: remove?
-            self.idx_ = zeros(1,0);
-            self.unique_objects_=cell(1,0); % the actual unique objects - initialised in constructor by type
-            self.stored_hashes_ = cell(1,0);  % their hashes are stored
-            self.n_duplicates_ =  zeros(1,0);
-        end
 
         function self = rehashify_all(self,with_checks)
             % recalculate hashes of all objects, stored in the container
@@ -372,7 +283,6 @@ classdef unique_objects_container < ObjContainersBase
         end
     end
 
-
     % SERIALIZABLE interface
     %------------------------------------------------------------------
     properties(Constant,Access=private)
@@ -380,6 +290,7 @@ classdef unique_objects_container < ObjContainersBase
             'baseclass',     ...
             'unique_objects',...
             'idx'...
+            'n_duplicates'...
             };
     end
 
@@ -425,63 +336,5 @@ classdef unique_objects_container < ObjContainersBase
             obj = unique_objects_container();
             obj = loadobj@serializable(S,obj);
         end
-
-        function out = concatenate(objs, type)
-            %CONCATENATE takes the unique_object and idx (index) arrays from
-            % an array of one or more unique_object_containers and concatenates
-            % separately the unique objects and the indices to single outputs
-            % suitable for use with object_lookup
-            %
-            % Input
-            % -----
-            % - objs - one cell or array of one or more unique_object_containers
-            % - type - '{}' if objs is a cell; anything else (but by
-            %          convention '()') if objs is an array
-            %
-            % Outputs
-            % -------
-            % - out - single unique_objects_container combining the contents of
-            %         the elements of the input array objs
-
-            if isempty(objs)
-                error('HERBERT:unique_objects_container:invalid_input', ...
-                    'at least one object must be supplied to concatenate');
-            end
-
-            concat_cells = strcmp(type,'{}');
-
-            if numel(objs)==1
-                if concat_cells
-                    out = objs{1};
-                else
-                    out = objs;
-                end
-            else
-                if concat_cells
-                    out = objs{1};
-                    for ii=2:numel(objs)
-                        for jj=1:objs{ii}.n_runs
-                            out_obj = objs{ii}.get(jj);
-                            out_hsh = objs{ii}.hash(jj);
-                            [~,index] = ismember(out_hsh, out.stored_hashes_);
-                            if index==0, index = []; end
-                            out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
-                        end
-                    end
-                else
-                    out = objs(1);
-                    for ii=2:numel(objs)
-                        for jj=1:objs(ii).n_runs
-                            out_obj = objs(ii).get(jj);
-                            out_hsh = objs(ii).hash(jj);
-                            [~,index] = ismember(out_hsh, out.stored_hashes_);
-                            if index==0, index = []; end
-                            out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
-                        end
-                    end
-                end
-            end
-        end
-
     end % static methods
 end % classdef unique_objects_container

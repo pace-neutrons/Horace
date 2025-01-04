@@ -28,8 +28,8 @@ classdef test_unique_references < TestCase
             obj.clStore = set_temporary_global_obj_state();
         end
         function delete(obj)
-            % retrive essential store state, present before this test was
-            % runing
+            % retrieve essential store state, present before this test was
+            % running
             %unique_obj_store.instance('clear');
             obj.clStore = [];
         end
@@ -295,19 +295,13 @@ classdef test_unique_references < TestCase
             assertEqual(urc.n_objects,4)
             assertEqual(urc.n_unique,3);
 
-            % with nargout==2
-            [is,ind] = urc.contains(obj.mi1);
-            assertTrue(is);
+            [ind,~,mi1] = urc.find_in_container(obj.mi1);
+            assertTrue(~isempty(ind));
             assertEqual(ind,1);
-            % with nargout==1
-            is = urc.contains(obj.mi1);
-            assertTrue(is);
 
-            [is,ind] = urc.contains(IX_null_inst());
-            assertTrue(is);
+            [ind,hash,nui] = urc.find_in_container(IX_null_inst());
+            assertTrue(~isempty(ind));
             assertEqual(ind,2);
-            is = urc.contains(IX_null_inst());
-            assertTrue(is);
 
             inst = urc{1};
             assertEqual( inst.name,'MERLIN' );
@@ -318,27 +312,29 @@ classdef test_unique_references < TestCase
 
             inst = IX_null_inst();
             inst.name = 'NULL';
-            [is,ind] = urc.contains(inst);
-            assertFalse(is);
+            assertFalse(ins.hash_defined)l
+            [ind,hash,inst] = urc.find_in_container(inst);
             assertTrue( isempty(ind) );
-
+            assertTrue(ins.hash_defined)
+            assertEqual(inst.hash_value,hash);
+            
             urc{2} = inst;
             inst = urc{2};
             assertEqual( inst.name,'NULL' );
 
-            [is,ind] = urc.contains(inst);
-            assertTrue(is);
+            [ind,hash,inst] = urc.find_in_container(inst);
+            assertFalse(isempty(ind) );
             assertEqual(ind,2);
-            is = urc.contains(IX_null_inst());
-            assertFalse(is);
+            [ind,hash,inst] = urc.find_in_container(IX_null_inst());
+            assertFalse(isempty(ind) );
 
             urc = urc.add(IX_null_inst());
             assertEqual(urc.n_runs,5)
             assertEqual(urc.n_objects,5)
             assertEqual(urc.n_unique,4);
 
-            [is,ind] = urc.contains(IX_null_inst());
-            assertTrue(is);
+            [ind,hash,inst] = urc.find_in_container(IX_null_inst());
+            assertFalse(isempty(ind) );
             assertEqual(ind,5);
 
             %-----

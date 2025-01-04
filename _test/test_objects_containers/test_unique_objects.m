@@ -22,7 +22,7 @@ classdef test_unique_objects < TestCase
         end
         %
         %------------------------------------------------------------------
-        function test_contains_object(obj)
+        function test_find_in_container_object(obj)
             uoc = unique_objects_container('IX_inst');
             uoc = uoc.add(obj.mi1);
             uoc = uoc.add(IX_null_inst());
@@ -31,30 +31,14 @@ classdef test_unique_objects < TestCase
 
             assertEqual(uoc.n_objects,4)
 
-            [is,ind,obj.mi1] = uoc.contains(obj.mi1);
-            assertTrue(is);
+            [ind,hash,mi1] = uoc.find_in_container(obj.mi1);
+            assertTrue(~isempty(ind));
             assertEqual(ind,1);
-            % different branch of the code
-            is = uoc.contains(obj.mi1);
-            assertTrue(is);
-        end
-
-        function test_contains_class(obj)
-            uoc = unique_objects_container('IX_inst');
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(IX_null_inst());
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(IX_null_inst());
-
-            assertEqual(uoc.n_objects,4)
-
-            [is,ind] = uoc.contains('IX_null_inst');
-            assertTrue(is);
-            assertEqual(ind,2);
+            assertTrue(mi1.hash_defined);
+            assertEqual(mi1.hash_value,hash);
         end
 
         function test_add_non_unique_objects(obj)
-
 
             % make a unique_objects_container (empty)
             uoc = unique_objects_container();
@@ -111,9 +95,6 @@ classdef test_unique_objects < TestCase
             end
             assertExceptionThrown(@thrower, ...
                 'HERBERT:unique_objects_container:invalid_argument');
-            uoc.do_check_combo_arg = false;
-            thrower();
-            uoc.do_check_combo_arg = true;
 
         end
         function test_replace_with_nonunique_same_number_throw(~)
@@ -149,7 +130,9 @@ classdef test_unique_objects < TestCase
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
             uoc(3) = 'bbbb';
-            % just replaced unique objects. Why to prohibit it
+            % just replaced unique objects. It is a feature of serializable
+            % interface. You may want to do it after getting all unique
+            % objects from the container and modifying them.
             uoc.unique_objects = {'dd','cc'};
 
             assertEqual(uoc(1),'dd')
