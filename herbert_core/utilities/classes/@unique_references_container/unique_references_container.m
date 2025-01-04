@@ -117,6 +117,19 @@ classdef unique_references_container < ObjContainersBase
     % SATISFY CONTAINERS INTERFACE
     %----------------------------------------------------------------------
     methods
+        function uoca = expose_unique_objects(self)
+            %EXPOSE_UNIQUE_OBJECTS - returns the unique objects referred by
+            % self as a cell array. This allows the user to scan unique objects
+            % for a property without having to rescan for duplicates. It is not
+            % intended to expose the implementation of the container.
+
+            % obtain a unique_objects_container with the unique objects
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
+            uidx = unique(self.idx_);
+            % retrieve unique objects referred here as a cell array for external use
+            uoca = arrayfun(@(idx)(storage(idx)),uidx,'UniformOutput',false);
+        end
+        
         function [is, first_index,item] = contains(self, item)
             %CONTAINS - find if item is present in the container,
             %
@@ -396,18 +409,6 @@ classdef unique_references_container < ObjContainersBase
     % unique_references_container specific. Consider making proteced or
     % remove
     methods % property (and method) set/get
-        function uoca = expose_unique_objects(self)
-            %EXPOSE_UNIQUE_OBJECTS - returns the unique objects referred by
-            % self as a cell array. This allows the user to scan unique objects
-            % for a property without having to rescan for duplicates. It is not
-            % intended to expose the implementation of the container.
-
-            % obtain a unique_objects_container with the unique objects
-            storage = unique_obj_store.instance().get_objects(self.baseclass);
-            uidx = unique(self.idx_);
-            % retrieve unique objects referred here as a cell array for external use
-            uoca = arrayfun(@(idx)(storage(idx)),uidx,'UniformOutput',false);
-        end
 
         function [unique_objects, unique_indices] = get_unique_objects_and_indices(self)
             %GET_UNIQUE_OBJECTSAND_INDICES - get the unique objects and their

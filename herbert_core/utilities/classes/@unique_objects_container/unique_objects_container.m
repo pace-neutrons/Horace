@@ -128,6 +128,10 @@ classdef unique_objects_container < ObjContainersBase
     % SATISFY CONTAINERS INTERFACE
     %----------------------------------------------------------------------
     methods
+        function uoca = expose_unique_objects(self)
+            % expose cellarray of unique objects this container subscribes to.
+            uoca = get_unique_objects(self);
+        end
         function [is,unique_ind,obj] = contains(obj,value)
             % check if the container has the objects of the class "value"
             % if the value is char, or the the object equal value, if the
@@ -168,7 +172,7 @@ classdef unique_objects_container < ObjContainersBase
             % - ix   : the index of the unique object in self.unique_objects_,
             %          if it is stored, otherwise empty []
             % - hash : the hash of the object from hashify
-            % 
+            %
             % - obj  : input object. If hashable, contains calculated hash
             %          value, if this value have not been there initially
             %
@@ -287,7 +291,7 @@ classdef unique_objects_container < ObjContainersBase
         function val = hash(self,index)
             % accessor for the stored hashes
             val = self.stored_hashes_{ self.idx_(index) };
-        end        
+        end
     end
     %----------------------------------------------------------------------
     % satisfy ObjContainersBase protected interface
@@ -405,7 +409,7 @@ classdef unique_objects_container < ObjContainersBase
         end
     end
 
- 
+
     % SERIALIZABLE interface
     %------------------------------------------------------------------
     properties(Constant,Access=private)

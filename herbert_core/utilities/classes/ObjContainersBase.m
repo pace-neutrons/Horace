@@ -23,6 +23,11 @@ classdef ObjContainersBase < serializable
         idx_            = zeros(1,0); %  array of unique global indices for each object stored
         unique_objects_ = cell(1,0);  % storage for unique objects.
     end
+    properties(Access = private)
+        % service property used by set.baceclass to validate container
+        % integrity vrt. the change of the baseclass name
+        baseclass_name_trial_;
+    end
     %----------------------------------------------------------------------
     % Dependent properties set/get functions and subsrefs/subsassign
     % methods implemented globally
@@ -41,10 +46,9 @@ classdef ObjContainersBase < serializable
                 val = class(val);
             end
             if self.n_objects>0
-                
-            end
-            self.baseclass_ = val;
 
+            end
+            self.baseclass_name_trial_ = val;
             if self.do_check_combo_arg_
                 self = self.check_combo_arg(false);
             end
@@ -207,7 +211,7 @@ classdef ObjContainersBase < serializable
             % should have a property named 'field'. The code below takes each of the
             % referred objects in turn, extracts the object referred to by
             % 'field' and stores it in the appropriate type container
-            % created here. 
+            % created here.
 
             storage    = unique_obj_store.instance().get_objects(self.baseclass);
             targ_class = class(storage.get(1).(fieldname));
@@ -263,6 +267,8 @@ classdef ObjContainersBase < serializable
         end
     end
     methods(Abstract)
+        % expose cellarray of unique objects this container subscribes to.
+        uoca = expose_unique_objects(self)
         % check if the container has the objects of the class "value"
         % if the value is char, or the the object equal value, if the
         % value is the object of the kind, stored in container
@@ -286,7 +292,7 @@ classdef ObjContainersBase < serializable
         % return container ordered in a particular way. Redundant?
         newself = reorder(self)
         % get hash for component with index provided
-        val = hash(self,index)        
+        val = hash(self,index)
     end
     methods(Abstract,Access=protected)
         % main getter for unique objects
@@ -294,7 +300,7 @@ classdef ObjContainersBase < serializable
         % main setter for the unique objects property
         self  = set_unique_objects(self,val);
         % get number of unique objects
-        n = get_n_nunique(self);        
+        n = get_n_nunique(self);
     end
     % SERIALIZABLE interface
     %------------------------------------------------------------------
@@ -304,12 +310,17 @@ classdef ObjContainersBase < serializable
             % the consistency of the changes against all other relevant
             % properties
             %
-
-            if self.n_objects>0 && ~isa(self.get(1),self.baseclass)
-                error('HERBERT:ObjContainerBase:invalid_argument', ...
-                    'Unique objects in the container do not conform to the baseclass %s', ...
-                    self.baseclass_ );
+            if self.n_objects>0
+                uobj = self.expose_unique_objects();
+                invalid = cellfun(@(x)~isa(x,selt.baseclass_name_trial_),uobj);
+                if any(invalid)
+                    error('HERBERT:ObjContainerBase:invalid_argument', ...
+                        'Unique objects in the container do not conform to the baseclass name: %s', ...
+                        self.baseclass_ );
+                end
             end
+            self.baseclass_ = self.baseclass_name_trial_;
+            self.baseclass_name_trial_ = '';
         end
     end
 
