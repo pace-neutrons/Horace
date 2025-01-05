@@ -101,12 +101,12 @@ classdef unique_references_container < ObjContainersBase
             % Input:
             % ------
             % Either
-            % - no arguments (loadobj invocation only)
+            % - no arguments (loadobj interface request)
             % Or
             % - basecl: base class for all objects contained
             % Or
-            % -- standard set of input parameters, used by serializable
-            % constructor
+            % - standard set of input positional or key-value parameters,
+            %   used by serializable constructor
             if nargin==0
                 return
             end
@@ -220,20 +220,25 @@ classdef unique_references_container < ObjContainersBase
             % - Cells are included as even if they have only one element as
             %   they will be split up into their elements to be added here;
             %   a single element cell is thus converted to that element.
-
+            if isempty(self.baseclass_)
+                self.baseclass = class(obj);
+                warning('HERBERT:ObjContainerBase:incomplete_setup', ...
+                    'baseclass not initialised, using first assigned type: "%s"', ...
+                    self.baseclass);
+            end
 
             n_add_obj = numel(obj);
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             n_present = self.n_objects;
             if ischar(obj)
-                [storage,uidx] = storage.add(obj);
+                [storage,uidx] = storage.add_if_new(obj);
                 idx_add = uidx;
                 nuidx   = n_present+1;
             elseif iscell(obj)
                 idx_add = zeros(1,n_add_obj);
                 nuidx = zeros(1,n_add_obj);
                 for i=1:n_add_obj
-                    [storage,uidx] = storage.add(obj{i});
+                    [storage,uidx] = storage.add_if_new(obj{i});
                     idx_add(i) = uidx;
                     nuidx(i) = n_present+i;
                 end
@@ -244,7 +249,7 @@ classdef unique_references_container < ObjContainersBase
                 idx_add = zeros(1,n_add_obj);
                 nuidx = zeros(1,n_add_obj);
                 for i=1:n_add_obj
-                    [storage,uidx] = storage.add(obj(i));
+                    [storage,uidx] = storage.add_if_new(obj(i));
                     idx_add(i) = uidx;
                     nuidx(i)   = n_present+i;
                 end
@@ -254,7 +259,7 @@ classdef unique_references_container < ObjContainersBase
             unique_obj_store.instance().set_objects(storage);
         end
 
-        function self = replace(self,obj,nuix)
+        function [self,nuix] = replace(self,obj,nuix,varargin)
             %REPLACE - substitute object obj at position nuix in container
             % Equivalent to self{nuix}=obj (which would not work inside the
             % container) and used to implement it.
@@ -265,22 +270,14 @@ classdef unique_references_container < ObjContainersBase
             % - nuix: (non-unique index) position at which it is to be
             %         inserted.
             % The old value is overwritten.
-            self.check_if_range_allowed(nuix)
-            storage = unique_obj_store.instance().get_objects(self.baseclass);
-            gidx = self.idx_(nuix);
-            if storage.n_duplicates(gidx)>1 % this needs proper destruction
-                % of presious references not to increase unique storage unnecessary
-                [storage,gidx_new]= storage.add(obj);
-                % if this is new object, decrease its number of copies by
-                % one
-                if gidx ~= gidx_new
-                    storage.n_duplicates(gidx) = storage.n_duplicates(gidx)-1;
-                    self.idx_(nuix) = gidx_new;
-                end
+            self.check_if_range_allowed(nuix,varargin{:});
+            storage      = unique_obj_store.instance().get_objects(self.baseclass);
 
-            else
-                storage(gidx) = obj;
-            end
+            % add if new and if not, return existing index and increase ref
+            % count
+            [storage,gidx] = storage.add_if_new(obj);
+            self.idx_(nuix)= gidx;
+
             unique_obj_store.instance().set_objects(storage);
         end
 
@@ -364,7 +361,7 @@ classdef unique_references_container < ObjContainersBase
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             self.idx_ = zeros(1,val.n_objects);
             for i=1:val.n_objects
-                [storage,gidx] = storage.add(val(i));
+                [storage,gidx] = storage.add_if_new(val(i));
                 self.idx_(i) = gidx;
             end
             unique_obj_store.instance().set_objects(storage);
@@ -382,6 +379,17 @@ classdef unique_references_container < ObjContainersBase
             error('HERBERT:unique_references_container:invalid_argument',...
                 'unique_references_container does not allow external change in number of duplicated objects')
         end
+        %
+        function  n = get_n_objects(self)
+            % return number of objets, stored in the container
+            % Main part of get.n_objects method
+            n = numel(self.idx_);
+        end
+        function [self,nuix] = add_single(self,obj)
+            error('HERBERT:unique_references_container:not_implemented', ...
+                'this method is not implemented')
+        end
+        
     end
     %----------------------------------------------------------------------
     % unique_references_container specific. Consider making proteced or

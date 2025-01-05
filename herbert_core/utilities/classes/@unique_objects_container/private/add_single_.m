@@ -1,4 +1,4 @@
-function [self,nuix] = add_single_(self,obj,ix,hash)
+function [self,nuix] = add_single_(self,obj)
 %ADD_SINGLE_ Add single object to the unique objects container
 
 
@@ -11,10 +11,7 @@ function [self,nuix] = add_single_(self,obj,ix,hash)
 % -----
 % self - the unique_objects_container in question
 % obj  - the object to be added to the container
-% ix   - the unique index of the object if it is already in the container. 
-%        this will have been found from a previous call of find_in_container
-% hash - the hash for obj previously made by that call to find_in_container
-% 
+%
 % Output
 % ------
 % self - the modified container (modified by adding obj)
@@ -26,10 +23,9 @@ if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
         'not correct base class; object was not added');
 end
 
-% if ix and hash are not specified, call find_in_container to get them
-if nargin<=2
-    [ix,hash,obj] = self.find_in_container(obj);
-end
+% call find_in_container to get ix and hash 
+[ix,hash,obj] = self.find_in_container(obj);
+
 
 % If the object is not in the container.
 % store the hash in the stored hashes

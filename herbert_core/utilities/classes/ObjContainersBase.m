@@ -23,8 +23,8 @@ classdef ObjContainersBase < serializable
     end
     properties (Access=protected)
         baseclass_      = '';         % if not empty, name of the baseclass
-        %                              this container holds. Should be suitable for isa() calls
-        idx_            = zeros(1,0); %  array of unique global indices for each object stored
+        %                               this container holds. Should be suitable for isa() calls
+        idx_            = zeros(1,0); %  array of unique global indices of objects in the container
         unique_objects_ = cell(1,0);  % storage for unique objects.
     end
     properties(Access = private)
@@ -49,9 +49,6 @@ classdef ObjContainersBase < serializable
             if ~istext(val)
                 val = class(val);
             end
-            if self.n_objects>0
-
-            end
             self.baseclass_name_trial_ = val;
             if self.do_check_combo_arg_
                 self = self.check_combo_arg(false);
@@ -61,7 +58,7 @@ classdef ObjContainersBase < serializable
         function x    = get.idx(self)
             %GET.IDX - get the indices of each stored object in the container
             % which point to the unique objects stored internally.
-            x = self.idx_;
+            x = get_idx(self);
         end
         function self = set.idx(self,val)
             %SET.IDX - set the indices of each stored object in the container
@@ -88,7 +85,7 @@ classdef ObjContainersBase < serializable
             % provide naming by the normal usage of this container for storing
             % instruments and samples in Horace. The two should be kept
             % synchronized.
-            n = numel(self.idx_);
+            n = get_n_objects(self);
         end
         function n = get.n_runs(self)
             %GET.N_RUNS - retrieve size of container without duplicate
@@ -183,22 +180,10 @@ classdef ObjContainersBase < serializable
                         self = self.replace(c,nuix);
                     else
                         val = varargin{1}; % value to assign
-                        if isempty(self.baseclass_)
-                            self.baseclass = class(val);
-                            warning('HERBERT:ObjContainerBase:incomplete_setup', ...
-                                'baseclass not initialised, using first assigned type: "%s"', ...
-                                self.baseclass);
-                        end
-                        if ~isa(val,self.baseclass)
-                            error('HERBERT:ObjContainerBase:invalid_argument', ...
-                                'Assigning object of class: "%s" to container with baseclass: "%s" is prohibited', ...
-                                class(val),self.baseclass);
-                        end
-                        self.check_if_range_allowed(nuix,'+');
                         if nuix == self.n_objects+1
                             self = self.add(val);
                         else
-                            self = self.replace(val,nuix);
+                            self = self.replace(val,nuix,'+');
                         end
                     end
                 case '.'
@@ -239,7 +224,54 @@ classdef ObjContainersBase < serializable
                 subc   = subc.add(subobj);
             end
         end
+        %
+        function [self,nuix] = add(self,obj)
+            %ADD adds an object to the container
+            % Input:
+            % - obj : the object to be added. This may duplicate an object
+            %         in the container, but it will be noted as a duplicate
+            %         and will be given its own index, which it returns
+            %    or   cellarray or array of objects to add
+            % Output:
+            % - self : the changed container (as this is a value class)
+            % - nuix : the non-unique index for this object
+            %     or   array of such indexes if multiple objects were
+            %          added
+            %
+            % it may be a duplicate but it is still the n'th object you
+            % added to the container. The number of additions to the
+            % container is implicit in the size of idx_.
 
+            % process addition of multiple objects at once.
+            if isempty(self.baseclass_)
+                self.baseclass = class(obj);
+                warning('HERBERT:ObjContainerBase:incomplete_setup', ...
+                    'baseclass not initialised, using first assigned type: "%s"', ...
+                    self.baseclass);
+            end
+            if ~isa(obj,self.baseclass)
+                error('HERBERT:ObjContainerBase:invalid_argument', ...
+                    'Assigning object of class: "%s" to container with baseclass: "%s" is prohibited', ...
+                    class(obj),self.baseclass);
+            end
+
+
+            if ~ischar(obj) && numel(obj)>1 || iscell(obj)
+                nobj = numel(obj);
+                nuix = zeros(1,nobj);
+                if iscell(obj)
+                    for i = 1:nobj
+                        [self,nuix(i)]=self.add(obj{i});
+                    end
+                else
+                    for i = 1:nobj
+                        [self,nuix(i)]=self.add(obj(i));
+                    end
+                end
+                return;
+            end
+            [self,nuix] = self.add_single(obj);
+        end % add()
     end
     %  Setter/getters for common interface with class-specific
     %  implementation
@@ -264,6 +296,9 @@ classdef ObjContainersBase < serializable
         end
     end
     methods(Access=protected)
+        function x = get_idx(self)
+            x = self.idx_;
+        end
         function check_if_range_allowed(self,nuix,plus)
             % Validates if input non-unique index is in the range of indices
             % allowed for current state of the container
@@ -292,10 +327,8 @@ classdef ObjContainersBase < serializable
         % retrieve appropriate container with objects, identified by
         % its inpu indices
         sset = get_subset(self,indices)
-        %ADD adds an object to the container
-        [self,nuix] = add(self,obj)
         %REPLACE replaces the object at specified non-unique index nuix
-        self = replace(self,obj,nuix)
+        [self,nuix] = replace(self,obj,nuix,varargin)
         % get object stored in the container given non-unique index
         % associated with this object
         obj = get(self,nuix)
@@ -305,6 +338,8 @@ classdef ObjContainersBase < serializable
         val = hash(self,index)
     end
     methods(Abstract,Access=protected)
+        % add single object to unique obects container
+        [selt,uidx] = add_single(self,obj,varargin);
         % main getter for unique objects
         x = get_unique_objects(self,varargin);
         % main setter for the unique objects property
@@ -314,6 +349,8 @@ classdef ObjContainersBase < serializable
         %
         x    = get_n_duplicates(self);
         self = set_n_duplicates(self,val);
+        % get total number of objects, stored in the container
+        n = get_n_objects(self);
     end
     % SERIALIZABLE interface
     %------------------------------------------------------------------
