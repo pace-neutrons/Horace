@@ -1,4 +1,4 @@
-function [self,lidx] = add_if_new_single_(self,obj)
+function [self,uidx] = add_if_new_single_(self,obj)
 %ADD_IF_NEW_SINGLE_ Add single object to the unique objects container
 % if it is not already there. If it is, increase number of object references
 %
@@ -22,22 +22,20 @@ end
 
 % if ix and hash are not specified, call find_in_container to get them
 
-[lidx,hash,obj] = self.find_in_container(obj);
+[uidx,hash,obj] = self.find_in_container(obj);
 
-% If the object is not in the container add it to the container.
-if isempty(lidx) % means obj not in container and should be added
+% If the object is not in the container.
+% store the hash in the stored hashes
+% store the object in the stored objects
+% take the index of the last stored object as the object index
+if isempty(uidx) % means obj not in container and should be added
+    self.stored_hashes_ = [self.stored_hashes_(:);hash]';
+    self.unique_objects_ = [self.unique_objects_(:); {obj}]';
 
-    [self,lidx] = self.check_and_expand_memory_if_necessary();
-
-    p_free = self.lidx_(lidx);
-
-    self.stored_hashes_{p_free}  = hash;
-    self.unique_objects_{p_free} = obj;
-    self.n_duplicates_(p_free)   = 1;
-    self.idx_(p_free)            = p_free;
-    self.n_unique_               = self.n_unique_+1;
-
+    uidx = numel(self.unique_objects_);
+    self.n_duplicates_ = [self.n_duplicates_(:); 1]';
+    self.idx_ = [self.idx_(:)', uidx]; % alternative syntax: cat(2,self.idx_,uidx);
 else
-    self.n_duplicates_(lidx) = self.n_duplicates_(lidx)+1;
+    self.n_duplicates_(uidx) = self.n_duplicates_(uidx)+1;
 end
 

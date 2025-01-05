@@ -36,8 +36,10 @@ if isempty(ix) % means obj not in container and should be added
     self.unique_objects_ = [self.unique_objects_(:); {obj}]';
 
     ix = numel(self.unique_objects_);
+    self.n_duplicates_ = [self.n_duplicates_(:); 1]';
+else
+    self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
 end
-
 % add index ix to the array of indices
 % know the non-unique object index - the number of times you
 % added an object to the container - say k. idx_(k) is the

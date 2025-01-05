@@ -312,7 +312,7 @@ classdef test_unique_references < TestCase
 
             inst = IX_null_inst();
             inst.name = 'NULL';
-            assertFalse(ins.hash_defined)l
+            assertFalse(ins.hash_defined);
             [ind,hash,inst] = urc.find_in_container(inst);
             assertTrue( isempty(ind) );
             assertTrue(ins.hash_defined)
@@ -934,9 +934,10 @@ classdef test_unique_references < TestCase
             assertEqual(me.message, ...
                 'Some or all input indices: [2..2] are outside allowed range [1:1] for this container');
             stor = unique_obj_store.instance().get_objects('thingy_tester');
-            assertEqual(stor.n_objects,1)
-            assertEqual(stor.n_unique,1)
-            assertEqual(stor.unique_objects{1},thingy_tester(222))
+            assertEqual(stor.n_objects,2)
+            assertEqual(stor.n_unique,2)
+            assertEqual(stor.unique_objects{1},thingy_tester(111))
+            assertEqual(stor.unique_objects{2},thingy_tester(222))            
         end
         %-----------------------------------------------------------------
         function test_two_urc_work_fine(~)
@@ -1013,10 +1014,7 @@ classdef test_unique_references < TestCase
 
             uobj = urc1.expose_unique_objects();
             assertTrue(iscell(uobj));
-            assertEqual(uobj{1},1);
-            assertEqual(uobj{2},2);
-            assertEqual(uobj{3},3);
-            assertEqual(uobj{4},5);
+            assertEqual(uobj,{1,2,3,5});
 
             uoc1 = urc1.unique_objects;
             assertEqual(uoc1.n_objects,8)

@@ -84,6 +84,7 @@ classdef unique_objects_container < ObjContainersBase
     properties (Access=protected)
         stored_hashes_ = cell(1,0);  % their hashes are stored
         % (default respecified in constructor inputParser)
+        n_duplicates_   = zeros(1,0);        
     end
     properties(Dependent,Hidden)
         % property containing list of stored hashes for unique objects for
@@ -296,11 +297,10 @@ classdef unique_objects_container < ObjContainersBase
         %
         function nd = get_n_duplicates(self)
             % retrieve number of duplicates, stored in the container
-            nd = accumarray(self.idx_',1)';
+            nd = self.n_duplicates_;
         end
-        function self = set_n_duplicates(varargin)
-            error('HERBERT:unique_objects_container:invalid_argument',...
-                'Unique_objects_container does not allow external change in number of duplicated objects')
+        function self = set_n_duplicates(self,val)
+            self.n_duplicates_ = val;
         end
         %
         function  n = get_n_objects(self)
@@ -357,7 +357,7 @@ classdef unique_objects_container < ObjContainersBase
                 return;
             end
             [self,nuix] = add_if_new_single_(self,obj);
-        end % add()
+        end % add_if_new()
         
         function self = clear(self)
             % empty container. unique_object_container interface request.
@@ -399,7 +399,8 @@ classdef unique_objects_container < ObjContainersBase
         fields_to_save_ = {
             'baseclass',     ...
             'unique_objects',...
-            'idx'...
+            'idx',...
+            'n_duplicates'...
             };
     end
 
@@ -409,7 +410,7 @@ classdef unique_objects_container < ObjContainersBase
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
 
         function flds = saveableFields(~)
@@ -504,4 +505,15 @@ classdef unique_objects_container < ObjContainersBase
         end
 
     end % static methods
+    methods(Access=protected)
+        function  [S,obj] = convert_old_struct (obj, S, ver)
+            % convert old structure of unique object container into the
+            % one, which support unique_object_storage and number of
+            % duplicates
+            if ver == 1
+                S.n_duplicates = accumarray(S.idx',1)';
+            end
+
+        end
+    end    
 end % classdef unique_objects_container
