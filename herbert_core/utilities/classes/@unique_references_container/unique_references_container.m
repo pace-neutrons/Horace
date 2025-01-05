@@ -420,12 +420,13 @@ classdef unique_references_container < ObjContainersBase
             if numel(v)==self.n_objects || isa(v,'unique_objects_container')&&isequal(v.n_objects,self.n_objects)
                 self.idx_ = zeros(1,self.n_objects);
                 for i=1:self.n_objects
-                    [storage,igdx] = storage.add_if_new(v(i));
+                    [storage,igdx] = storage.add(v(i));
                     self.idx_(i) = igdx;
                 end
             elseif numel(v)==1 && ~isa(v,'unique_objects_container')
-                [storage,idgs] = storage.add_if_new(v);
+                [storage,idgs] = storage.add(v);
                 self.idx_ = repmat(idgs,1,self.n_objects);
+                storage.n_duplicates(idgs)=storage.n_duplicates(idgs)+1;
             else
                 error('HERBERT:unique_objects_container:invalid_argument', ...
                     'assigned value must be scalar or have right number of objects');

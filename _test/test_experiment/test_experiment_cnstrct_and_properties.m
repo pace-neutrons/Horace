@@ -25,21 +25,21 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             function throw1()
                 expt.samples{1};
             end
-            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
+            assertExceptionThrown(@throw1, 'HERBERT:ObjContainersBase:invalid_argument');
 
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
             end
-            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
+            assertExceptionThrown(@throw2, 'HERBERT:ObjContainersBase:invalid_argument');
 
             assertTrue( isa( expt.detector_arrays, 'unique_references_container' ) );
             assertEqual( expt.detector_arrays.n_runs, 0 );
             function throw3()
                 expt.detector_arrays{1};
             end
-            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
+            assertExceptionThrown(@throw2, 'HERBERT:ObjContainersBase:invalid_argument');
 
             assertTrue(isempty(expt.expdata));
         end
@@ -239,13 +239,13 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             function throw1()
                 expt.samples{1};
             end
-            assertExceptionThrown(@throw1, 'HERBERT:unique_references_container:invalid_argument');
+            assertExceptionThrown(@throw1, 'HERBERT:ObjContainersBase:invalid_argument');
             assertTrue( isa( expt.instruments, 'unique_references_container' ) );
             assertEqual( expt.instruments.n_runs, 0 );
             function throw2()
                 expt.instruments{1};
             end
-            assertExceptionThrown(@throw2, 'HERBERT:unique_references_container:invalid_argument');
+            assertExceptionThrown(@throw2, 'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(expt.detector_arrays.n_runs, 0);
         end
 
@@ -385,7 +385,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 assertEqual(expt.detector_arrays{1}, detector_arrays);
             end
             assertExceptionThrown(@throw2, ...
-                'HERBERT:unique_references_container:invalid_argument');
+                'HERBERT:ObjContainersBase:invalid_argument');
         end
 
         function test_detector_arrays_setter_raises_error_for_invalid_value(~)

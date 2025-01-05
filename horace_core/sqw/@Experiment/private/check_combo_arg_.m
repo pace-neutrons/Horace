@@ -78,8 +78,10 @@ if ~(all(new_lat_def) && all(new_ang_def))
             % only one unique object so if its lattice was unset then all
             % need changing, don't need to check again
             if one_unique
-                uni_source = obj.old_lattice_holder_.unique_objects{1};
-                uni_targ  = obj.samples_.unique_objects{1}; % extract the single unique object in the target
+                all_src = obj.old_lattice_holder_.unique_objects();
+                uni_source = all_src{1};
+                all_targ   =obj.samples_.unique_objects(); 
+                uni_targ  = all_targ{1}; % extract the single unique object in the target
                 uni_targ.alatt = uni_source.alatt;   % assign the single source lattice to the single target
                 uni_targ.angdeg = uni_source.angdeg;
                 obj.samples_ = obj.samples_.set_all(uni_targ);            % update all the non-unique target samples with the
