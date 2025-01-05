@@ -26,14 +26,14 @@ self.check_if_range_allowed(gidx,varargin{:})
 % check if you're trying to replace an object with an identical
 % one. If so silently return.
 [obj,objhash] = build_hash(obj);
-curhash = self.stored_hashes_{self.idx_(gidx)};
+curhash = self.stored_hashes_{self.lidx_(gidx)};
 if isequal(objhash, curhash)
     return;
 end
 
 % reduce the number of duplicates of the item to be replaced by
 % 1.
-old_lidx = self.idx_(gidx);
+old_lidx = self.lidx_(gidx);
 self.n_duplicates_(old_lidx) = self.n_duplicates_(old_lidx)-1;
 % all existing objects with the hash specified were removed.
 no_more_duplicates = self.n_duplicates_(old_lidx) == 0;
@@ -53,17 +53,18 @@ if isempty(lidx) % means obj not in container and should be added
         self.unique_objects_{old_lidx} = obj;
         self.stored_hashes_{old_lidx} = hash;
         self.n_duplicates_(old_lidx)  = self.n_duplicates_(old_lidx)+1;
-    else        
+    else
         [self,lidx_first_empty] = self.check_and_expand_memory_if_necessary();
-        p_free = self.lidx_(lidx_first_empty);
-        
-        self.unique_objects_{p_free} = obj;
-        self.stored_hashes_{p_free}  = hash;
-        self.idx_(p_free)            = p_free;
-        self.n_duplicates_(p_free)   = 1;
-        gidx                         = p_free;
+        idx_free = self.lidx_(lidx_first_empty);
 
-        self.n_unique_               = self.n_unique_+1;
+        self.unique_objects_{lidx_first_empty} = obj;
+        self.stored_hashes_{lidx_first_empty}  = hash;
+        self.idx_(idx_free)                    = lidx_first_empty;
+        self.n_duplicates_(lidx_first_empty)   = 1;
+        gidx                                   = lidx_first_empty;
+
+        self.n_unique_           = self.n_unique_+1;
+        self.max_obj_idx_        = max(self.n_unique_,self.max_obj_idx_);            
     end
     % if it is in the container, then ix is the unique object index
     % in unique_objects_ and is put into idx_ as the unique index
@@ -72,44 +73,28 @@ else
     if no_more_duplicates
         % need to remove the old object by replacing it with
         % the previous last object in unique_objects_
+        % old objet position defined by old_lidx
 
-        last_idx = self.n_unique_;
+        last_idx       = self.n_unique_;
+        self.n_unique_ = self.n_unique_-1; % move free pointer one step back
+
         % collect the final unique object currently in the
         % container
-        lastobj = self.unique_objects_{last_idx};
+        lastobj  = self.unique_objects_{last_idx};
         lasthash = self.stored_hashes_{last_idx};
-
-        if old_lidx < last_idx
-            % oldix is the location where there are no more
-            % duplicates, put the last object here
-            self.unique_objects_{old_lidx} = lastobj;
-            self.stored_hashes_{old_lidx}  = lasthash;
-            self.n_duplicates_(old_lidx)   = self.n_duplicates_(last_idx);
-
-            % reference all non-unique objects equivalent to the
-            % last unique object as now referring to this oldix
-            % location
-            self.idx_(self.idx_==last_idx) = old_lidx;
-        end
-
-        % if the existing item was the last in stored, then
-        % make it the new location
-        if lidx==lastidx
-            lidx=old_lidx;
-        end
-
-        % reduce the size of the unique object arrays
-        self.unique_objects_(end)=[];
-        self.stored_hashes_(end) = [];
-        self.n_duplicates_(end) = [];
-
-        % do the replacement
-        self.idx_(gidx) = lidx;
-        self.n_duplicates_(lidx) = self.n_duplicates_(lidx)+1;
-
+        lastdubl = self.n_duplicates_(last_idx);
+        % set free index pointer to the position of the freed global index
+        % this object do not exsit globally any more
+        self.lidx_(last_idx) = old_lidx;
+        self.idx_(old_lidx)  = 0;
+        self.idx_(last_idx)  = old_lidx;        
+        % move 
+        self.unique_objects_{old_lidx} = lastobj;
+        self.stored_hashes_{old_lidx}  = lasthash;
+        self.n_duplicates_(old_lidx)   = lastdubl;
     else
-        self.idx_(gidx) = lidx;
         self.n_duplicates_(lidx) = self.n_duplicates_(lidx)+1;
+        gidx = lidx;
     end
 end
 end % replace()

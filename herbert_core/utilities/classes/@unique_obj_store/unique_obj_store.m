@@ -52,15 +52,15 @@ classdef unique_obj_store<handle
             if isfield(obj.stor_holder_,class_name)
                 stor = obj.stor_holder_.(class_name);
             else
-                stor = unique_objects_container(class_name);
+                stor = unique_only_obj_container(class_name);
             end
         end
         function obj = set_objects(obj,unique_storage)
             % return unique storage container for objects, defined by
             % specified class name
-            if ~isa(unique_storage,'unique_objects_container')
+            if ~isa(unique_storage,'unique_only_obj_container')
                 error('HERBERT:unique_obj_storage:invalid_argument', ...
-                    'Only unique_object_container may be set as storage of unique objects. Attempt to set %s', ...
+                    'Only unique_only_obj_container may be set as storage of unique objects. Attempt to set %s', ...
                     class(unique_storage))
             end
             fldname = unique_storage.baseclass;

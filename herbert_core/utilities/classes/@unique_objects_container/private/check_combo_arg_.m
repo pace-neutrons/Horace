@@ -18,10 +18,15 @@ if max_idx ~= self.n_unique
         max_idx,numel(self.unique_objects_));
 end
 uni_ind = unique(self.idx_);
-if ~isempty(uni_ind) && ...
-        (uni_ind(1) ~= 1 || numel(uni_ind) ~= self.n_unique)
-    error('HERBERT:unique_objects_container:invalid_argument',...
-        'Container has unique objects which are not referred by any indexes')
+if isempty(uni_ind)
+    if ~isempty(self.unique_objects_)
+        self.idx_ = 1:numel(self.unique_objects_);
+    end
+else
+    if  (uni_ind(1) ~= 1 || numel(uni_ind) ~= self.n_unique)
+        error('HERBERT:unique_objects_container:invalid_argument',...
+            'Container has unique objects which are not referred by any indexes')
+    end
 end
 if ~isempty(self.baseclass_)
     if isempty(self.unique_objects_)

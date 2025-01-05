@@ -12,9 +12,10 @@ classdef unique_only_obj_container < ObjContainersBase
         %                             % for fast processing and search
         %                               operations
         n_duplicates_   = zeros(1,0); % number of duplicateds
-        lidx_           = zeros(1,0); % continuous array of local indices for the objects in he contianer
+        lidx_           = zeros(1,0); % continuous array of local indices for the objects in the contianer
 
         total_allocated_ = 0;
+        max_obj_idx_     = 0;
     end
     properties(Dependent,Hidden=true)
         % property containing list of stored hashes for unique objects for
@@ -25,7 +26,7 @@ classdef unique_only_obj_container < ObjContainersBase
         allocated_mem_size;
     end
     %properties(Constant,Access= protected)
-    properties(Hidden=true)
+    properties(Access=protected)
         % typical experiment may contain ~200 runs. The configuration is
         % usually unique, but in special cases may differ between runs.
         % let's select number which mimimize memory storage but from another,
@@ -123,27 +124,17 @@ classdef unique_only_obj_container < ObjContainersBase
             end
         end
 
-        function obj = replicate_runs(obj,n_objects)
+        function obj = replicate_runs(varargin)
             % function expands container onto specified number of runs.
             % only single unique object allowed to be present in the
             % container initially
-            validateattributes(n_objects, {'numeric'}, {'>', 0, 'scalar'})
-            if obj.n_unique ~= 1
-                error('HERBERT:unique_objects_container:invalid_argument',...
-                    'The method works only on containers containing a single unique run. This container contains %d unique runs.', ...
-                    obj.n_unique);
-            end
-
-            obj.idx_ = ones(1,n_objects);
-            obj.n_duplicates_(1) = n_objects;
+            error('HERBERT:unique_objects_container:not_implemented', ...
+                'This funciton is pissible but does not make sence on unique_only_obj_container')
         end
 
         function sset = get_subset(self,indices)
-            sset = unique_objects_container('baseclass',self.baseclass);
-            for i = indices
-                item = self.get(i);
-                [sset,~] = sset.add(item);
-            end
+            error('HERBERT:unique_objects_container:not_implemented', ...
+                'This funciton is pissible but does not make sence on unique_only_obj_container')
         end
         function [self,gidx] = replace(self,obj,nuix,varargin)
             %REPLACE replaces the object at non-unique index nuix in the container
@@ -164,20 +155,19 @@ classdef unique_only_obj_container < ObjContainersBase
             [self,gidx] = replace_(self,obj,nuix,varargin{:});
         end % replace()
 
-        function obj = get(self,nuix)
+        function obj = get(self,lidx)
             % given the non-unique index nuix that you know about for your
             % object (it was returned when you added it to the container
             % with add) get the unique object associated
             %
             % Input:
-            % - nuix : non-unique index that has been stored somewhere for
-            %          this object
+            % - luix : unique index of this object used in subsref
             % Output:
             % - obj : the unique object store for this index
             %
-            self.check_if_range_allowed(nuix);
-            ix = self.idx_(nuix);
-            if numel(nuix) == 1
+            self.check_if_range_allowed(lidx);
+            ix = self.lidx_(lidx);
+            if numel(ix) == 1
                 obj = self.unique_objects{ix};
             else
                 obj = cellfun(@(ii)self.unique_objects{ii},ix);
@@ -193,16 +183,13 @@ classdef unique_only_obj_container < ObjContainersBase
             % This reordering provides a standard order when comparing.
             % This is only used for tests and so its efficiency is not
             % important.
-            newself = unique_objects_container('baseclass',self.baseclass);%,'convert_to_stream_f',self.convert_to_stream_f');
-
-            for i=1:self.n_objects
-                newself = newself.add(self.get(i));
-            end
+            error('HERBERT:unique_objects_container:not_implemented', ...
+                'This funciton is pissible but does not make sence on unique_only_obj_container')
         end
         %
         function val = hash(self,index)
             % accessor for the stored hashes
-            val = self.stored_hashes_{ self.idx_(index) };
+            val = self.stored_hashes_{ self.lidx_(index) };
         end
     end
     %----------------------------------------------------------------------
@@ -224,7 +211,8 @@ classdef unique_only_obj_container < ObjContainersBase
         end
 
         function x = get_idx(self)
-            x = self.idx_(1:self.n_unique_);
+            % core of get.idx method.
+            x = self.idx_(1:self.max_obj_idx_);
         end
 
         function uo = get_unique_objects(self,varargin)

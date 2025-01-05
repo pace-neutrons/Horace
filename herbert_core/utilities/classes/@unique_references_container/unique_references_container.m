@@ -176,16 +176,13 @@ classdef unique_references_container < ObjContainersBase
             % - obj  : input object. If hashable, contains calculated hash
             %          value, if this value have not been there initially
 
-            obj_idx = [];
-            storage = unique_obj_store.instance().get_objects(selt.baseclass);
+            obj_idx  = [];
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
             [igx,hash,obj] = storage.find_in_container(obj);
             if isempty(igx )
                 return;
             end
-            inglc = find(igx == self.idx_,1);
-            if ~isempty(inglc)
-                obj_idx = self.igx_(inglc);
-            end
+            obj_idx = find(igx == self.idx_,1);
         end
 
         function sset = get_subset(self, indices)
@@ -231,14 +228,14 @@ classdef unique_references_container < ObjContainersBase
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             n_present = self.n_objects;
             if ischar(obj)
-                [storage,uidx] = storage.add_if_new(obj);
+                [storage,uidx] = storage.add(obj);
                 idx_add = uidx;
                 nuidx   = n_present+1;
             elseif iscell(obj)
                 idx_add = zeros(1,n_add_obj);
                 nuidx = zeros(1,n_add_obj);
                 for i=1:n_add_obj
-                    [storage,uidx] = storage.add_if_new(obj{i});
+                    [storage,uidx] = storage.add(obj{i});
                     idx_add(i) = uidx;
                     nuidx(i) = n_present+i;
                 end
@@ -249,7 +246,7 @@ classdef unique_references_container < ObjContainersBase
                 idx_add = zeros(1,n_add_obj);
                 nuidx = zeros(1,n_add_obj);
                 for i=1:n_add_obj
-                    [storage,uidx] = storage.add_if_new(obj(i));
+                    [storage,uidx] = storage.add(obj(i));
                     idx_add(i) = uidx;
                     nuidx(i)   = n_present+i;
                 end
@@ -271,13 +268,11 @@ classdef unique_references_container < ObjContainersBase
             %         inserted.
             % The old value is overwritten.
             self.check_if_range_allowed(nuix,varargin{:});
-            storage      = unique_obj_store.instance().get_objects(self.baseclass);
+            storage = unique_obj_store.instance().get_objects(self.baseclass);
 
-            % add if new and if not, return existing index and increase ref
-            % count
-            [storage,gidx] = storage.add_if_new(obj);
-            self.idx_(nuix)= gidx;
-
+            gidx             = self.idx_(nuix);
+            [storage,gidx]   = storage.replace(obj,gidx,varargin{:});
+            self.idx_(nuix)  = gidx;
             unique_obj_store.instance().set_objects(storage);
         end
 
@@ -337,34 +332,26 @@ classdef unique_references_container < ObjContainersBase
             % -----
             % - val: unique_objects_container with the objects to be restored
             %        to this container or cellarray of the objects
-            if iscell(val)
-                val = unique_objects_container(class(val{1}),val);
-            end
-            if ~isa(val,'unique_objects_container')
+            %   Or
+            %       cell of unique objects to set unique objects for storage
+            %
+            if isa(val,'unique_objects_container')
+                [self,storage] = set_container_from_saved_objects_(self,val);
+            elseif iscell(val)
+                if isempty(self.baseclass)
+                    error('HERBERT:unique_references_container:runtime_error', ...
+                        'Incomplete setup. Can not setup unique unnamed unique_references_container by cellarray of objects');
+
+                end
+                storage = unique_obj_store.instance().get_objects(self.baseclass);
+                % all check should be performed in storage
+                storage.unique_objects = val;
+            else
                 error('HERBERT:unique_references_container:invalid_argument', ...
                     'unique_objects must be a unique_objects_container');
             end
-            % unique_obj_container resets everything, so no point of
-            % throwing in this situation. Just reset target
-            if isempty(self.baseclass)
-                self.baseclass  = val.baseclass;
-            end
-            if ~strcmp(self.baseclass,val.baseclass)
-                if self.n_objects>0
-                    error('HERBERT:unique_references_container:invalid_argument', ...
-                        'Can not asign unique objects of type "%s" to non-empty container of type "%s"',...
-                        val.baseclass,self.baseclass);
-                else
-                    self.baseclass_ = val.baseclass;
-                end
-            end
-            storage = unique_obj_store.instance().get_objects(self.baseclass);
-            self.idx_ = zeros(1,val.n_objects);
-            for i=1:val.n_objects
-                [storage,gidx] = storage.add_if_new(val(i));
-                self.idx_(i) = gidx;
-            end
             unique_obj_store.instance().set_objects(storage);
+
         end
         function n = get_n_unique(self)
             % get number of unique objects in the container
@@ -385,11 +372,10 @@ classdef unique_references_container < ObjContainersBase
             % Main part of get.n_objects method
             n = numel(self.idx_);
         end
-        function [self,nuix] = add_single(self,obj)
-            error('HERBERT:unique_references_container:not_implemented', ...
-                'this method is not implemented')
+        function self = add_single(self,obj)
+            error('HORACE:unique_references_container:not_implemented', ...
+                'this method is not yet implemented on unique_references_container')
         end
-        
     end
     %----------------------------------------------------------------------
     % unique_references_container specific. Consider making proteced or

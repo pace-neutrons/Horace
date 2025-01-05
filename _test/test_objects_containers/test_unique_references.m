@@ -217,18 +217,21 @@ classdef test_unique_references < TestCase
 
             urc{1} = 0.555;
             assertEqual(urc{1}, 0.555);
-            [is, ind] = urc.contains(0.555);
-            assertTrue(is);
+            [ind,hash,obj] = urc.find_in_container(0.555);
+            assertFalse(isempty(ind));
             assertEqual(ind, 1);
-            [is, ind] = urc.contains(0.111);
-            assertFalse(is);
+            assertEqual(obj,0.555);
+            [ind,hash,obj] = urc.find_in_container(0.111);
             assertTrue( isempty(ind) );
-            [is, ind] = urc.contains(0.222);
-            assertTrue(is);
+            assertEqual(obj,0.111);
+            [ind,hash,obj] = urc.find_in_container(0.222);
+            assertFalse(isempty(ind));
             assertEqual(ind,2);
-            [is, ind] = urc.contains(0.333);
-            assertTrue(is);
+            assertEqual(obj,0.222);
+            [ind,hash,obj] = urc.find_in_container(0.333);
+            assertFalse(isempty(ind));
             assertEqual(ind,3);
+            assertEqual(obj,0.333);
 
             % [is,ind]=urc.contains('double');
             % assertTrue(is);
@@ -312,12 +315,12 @@ classdef test_unique_references < TestCase
 
             inst = IX_null_inst();
             inst.name = 'NULL';
-            assertFalse(ins.hash_defined)l
+            assertFalse(inst.hash_defined);
             [ind,hash,inst] = urc.find_in_container(inst);
             assertTrue( isempty(ind) );
-            assertTrue(ins.hash_defined)
+            assertTrue(inst.hash_defined)
             assertEqual(inst.hash_value,hash);
-            
+
             urc{2} = inst;
             inst = urc{2};
             assertEqual( inst.name,'NULL' );
@@ -326,7 +329,7 @@ classdef test_unique_references < TestCase
             assertFalse(isempty(ind) );
             assertEqual(ind,2);
             [ind,hash,inst] = urc.find_in_container(IX_null_inst());
-            assertFalse(isempty(ind) );
+            assertTrue(isempty(ind) );
 
             urc = urc.add(IX_null_inst());
             assertEqual(urc.n_runs,5)
@@ -339,7 +342,7 @@ classdef test_unique_references < TestCase
 
             %-----
             glc = unique_obj_store.instance().get_objects('IX_inst');
-            assertTrue( isa( glc, 'unique_objects_container') );
+            assertTrue( isa( glc, 'unique_only_obj_container') );
             assertEqual( glc.n_objects, 4);
             assertEqual( glc.n_unique, 4);
             assertEqual( glc.n_duplicates,[2,1,1,1]);
@@ -469,8 +472,30 @@ classdef test_unique_references < TestCase
             assertExceptionThrown(@wrong_baseclass_thrower, ...
                 'HERBERT:unique_references_container:invalid_argument');
         end
+        function test_replace_unique_objects_with_correct_cellarray_works(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
 
-        function test_replace_unique_objects_with_cellarray_throw(~)
+            urc = unique_references_container('char');
+            urc(1) = 'aaaaa';
+            urc(2) = 'bbbb';
+            urc(3) = 'bbbb';
+
+            function thrower()
+                urc.unique_objects = {'AA','BB'};
+            end
+            assertExceptionThrown(@thrower, ...
+                'HERBERT:unique_only_obj_container:not_implemented');
+
+            % assertEqual(urc(1),'AA')
+            % assertEqual(urc(2),'BB')
+            % assertEqual(urc(3),'BB')
+        end
+
+
+        function test_replace_unique_objects_with_wrong_cellarray_throw(~)
             function clearer()
                 unique_obj_store.instance().clear('char');
             end
@@ -484,7 +509,7 @@ classdef test_unique_references < TestCase
                 urc.unique_objects = {'AA','AA'};
             end
             assertExceptionThrown(@thrower, ...
-                'HERBERT:unique_objects_container:invalid_argument');
+                'HERBERT:unique_only_obj_container:not_implemented');
         end
 
         function test_replace_unique_same_number_works(~)
@@ -560,9 +585,9 @@ classdef test_unique_references < TestCase
             function thrower2()
                 urc2(1) = obj.mi1;
             end
-            ex = assertExceptionThrown(@thrower2,'HERBERT:ObjContainerBase:invalid_argument');
+            ex = assertExceptionThrown(@thrower2,'HERBERT:unique_objects_container:invalid_argument');
             assertEqual(ex.message, ...
-                'Assigning object of class: "IX_inst_DGfermi" to container with baseclass: "char" is prohibited');
+                'Can not place object of class "IX_inst_DGfermi" in the container with baseclass: "char"');
             assertEqual( urc2(1),'aaaaa'); % warning was issued and object was not replaced
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
@@ -664,7 +689,7 @@ classdef test_unique_references < TestCase
                 urc = urc.add(obj.nul_sm1);
             end
             assertExceptionThrown(@thrower, ...
-                'HERBERT:unique_objects_container:invalid_argument');
+                'HERBERT:ObjContainerBase:invalid_argument');
 
             % object not added, size unchanges, warning issued
             assertEqual( urc.n_runs, 1);
@@ -688,7 +713,7 @@ classdef test_unique_references < TestCase
                 [urc, nuix] = urc.add(obj.mi1);
             end
             assertExceptionThrown(@thrower, ...
-                'HERBERT:unique_objects_container:invalid_argument');
+                'HERBERT:ObjContainerBase:invalid_argument');
 
             % object of incorrect type not added, warning issued, size
             % still 1, addition index 0 => not added
@@ -876,7 +901,7 @@ classdef test_unique_references < TestCase
             function throw()
                 urc.baseclass = 'IX_inst';
             end
-            assertExceptionThrown(@throw, 'HERBERT:unique_obj_store:invalid_argument');
+            assertExceptionThrown(@throw, 'HERBERT:ObjContainerBase:invalid_argument');
         end
         %-----------------------------------------------------------------
         function test_use_properties_two_references(~)

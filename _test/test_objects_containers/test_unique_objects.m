@@ -20,6 +20,12 @@ classdef test_unique_objects < TestCase
             obj.nul_sm1 = IX_null_sample();
 
         end
+        function test_two_fields_constructor(~)
+            uoc = unique_objects_container('char',{'AA','BB'});
+            assertEqual(uoc.n_objects,2)
+            assertEqual(uoc.n_unique,2)
+            assertEqual(uoc.idx,[1,2]);
+        end
         %
         %------------------------------------------------------------------
         function test_find_in_container_object(obj)
@@ -41,7 +47,7 @@ classdef test_unique_objects < TestCase
         function test_add_non_unique_objects(obj)
 
             % make a unique_objects_container (empty)
-            uoc = unique_objects_container();
+            uoc = unique_objects_container('IX_inst');
 
             % add 3 identical instruments to the container
             uoc = uoc.add(obj.li);
@@ -112,7 +118,7 @@ classdef test_unique_objects < TestCase
         end
 
         function test_save_load(~)
-            clWarn = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');            
+            clWarn = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');
             uoc = unique_objects_container();
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
@@ -143,6 +149,7 @@ classdef test_unique_objects < TestCase
         function test_add_similar_non_unique_objects(obj)
             %disp('Test: test_add_similar_non_unique_objects');
 
+            clWarn = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');
             mi2 = merlin_instrument(190, 700, 'g');
             assertFalse( isequal(obj.mi1,mi2) );
 
@@ -163,35 +170,6 @@ classdef test_unique_objects < TestCase
             assertEqual( mi2, uoc.get(5) );
         end
         %----------------------------------------------------------------
-        function test_add_different_types(obj)
-
-            uoc = unique_objects_container();
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.unique_objects), 2);
-            assertEqual( numel(uoc.idx), 2);
-            assertEqual( obj.mi1, uoc.get(1) );
-            assertEqual( obj.nul_sm1, uoc.get(2) );
-            voc = unique_objects_container('baseclass','IX_inst');
-            [voc,nuix] = voc.add(obj.mi1);
-
-            assertTrue( nuix>0 );
-            function thrower()
-                [voc,nuix] = voc.add(obj.nul_sm1);
-            end
-            assertExceptionThrown(@thrower,'HERBERT:unique_objects_container:invalid_argument');
-
-            assertEqual( numel(voc.unique_objects), 1);
-            assertEqual( numel(voc.idx), 1);
-        end
-        %----------------------------------------------------------------
-        function test_constructor_arguments_no_type(obj)
-
-            uoc = unique_objects_container();
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(obj.nul_sm1);
-            assertEqual( numel(uoc.unique_objects), 2);
-        end
         function test_constructor_arguments_with_type(obj)
 
             uoc = unique_objects_container('baseclass','IX_inst');
@@ -199,7 +177,7 @@ classdef test_unique_objects < TestCase
             function thrower()
                 uoc = uoc.add(obj.nul_sm1);
             end
-            assertExceptionThrown(@thrower,'HERBERT:unique_objects_container:invalid_argument');
+            assertExceptionThrown(@thrower,'HERBERT:ObjContainerBase:invalid_argument');
             assertEqual( numel(uoc.unique_objects), 1);
         end
         function test_constructor_arguments_type_serializer(obj)
@@ -211,8 +189,8 @@ classdef test_unique_objects < TestCase
             function thrower()
                 uoc = uoc.add(obj.nul_sm1);
             end
-            assertExceptionThrown(@thrower,'HERBERT:unique_objects_container:invalid_argument');
-            
+            assertExceptionThrown(@thrower,'HERBERT:ObjContainerBase:invalid_argument');
+
             assertEqual( numel(uoc.unique_objects), 1);
         end
 
