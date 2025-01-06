@@ -28,9 +28,6 @@ elseif inst.n_runs == size(pm_par,1)
     for i=1:inst.n_runs
         inst_mod = inst(i);
         inst(i)  = inst_mod.set_mod_pulse(pulse_model,pm_par(i,:));
-        if i==119
-            continue
-        end
     end
 else
     error('HORACE:Experiment:invalid_argument', ...

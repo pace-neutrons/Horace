@@ -348,49 +348,94 @@ classdef test_unique_only_obj < TestCase
         %     assertEqual(uoc.stored_hashes, uocr.stored_hashes);
         % end
         %------------------------------------------------------------------
+        function test_replace_at_last_pos_add_at_the_end(~)
+            % replace unique object located at specified global index
+            oc = unique_only_obj_container_tester('char');
+            oc = oc.add({'1','2','3','4','5'});
+            oc = oc.add('3');
+            assertEqual(oc.n_duplicates,[1,1,2,1,1]);
+
+            [oc,gidx] = oc.replace('1',5);
+            assertEqual(gidx,1); % this 1 will go to idx(5)=1 of reference container
+            assertEqual(oc.n_objects,4)
+            assertEqual(oc.idx,[1,2,3,4,0])
+            assertEqual(oc.unique_objects,{'1','2','3','4'});
+            assertEqual(oc.n_duplicates,[2,1,2,1]);
+
+            [oc,gidx] = oc.add('100');
+            assertEqual(gidx,5);
+            assertEqual(oc.n_objects,5)
+            assertEqual(oc.idx,[1,2,3,4,5])
+            assertEqual(oc.unique_objects,{'1','2','3','4','100'});
+            assertEqual(oc.n_duplicates,[2,1,2,1,1]);
+        end
+
         function test_add_new_after_replace_takes_free(~)
             % replace unique object located at specified global index
-            oc = unique_only_obj_container_tester('double');
-            oc = oc.add(1:5);
-            oc = oc.add(5);
+            oc = unique_only_obj_container_tester('char');
+            oc = oc.add({'1','2','3','4','5'});
+            oc = oc.add('5');
             assertEqual(oc.n_duplicates,[1,1,1,1,2]);
 
-            [oc,gidx] = oc.replace(2,3);
-            assertEqual(gidx,3);
+            [oc,gidx] = oc.replace('2',3);
+            assertEqual(gidx,2); % this 2 will go to idx(3)=2 of reference container
             assertEqual(oc.n_objects,4)
-            assertEqual(oc.idx,[1,2,0,4,3])
-            assertEqual(oc.unique_objects,{1,2,5,4});
-            assertEqual(oc.n_duplicates,[1,1,2,1]);            
+            assertEqual(oc.idx,[1,2,0,4,5])
+            assertEqual(oc.unique_objects,{'1','2','5','4'});
+            assertEqual(oc.n_duplicates,[1,2,2,1]);
 
-            [oc,gidx] = oc.add(100);
+            [oc,gidx] = oc.add('100');
             assertEqual(gidx,3);
             assertEqual(oc.n_objects,5)
-            assertEqual(oc.idx,[1,2,5,4,3])
-            assertEqual(oc.unique_objects,{1,2,5,4,100});
-            assertEqual(oc.n_duplicates,[1,1,2,1,1]);            
+            assertEqual(oc.idx,[1,2,3,4,5])
+            assertEqual(oc.unique_objects,{'1','2','5','4','100'});
+            assertEqual(oc.n_duplicates,[1,2,2,1,1]);
+
+            uob_sample = {'1','2','100','4','5'};
+            gid = [1,2,3,4,5];  % these are global indices which were returned
+            % by presumably add/replace output and stored elsewhere
+            for i=1:5
+                assertEqual(uob_sample{i},oc.get(gid(i)));
+            end
 
         end
-        
+
         function test_replace_existing_no_duplicates(~)
             % replace unique object located at specified global index
             oc = unique_only_obj_container_tester('double');
-            oc = oc.add(1:5);
-            oc = oc.add(5);
+            [oc,gidx] = oc.add(1:5);
+            assertEqual(gidx,1:5);
+            [oc,gidx] = oc.add(5);
+            assertEqual(gidx,5);
             assertEqual(oc.n_duplicates,[1,1,1,1,2]);
+            uob_sample = [1,2,3,4,5];
+            for i=1:5
+                assertEqual(uob_sample(i),oc.get(i));
+            end
+
 
             [oc,gidx] = oc.replace(2,3);
 
-            assertEqual(gidx,3);
+            assertEqual(gidx,2);
             assertEqual(oc.n_objects,4)
-            assertEqual(oc.idx,[1,2,0,4,3])
+            assertEqual(oc.idx,[1,2,0,4,5])
 
             assertEqual(oc.unique_objects,{1,2,5,4});
-            assertEqual(oc.n_duplicates,[1,1,2,1]);
+            assertEqual(oc.n_duplicates,[1,2,2,1]);
+
+            uob_sample = [1,2,4,5];
+            gid = [1,2,4,5]; % these are global indices which were returned
+            % by presumably add/replace output and stored elsewhere
+            for i=1:4
+                assertEqual(uob_sample(i),oc.get(gid(i)));
+            end
+
+
         end
 
         function test_replace_existing_with_duplicates(~)
             % replace unique object located at specified global index
-            oc = unique_only_obj_container('double');
+            oc = unique_only_obj_container_tester('double');
             oc = oc.add(1:5);
             oc = oc.add(4:5);
             assertEqual(oc.n_duplicates,[1,1,1,2,2]);
@@ -403,11 +448,16 @@ classdef test_unique_only_obj < TestCase
 
             assertEqual(oc.unique_objects,{1,2,3,4,5});
             assertEqual(oc.n_duplicates,[1,1,1,3,1]);
+
+            uob_sample = 1:5;
+            for i=1:5
+                assertEqual(uob_sample(i),oc.get(i));
+            end
         end
 
-        function test_replace_with_duplicates_works(~)
+        function test_replace_with_duplicates_works_in_place(~)
             % replace unique object located at specified global index
-            oc = unique_only_obj_container('double');
+            oc = unique_only_obj_container_tester('double');
             oc = oc.add(1:5);
             oc = oc.add(4);
             assertEqual(oc.n_duplicates,[1,1,1,2,1]);
@@ -424,7 +474,7 @@ classdef test_unique_only_obj < TestCase
 
         function test_replace_single_gidx(~)
             % replace unique object located at specified global index
-            oc = unique_only_obj_container('double');
+            oc = unique_only_obj_container_tester('double');
             oc = oc.add(1:5);
 
             [oc,gidx] = oc.replace(10,4);
@@ -439,7 +489,7 @@ classdef test_unique_only_obj < TestCase
         %------------------------------------------------------------------
         function test_replace_far_out_of_range_fail(~)
             % replace object located at specified global index
-            oc = unique_only_obj_container('double');
+            oc = unique_only_obj_container_tester('double');
             oc = oc.add(1:5);
             function thrower()
                 oc = oc.replace(10,7);
@@ -448,7 +498,7 @@ classdef test_unique_only_obj < TestCase
         end
         function test_replace_out_of_range_fail(~)
             % replace object located at specified global index
-            oc = unique_only_obj_container('double');
+            oc = unique_only_obj_container_tester('double');
             oc = oc.add(1:5);
             function thrower()
                 oc = oc.replace(10,6);
@@ -457,18 +507,21 @@ classdef test_unique_only_obj < TestCase
         end
         function test_replace_at_expansion_range_fail(~)
             % replace object located at specified global index
-            oc = unique_only_obj_container('double');
-            oc = oc.add(1:5);
+            oc = unique_only_obj_container_tester('double');
+            [oc,gidx] = oc.add(1:5);
             function thrower()
                 oc = oc.replace(10,6,'+');
             end
+            assertEqual(gidx,1:5);
             assertExceptionThrown(@thrower,'HERBERT:unique_only_obj_container:invalid_argument');
         end
         %------------------------------------------------------------------
         function test_add_with_duplicates(~)
-            oc = unique_only_obj_container('double');
-            oc = oc.add([1,2]);
-            oc = oc.add([3,2,2]);
+            oc = unique_only_obj_container_tester('double');
+            [oc,gidx] = oc.add([1,2]);
+            assertEqual(gidx,oc.idx);
+            [oc,gidx] = oc.add([3,2,2]);
+            assertEqual(gidx,[3,2,2]);
             assertEqual(oc.n_objects,3)
             assertEqual(oc.n_unique,3)
             assertEqual(oc.idx,[1,2,3])
@@ -477,7 +530,7 @@ classdef test_unique_only_obj < TestCase
             assertEqual(oc.n_duplicates,[1,3,1]);
         end
         function test_add_and_set_type(~)
-            oc = unique_only_obj_container();
+            oc = unique_only_obj_container_tester();
             clWa = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup','HERBERT:test_warning');
             warning('HERBERT:test_warning','reset warning to deined state');
             assertEqual(oc.baseclass,'');
@@ -492,9 +545,10 @@ classdef test_unique_only_obj < TestCase
             assertEqual(oc.n_duplicates,[1,1]);
         end
         function test_simple_add(~)
-            oc = unique_only_obj_container('double');
+            oc = unique_only_obj_container_tester('double');
             assertEqual(oc.baseclass,'double');
-            oc = oc.add([1,2]);
+            [oc,gidx] = oc.add([1,2]);
+            assertEqual(gidx,[1,2])
             assertEqual(oc.n_objects,2)
             assertEqual(oc.n_unique,2)
             assertEqual(oc.idx,[1,2])
@@ -503,7 +557,7 @@ classdef test_unique_only_obj < TestCase
         end
         %------------------------------------------------------------------
         function test_constructor_with_name_only(~)
-            oc = unique_only_obj_container('double');
+            oc = unique_only_obj_container_tester('double');
             assertEqual(oc.baseclass,'double');
             assertEqual(oc.n_objects,0);
             assertEqual(oc.n_unique,0);
@@ -512,7 +566,7 @@ classdef test_unique_only_obj < TestCase
             assertTrue(isempty(oc.n_duplicates));
         end
         function test_empty_empty_constructor(~)
-            oc = unique_only_obj_container();
+            oc = unique_only_obj_container_tester();
             assertEqual(oc.baseclass,'');
             assertEqual(oc.n_objects,0);
             assertEqual(oc.n_unique,0);

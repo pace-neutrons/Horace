@@ -223,34 +223,13 @@ classdef unique_references_container < ObjContainersBase
                     'baseclass not initialised, using first assigned type: "%s"', ...
                     self.baseclass);
             end
-
-            n_add_obj = numel(obj);
             storage = unique_obj_store.instance().get_objects(self.baseclass);
+            
+            % idx_add are the poistions of the added objects in storage.idx
+            % array, which addresses local objects
+            [storage,idx_add] = storage.add(obj);
             n_present = self.n_objects;
-            if ischar(obj)
-                [storage,uidx] = storage.add(obj);
-                idx_add = uidx;
-                nuidx   = n_present+1;
-            elseif iscell(obj)
-                idx_add = zeros(1,n_add_obj);
-                nuidx = zeros(1,n_add_obj);
-                for i=1:n_add_obj
-                    [storage,uidx] = storage.add(obj{i});
-                    idx_add(i) = uidx;
-                    nuidx(i) = n_present+i;
-                end
-            else
-                if isa(obj, 'unique_objects_container')
-                    n_add_obj = obj.n_objects;
-                end
-                idx_add = zeros(1,n_add_obj);
-                nuidx = zeros(1,n_add_obj);
-                for i=1:n_add_obj
-                    [storage,uidx] = storage.add(obj(i));
-                    idx_add(i) = uidx;
-                    nuidx(i)   = n_present+i;
-                end
-            end
+            nuidx  = n_present+1:numel(idx_add);            
             self.idx_ = [self.idx_,idx_add];
 
             unique_obj_store.instance().set_objects(storage);
@@ -274,13 +253,6 @@ classdef unique_references_container < ObjContainersBase
             [storage,gidx]   = storage.replace(obj,gidx,varargin{:});
             self.idx_(nuix)  = gidx;
             unique_obj_store.instance().set_objects(storage);
-        end
-
-        function val = get(self,index)
-            %GET - alternative access method: obj.get(i)===obj{i}
-            self.check_if_range_allowed(index)
-            ngidx = self.idx_(index);
-            val = unique_obj_store.instance().get_value(self.baseclass,ngidx);
         end
         % return container ordered in a particular way. Redundant?
         newself = reorder(self)
@@ -361,6 +333,9 @@ classdef unique_references_container < ObjContainersBase
         function nd = get_n_duplicates(self)
             % retrieve number of duplicates, stored in the container
             nd = accumarray(self.idx_',1)';
+            % exclude 0 elements to advoid indices not used by the container
+            % and transforming output to the form, used by other containers
+            nd = nd(nd~=0);
         end
         function self = set_n_duplicates(varargin)
             error('HERBERT:unique_references_container:invalid_argument',...

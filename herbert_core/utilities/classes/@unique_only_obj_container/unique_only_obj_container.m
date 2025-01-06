@@ -14,8 +14,9 @@ classdef unique_only_obj_container < ObjContainersBase
         n_duplicates_   = zeros(1,0); % number of duplicateds
         lidx_           = zeros(1,0); % continuous array of local indices for the objects in the contianer
 
-        total_allocated_ = 0;
-        max_obj_idx_     = 0;
+        total_allocated_ = 0;    % total size of allocated memory
+        max_obj_idx_     = 0;    % maximal position of global index of
+        %                        % unique objects in memory
     end
     properties(Dependent,Hidden=true)
         % property containing list of stored hashes for unique objects for
@@ -87,6 +88,11 @@ classdef unique_only_obj_container < ObjContainersBase
         function ms = get.allocated_mem_size(self)
             ms = numel(self.idx_);
         end
+        function is = is_in(self,gidx)
+            % returns true if input global idx is within alowed indixes range
+            % of the container or false otherwise
+            is = all(gidx>0 & gidx<=self.max_obj_idx_);
+        end
     end
     %----------------------------------------------------------------------
     % SATISFY CONTAINERS INTERFACE
@@ -117,7 +123,7 @@ classdef unique_only_obj_container < ObjContainersBase
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
-                [~,lix] = ismember( hash, self.stored_hashes_(1:self.n_unique_));
+                [~,lix] = ismember( hash, self.stored_hashes_(self.lidx_(1:self.n_unique_)));
                 if lix<1
                     lix = []; % ismember returns 0 in this case, not []
                 end
@@ -155,25 +161,6 @@ classdef unique_only_obj_container < ObjContainersBase
             [self,gidx] = replace_(self,obj,nuix,varargin{:});
         end % replace()
 
-        function obj = get(self,lidx)
-            % given the non-unique index nuix that you know about for your
-            % object (it was returned when you added it to the container
-            % with add) get the unique object associated
-            %
-            % Input:
-            % - luix : unique index of this object used in subsref
-            % Output:
-            % - obj : the unique object store for this index
-            %
-            self.check_if_range_allowed(lidx);
-            ix = self.lidx_(lidx);
-            if numel(ix) == 1
-                obj = self.unique_objects{ix};
-            else
-                obj = cellfun(@(ii)self.unique_objects{ii},ix);
-            end
-        end
-
         function newself = reorder(self)
             % the internal order of unique_objects_container is not well
             % defined. As long as idx and unique_objects between them
@@ -195,38 +182,17 @@ classdef unique_only_obj_container < ObjContainersBase
     %----------------------------------------------------------------------
     % satisfy ObjContainersBase protected interface
     methods(Access=protected)
-        function check_if_range_allowed(self,nuix,varargin)
-            % Validates if input non-unique index is in the range of indices
-            % allowed for current state of the container
-            if nargin==3
-                upper_range = self.n_objects+1;
-                if any(nuix == upper_range)
-                    error('HERBERT:unique_only_obj_container:invalid_argument',[ ...
-                        'Some or all input indices: [%d..%d] are at the range %d+1.\n' ...
-                        'This container can not be extended by addressing its elements behind its boundaries'], ...
-                        nuix(1),nuix(end),upper_range);
-                end
-            end
-            check_if_range_allowed@ObjContainersBase(self,nuix);
-        end
-
-        function x = get_idx(self)
-            % core of get.idx method.
-            x = self.idx_(1:self.max_obj_idx_);
-        end
-
         function uo = get_unique_objects(self,varargin)
             %GET_UNIQUE_OBJECTS Return the cell array containing the unique
             % objects in this container.
             % if provided with argument, return object, located at
             % specified non-unique index
-            % TODO: reconsile with get
             if nargin == 1
-                uo = self.unique_objects_(1:self.n_unique_);
+                uo = self.unique_objects_(self.lidx_(1:self.n_unique_));
             else
                 nuidx = varargin{1};
                 self.check_if_range_allowed(nuidx);
-                uidx = self.idx_(nuidx );
+                uidx = self.idx_(nuidx);
                 if numel(uidx)==1
                     uo = self.unique_objects_{uidx};
                 else % this makes {a:b}  behave like (a:b).
@@ -237,6 +203,33 @@ classdef unique_only_obj_container < ObjContainersBase
             end
         end
         %
+
+        function check_if_range_allowed(self,nuix,varargin)
+            % Validates if input non-unique index is in the range of indices
+            % allowed for current state of the container
+            if nargin==3
+                upper_range = self.max_obj_idx_+1;
+                if any(nuix == upper_range)
+                    error('HERBERT:unique_only_obj_container:invalid_argument',[ ...
+                        'Some or all input indices: [%d..%d] are at the range %d+1.\n' ...
+                        'This container can not be extended by addressing its elements behind its boundaries'], ...
+                        nuix(1),nuix(end),upper_range);
+                end
+            else
+                upper_range = self.max_obj_idx_;
+            end
+            if any(nuix < 1) || any(nuix > upper_range)
+                error('HERBERT:ObjContainersBase:invalid_argument', ...
+                    'Some or all input indices: [%d..%d] are outside allowed range [1:%d] for this container', ...
+                    nuix(1),nuix(end),upper_range);
+            end
+        end
+
+        function x = get_idx(self)
+            % core of get.idx method.
+            x = self.idx_(1:self.max_obj_idx_);
+        end
+
         function self = set_unique_objects(self,val)
             %SET_UNIQUE_OBJECTS Load a cell array or array of appropriate
             % objects into the container, e.g. from file
@@ -253,7 +246,7 @@ classdef unique_only_obj_container < ObjContainersBase
         end
         function nd = get_n_duplicates(self)
             % retrieve number of duplicates, stored in the container
-            nd = self.n_duplicates_(1:self.n_unique_);
+            nd = self.n_duplicates_(self.lidx_(1:self.n_unique_));
         end
         function self = set_n_duplicates(self,n_dupl)
             % main setter for set.n_duplicates method

@@ -194,26 +194,6 @@ classdef unique_objects_container < ObjContainersBase
             self = replace_(self,obj,nuix);
         end % replace()
 
-        function obj = get(self,nuix)
-            % given the non-unique index nuix that you know about for your
-            % object (it was returned when you added it to the container
-            % with add) get the unique object associated
-            %
-            % Input:
-            % - nuix : non-unique index that has been stored somewhere for
-            %          this object
-            % Output:
-            % - obj : the unique object store for this index
-            %
-            self.check_if_range_allowed(nuix);
-            ix = self.idx_(nuix);
-            if numel(nuix) == 1
-                obj = self.unique_objects{ix};
-            else
-                obj = cellfun(@(ii)self.unique_objects{ii},ix);
-            end
-        end
-
         function newself = reorder(self)
             % the internal order of unique_objects_container is not well
             % defined. As long as idx and unique_objects between them

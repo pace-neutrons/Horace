@@ -1,4 +1,4 @@
-function [self,lidx] = add_if_new_single_(self,obj)
+function [self,gidx] = add_if_new_single_(self,obj)
 %ADD_IF_NEW_SINGLE_ Add single object to the unique objects container
 % if it is not already there. If it is, increase number of object references
 %
@@ -20,27 +20,28 @@ if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
         class(obj),self.baseclass_);
 end
 
-% call find_in_container to get poisition and hash of the object
+% call find_in_container to get position and hash of the object
 [lidx,hash,obj] = self.find_in_container(obj);
 
 % If the object is not in the container add it to the container.
 if isempty(lidx) % means obj not in container and should be added
 
-    [self,lidx] = self.check_and_expand_memory_if_necessary();
+    [self,lidx_new] = self.check_and_expand_memory_if_necessary();
 
-    idx_free = self.lidx_(lidx);
+    idx_free = self.lidx_(lidx_new);
 
-    self.stored_hashes_{lidx}  = hash;
-    self.unique_objects_{lidx} = obj;
-    self.n_duplicates_(lidx)   = 1;
+    self.stored_hashes_{idx_free}  = hash;
+    self.unique_objects_{idx_free} = obj;
+    self.n_duplicates_(idx_free)   = 1;
     % set unique global index of objects in the container to refer to
     % current object location
-    self.idx_(idx_free)        = lidx;
+    self.idx_(idx_free)        = idx_free;
     self.n_unique_             = self.n_unique_+1;
     self.max_obj_idx_          = max(self.n_unique_,self.max_obj_idx_);
     %
-    lidx     = idx_free;
+    gidx     = idx_free;
 else
     self.n_duplicates_(lidx) = self.n_duplicates_(lidx)+1;
+    gidx     = self.lidx_(lidx);
 end
 

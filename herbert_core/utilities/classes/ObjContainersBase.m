@@ -109,6 +109,20 @@ classdef ObjContainersBase < serializable
 
         %------------------------------------------------------------------
         % helper methods
+        function obj = get(self,nuix)
+            % given the non-unique index nuix that you know about for your
+            % object (it was returned when you added it to the container
+            % with add) get the unique object associated
+            %
+            % Input:
+            % - nuix : non-unique index that has been stored somewhere for
+            %          this object
+            % Output:
+            % - obj : the unique object store for this index
+            %
+            obj = self.get_unique_objects(nuix);
+        end
+        
         function n =  get_nruns(self)
             %GET_NRUNS non-dependent-property form of n_runs
             % for use with arrayfun in object_lookup
@@ -249,7 +263,7 @@ classdef ObjContainersBase < serializable
                     'baseclass not initialised, using first assigned type: "%s"', ...
                     self.baseclass);
             end
-            if ~isa(obj,self.baseclass)
+            if ~(isa(obj,self.baseclass) || (iscell(obj)&&all(cellfun(@(x)isa(x,self.baseclass),obj))))
                 error('HERBERT:ObjContainerBase:invalid_argument', ...
                     'Assigning object of class: "%s" to container with baseclass: "%s" is prohibited', ...
                     class(obj),self.baseclass);
@@ -329,9 +343,6 @@ classdef ObjContainersBase < serializable
         sset = get_subset(self,indices)
         %REPLACE replaces the object at specified non-unique index nuix
         [self,nuix] = replace(self,obj,nuix,varargin)
-        % get object stored in the container given non-unique index
-        % associated with this object
-        obj = get(self,nuix)
         % return container ordered in a particular way. Redundant?
         newself = reorder(self)
         % get hash for component with index provided
