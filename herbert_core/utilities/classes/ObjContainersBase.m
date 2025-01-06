@@ -122,7 +122,7 @@ classdef ObjContainersBase < serializable
             %
             obj = self.get_unique_objects(nuix);
         end
-        
+
         function n =  get_nruns(self)
             %GET_NRUNS non-dependent-property form of n_runs
             % for use with arrayfun in object_lookup
@@ -164,7 +164,7 @@ classdef ObjContainersBase < serializable
             switch idxstr(1).type
                 case {'()','{}'}
                     b = idxstr(1).subs{:};
-                    c = self.get_unique_objects(b);
+                    c = self.get(b);
                     if isscalar(idxstr)
                         varargout{1} = c;
                     else
@@ -263,19 +263,28 @@ classdef ObjContainersBase < serializable
                     'baseclass not initialised, using first assigned type: "%s"', ...
                     self.baseclass);
             end
-            if ~(isa(obj,self.baseclass) || (iscell(obj)&&all(cellfun(@(x)isa(x,self.baseclass),obj))))
+            is_container = isa(obj,'unique_objects_container');
+            if ~(isa(obj,self.baseclass) || ...
+                    (iscell(obj)&&all(cellfun(@(x)isa(x,self.baseclass),obj))) ||...
+                    (is_container && isequal(self.baseclass,obj.baseclass)))
                 error('HERBERT:ObjContainerBase:invalid_argument', ...
                     'Assigning object of class: "%s" to container with baseclass: "%s" is prohibited', ...
                     class(obj),self.baseclass);
             end
 
-
-            if ~ischar(obj) && numel(obj)>1 || iscell(obj)
+            if ~ischar(obj) && numel(obj)>1 || iscell(obj) || is_container
                 nobj = numel(obj);
+                if is_container
+                    nobj = obj.n_objects;
+                end
                 nuix = zeros(1,nobj);
                 if iscell(obj)
                     for i = 1:nobj
                         [self,nuix(i)]=self.add(obj{i});
+                    end
+                elseif is_container
+                    for i = 1:nobj
+                        [self,nuix(i)]=self.add(obj.get(i));
                     end
                 else
                     for i = 1:nobj

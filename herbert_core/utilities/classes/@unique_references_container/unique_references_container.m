@@ -218,18 +218,23 @@ classdef unique_references_container < ObjContainersBase
             %   they will be split up into their elements to be added here;
             %   a single element cell is thus converted to that element.
             if isempty(self.baseclass_)
-                self.baseclass = class(obj);
+                if isa(obj,'unique_objects_container')
+                    self.baseclass = obj.baseclass;
+                else
+                    self.baseclass = class(obj);
+                end
                 warning('HERBERT:ObjContainerBase:incomplete_setup', ...
                     'baseclass not initialised, using first assigned type: "%s"', ...
                     self.baseclass);
             end
             storage = unique_obj_store.instance().get_objects(self.baseclass);
-            
+
             % idx_add are the poistions of the added objects in storage.idx
             % array, which addresses local objects
             [storage,idx_add] = storage.add(obj);
             n_present = self.n_objects;
-            nuidx  = n_present+1:numel(idx_add);            
+            nuidx  = 1:numel(idx_add);
+            nuidx =  nuidx+n_present;
             self.idx_ = [self.idx_,idx_add];
 
             unique_obj_store.instance().set_objects(storage);
