@@ -1,0 +1,45 @@
+@startuml
+group gen_sqw
+  :""gen_sqw(spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,""
+   ""        u, v, psi, omega, dpsi, gl, gs, varargin)"";
+  :parse arguments|
+  :setup and check conflicting arguments|
+  note right
+    ""check_transf_input""
+    ""gen_sqw_check_files""
+    ""gen_sqw_check_params""
+    ""gen_sqw_check_optional_args""
+    ""gen_sqw_check_distinct_input""
+  end note
+  :build rundatah files|
+  (A)
+  if (emode) then (1, 2)
+    :check file correctness|
+    note left
+       check for ""en"" and ""efix""
+    end note
+  else (0)
+  end if
+  :estimate grid size and pix ranges|
+  if (""numel(files)"") then (1)
+     :""transform_sqw""|
+     :set ""run_id""|
+     :""rundatah.calc_sqw""|
+     (B)
+     :""save(sqw)""|
+  else
+     :set ""run_id""|
+     :""convert_to_temp_files""|
+     (C)
+     :""write_nsqw_to_sqw""|
+     (D)
+  end if
+  :delete temporaries|
+  :end;
+end group
+
+group """calc_sqw"""
+  (B)
+end group
+
+@enduml

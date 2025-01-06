@@ -1,0 +1,37 @@
+@startuml
+group "calc_sqw"
+  (B)
+  :""calc_sqw(rundatah, grid_size_in, pix_db_range, varargin)"";
+  :parse_arguments|
+  note right
+    ""check_and_set_gridsize""
+  end note
+  :get instrument projection and axes|
+  note right: ""instproj""
+  :calc_sqw_data_and_header|
+  (1)
+  :""instproj.bin_pixels""|
+  :""normalize_signal""|
+end group
+
+detach
+
+group """calc_sqw_data_and_header"""
+  (1)
+  :construct [1,0,0], [0,1,0] projection|
+  :construct ""dnd""|
+  note right: ""sqw_data""
+  :construct ""IX_experiment""|
+  note right: part of ""Experiment""
+  :construct ""Experiment""|
+  note right: ""header""
+  split
+  :""header"">
+  detach
+  split again
+  :""sqw_data"">
+  detach
+  end split
+end group
+
+@enduml
