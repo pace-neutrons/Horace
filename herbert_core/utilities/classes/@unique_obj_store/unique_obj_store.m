@@ -83,7 +83,7 @@ classdef unique_obj_store<handle
             end
             stor = obj.stor_holder_.(class_name);
             if stor.is_in(glidx)
-                val = stor(glidx);
+                val = stor.get_at_direct_idx(glidx);
             else
                 error('HERBERT:unique_obj_store:invalid_argument',...
                     'Global index %d is outsie of the ranges [1,%d] of global store: %s', ...

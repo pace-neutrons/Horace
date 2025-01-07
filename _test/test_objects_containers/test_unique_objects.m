@@ -255,7 +255,7 @@ classdef test_unique_objects < TestCase
             end
             ex = assertExceptionThrown(@()set_uoc,'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(ex.message, ...
-                'Some or all input indices: [2..2] are outside allowed range [1:1] for this container')
+                'Some or all input indices: [2..2] are outside allowed range [1:1] for container: unique_objects_container')
         end
         function test_subscripting_type_hlp_ser_wrong_subscript_minus(obj)
             uoc = unique_objects_container('baseclass','IX_inst');
@@ -264,7 +264,7 @@ classdef test_unique_objects < TestCase
             end
             ex = assertExceptionThrown(@()set_uoc,'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(ex.message, ...
-                'Some or all input indices: [-1..-1] are outside allowed range [1:1] for this container')
+                'Some or all input indices: [-1..-1] are outside allowed range [1:1] for container: unique_objects_container')
 
         end
         function test_expand_to_nruns(obj)
@@ -352,7 +352,7 @@ classdef test_unique_objects < TestCase
             end
             me = assertExceptionThrown(@throw1, 'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(me.message, ...
-                'Some or all input indices: [2..2] are outside allowed range [1:1] for this container');
+                'Some or all input indices: [2..2] are outside allowed range [1:1] for container: unique_objects_container');
         end
         %-----------------------------------------------------------------
         function test_arrays_of_containers(~)

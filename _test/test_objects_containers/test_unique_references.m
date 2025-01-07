@@ -784,7 +784,7 @@ classdef test_unique_references < TestCase
             end
             ex = assertExceptionThrown(@set_urc,'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(ex.message, ...
-                'Some or all input indices: [2..2] are outside allowed range [1:1] for this container')
+                'Some or all input indices: [2..2] are outside allowed range [1:1] for container: unique_references_container')
 
         end
         %-----------------------------------------------------------------
@@ -957,13 +957,158 @@ classdef test_unique_references < TestCase
             end
             me = assertExceptionThrown(@throw1, 'HERBERT:ObjContainersBase:invalid_argument');
             assertEqual(me.message, ...
-                'Some or all input indices: [2..2] are outside allowed range [1:1] for this container');
+                'Some or all input indices: [2..2] are outside allowed range [1:1] for container: unique_references_container');
             stor = unique_obj_store.instance().get_objects('thingy_tester');
             assertEqual(stor.n_objects,1)
             assertEqual(stor.n_unique,1)
             assertEqual(stor.unique_objects{1},thingy_tester(222))
         end
         %-----------------------------------------------------------------
+        function test_two_urc_one_fully_replaced_through_index(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+
+            orobj = {'1','2','3','4','5','6'};
+            urc1 = unique_references_container('char');
+            urc1 = urc1.add(orobj);
+
+            urc2 = unique_references_container('char');
+            urc2 = urc2.add(orobj(4:6));
+
+
+            nobj = {'3','2','1'};
+            for i=1:3
+                urc1{i} = nobj{i};
+            end
+            uobj = urc1.unique_objects;
+            assertEqual(uobj.unique_objects,{'3','2','1','4','5','6'});
+            assertEqual(urc1(1:6),'321456');
+
+            % objects in other container are not affected
+            uobj = urc2.unique_objects;
+            assertEqual(uobj.unique_objects,orobj(4:6));
+            assertEqual(urc2(1:3),'456')
+
+
+            %-----
+            stor = unique_obj_store.instance().get_objects('char');
+            assertEqual(stor.n_objects,6)
+            assertEqual(stor.unique_objects,{'1','2','3','4','5','6'})
+            %                            {'1','2','3','4','5','6'};
+            assertEqual(stor.n_duplicates,[1,  1,  2,  2,  2,  1]);
+        end
+
+
+
+        function test_two_urc_partially_replaced_through_index(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+
+            orobj = {'1','2','3','4','5','6'};
+            urc1 = unique_references_container('char');
+            urc1 = urc1.add(orobj);
+
+            urc2 = unique_references_container('char');
+            urc2 = urc2.add(orobj(1:3));
+
+            assertEqual(urc1.n_unique,6);
+            assertEqual(urc1.n_objects,6);
+            assertEqual(urc1.idx,[1,2,3,4,5,6]);
+            assertEqual(urc2.n_unique,3);
+            assertEqual(urc2.n_objects,3);
+            assertEqual(urc2.idx,[1,2,3]);
+
+            nobj = {'5','4','3'};
+            for i=1:3
+                urc1{i} = nobj{i};
+            end
+            uobj = urc1.unique_objects;
+            assertEqual(uobj.unique_objects,{'5','4','3','6'});
+            assertEqual(urc1(1:6),'543456');            
+
+            uobj = urc2.unique_objects;
+            assertEqual(uobj.unique_objects,orobj(1:3));
+
+            %-----
+            stor = unique_obj_store.instance().get_objects('char');
+            assertEqual(stor.n_objects,6)
+            assertEqual(stor.unique_objects,orobj)
+            %                            {'1','2','3','4','5','6'};
+            assertEqual(stor.n_duplicates,[1,  1,  2,  2,  2,  1]);
+        end
+
+
+
+        function test_two_urc_fully_expanded_through_index(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+
+            orobj = {'1','2','3','4','5'};
+            urc1 = unique_references_container('char');
+            urc1 = urc1.add(orobj);
+
+            urc2 = unique_references_container('char');
+            urc2 = urc2.add(orobj);
+
+            assertEqual(urc1.n_unique,5);
+            assertEqual(urc1.n_objects,5);
+            assertEqual(urc1.idx,[1,2,3,4,5]);
+            assertEqual(urc2.n_unique,5);
+            assertEqual(urc2.n_objects,5);
+            assertEqual(urc2.idx,[1,2,3,4,5]);
+
+            nobj = {'6','7','8','9','10'};
+            for i=1:urc1.n_objects
+                urc1{i} = nobj{i};
+            end
+            uobj = urc1.unique_objects;
+            assertEqual(uobj.unique_objects,nobj);
+
+            uobj = urc2.unique_objects;
+            assertEqual(uobj.unique_objects,orobj);
+
+            %-----
+            stor = unique_obj_store.instance().get_objects('char');
+            assertEqual(stor.n_objects,10)
+            assertEqual(stor.n_unique,10)
+            assertEqual(stor.unique_objects,[orobj(:);nobj(:)]')
+            assertEqual(stor.n_duplicates,ones(1,10));
+        end
+
+        function test_one_urc_fully_replaced_through_index(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+
+            urc1 = unique_references_container('char');
+            urc1 = urc1.add({'1','2','3','4','5'});
+
+            assertEqual(urc1.n_unique,5);
+            assertEqual(urc1.n_objects,5);
+            assertEqual(urc1.idx,[1,2,3,4,5]);
+
+            nobj = {'6','7','8','9','10'};
+            for i=1:urc1.n_objects
+                urc1{i} = nobj{i};
+            end
+            uobj = urc1.unique_objects;
+            assertEqual(uobj.unique_objects,nobj);
+
+            %-----
+            stor = unique_obj_store.instance().get_objects('char');
+            assertEqual(stor.n_objects,5)
+            assertEqual(stor.n_unique,5)
+            assertEqual(stor.unique_objects(1:5),{'6','7','8','9','10'})
+            assertEqual(stor.n_duplicates,[1,1,1,1,1]);
+        end
+        %------------------------------------------------------------------
         function test_two_urc_work_fine(~)
             function clearer()
                 unique_obj_store.instance().clear('double');
@@ -1038,10 +1183,7 @@ classdef test_unique_references < TestCase
 
             uobj = urc1.expose_unique_objects();
             assertTrue(iscell(uobj));
-            assertEqual(uobj{1},1);
-            assertEqual(uobj{2},2);
-            assertEqual(uobj{3},3);
-            assertEqual(uobj{4},5);
+            assertEqual(uobj,{1,2,3,5});
 
             uoc1 = urc1.unique_objects;
             assertEqual(uoc1.n_objects,8)

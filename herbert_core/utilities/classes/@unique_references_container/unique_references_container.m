@@ -158,8 +158,9 @@ classdef unique_references_container < ObjContainersBase
             end
             uix = self.idx(1);
             self.idx_ = zeros( n_objects, 1 )+uix;
-            storage = unique_obj_store.instance().get_objects(self.baseclass);
-            storage.n_duplicates(uix) = storage.n_duplicates(uix)+n_objects-1;
+            storage   = unique_obj_store.instance().get_objects(self.baseclass);
+            storage   = storage.replicate_runs(n_objects,uix);
+            %
             unique_obj_store.instance().set_objects(storage);
         end
 
@@ -184,6 +185,21 @@ classdef unique_references_container < ObjContainersBase
             end
             obj_idx = find(igx == self.idx_,1);
         end
+
+        function obj = get(self,nuix)
+            % given the non-unique index nuix that you know about for your
+            % object (it was returned when you added it to the container
+            % with add) get the unique object associated
+            %
+            % Input:
+            % - nuix : non-unique index that has been stored somewhere for
+            %          this object
+            % Output:
+            % - obj : the unique object store for this index
+            %
+            obj = self.get_unique_objects(nuix);
+        end
+
 
         function sset = get_subset(self, indices)
             % retrieve set of objects, defined by input indices
@@ -291,13 +307,13 @@ classdef unique_references_container < ObjContainersBase
                 uoc     = unique_objects_container(self.baseclass);
                 for ii=1:self.n_objects
                     gidx  = self.idx(ii);
-                    obj   = storage(gidx);
+                    obj   = storage.get_at_direct_idx(gidx);
                     uoc   = uoc.add(obj);
                 end
             else
                 nuidx = varargin{1};
                 self.check_if_range_allowed(nuidx);
-                glindex = self.idx_(nuidx);
+                glindex = self.idx(nuidx);
                 uoc = unique_obj_store.instance().get_value(self.baseclass,glindex);
             end
         end
@@ -341,10 +357,6 @@ classdef unique_references_container < ObjContainersBase
             % exclude 0 elements to advoid indices not used by the container
             % and transforming output to the form, used by other containers
             nd = nd(nd~=0);
-        end
-        function self = set_n_duplicates(varargin)
-            error('HERBERT:unique_references_container:invalid_argument',...
-                'unique_references_container does not allow external change in number of duplicated objects')
         end
         %
         function  n = get_n_objects(self)

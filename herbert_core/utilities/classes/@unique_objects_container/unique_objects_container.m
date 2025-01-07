@@ -153,6 +153,19 @@ classdef unique_objects_container < ObjContainersBase
             end
         end
 
+        function obj = get(self,nuix)
+            % given the non-unique index nuix that you know about for your
+            % object (it was returned when you added it to the container
+            % with add) get the unique object associated
+            %
+            % Input:
+            % - nuix : non-unique index that has been stored somewhere for
+            %          this object
+            % Output:
+            % - obj : the unique object store for this index
+            %
+            obj = self.get_unique_objects(nuix);
+        end
         function obj = replicate_runs(obj,n_objects)
             % function expands container onto specified number of runs.
             % only single unique object allowed to be present in the
@@ -278,10 +291,6 @@ classdef unique_objects_container < ObjContainersBase
             % retrieve number of duplicates, stored in the container
             nd = accumarray(self.idx_',1)';
         end
-        function self = set_n_duplicates(varargin)
-            error('HERBERT:unique_objects_container:invalid_argument',...
-                'Unique_objects_container does not allow external change in number of duplicated objects')
-        end
         %
         function  n = get_n_objects(self)
             % return number of objets, stored in the container
@@ -297,48 +306,6 @@ classdef unique_objects_container < ObjContainersBase
     % at least for majority of them.
     %----------------------------------------------------------------------
     methods
-        function [self,nuix] = add_if_new(self,obj)
-            %ADD adds an object to the container
-            % Input:
-            % - obj : the object to be added. This may duplicate an object
-            %         in the container, but it will be noted as a duplicate
-            %         and will be given its own index, which it returns
-            %    or   cellarray or array of objects to add
-            % Output:
-            % - self : the changed container (as this is a value class)
-            % - nuix : the non-unique index for this object
-            %     or   array of such indexes if multiple objects were
-            %          added
-            %
-            % it may be a duplicate but it is still the n'th object you
-            % added to the container. The number of additions to the
-            % container is implicit in the size of idx_.
-
-            % process addition of multiple objects at once.
-            if isempty(self.baseclass_)
-                self.baseclass = class(obj);
-                warning('HERBERT:unique_objects_container:incomplete_setup', ...
-                    'baseclass not initialised, using first assigned type: "%s"', ...
-                    self.baseclass);
-            end
-
-            if ~ischar(obj) && numel(obj)>1 || iscell(obj)
-                nobj = numel(obj);
-                nuix = zeros(1,nobj);
-                if iscell(obj)
-                    for i = 1:nobj
-                        [self,nuix(i)]=self.add_if_new(obj{i});
-                    end
-                else
-                    for i = 1:nobj
-                        [self,nuix(i)]=self.add_if_new(obj(i));
-                    end
-                end
-                return;
-            end
-            [self,nuix] = add_if_new_single_(self,obj);
-        end % add()
-        
         function self = clear(self)
             % empty container. unique_object_container interface request.
             % TODO: remove?

@@ -93,6 +93,30 @@ classdef unique_only_obj_container < ObjContainersBase
             % of the container or false otherwise
             is = all(gidx>0 & gidx<=self.max_obj_idx_);
         end
+        function obj = get_at_direct_idx(self,lidx)
+            % return object given its direct location in the container's
+            % local storage.
+            %
+            % Used by unique_references_container to obtain objects from
+            % pointers stored in them
+            self.check_if_range_allowed(lidx);
+            n_targ = numel(lidx);
+            targ = cell(1,n_targ);            
+            obj = self.unique_objects_{lidx(1)};
+            base_class = class(obj);
+            same_class = true;
+            targ{1}=obj;
+            for i=2:n_targ
+                targ{i} = self.unique_objects_{lidx(i)};
+                if ~strcmp(class(targ{i}),base_class) % check if we can                     
+                    same_class = false; % merge different classes in one array
+                end
+            end
+            if same_class
+                obj = [targ{:}];
+            end
+
+        end
     end
     %----------------------------------------------------------------------
     % SATISFY CONTAINERS INTERFACE
@@ -123,19 +147,40 @@ classdef unique_only_obj_container < ObjContainersBase
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
-                [~,lix] = ismember( hash, self.stored_hashes_(self.lidx_(1:self.n_unique_)));
-                if lix<1
+                present = ismember(self.stored_hashes_(self.lidx_(1:self.n_unique_)), hash);
+                if ~any(present)
                     lix = []; % ismember returns 0 in this case, not []
+                else
+                    lix = self.lidx_(present);
                 end
+
             end
         end
+        function obj = get(self,idx)
+            % given the non-unique index nuix that you know about for your
+            % object (it was returned when you added it to the container
+            % with add) get the unique object associated
+            %
+            % Input:
+            % - nuix : non-unique index that has been stored somewhere for
+            %          this object
+            % Output:
+            % - obj : the unique object store for this index
+            %
+            obj = self.get_unique_objects(self.lidx_(idx));
+        end
 
-        function obj = replicate_runs(varargin)
-            % function expands container onto specified number of runs.
-            % only single unique object allowed to be present in the
-            % container initially
-            error('HERBERT:unique_objects_container:not_implemented', ...
-                'This funciton is pissible but does not make sence on unique_only_obj_container')
+
+        function self = replicate_runs(self,n_duplicates,pos)
+            % function expands number of references onto unique object in
+            % the contaner at specified position by additional number of
+            % references provided as input.
+            %
+            % E.g. if an object in position 3 had one reference,
+            % after replication by 10, it will have 10 references.
+            % if it had 2 references, it will be 11 references.
+            %
+            self.n_duplicates_(pos) = self.n_duplicates_(pos)+n_duplicates-1;
         end
 
         function sset = get_subset(self,indices)
@@ -175,7 +220,9 @@ classdef unique_only_obj_container < ObjContainersBase
         end
         %
         function val = hash(self,index)
-            % accessor for the stored hashes
+            % accessor for the stored hashes looping over container indices
+            % 
+            % confusing test function.
             val = self.stored_hashes_{ self.lidx_(index) };
         end
     end
@@ -188,7 +235,7 @@ classdef unique_only_obj_container < ObjContainersBase
             % if provided with argument, return object, located at
             % specified non-unique index
             if nargin == 1
-                uo = self.unique_objects_(self.lidx_(1:self.n_unique_));
+                uo = self.unique_objects_(1:self.max_obj_idx_);
             else
                 nuidx = varargin{1};
                 self.check_if_range_allowed(nuidx);
@@ -246,21 +293,7 @@ classdef unique_only_obj_container < ObjContainersBase
         end
         function nd = get_n_duplicates(self)
             % retrieve number of duplicates, stored in the container
-            nd = self.n_duplicates_(self.lidx_(1:self.n_unique_));
-        end
-        function self = set_n_duplicates(self,n_dupl)
-            % main setter for set.n_duplicates method
-            %
-            if ~isnumeric(n_dupl)
-                error('HERBERT:unique_only_obj_container:not_implemented', ...
-                    'Input for n_duplicates can be only numeric array')
-            end
-            if numel(n_dupl) ~= self.n_unique_
-                error('HERBERT:unique_only_obj_container:not_implemented', ...
-                    'Number of elements in n_duplicates array (%d) must be equal to the number of unique objects in the container (%d)', ...
-                    numel(n_dupl),self.n_unique_);
-            end
-            self.n_duplicates_(1:self.n_unique_)  = n_dupl(:)';
+            nd = self.n_duplicates_(1:self.max_obj_idx_);
         end
         %
         function n = get_n_unique(self)

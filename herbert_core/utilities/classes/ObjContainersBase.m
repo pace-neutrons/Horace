@@ -102,27 +102,8 @@ classdef ObjContainersBase < serializable
         function x = get.n_duplicates(self)
             x = get_n_duplicates(self);
         end
-        function self = set.n_duplicates(self,val)
-            % temporary setter. Should be removed in a nearest future
-            self = set_n_duplicates(self,val);
-        end
-
         %------------------------------------------------------------------
         % helper methods
-        function obj = get(self,nuix)
-            % given the non-unique index nuix that you know about for your
-            % object (it was returned when you added it to the container
-            % with add) get the unique object associated
-            %
-            % Input:
-            % - nuix : non-unique index that has been stored somewhere for
-            %          this object
-            % Output:
-            % - obj : the unique object store for this index
-            %
-            obj = self.get_unique_objects(nuix);
-        end
-
         function n =  get_nruns(self)
             %GET_NRUNS non-dependent-property form of n_runs
             % for use with arrayfun in object_lookup
@@ -332,8 +313,8 @@ classdef ObjContainersBase < serializable
             end
             if any(nuix < 1) || any(nuix > upper_range)
                 error('HERBERT:ObjContainersBase:invalid_argument', ...
-                    'Some or all input indices: [%d..%d] are outside allowed range [1:%d] for this container', ...
-                    nuix(1),nuix(end),upper_range);
+                    'Some or all input indices: [%d..%d] are outside allowed range [1:%d] for container: %s', ...
+                    nuix(1),nuix(end),upper_range,class(self));
             end
         end
     end
@@ -368,7 +349,8 @@ classdef ObjContainersBase < serializable
         n = get_n_unique(self);
         %
         x    = get_n_duplicates(self);
-        self = set_n_duplicates(self,val);
+        %self = set_n_duplicates(self,val); % let's prohibit it for the
+        %time being
         % get total number of objects, stored in the container
         n = get_n_objects(self);
     end

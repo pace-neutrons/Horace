@@ -9,7 +9,7 @@ function [self,gidx] = replace_(self,obj,gidx,varargin)
 %          container.
 % Output:
 % - self : the changed container (as this is a value class)
-% - gidx : constant global index of the object to be referred by
+% - gidx : permanent global index of the object to be referred by
 %          reference container. E.g. the position of the pointer to object
 %          location in self.idx_ array.
 
@@ -89,6 +89,5 @@ else
     gidx = self.lidx_(lidx);
     % increase number of duplicates at target
     self.n_duplicates_(lidx) = self.n_duplicates_(lidx)+1;
-
 end
 end % replace()
