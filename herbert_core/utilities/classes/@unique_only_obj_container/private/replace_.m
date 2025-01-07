@@ -83,10 +83,12 @@ else
         % clear empty idx to save memory and ensure no error occurs if
         % invalid 
         self.unique_objects_{old_lidx} = [];
-        self.stored_hashes_{old_lidx}  = [];        
+        self.stored_hashes_{old_lidx}  = '';        
         self.idx_(old_lidx)            = 0;
+        gidx= lidx;
+    else
+        gidx = self.lidx_(lidx);        
     end
-    gidx = self.lidx_(lidx);
     % increase number of duplicates at target
     self.n_duplicates_(lidx) = self.n_duplicates_(lidx)+1;
 end

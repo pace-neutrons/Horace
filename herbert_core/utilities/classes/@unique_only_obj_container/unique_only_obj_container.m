@@ -25,6 +25,9 @@ classdef unique_only_obj_container < ObjContainersBase
         % size of the memory allocated within the procedure. Information
         % and tests usage.
         allocated_mem_size;
+        %
+        lidx % access to internal local indices of the container,
+        % controlling distribution of information within the container
     end
     %properties(Constant,Access= protected)
     properties(Access=protected)
@@ -93,6 +96,9 @@ classdef unique_only_obj_container < ObjContainersBase
             % of the container or false otherwise
             is = all(gidx>0 & gidx<=self.max_obj_idx_);
         end
+        function lix = get.lidx(self)
+            lix = self.lidx_;
+        end
         function obj = get_at_direct_idx(self,lidx)
             % return object given its direct location in the container's
             % local storage.
@@ -153,7 +159,6 @@ classdef unique_only_obj_container < ObjContainersBase
                 else
                     lix = self.lidx_(present);
                 end
-
             end
         end
         function obj = get(self,idx)

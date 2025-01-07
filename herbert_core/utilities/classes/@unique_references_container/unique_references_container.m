@@ -127,7 +127,7 @@ classdef unique_references_container < ObjContainersBase
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             uidx = unique(self.idx_);
             % retrieve unique objects referred here as a cell array for external use
-            uoca = arrayfun(@(idx)(storage(idx)),uidx,'UniformOutput',false);
+            uoca = arrayfun(@(idx)(storage.get_at_direct_idx(idx)),uidx,'UniformOutput',false);
         end
         %
         function self = replicate_runs(self, n_objects)
@@ -418,7 +418,7 @@ classdef unique_references_container < ObjContainersBase
             elseif numel(v)==1 && ~isa(v,'unique_objects_container')
                 [storage,idgs] = storage.add(v);
                 self.idx_ = repmat(idgs,1,self.n_objects);
-                storage.n_duplicates(idgs)=storage.n_duplicates(idgs)+1;
+                storage   = storage.replicate_runs(self.n_objects,idgs);
             else
                 error('HERBERT:unique_objects_container:invalid_argument', ...
                     'assigned value must be scalar or have right number of objects');

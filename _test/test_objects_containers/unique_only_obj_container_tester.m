@@ -3,16 +3,12 @@ classdef unique_only_obj_container_tester < unique_only_obj_container
     %   Detailed explanation goes here
 
     properties(Dependent)
-        lidx
         mem_expansion_chunk
         total_allocated
     end
 
     methods
-        function lid = get.lidx(self)
-            lid =self.lidx_;
-        end
-        function mc = get.mem_expansion_chunk(self)
+         function mc = get.mem_expansion_chunk(self)
             mc = self.mem_expansion_chunk_;
         end
         function self = set.mem_expansion_chunk(self,val)

@@ -996,8 +996,7 @@ classdef test_unique_references < TestCase
             stor = unique_obj_store.instance().get_objects('char');
             assertEqual(stor.n_objects,6)
             assertEqual(stor.unique_objects,{'1','2','3','4','5','6'})
-            %                            {'1','2','3','4','5','6'};
-            assertEqual(stor.n_duplicates,[1,  1,  2,  2,  2,  1]);
+            assertEqual(stor.n_duplicates,[1,  1,  1,  2,  2,  2]);
         end
 
 

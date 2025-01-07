@@ -321,8 +321,9 @@ classdef test_instrument_methods < TestCaseWithSave
         function test_set_mod_pulse_on_array_udates_all_data_array_values (self)
             % Set mod pars individually and test enquiry
             wnew_fe = set_instrument(self.w_fe,self.inst_1);
+            wnew_fe1 = set_instrument(self.w_fe,self.inst_1);            
 
-            w_tot = [wnew_fe,wnew_fe];
+            w_tot = [wnew_fe,wnew_fe1];
 
             pp = [100, 200, 0.7];
             pp = repmat(pp, 240, 1);

@@ -42,6 +42,7 @@ if isempty(lidx) % means obj not in container and should be added
     gidx     = idx_free;
 else
     self.n_duplicates_(lidx) = self.n_duplicates_(lidx)+1;
-    gidx     = self.lidx_(lidx);
+    gidx = lidx;
+    %gidx     = self.lidx_(lidx);
 end
 
