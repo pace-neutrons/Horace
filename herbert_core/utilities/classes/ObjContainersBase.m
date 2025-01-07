@@ -207,7 +207,7 @@ classdef ObjContainersBase < serializable
             % created here.
 
             storage    = unique_obj_store.instance().get_objects(self.baseclass);
-            targ_class = class(storage.get(1).(fieldname));
+            targ_class = class(storage.get_at_direct_idx(self.idx(1)).(fieldname));
             % create container of the self type to keep objects of
             % the class, defined by fieldname.
             clName = class(self);
@@ -215,7 +215,7 @@ classdef ObjContainersBase < serializable
             subc.baseclass = targ_class;
             % extract subclasses of the class requested
             for i=1:self.n_objects
-                subobj = storage.get(self.idx_(i)).(fieldname);
+                subobj = storage.get_at_direct_idx(self.idx(i)).(fieldname);
                 subc   = subc.add(subobj);
             end
         end
