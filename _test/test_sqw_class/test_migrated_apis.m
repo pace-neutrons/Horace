@@ -87,6 +87,34 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             assertEqualToTolWithSave(obj,qw,'tol',2.e-7);
         end
 
+        function test_calculate_qw_pixels2_unchanged(obj)
+            sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
+            qw = calculate_qw_pixels2(sqw_obj);
+
+            % Pixels unchanged so should be the same.
+            assertEqualToTol(qw, sqw_obj.pix.coordinates,'tol',1.e-3);
+        end
+
+        function test_calculate_qw_pixels2_symmetrised(obj)
+            sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
+
+            sym = SymopReflection([-1, 1, 0], [0, 0, 1], [-0.5, -0.5, 0]);
+
+            sqw_ref = sqw_obj.symmetrise_sqw(sym);
+            qw = calculate_qw_pixels2(sqw_ref);
+
+            % Resort because symmetrise reorders data.
+            [~, index] = sortrows(sqw_ref.pix.all_indexes');
+            [~, index_o] = sortrows(sqw_obj.pix.all_indexes');
+            recomp = qw(:, index);
+            orig = sqw_obj.pix.coordinates(:, index_o);
+            symm = sqw_ref.pix.coordinates(:, index);
+
+            % Despite reflection should regenerate original pixel locations
+            assertFalse(equal_to_tol(recomp, symm,'tol',1.e-3));
+            assertEqualToTol(recomp, orig,'tol',1.e-3);
+        end
+
         %% Cut
         function test_cut_sym(obj)
             skipTest('Incorrect test data for cut_sym');
