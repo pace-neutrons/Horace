@@ -215,6 +215,47 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertTrue(is_file(file3a));
         end
 
+        function test_fail_condense(obj, varargin)
+            if obj.ignore_test
+                skipTest('test_fail_condesnse is disabled');
+            end
+
+            common_param = struct('filepath', obj.working_dir, ...
+                                  'filename_template', ...
+                                  ['test_JD_', obj.cluster_name, {'A','B','C'}, 'L%d_nf%d.txt'], ...
+                                  'fail_for_labsN', 2);
+
+            file1 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,'A', 'L1_nf1.txt']);
+            file2 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,'B', 'L2_nf1.txt']);
+            file3 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,'C', 'L3_nf1.txt']);
+
+            jd = JobDispatcher(['test_job_', obj.cluster_name, '_fail_condense']);
+            log_filename = sprintf("par_fail_%s.log", jd.job_id);
+
+            files = {file1, file2, file3, log_filename};
+            co = onCleanup(@()(obj.my_delete(files{:})));
+
+
+            [outputs, n_failed, ~, jd] = jd.start_job('JETester', common_param, 36, true, 3, true, 1);
+
+            clob = set_temporary_config_options(parallel_config, 'debug', true);
+            out_full = evalc("jd.display_fail_job_results(outputs, n_failed,3)");
+
+            clear clob;
+
+            clob = set_temporary_config_options(parallel_config, 'debug', false);
+            out_silenced = evalc("jd.display_fail_job_results(outputs, n_failed,3)");
+
+            assertTrue(contains(out_full, 'failed'));
+            assertTrue(isempty(out_silenced));
+
+            log = fileread(log_filename);
+
+            assertEqual(log, out_full);
+
+
+        end
+
         function test_job_with_logs_3workers(obj, varargin)
             if obj.ignore_test
                 skipTest('test_job_with_logs_3workers is disabled');
