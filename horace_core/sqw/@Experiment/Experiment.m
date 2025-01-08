@@ -307,6 +307,18 @@ classdef Experiment < serializable
             % compatibility with sqw interface
             obj.samples = val;
         end
+
+        function [qspec, en] = calc_qspec(obj)
+            % Compute the Q and E in spectrometer coordinates from
+            % experimental info.
+            efix = obj.get_efix();
+            emode = obj.get_emode();
+            en = obj.expdata(1).en;
+            det_direction = obj.detector_arrays.det_direction();
+            spec_to_rlu = obj.detector_arrays.dmat;
+
+            [qspec, en] = calc_qspec(det_direction, efix, en, emode);
+        end
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -630,10 +642,10 @@ classdef Experiment < serializable
             %
             %   - Multiple arguments can be passed, one for each run that
             %     constitutes the sqw object, by having one row per run
-            %   	i.e
-            %       	scalar      ---->   column vector (nrun elements)
+            %           i.e
+            %           scalar      ---->   column vector (nrun elements)
             %           row vector  ---->   2D array (nrun rows)
-            %        	string      ---->   cell array of strings
+            %           string      ---->   cell array of strings
             %
             % Throws if not valid form
             [args,npar] = check_and_expand_function_args_(varargin{:});
@@ -724,4 +736,3 @@ classdef Experiment < serializable
     end
     %----------------------------------------------------------------------
 end
-

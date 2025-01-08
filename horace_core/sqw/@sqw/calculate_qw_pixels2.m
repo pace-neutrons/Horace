@@ -27,13 +27,7 @@ if ~isscalar(win)
           'Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
-efix = win.experiment_info.get_efix();
-emode = win.experiment_info.get_emode();
-en = win.experiment_info.en;
-det_direction = win.experiment_info.detector_arrays.det_direction;
-
-[qspec, en] = calc_qspec(det_direction, efix, en, emode);
-
+[qspec, en] = win.experiment_info.calc_qspec();
 remap = containers.Map(unique(irun), 1:numel(win.header));
 irun = arrayfun(@(x) remap(x), irun);
 
