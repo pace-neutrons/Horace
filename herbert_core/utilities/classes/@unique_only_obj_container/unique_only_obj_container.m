@@ -133,7 +133,7 @@ classdef unique_only_obj_container < ObjContainersBase
             uoca = get_unique_objects(self);
         end
 
-        function [lix, hash,obj] = find_in_container(self,obj)
+        function [lidx, hash,obj] = find_in_container(self,obj)
             %FIND_IN_CONTAINER Finds if obj is contained in self
             % Input:
             % - obj  : the object which may or may not be uniquely contained
@@ -148,16 +148,14 @@ classdef unique_only_obj_container < ObjContainersBase
             %
             [obj,hash] = build_hash(obj);
             if isempty(self.stored_hashes_)
-                lix = []; % object not stored as nothing is stored
+                lidx = []; % object not stored as nothing is stored
             else
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
-                present = ismember(self.stored_hashes_(self.lidx_(1:self.n_unique_)), hash);
-                if ~any(present)
-                    lix = []; % ismember returns 0 in this case, not []
-                else
-                    lix = self.lidx_(present);
+                [present,lidx] = ismember(hash,self.stored_hashes_(self.lidx_(1:self.n_unique_)));
+                if ~present
+                    lidx = []; % ismember returns 0 in this case, not []
                 end
             end
         end

@@ -28,21 +28,20 @@ if isempty(lidx) % means obj not in container and should be added
 
     [self,lidx_new] = self.check_and_expand_memory_if_necessary();
 
-    idx_free = self.lidx_(lidx_new);
+    gidx_free = self.lidx_(lidx_new);
 
-    self.stored_hashes_{idx_free}  = hash;
-    self.unique_objects_{idx_free} = obj;
-    self.n_duplicates_(idx_free)   = 1;
+    self.stored_hashes_{gidx_free}  = hash;
+    self.unique_objects_{gidx_free} = obj;
+    self.n_duplicates_(gidx_free)   = 1;
     % set unique global index of objects in the container to refer to
     % current object location
-    self.idx_(idx_free)        = idx_free;
+    self.idx_(gidx_free)       = gidx_free;
     self.n_unique_             = self.n_unique_+1;
-    self.max_obj_idx_          = max(self.n_unique_,self.max_obj_idx_);
+    self.max_obj_idx_          = find(self.n_duplicates_>0,1,"last");
     %
-    gidx     = idx_free;
+    gidx     = gidx_free;
 else
-    self.n_duplicates_(lidx) = self.n_duplicates_(lidx)+1;
-    gidx = lidx;
-    %gidx     = self.lidx_(lidx);
+    gidx     = self.lidx_(lidx);    
+    self.n_duplicates_(gidx) = self.n_duplicates_(gidx)+1;
 end
 
