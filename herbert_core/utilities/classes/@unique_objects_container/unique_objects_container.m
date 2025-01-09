@@ -429,10 +429,10 @@ classdef unique_objects_container < ObjContainersBase
                     for ii=2:numel(objs)
                         for jj=1:objs{ii}.n_runs
                             out_obj = objs{ii}.get(jj);
-                            out_hsh = objs{ii}.hash(jj);
-                            [~,index] = ismember(out_hsh, out.stored_hashes_);
-                            if index==0, index = []; end
-                            out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
+                            %out_hsh = build_hash(out_obj);
+                            %[~,index] = ismember(out_hsh, out.stored_hashes_);
+                            %if index==0, index = []; end
+                            %out = out.add_single_(out_obj,index); %( objs{ii}.get(jj) );
                         end
                     end
                 else
@@ -440,10 +440,10 @@ classdef unique_objects_container < ObjContainersBase
                     for ii=2:numel(objs)
                         for jj=1:objs(ii).n_runs
                             out_obj = objs(ii).get(jj);
-                            out_hsh = objs(ii).hash(jj);
+                            out_hsh = build_hash(out_obj);
                             [~,index] = ismember(out_hsh, out.stored_hashes_);
                             if index==0, index = []; end
-                            out = out.add_single_(out_obj,index,out_hsh); %( objs{ii}.get(jj) );
+                            out = out.add_single_(out_obj,index); %( objs{ii}.get(jj) );
                         end
                     end
                 end
