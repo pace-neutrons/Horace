@@ -60,11 +60,11 @@ if isempty(lidx) % means obj not in container and should be added
         self.stored_hashes_{idx_free}  = hash;
         self.n_duplicates_(idx_free)   = 1;
 
-        self.idx_(idx_free) = idx_free;
+        self.idx_(idx_free) = lidx_first_empty;
         gidx                = idx_free;
 
         self.n_unique_           = self.n_unique_+1;
-        self.max_obj_idx_        = find(self.n_duplicates_>0,1,"last");
+        self.max_obj_idx_        = self.idx_() %find(self.n_duplicates_>0,1,"last");
     end
     % if it is in the container, then ix is the unique object index
     % in unique_objects_ and is put into idx_ as the unique index
@@ -75,10 +75,10 @@ else
         % old object position defined by old_gidx.
         % number of used objects have decreased.
 
-        %old_lidx =   self.idx_(old_gidx);    %
-         old_lidx = find(self.lidx_(1:self.n_unique_)==old_gidx);
-
+        old_lidx =   self.idx_(old_gidx);    %old_lidx = find(self.lidx_(1:self.n_unique_)==old_gidx);         
         last_lidx      = self.n_unique_;
+        self.idx_(old_gidx) = last_lidx;
+
         self.n_unique_ = self.n_unique_-1; % move free pointer one step back
 
 
