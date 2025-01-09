@@ -54,11 +54,14 @@ classdef unique_only_obj_container < ObjContainersBase
             end
 
             stor_chunk = cell(self.mem_expansion_chunk_,1);
-            self.idx_            = [self.idx_,zeros(1,self.mem_expansion_chunk_)];
+
             self.unique_objects_ = [self.unique_objects_(:);stor_chunk(:)]';
             self.stored_hashes_  = [self.stored_hashes_(:);stor_chunk(:)]';
             self.n_duplicates_   = [self.n_duplicates_,zeros(1,self.mem_expansion_chunk_)];
-            self.lidx_           = [self.lidx_,lidx_first_empty:n_existing+self.mem_expansion_chunk_];
+            % local indices and global indices pointing to each other
+            new_idx = lidx_first_empty:n_existing+self.mem_expansion_chunk_;
+            self.idx_            = [self.idx_,new_idx];
+            self.lidx_           = [self.lidx_,new_idx];
 
             self.total_allocated_ = numel(self.idx_);
         end
@@ -107,14 +110,14 @@ classdef unique_only_obj_container < ObjContainersBase
             % pointers stored in them
             self.check_if_range_allowed(lidx);
             n_targ = numel(lidx);
-            targ = cell(1,n_targ);            
+            targ = cell(1,n_targ);
             obj = self.unique_objects_{lidx(1)};
             base_class = class(obj);
             same_class = true;
             targ{1}=obj;
             for i=2:n_targ
                 targ{i} = self.unique_objects_{lidx(i)};
-                if ~strcmp(class(targ{i}),base_class) % check if we can                     
+                if ~strcmp(class(targ{i}),base_class) % check if we can
                     same_class = false; % merge different classes in one array
                 end
             end
@@ -224,7 +227,7 @@ classdef unique_only_obj_container < ObjContainersBase
         %
         function val = hash(self,index)
             % accessor for the stored hashes looping over container indices
-            % 
+            %
             % confusing test function.
             val = self.stored_hashes_{ self.lidx_(index) };
         end
@@ -277,7 +280,13 @@ classdef unique_only_obj_container < ObjContainersBase
 
         function x = get_idx(self)
             % core of get.idx method.
-            x = self.idx_(1:self.max_obj_idx_);
+            if isempty(self.n_duplicates_)
+                x = [];
+            else
+                idx = 1:self.max_obj_idx_;
+                idx(self.n_duplicates_(idx)==0) = 0;
+                x   = idx;
+            end
         end
 
         function self = set_unique_objects(self,val)
