@@ -4,7 +4,7 @@ function obj = build_from_old_headers_(obj,varargin)
 % ------
 %   >> ~ : the object (an Experiment), not used - a completely new
 %          Experiment is created and output at the end
-%   >> headers == varargin{1}: cell array of old-style header structs
+%   >> headers == varargin{1}: cell array of old-style header structures
 %
 % Output
 % -------
@@ -23,9 +23,9 @@ headers = varargin{1};
 % coming from each run in headers
 % (over-writes previous initialisation in Experiment constructor)
 expdata     = repmat(IX_experiment(), 1,numel(headers));
-instruments = unique_references_container('GLOBAL_NAME_INSTRUMENTS_CONTAINER','IX_inst');
-samples     = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
-detectors   = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
+instruments = unique_references_container('IX_inst');
+samples     = unique_references_container('IX_samp');
+detectors   = unique_references_container('IX_detector_array');
 
 
 hdr = headers{1};

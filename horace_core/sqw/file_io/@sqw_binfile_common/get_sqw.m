@@ -65,16 +65,15 @@ end
 
 % Get detector parameters
 % -----------------------
+exp_info.do_check_combo_arg = false;
 if ~(opts.head||opts.his)
     detpar = obj.get_detpar();
     if ~isempty(detpar)
         if  isstruct(detpar) && IX_detector_array.check_detpar_parms(detpar)
             detector = IX_detector_array(detpar);
-            det_arrays = exp_info.detector_arrays;
             if exp_info.detector_arrays.n_runs == 0
-                det_arrays = det_arrays.add_copies_(detector, exp_info.n_runs);
-                exp_info.detector_arrays = det_arrays;
-
+                exp_info.detector_arrays = detector;                
+                exp_info.detector_arrays = exp_info.detector_arrays.replicate_runs(exp_info.n_runs);
             elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
                 exp_info.detector_arrays = exp_info.detector_arrays.replace_all(detector);
             else
@@ -91,7 +90,8 @@ if ~(opts.head||opts.his)
         ; % there was no detpar info in the file; currently do nothing, not an error state
     end
 end
-
+exp_info.do_check_combo_arg = true;
+exp_info = exp_info.check_combo_arg();
 % Get data
 % --------
 if opts.verbatim || opts.keep_original

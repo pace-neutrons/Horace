@@ -29,7 +29,7 @@ classdef IX_det_He3tube < IX_det_abstractType
 
         % Other dependent properties:
         inner_rad   % Inner radius of tube (get access only) (m)
-        
+
         % Other dependent properties required by abstract template:
         ndet        % Number of detectors (get access only) (scalar)
     end
@@ -61,7 +61,7 @@ classdef IX_det_He3tube < IX_det_abstractType
                 % provided without their names
                 property_names ={'dia', 'height', 'wall', 'atms'};
                 mandatory = [true, true, true, true];
-                
+
                 % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
                 % check_combo_arg after all settings have been done.
@@ -69,7 +69,7 @@ classdef IX_det_He3tube < IX_det_abstractType
                 options = struct('key_dash', true, 'mandatory_props', mandatory);
                 [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                     property_names, options, varargin{:});
-                
+
                 if ~isempty(remains)
                     error('HERBERT:IX_det_He3tube:invalid_argument', ...
                         ['Unrecognised extra parameters provided as input to ',...
@@ -98,7 +98,7 @@ classdef IX_det_He3tube < IX_det_abstractType
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj=set.height(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
@@ -120,7 +120,7 @@ classdef IX_det_He3tube < IX_det_abstractType
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj=set.atms(obj,val)
             if any(val(:)<0)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
@@ -131,13 +131,13 @@ classdef IX_det_He3tube < IX_det_abstractType
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val = get.dia(obj)
             val = obj.dia_;
         end
-        
+
         function val = get.width(obj)
             val = obj.dia_; % same as dia for uniform interface
         end
@@ -163,7 +163,7 @@ classdef IX_det_He3tube < IX_det_abstractType
         end
         %------------------------------------------------------------------
     end
-    
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
@@ -173,7 +173,7 @@ classdef IX_det_He3tube < IX_det_abstractType
             % Current version of class definition
             ver = 2;
         end
-        
+
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class
             flds = {'dia', 'height', 'wall', 'atms'};
@@ -192,16 +192,17 @@ classdef IX_det_He3tube < IX_det_abstractType
 
             % Inherited method from IX_det_abstractType
             obj = obj.expand_internal_properties_to_max_length (flds);
-            
+
             % Check the consistency of tube diameter and wall thickness
             if  ~all(obj.dia_>=2*obj.wall_)
                 error('HERBERT:IX_det_He3tube:invalid_argument',...
                     ['Tube diameter(s) must be greater or equal to twice ',...
                     'the wall thickness(es)'])
             end
+            obj = obj.clear_hash();
         end
-        
-        end
+
+    end
 
     %----------------------------------------------------------------------
     methods(Access=protected)
@@ -225,5 +226,5 @@ classdef IX_det_He3tube < IX_det_abstractType
         end
     end
     %======================================================================
-    
+
 end

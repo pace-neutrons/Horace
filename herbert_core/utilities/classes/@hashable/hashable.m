@@ -42,7 +42,8 @@ classdef hashable < serializable
             val = obj.hash_value_;
         end
         function is = get.hash_defined(obj)
-            is  = ~isempty(obj.hash_value_);
+            is = arrayfun(@(x)~isempty(x.hash_value_),obj);
+            is = all(is);
         end
 
         function S = to_struct (obj)

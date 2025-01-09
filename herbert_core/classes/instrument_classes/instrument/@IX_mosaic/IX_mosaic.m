@@ -1,4 +1,4 @@
-classdef IX_mosaic < serializable
+classdef IX_mosaic < hashable
     % Mosaic spread object
     properties (Access=protected)
         % Stored properties - but kept private and accessible only through
@@ -209,6 +209,7 @@ classdef IX_mosaic < serializable
                 error('HERBERT:IX_mosaic:invalid_argument', ...
                     'Mosaic distribution function must be a function handle')
             end
+            obj = obj.clear_hash();
         end
         function obj=set.mosaic_pdf_string(obj,val)
             if ~(isstring(val)||ischar(val))
@@ -217,9 +218,11 @@ classdef IX_mosaic < serializable
                     class(val))
             end
             obj.mosaic_pdf = str2func(val);
+            obj = obj.clear_hash();
         end
         function obj=set.parameters(obj,val)
             obj.parameters_=val;
+            obj = obj.clear_hash();
         end
         %------------------------------------------------------------------
         % Get methods for dependent properties
@@ -282,6 +285,7 @@ classdef IX_mosaic < serializable
                     '"xaxis=%s" and "yaxis=%s" are colinear, or almost colinear',...
                     disp2str(obj.xaxis_),disp2str(obj.yaxis_));
             end
+            obj = obj.clear_hash();
         end
     end
     methods(Access=protected)

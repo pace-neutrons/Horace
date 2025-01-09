@@ -8,7 +8,7 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
 
         home_folder;
     end
-    
+
     methods
         %--------------------------------------------------------------------------
         function obj = test_IX_mod_shape_mono (name)
@@ -18,31 +18,36 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             end
             file = fullfile(home_folder,'test_IX_mod_shape_mono_output.mat');
             obj@TestCaseWithSave(name,file);
-            obj.home_folder = home_folder;            
-            
-            
+            obj.home_folder = home_folder;
+
+
             % Create components needed for an IX_inst_DGdisk
             % Use an old-ish LET function for convenience
             obj.efix = 8;
             instru = let_instrument_struct_for_tests (obj.efix, 280, 140, 20, 2, 2);
-            
+
             obj.mod_DGdisk = instru.moderator;
             obj.shape_DGdisk = instru.chop_shape;
             obj.mono_DGdisk = instru.chop_mono;
-            
+
             obj.save()
         end
-        
+
+        %--------------------------------------------------------------------------
+        function test_hashable_prop(self)
+            ap = IX_mod_shape_mono(self.mod_DGdisk, self.shape_DGdisk, self.mono_DGdisk);
+            hashable_obj_tester(ap);
+        end
         %--------------------------------------------------------------------------
         function test_covariance_mod (self)
             msm = IX_mod_shape_mono(self.mod_DGdisk, self.shape_DGdisk, self.mono_DGdisk);
             msm.shaping_chopper.frequency = 171;
             msm.energy = self.efix;
-            
+
             % mod FWHH=99.37us, shape_chop FWHH=66.48us
             shaped_mod = msm.shaped_mod;        % should be false - but only just
             assertEqualWithSave(self,shaped_mod);
-            
+
             tcov = msm.covariance();
             tmean = msm.mean();
             assertEqualToTolWithSave(self, tcov, 'tol', [1e-4,1e-4])
@@ -52,17 +57,17 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             assertEqualToTol(tcov, tcovR, 'tol', [0.5,2e-2])
             assertEqualToTol(tmean, tmeanR, 'tol', [0.5,2e-2])
         end
-        
+
         %--------------------------------------------------------------------------
         function test_covariance_shape (self)
             msm = IX_mod_shape_mono(self.mod_DGdisk, self.shape_DGdisk, self.mono_DGdisk);
             msm.shaping_chopper.frequency = 172;
             msm.energy = self.efix;
-            
+
             % FWHH=99.37us, shape_chop FWHH=66.09us
             shaped_mod = msm.shaped_mod;        % should be true - but only just
             assertEqualWithSave(self,shaped_mod);
-            
+
             tcov = msm.covariance();
             tmean = msm.mean();
             assertEqualToTolWithSave(self, tcov, 'tol', [1e-4,1e-4])
@@ -72,17 +77,17 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             assertEqualToTol(tcov, tcovR, 'tol', [0.5,2e-2])
             assertEqualToTol(tmean, tmeanR, 'tol', [0.5,2e-2])
         end
-        
+
         %--------------------------------------------------------------------------
         function test_covariance_mod_only (self)
             msm = IX_mod_shape_mono(self.mod_DGdisk, self.shape_DGdisk, self.mono_DGdisk);
             msm.shaping_chopper.frequency = 1;
             msm.energy = self.efix;
-            
+
             % mod FWHH=99.37us, shape_chop FWHH=11368us
             shaped_mod = msm.shaped_mod;        % should be true - extreme case
             assertEqualWithSave(self,shaped_mod);
-            
+
             tcov = msm.covariance();
             tmean = msm.mean();
             assertEqualToTolWithSave(self, tcov, 'tol', [1e-4,1e-4])
@@ -92,18 +97,18 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             assertEqualToTol(tcov, tcovR, 'tol', [0.5,4e-2])
             assertEqualToTol(tmean, tmeanR, 'tol', [0.5,2e-2])
         end
-        
+
         %--------------------------------------------------------------------------
         function test_covariance_shaped_only (self)
             msm = IX_mod_shape_mono(self.mod_DGdisk, self.shape_DGdisk, self.mono_DGdisk);
             msm.moderator.pp(1)=10000;
             msm.shaping_chopper.frequency = 171;
             msm.energy = self.efix;
-            
+
             % mod FWHH=33947us, shape_chop FWHH=66.48us
             shaped_mod = msm.shaped_mod;        % should be true - extreme case
             assertTrue(shaped_mod);
-            
+
             tcov = msm.covariance();
             tmean = msm.mean();
             assertEqualToTolWithSave(self, tcov, 'tol', [1e-4,1e-4])
@@ -112,7 +117,7 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
             [tcovR,tmeanR] = rand_covariance (msm, npnt);
             assertEqualToTol(tcov, tcovR, 'tol', [0.5,2e-2])
             assertEqualToTol(tmean, tmeanR, 'tol', [0.5,2e-2])
-        end        
+        end
         %--------------------------------------------------------------------------
         function test_prev_versions(obj)
             % Scalar example
@@ -133,7 +138,7 @@ classdef test_IX_mod_shape_mono < TestCaseWithSave
                 check_matfile_IO(verstr, save_variables, sample_files_location ,mod_sm);
             end
         end
-        
+
     end
 end
 

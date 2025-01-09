@@ -213,9 +213,6 @@ else
     sample.alatt = lat.alatt;
     sample.angdeg = lat.angdeg;
 end
-exper = Experiment([],instrument,sample,expdata);
-
-wres.experiment_info = exper;
 
 
 % Check detector
@@ -231,8 +228,8 @@ if ~isfield(detpar,'filename'), detpar.filename = ''; end
 if ~isfield(detpar,'filepath'), detpar.filepath = ''; end
 if ~isfield(detpar,'group'), detpar.group = 1; end
 
-wres.detpar = detpar;
-
+detpar = IX_detector_array(detpar);
+wres.experiment_info = Experiment(detpar,instrument,sample,expdata);
 
 % Make data structure
 ax = line_axes('nbins_all_dims',[3,3,1,1],'img_range',range_add_border(zeros(2,4)));

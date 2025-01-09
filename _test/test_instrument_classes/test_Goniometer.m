@@ -1,4 +1,4 @@
-classdef test_goniometer< TestCase
+classdef test_Goniometer< TestCase
     %
     %
 
@@ -7,7 +7,7 @@ classdef test_goniometer< TestCase
     end
     methods
         %
-        function this=test_goniometer(varargin)
+        function this=test_Goniometer(varargin)
             if nargin == 0
                 name = 'test_goniometer';
             else
@@ -17,6 +17,14 @@ classdef test_goniometer< TestCase
             pths = horace_paths;
             this.test_data_path = pths.test_common;
         end
+        %------------------------------------------------------------------
+        function test_hashable_prop(~)
+            % fields = {'psi','u','v','omega','dpsi','gl','gs','angular_units'}
+            new_val = {pi/4,[1,1,0],[0;0;1],1,2,3,4,'deg'};
+            ol = Goniometer(pi/4,[1,1,0],[0;0;1],1,2,3,4,'angular_units','rad');
+            hashable_obj_tester(ol,new_val);
+        end
+        %------------------------------------------------------------------
 
         function test_serial_keeps_units(~)
             ol = Goniometer(pi/4,[1,1,0],[0;0;1],1,2,3,4,'angular_units','rad');
@@ -83,7 +91,6 @@ classdef test_goniometer< TestCase
             assertElementsAlmostEqual(30,ol.dpsi)
             assertElementsAlmostEqual(40,ol.gl)
             assertElementsAlmostEqual(50,ol.gs)
-
         end
         %
         function test_3Dvectors(~)

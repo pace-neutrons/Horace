@@ -109,8 +109,7 @@ classdef rundatah < rundata
 
             % add the detectors container here, cannot construct in
             % property defaults
-            obj.compressed_detpars = unique_references_container(...
-                'GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
+            obj.compressed_detpars = unique_references_container('IX_detector_array');
             if nargin == 1 && isa(varargin{1},'sqw')
                 obj = rundata_from_sqw_(varargin{1});
             else

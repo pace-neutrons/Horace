@@ -14,13 +14,6 @@ classdef test_join < TestCase
             obj.test_dir = hc.test_common;
             obj.sample_obj = read_sqw(fullfile(obj.test_dir,'sqw_2d_1.sqw'));
 
-            % TODO: Re #1147 This should be removed when ticket is
-            % fixed ---------------------------------------------------
-            ex = obj.sample_obj.experiment_info.expdata;
-            ex = build_hash(ex);
-            obj.sample_obj.experiment_info.expdata = ex;
-            % Re #1147 ------------------------------------------------
-
             obj.sqw_to_join = obj.sample_obj.split();
             n_parts = numel(obj.sqw_to_join);
             obj.files_to_join = cell(n_parts,1);
@@ -202,12 +195,12 @@ classdef test_join < TestCase
             % to compare filebacked and memory backed object properly, here
             % we need to have compatible page sizes. The comparison will
             % fail otherwise. Re #1147 -- should fix that.
-            clear clConf;
+            clear clConf; % this makes page sizes comartible
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
 
             clear reformed_obj
             assertFalse(isfile(targ_file));
-            skipTest("Re #1147 Equal_to_toll does not work correctly with arbitrary pages")
+
         end
         %
         function test_join_saves_filebacked_on_request(obj)

@@ -1,4 +1,4 @@
-classdef unique_fields_example_class < serializable
+classdef unique_fields_example_class < hashable
     %UNIQUE_FIELDS_EXAMPLE_CLASS skeleton class to illustrate and test
     %   extraction of a property value by its field name
     
@@ -15,16 +15,16 @@ classdef unique_fields_example_class < serializable
             % - field : the object to be stored in property myfield
             obj.myfield = field;
             obj.mydisc = disc;
+            obj.hash_value_ = [];
         end
         
         function ver = classVersion(~)
             ver = 0;
         end
         
-        function flds = saveableFields(obj)
+        function flds = saveableFields(~)
             flds = {'myfield','mydisc'};
-        end
-        
+        end        
      end
 end
 

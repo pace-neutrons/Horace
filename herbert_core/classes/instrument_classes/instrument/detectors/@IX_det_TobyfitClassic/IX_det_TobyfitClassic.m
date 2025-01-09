@@ -23,11 +23,11 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         dia         % Outer diameter of tube (m) (column vector)
         height      % Height (m) (column vector)
         width       % alias of dia to provide uniform interface across detector types
-        
+
         % Other dependent properties required by abstract template:
         ndet        % Number of detectors (get access only) (scalar)
     end
-    
+
 
     methods
         %------------------------------------------------------------------
@@ -60,7 +60,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
                 options = struct('key_dash', true, 'mandatory_props', mandatory);
                 [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                     property_names, options, varargin{:});
-                
+
                 if ~isempty(remains)
                     error('HERBERT:IX_det_TobyfitClassic:invalid_argument', ...
                         ['Unrecognised extra parameters provided as input to ',...
@@ -104,11 +104,11 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         function val = get.dia(obj)
             val = obj.dia_;
         end
-        
+
         function val = get.width(obj)
             val = obj.dia_; % same as get.dia, provides common interface
         end
-        
+
         function val = get.height(obj)
             val = obj.height_;
         end
@@ -119,7 +119,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
         %------------------------------------------------------------------
 
     end
-    
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
@@ -129,7 +129,7 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
             % Returns the current class version number.
             ver = 2;
         end
-        
+
         function flds = saveableFields(~)
             % Return the names of public properties which fully define the
             % object state.
@@ -148,9 +148,10 @@ classdef IX_det_TobyfitClassic < IX_det_abstractType
             flds = obj.saveableFields();
 
             % Inherited method from IX_det_abstractType
-            obj = obj.expand_internal_properties_to_max_length (flds);                        
-            end
+            obj = obj.expand_internal_properties_to_max_length (flds);
+            obj = obj.clear_hash();
         end
+    end
 
     %----------------------------------------------------------------------
     methods(Access=protected)
