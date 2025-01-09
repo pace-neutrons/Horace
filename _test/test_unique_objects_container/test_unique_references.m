@@ -29,6 +29,50 @@ classdef test_unique_references < TestCase
                 'CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER')
         end
         %------------------------------------------------------------------
+        function test_save_restore_global_state_with_replacement(~)
+            clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            function urc_clearer()
+                unique_references_container.global_container('CLEAR','multifit_issue')
+            end
+            clSt  = onCleanup(@urc_clearer);
+
+            urc = unique_references_container('multifit_issue','char');
+            urc(1) = 'aaa';
+            urc(2) = 'aaa';
+            urc(3) = 'aaa';
+            urc(1) = 'bbb';
+            urc(2) = 'bbb';
+            urc(3) = 'bbb';
+
+            glc = unique_references_container.global_container( ...
+                'value','multifit_issue');
+            % despite we do not refer to 'aaa' any more, glc remembers.
+            assertTrue(isa(glc,'unique_objects_container'))
+            assertEqual(glc.n_objects,2)
+            assertEqual(glc.n_unique,2)
+            assertEqual(glc.unique_objects,{'aaa','bbb'})
+
+            savestr = urc.to_struct();
+            unique_references_container.global_container( ...
+                'CLEAR','multifit_issue');
+
+
+            urr = serializable.from_struct(savestr);
+            glr = unique_references_container.global_container( ...
+                'value','multifit_issue');
+            % forgets after reloading new state
+            assertTrue(isa(glr,'unique_objects_container'))
+            assertEqual(glr.n_objects,1)
+            assertEqual(glr.n_unique,1)
+            assertEqual(glr.unique_objects,{'bbb'})
+
+            savestr_cp = urr.to_struct();
+            % need to compare structures as initial urc is broken after
+            % clear
+            assertEqual(savestr,savestr_cp);
+            clear clSt;
+        end
+
         function test_save_restore_global_state_two_urcs(~)
             clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             function urc_clearer()
@@ -50,26 +94,39 @@ classdef test_unique_references < TestCase
 
             glc = unique_references_container.global_container( ...
                 'value','multifit_issue');
+            assertTrue(isa(glc,'unique_objects_container'))
+            assertEqual(glc.n_objects,3)
+            assertEqual(glc.n_unique,3)
+            assertEqual(glc.unique_objects,{'aaa','bbb','ccc'})
+
 
             savestr1_or = urc1.to_struct();
-            savestr2_or = urc2.to_struct();            
+            savestr2_or = urc2.to_struct();
             unique_references_container.global_container( ...
                 'CLEAR','multifit_issue');
 
 
             urr1 = serializable.from_struct(savestr1_or);
-            urr2 = serializable.from_struct(savestr2_or);            
+            urr2 = serializable.from_struct(savestr2_or);
+
             glr = unique_references_container.global_container( ...
                 'value','multifit_issue');
+            assertTrue(isa(glr,'unique_objects_container'))
+            assertEqual(glr.n_objects,3)
+            assertEqual(glr.n_unique,3)
+            assertEqual(glr.unique_objects,{'aaa','bbb','ccc'})
+
 
             savestr_copy1 = urr1.to_struct();
-            savestr_copy2 = urr2.to_struct();            
+            savestr_copy2 = urr2.to_struct();
 
+            % need to compare structures as initial urc is broken after
+            % clear
             assertEqual(savestr1_or,savestr_copy1);
-            assertEqual(savestr2_or,savestr_copy2);            
+            assertEqual(savestr2_or,savestr_copy2);
             clear clSt;
         end
-        
+
         function test_save_restore_global_state(~)
             clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             function urc_clearer()
@@ -85,6 +142,10 @@ classdef test_unique_references < TestCase
 
             glc = unique_references_container.global_container( ...
                 'value','multifit_issue');
+            assertTrue(isa(glc,'unique_objects_container'))
+            assertEqual(glc.n_objects,2)
+            assertEqual(glc.n_unique,2)
+            assertEqual(glc.unique_objects,{'aaa','bbb'})
 
             savestr = urc.to_struct();
             unique_references_container.global_container( ...
@@ -94,9 +155,14 @@ classdef test_unique_references < TestCase
             urr = serializable.from_struct(savestr);
             glr = unique_references_container.global_container( ...
                 'value','multifit_issue');
+            assertTrue(isa(glr,'unique_objects_container'))
+            assertEqual(glr.n_objects,2)
+            assertEqual(glr.n_unique,2)
+            assertEqual(glr.unique_objects,{'aaa','bbb'})
 
             savestr_cp = urr.to_struct();
-
+            % need to compare structures as initial urc is broken after
+            % clear
             assertEqual(savestr,savestr_cp);
             clear clSt;
         end
