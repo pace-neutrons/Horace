@@ -38,10 +38,6 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             obj.w2data = read_sqw(fullfile(data_dir,'w2data.sqw'));
             hp = horace_paths;
             obj.w4ddata = read_sqw(fullfile(hp.test_common,'sqw_4d.sqw'));
-            disp("*********************************************************")
-            disp('Re #1790 identifying issues present on Jenkins only')
-            disp(obj.w4ddata.experiment_info.detector_arrays)
-            disp("*********************************************************")
             obj.win=[obj.w1data,obj.w2data];     % combine the two cuts into an array of sqw objects and fit
 
             % Save reference results, if '-save' option is requested
@@ -68,9 +64,9 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % Test against saved or store to save later; ignore string
             % changes - these are filepaths
             tol = [3e-5,3e-5];
-            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
-            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, '-ignore_str')
+            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, '-ignore_str', '-ignore_date')
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, '-ignore_str', '-ignore_date')
         end
 
         function obj = test_fit_one_dataset_fb(obj)
@@ -82,7 +78,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             w1data_fb = obj.w1data;
             w1data_fb.pix = PixelDataFileBacked(obj.w1data.pix);
 
-            mss = multifit_sqw_sqw([w1data_fb]);
+            mss = multifit_sqw_sqw(w1data_fb);
             mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
             mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
             mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
@@ -110,11 +106,6 @@ classdef test_multifit_horace_1 < TestCaseWithSave
         function obj = test_fit_multidimensional_dataset(obj)
             % Example of simultaneously fitting more than one sqw object
             %
-            disp("*********************************************************")
-            disp('Re #1790 identifying issues present on Jenkins only')
-            disp(obj.w4ddata.experiment_info.detector_arrays)
-            disp(obj.w4ddata.detpar.unique_objects.unique_objects)
-            disp("*********************************************************")
 
             mss = multifit_sqw_sqw(obj.w4ddata);
             mss = mss.set_fun(@sqw_bcc_hfm,  [75,5,2.7,10,-75]);  % set foreground function(s)
@@ -144,7 +135,6 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, '-ignore_str')
             assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, '-ignore_str', '-ignore_date')
             assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, '-ignore_str', '-ignore_date')
-            skipTest('Re #1791 Design of unique_obj_containers is incorect')
 
         end
 
