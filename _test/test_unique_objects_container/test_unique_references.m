@@ -28,7 +28,81 @@ classdef test_unique_references < TestCase
             unique_references_container.global_container( ...
                 'CLEAR','GLOBAL_NAME_SAMPLES_CONTAINER')
         end
+        %------------------------------------------------------------------
+        function test_save_restore_global_state_two_urcs(~)
+            clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            function urc_clearer()
+                unique_references_container.global_container('CLEAR','multifit_issue')
+            end
+            clSt  = onCleanup(@urc_clearer);
 
+            urc1 = unique_references_container('multifit_issue','char');
+            urc1(1) = 'aaa';
+            urc1(2) = 'aaa';
+            urc1(3) = 'aaa';
+            urc1(4) = 'bbb';
+            urc2 = unique_references_container('multifit_issue','char');
+            urc2(1) = 'ccc';
+            urc2(2) = 'ccc';
+            urc2(3) = 'ccc';
+            urc2(4) = 'bbb';
+
+
+            glc = unique_references_container.global_container( ...
+                'value','multifit_issue');
+
+            savestr1_or = urc1.to_struct();
+            savestr2_or = urc2.to_struct();            
+            unique_references_container.global_container( ...
+                'CLEAR','multifit_issue');
+
+
+            urr1 = serializable.from_struct(savestr1_or);
+            urr2 = serializable.from_struct(savestr2_or);            
+            glr = unique_references_container.global_container( ...
+                'value','multifit_issue');
+
+            savestr_copy1 = urr1.to_struct();
+            savestr_copy2 = urr2.to_struct();            
+
+            assertEqual(savestr1_or,savestr_copy1);
+            assertEqual(savestr2_or,savestr_copy2);            
+            clear clSt;
+        end
+        
+        function test_save_restore_global_state(~)
+            clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            function urc_clearer()
+                unique_references_container.global_container('CLEAR','multifit_issue')
+            end
+            clSt  = onCleanup(@urc_clearer);
+
+            urc = unique_references_container('multifit_issue','char');
+            urc(1) = 'aaa';
+            urc(2) = 'aaa';
+            urc(3) = 'aaa';
+            urc(4) = 'bbb';
+
+            glc = unique_references_container.global_container( ...
+                'value','multifit_issue');
+
+            savestr = urc.to_struct();
+            unique_references_container.global_container( ...
+                'CLEAR','multifit_issue');
+
+
+            urr = serializable.from_struct(savestr);
+            glr = unique_references_container.global_container( ...
+                'value','multifit_issue');
+
+            savestr_cp = urr.to_struct();
+
+            assertEqual(savestr,savestr_cp);
+            clear clSt;
+        end
+
+
+        %------------------------------------------------------------------
         function test_unique_reference_non_pollute_ws(obj)
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
             unique_references_container.global_container( ...
