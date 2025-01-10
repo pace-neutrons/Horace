@@ -195,7 +195,9 @@ classdef test_join < TestCase
             % to compare filebacked and memory backed object properly, here
             % we need to have compatible page sizes. The comparison will
             % fail otherwise. Re #1147 -- should fix that.
-            clear clConf; % this makes page sizes compatible
+            clear clConf; % this removes restriction on filebacked 
+            % page size and makes page sizes for membased and filebased
+            % compatible. Proper solution should work with any page size.
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
 
             clear reformed_obj

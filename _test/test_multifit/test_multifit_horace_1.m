@@ -116,18 +116,10 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Simulate at the initial parameter values
             wsim_1 = mss.simulate();
-            % Re #1791 These two statements below should be fixed in #1791
-            % as something wrong in container desing here.
-            disp(wsim_1.detpar.unique_objects.unique_objects)
-            wsim_1.experiment_info.detector_arrays = obj.ref_data.test_fit_multidimensional_dataset.wsim_1.experiment_info.detector_arrays;
 
             % And now fit
             [wfit_1, fitpar_1] = mss.fit();
-            % Re #1791 These two statements below should be fixed in #1791
-            % as something wrong in container desing here.
-            disp(wsim_1.detpar.unique_objects.unique_objects)
-            wfit_1.experiment_info.detector_arrays = obj.ref_data.test_fit_multidimensional_dataset.wfit_1.experiment_info.detector_arrays;
-            
+
 
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths

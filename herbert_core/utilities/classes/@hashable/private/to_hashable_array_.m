@@ -50,7 +50,8 @@ for j = 1:numel(obj)
             if iscell(hash) % use array of hashes as source for final hash
                 hash = strjoin(hash ,'');
             end
-            tm = uint8(hash); % use typecast for numeric hash.
+            tm = uint8(hash); % use uint8 for char hash.
+            %                   Use typecast for numeric hash.
             %<----- end of hash-class dependent block
             arr{ic} = tm(:);
         elseif isa(val,'double')

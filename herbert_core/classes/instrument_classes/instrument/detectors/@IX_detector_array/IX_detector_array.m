@@ -241,9 +241,6 @@ classdef IX_detector_array < hashable
                     'Filepath must be a string ')
             end
             obj.filepath_ = val;
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
         end
 
         %---------------------------
@@ -255,9 +252,6 @@ classdef IX_detector_array < hashable
                     'Filename must be a string ')
             end
             obj.filename_ = val;
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
         end
 
         % Generic properties across all detector banks:
