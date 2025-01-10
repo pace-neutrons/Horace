@@ -75,7 +75,8 @@ else
         % old object position defined by old_gidx.
         % number of used objects have decreased.
 
-        old_lidx =   self.idx_(old_gidx);    %old_lidx = find(self.lidx_(1:self.n_unique_)==old_gidx);         
+        old_lidx     =  self.lidx_(old_gidx);    %old_lidx = find(self.lidx_(1:self.n_unique_)==old_gidx);         
+        old_idx2lidx =  
         last_lidx      = self.n_unique_;
         self.idx_(old_gidx) = last_lidx;
 
