@@ -75,17 +75,16 @@ classdef test_IX_detectors_4 < TestCaseWithSave
             loaded_data_2 = load('dsl2.mat');
             clob2 = onCleanup( @()delete('dsl2.mat'));
             assertEqual(loaded_data_2.dsl, dsl);
-            ;
         end
 
         %--------------------------------------------------------------------------
         function test_IX_detector_tobyfitClassic (~)
-            diaph = repmat(0.01,9,1);
+            dia_ = repmat(0.01,9,1);
             hght = repmat(0.02,9,1);
-            det = IX_det_TobyfitClassic(diaph, hght);
+            det = IX_det_TobyfitClassic(dia_, hght);
             % id here serving both as set of detector ids and the sort
             % order that has been imposed on the data by the constructor
-            assertEqual(det.dia, diaph);
+            assertEqual(det.dia, dia_);
             assertEqual(det.height, hght);
             assertEqual(det.ndet,9);
 
@@ -111,13 +110,13 @@ classdef test_IX_detectors_4 < TestCaseWithSave
 
             hght = (0.0001:0.001:0.0099)';
             wall = (1.8:18:179.999)';
-            atmss = (1.8:18:179.999)';
-            diaph = wall.*2.2; % dia must be >2*wall, see IX_det_he3tube code
-            tube = IX_det_He3tube(diaph, hght, wall, atmss);
-            assertEqual(tube.dia, diaph);
+            atms_ = (1.8:18:179.999)';
+            dia_ = wall.*2.2; % dia must be >2*wall, see IX_det_he3tube code
+            tube = IX_det_He3tube(dia_, hght, wall, atms_);
+            assertEqual(tube.dia, dia_);
             assertEqual(tube.wall, wall);
             assertEqual(tube.height, hght);
-            assertEqual(tube.atms, atmss);
+            assertEqual(tube.atms, atms_);
             assertEqual(tube.ndet,10);
             inrad = tube.inner_rad;
 
@@ -138,12 +137,7 @@ classdef test_IX_detectors_4 < TestCaseWithSave
             clob = onCleanup(@()(delete('tube2.mat')));
             data2 = load('tube2.mat');
             assertEqual(data2.tube, tube);
-
-
         end
-
         %--------------------------------------------------------------------------
     end
-
-
 end
