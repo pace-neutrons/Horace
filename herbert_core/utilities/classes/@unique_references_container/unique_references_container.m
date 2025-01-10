@@ -271,7 +271,7 @@ classdef unique_references_container < serializable
             end
 
             % get global container
-            glc = self.global_container('value',self.global_name);
+
             % reinitialise the indices of this container as empty
             % to purge this container of existing contents
             self.idx_ = zeros(1,0);
@@ -280,6 +280,9 @@ classdef unique_references_container < serializable
             for ii = 1:val.n_objects
                 obj = val.get(ii);
                 [obj,hash] = build_hash(obj);
+                % as this code updates self and hence glc, need to refetch it every
+                % time here
+                glc = self.global_container('value',self.global_name);                
                 [~,loc] = ismember( hash, glc.stored_hashes_ );
                 if loc == 0 || isempty(loc)
                     self = self.add_single_( obj, [], hash );
@@ -859,6 +862,8 @@ classdef unique_references_container < serializable
 
             if strcmpi(opflag,'list')
                 disp(glcontainer);
+                % ensure glc is returned for this op
+                glc = glcontainer;
                 return;
             end
 
