@@ -65,7 +65,8 @@ if newplot
     
 else
     if exist('fig_name', 'var')  % function was passed something we think is a name
-        [fig_handle,ok,mess]=get_figure_handle (fig_name);
+        % *** NEED TO FIX HERE ***
+        fig_handle=get_figure_handle(fig_name);
         if ok
             if isempty(fig_handle) || any(is_genie_figure(fig_handle))
                 fig_out=fig_name;
@@ -81,7 +82,8 @@ else
             fig_out=[];
         end
     else
-        [fig_handle,ok,mess]=get_figure_handle_single (fig);
+        % *** NEED TO FIX HERE ***
+        fig_handle=get_figure_handle(fig, '-single');
         if ok
             fig_out=fig_handle;
         else

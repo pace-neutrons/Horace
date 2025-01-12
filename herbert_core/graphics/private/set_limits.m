@@ -86,7 +86,7 @@ if strcmpi(axName, 'Z') && numel(axis)/2 ~= 3
     % if there is any.
     % (Note: the Matlab function axis returns the lower an upper limits of the
     % plot axes; length(axis)==4 if x and y axes only, and ==6 is z-axis too)
-    axPresent = data_present (fig);   % data axis presence on current axes
+    axPresent = data_present (ax);   % data axis presence on current axes
     if ~axPresent.c
         error('HERBERT:graphics:invalid_argument', ['No z-axis or colour ', ...
             'data on the current figure and axes - change limits ignored']);
@@ -96,7 +96,7 @@ if strcmpi(axName, 'Z') && numel(axis)/2 ~= 3
 elseif strcmpi(axName, 'C')
     % The function has been requested to operate on the colour scale. Check
     % there is colour data present
-    axPresent = data_present (fig);   % data axis presence on current axes
+    axPresent = data_present (ax);   % data axis presence on current axes
     if ~axPresent.c
         error('HERBERT:graphics:invalid_argument', ['No colour ', ...
             'data on the current figure and axes - change limits ignored']);
@@ -210,14 +210,14 @@ for i=1:nrange
 end
 
 %-------------------------------------------------------------------------------
-function present = data_present(fig_handle)
-% Get the limits on x,y,z and color axes for all data plotted in a figure
+function present = data_present(axes_handle)
+% Determine which of x,y,z and color data exist in a figure on a set of axes
 %
-%   >> present = data_present(fig_handle)
+%   >> present = data_present(axes_handle)
 %
 % Input:
 % ------
-%   fig_handle  Figure handle
+%   fig_handle  Axes handle
 %
 % Output:
 % -------
@@ -228,26 +228,28 @@ function present = data_present(fig_handle)
 %                   c   CData present
 
 
-% Get plot handles
-[~, ~, plot_h] = genie_figure_all_handles (fig_handle);
+% Get handles of all objects with XData
+xdata_h = findobj(axes_handle, '-property', 'XData');
 
-% Check for presence of x, y, z and c data
-% (For each type, uses || to only check if none has been found so far)
-xpresent=false;
-ypresent=false;
-zpresent=false;
-cpresent=false;
-for i=1:numel(plot_h)
-    xpresent = xpresent || ~isempty(get(plot_h(i),'XData'));
-    ypresent = ypresent || ~isempty(get(plot_h(i),'YData'));
-    if isprop(plot_h(i),'ZData')
-        zpresent = zpresent || ~isempty(get(plot_h(i),'ZData'));
+% Get the XData and YData for those objects (note that every object that has
+% XData also has YData)
+xdata_cell = get(xdata_h, 'XData');
+ydata_cell = get(xdata_h, 'YData');
+
+% While every object that has XData also has YData, not all of those objects
+% will have Zdata or CData.
+zdata_cell = cell(size(xdata_cell));
+cdata_cell = cell(size(xdata_cell));
+for i = 1:numel(xdata_cell)
+    try
+        zdata_cell{i} = get(xdata_h(i), 'ZData');
     end
-    if isprop(plot_h(i),'CData')
-        cpresent = cpresent || ~isempty(get(plot_h(i),'CData'));
+    try
+        cdata_cell{i} = get(xdata_h(i), 'CData');
     end
 end
-present.x = xpresent;
-present.y = ypresent;
-present.z = zpresent;
-present.c = cpresent;
+
+present.x = ~all(cellfun(@isempty, xdata_cell));
+present.y = ~all(cellfun(@isempty, ydata_cell));
+present.z = ~all(cellfun(@isempty, zdata_cell));
+present.c = ~all(cellfun(@isempty, cdata_cell));

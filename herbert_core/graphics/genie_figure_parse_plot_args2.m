@@ -1,7 +1,7 @@
 function [args,nw,lims,fig_out]=genie_figure_parse_plot_args2(opt,varargin)
 % Parse the input arguments for the various different plot functions
 %
-%   >> [args,ok,mess,nw,lims_type,fig_out] = genie_figure_parse_plot_args...
+%   >> [args,nw,lims_type,fig_out] = genie_figure_parse_plot_args...
 %                                   (opt,w[,wc],arg1,arg2,...)
 %
 % Input:
@@ -15,7 +15,7 @@ function [args,nw,lims,fig_out]=genie_figure_parse_plot_args2(opt,varargin)
 %                   lims_type   Limits type: 'xy' or 'xyz'
 %                                   only applies if 'draw'
 %
-%   w           Data object (or arrayof objects) to plot
+%   w           Data object (or array of objects) to plot
 %
 %   wc          [optional] second data object or array of objects to plot.
 %              Alternatively, it can be a numeric array.
@@ -36,7 +36,7 @@ function [args,nw,lims,fig_out]=genie_figure_parse_plot_args2(opt,varargin)
 %   args        Cell array with arguments as row vector (cell(1,0) if not OK)
 %              suitable for passing down to another plot function e.g.
 %              sqw/dl  calls IX_dataset_1d/dl.
-%   lims_type   Cell array (row vector) or limits
+%   lims_type   Cell array (row vector) of limits
 %   fig_out     Figure name
 
 

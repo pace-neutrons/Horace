@@ -1,7 +1,7 @@
 function [args,lims,fig_out]=genie_figure_parse_plot_args(opt,varargin)
 % Parse the input arguments for the various different plot functions
 %
-%   >> [args,ok,mess,lims_type,fig_out] = genie_figure_parse_plot_args...
+%   >> [args,lims_type,fig_out] = genie_figure_parse_plot_args...
 %                                   (opt,p1,p2,...)
 %
 % Input:
@@ -23,9 +23,7 @@ function [args,lims,fig_out]=genie_figure_parse_plot_args(opt,varargin)
 %   args        Cell array with arguments as row vector (cell(1,0) if not OK)
 %              suitable for passing down to another plot function e.g.
 %              sqw/dl  calls IX_dataset_1d/dl.
-%   ok          true if arguments are acceptable
-%   mess        Error message if not ok; empty string if ok
-%   lims_type   Cell array (row vector) or limits
+%   lims        Cell array (row vector) of limits
 %   fig_out     Figure name or figure handle
 
 

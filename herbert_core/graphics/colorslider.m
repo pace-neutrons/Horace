@@ -36,12 +36,6 @@ else
     error('Check number and type of input arguments')
 end
 
-% Determine figure handle
-[fig_handle,ok,mess]=get_figure_handle_single(fig);
-if ~ok
-    error([mess,'; cannot create/edit colorslider.'])
-end
-
 % Get various handles for the figure
 [fig_handle, axes_handle] = genie_figure_all_handles (fig);
 
