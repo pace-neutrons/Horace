@@ -31,7 +31,7 @@ classdef test_upgrade_file_format< TestCase
             fl = upgrade_file_format(test_fl);
             [~,wcl] = lastwarn;
 
-            assertEqual(wcl,'HORACE:old_file_format')
+            assertEqual(wcl,'SQW_FILE:old_version')
             assertTrue(isa(fl{1},'sqw'));
             assertTrue(fl{1}.is_filebacked);
         end
