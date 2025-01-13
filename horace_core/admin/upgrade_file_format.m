@@ -45,8 +45,7 @@ for i=1:n_inputs
         if isa(ld,class(pref_acc))
             ld_new = ld;
             ld_new = ld_new.reopen_to_write();
-            % upgrade containers stored in experiment. Just in case. Should be
-            % reason you upgrading after all.
+            % upgrade containers stored in experiment.
             exper = ld_new.get_exp_info('-all'); % when loaded, hashes were calculated
             % if were missing from disk. Now they are in memory so put them
             % back to disk for future usage.
