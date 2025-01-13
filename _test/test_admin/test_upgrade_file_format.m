@@ -21,23 +21,17 @@ classdef test_upgrade_file_format< TestCase
             obj.ff_source_sqw = fullfile(obj.test_common,obj.source_sqw1);
             obj.working_dir = tmp_dir();
         end
-        function test_upgrade_legacy_alignment_with_lattice(obj)
+        function test_upgrade_for_legacy_alignment(obj)
+            %
             source = fullfile(obj.test_common,'sqw_4d.sqw');
             [clFile,test_fl] = obj.copy_my_file(source);
 
-
+            clWarn = set_temporary_warning('off', 'HORACE:old_file_format','HORACE:test_warning');
+            warning('HORACE:test_warning','test warning issued to ensure other warning do not polute workspace')
             fl = upgrade_file_format(test_fl);
-            assertTrue(isa(fl{1},'sqw'));
-            assertTrue(fl{1}.is_filebacked);
-        end
-        function test_no_upgrade_for_legacy_alignment(obj)
-            % legacy aligned file. Does not get upgraded as need
-            % lattice to be upgraded
-            source = fullfile(obj.test_common,'sqw_4d.sqw');
-            [clFile,test_fl] = obj.copy_my_file(source);
+            [~,wcl] = lastwarn;
 
-            clWarn = set_temporary_warning('off', 'HORACE:old_file_format');
-            fl = upgrade_file_format(test_fl);
+            assertEqual(wcl,'HORACE:old_file_format')
             assertTrue(isa(fl{1},'sqw'));
             assertTrue(fl{1}.is_filebacked);
         end
