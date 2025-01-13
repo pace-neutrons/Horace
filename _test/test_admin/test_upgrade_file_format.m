@@ -21,6 +21,19 @@ classdef test_upgrade_file_format< TestCase
             obj.ff_source_sqw = fullfile(obj.test_common,obj.source_sqw1);
             obj.working_dir = tmp_dir();
         end
+        %
+        function test_upgrade_instr_sample_no_hash_to_hash(obj)
+            source = fullfile(obj.test_common,'sqw_4d.sqw');
+            [clFile,test_fl] = obj.copy_my_file(source);
+            clWarn = set_temporary_warning('off', 'HORACE:old_file_format');
+            % upgrade to latest file format version
+            fl = upgrade_file_format(test_fl);
+
+            %fl.
+
+
+        end
+        %------------------------------------------------------------------        
         function test_upgrade_for_legacy_alignment(obj)
             %
             source = fullfile(obj.test_common,'sqw_4d.sqw');
