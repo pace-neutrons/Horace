@@ -101,6 +101,11 @@ if ~isfield(S,'version') || S.version<4
                 ss = update_pixels_run_id(ss);
             end
         end
+        if isfield(ss,'detpar')
+            ss.experiment_info.detector_arrays =  ...
+                horace_binfile_interface.convert_old_det_forms( ...
+                ss.detpar,ss.experiment_info.n_runs);
+        end
 
         obj(i) = obj(i).from_bare_struct(ss);
     end
