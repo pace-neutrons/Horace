@@ -75,7 +75,7 @@ if ~(opts.head || opts.his)
     detpar = sqw_skel.detpar;
     if ~isempty(detpar)
         n_instances = numel(sqw_skel.experiment_info.expdata);
-        sqw_skel.detpar = obj.convet_old_det_forms(detpar,n_instances);
+        sqw_skel.detpar = obj.convert_old_det_forms(detpar,n_instances);
 
     end
     sqw_skel.experiment_info = Experiment(sqw_skel.detpar, ...

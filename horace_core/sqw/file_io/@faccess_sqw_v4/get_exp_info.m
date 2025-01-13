@@ -45,7 +45,7 @@ end
 [obj,detpar]=obj.get_sqw_block('bl__detpar');
 
 n_instances = numel(exp_data);
-detpar = obj.convet_old_det_forms(detpar,n_instances);
+detpar = obj.convert_old_det_forms(detpar,n_instances);
 if ~isinf(samp_inst_number)
     exp_data = exp_data(samp_inst_number);
     Inst =     Inst(samp_inst_number);

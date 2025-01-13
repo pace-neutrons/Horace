@@ -56,4 +56,4 @@ if obj.convert_to_double
     det = obj.do_convert_to_double(det);
 end
 % convert old detector file formats into the recent one.
-det = obj.convet_old_det_forms(det,1);
+det = obj.convert_old_det_forms(det,1);

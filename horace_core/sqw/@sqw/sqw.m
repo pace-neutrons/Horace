@@ -284,14 +284,14 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
-            
+
             obj.experiment_info_ = Experiment();
 
             if nargin==0 % various serializers need empty constructor
                 obj.data_ = d0d();
                 return;
             end
-            
+
             obj = obj.init(varargin{:});
         end
         % initialization of empty sqw object or main part of constructor
@@ -331,7 +331,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         end
         function obj = set.detpar(obj,val)
             ei = obj.experiment_info_;
-            ei.detector_arrays = val;
+            ei.detector_arrays = ...
+                horace_binfile_interface.convert_old_det_forms(val,ei.n_runs);
             obj.experiment_info_ = ei;
         end
         %
@@ -462,7 +463,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     methods(Access = protected)
         % Check if two sqw objects are equal to a given tolerance
         [ok, mess] = equal_to_tol_single(w1, w2, varargin)
-        
+
         % Re #962 TODO: probably delete it
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         % binning of an sqw or dnd object
@@ -526,10 +527,10 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % number
             % version 5 -- support for loading previous version
             % data in case if the data were realigned
-            % version 6 -- detectors are detector's arrays and 
+            % version 6 -- detectors are detector's arrays and
             %              loaded/saved together with experiment info
             ver = 6;
-            
+
         end
 
         function flds = saveableFields(~)
