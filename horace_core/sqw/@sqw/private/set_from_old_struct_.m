@@ -111,6 +111,10 @@ if isfield(S,'array_dat')
 else
     obj = obj.from_bare_struct(S);
 end
+
+if ~isfield(S,'version')
+    S.version = 0;
+end
 if S.version == 4
     % may contain legacy alignment not stored in projection. Deal with this here
     hav  = obj.experiment_info.header_average();
@@ -119,6 +123,11 @@ if S.version == 4
         obj.pix.alignment_matr = al_info.rotmat;
     end
 end
-if S.version == 5
-    
+if S.version < 6
+    % may contain detpar stored in their own field and not present within
+    % the experiment_info
+    if obj.experiment_info.detector_arrays.n_objects == 0
+        obj.detpar = S.detpar; % use setter to deal with possible presence 
+        % of old array format
+    end
 end
