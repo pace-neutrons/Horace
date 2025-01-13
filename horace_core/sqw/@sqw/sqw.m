@@ -66,8 +66,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         main_header_ = main_header_cl();
 
         experiment_info_ = []; %Experiment(); now at start of constructor;
-        % detectors array
-        detpar_  = struct([]);
 
         % holder for image data, e.g. appropriate dnd object
         data_;
@@ -332,21 +330,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             val = obj.experiment_info.detector_arrays;
         end
         function obj = set.detpar(obj,val)
-            %TODO: implement checks for validity
-            if isa(val,'unique_references_container')
-                obj.experiment_info_.detector_arrays = val;
-             elseif isstruct(val)
-                detector = IX_detector_array(val);
-                if obj.experiment_info_.detector_arrays.n_runs == 0
-                    obj.experiment_info_.detector_arrays = ...
-                        obj.experiment_info_.detector_arrays.add_copies_( ...
-                                          detector,obj.experiment_info_.n_runs);
-                end
-            elseif isempty(val) && obj.experiment_info_.detector_arrays.n_runs > 0
-                ; % pass, do nothing, info already in experiment_info
-            else
-                error('HORACE:sqw_set_detpar:invalid_argument','incorrect type');
-            end
+            ei = obj.experiment_info_;
+            ei.detector_arrays = val;
+            obj.experiment_info_ = ei;
         end
         %
         function val = get.main_header(obj)
@@ -529,7 +515,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     %======================================================================
     % SERIALIZABLE INTERFACE
     properties(Constant,Access=protected)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
+        fields_to_save_ = {'main_header','experiment_info','data','pix'};
     end
     %
     methods
@@ -538,9 +524,12 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 5;
             % version 5 -- support for loading previous version
             % data in case if the data were realigned
+            % version 6 -- detectors are detector's arrays and 
+            %              loaded/saved together with experiment info
+            ver = 6;
+            
         end
 
         function flds = saveableFields(~)

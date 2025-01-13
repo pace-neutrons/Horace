@@ -37,7 +37,7 @@ try
     do_fseek(obj.file_id_,obj.detpar_pos_,'bof');
 catch ME
     exc = MException('SQW_FILE_INTERFACE:runtime_error',...
-                     'can not move to the start of the detectors data');
+        'can not move to the start of the detectors data');
     throw(exc.addCause(ME))
 end
 bytes = fread(obj.file_id_,sz,'*uint8');
@@ -55,3 +55,5 @@ det = obj.sqw_serializer_.deserialize_bytes(bytes,det_format,1);
 if obj.convert_to_double
     det = obj.do_convert_to_double(det);
 end
+% convert old detector file formats into the recent one.
+det = obj.convet_old_det_forms(det,1);
