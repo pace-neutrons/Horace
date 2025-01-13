@@ -327,6 +327,9 @@ classdef unique_objects_container < serializable
             % function expands container onto specified number of runs.
             % only single unique object allowed to be present in the
             % container initially
+            if isempty(n_objects)
+                n_objects = 1;
+            end
             validateattributes(n_objects, {'numeric'}, {'>', 0, 'scalar'})
             if obj.n_unique ~= 1
                 error('HERBERT:unique_objects_container:invalid_argument',...

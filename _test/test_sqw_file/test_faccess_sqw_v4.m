@@ -396,6 +396,26 @@ classdef test_faccess_sqw_v4< TestCase
             assertEqual(exi.instruments(1),inst1);
             assertEqual(exi.samples(1),sam1);
         end
+
+        function obj = test_get_experiment(obj)
+            to = faccess_sqw_v4();
+            to = to.init(obj.sample_file);
+
+            [exp_info,~] = to.get_exp_info('-all');
+
+            assertTrue(isa(exp_info.expdata,'IX_experiment'))
+            assertTrue(isa(exp_info.detector_arrays,'unique_references_container'))
+            assertTrue(isa(exp_info.samples,'unique_references_container'))
+            assertTrue(isa(exp_info.instruments,'unique_references_container'))
+
+            assertEqual(numel(exp_info.expdata),exp_info.detector_arrays.n_objects);
+            assertEqual(exp_info.detector_arrays.n_unique_objects,1);
+            assertEqual(numel(exp_info.expdata),exp_info.samples.n_objects);
+            assertEqual(exp_info.samples.n_unique_objects,1);
+            assertEqual(numel(exp_info.expdata),exp_info.instruments.n_objects);
+            assertEqual(exp_info.instruments.n_unique_objects,1);
+
+        end
         %
         function obj = test_get_inst_or_sample(obj)
             to = faccess_sqw_v4();
@@ -445,7 +465,7 @@ classdef test_faccess_sqw_v4< TestCase
         end
         %
         function test_serialize_deserialize_faccess(obj)
-            skipTest('Re #1795 no proper comparison for sqw faccessors')            
+            skipTest('Re #1795 no proper comparison for sqw faccessors')
             fo = faccess_sqw_v4();
             fo = fo.init(obj.sample_file);
 
@@ -456,7 +476,7 @@ classdef test_faccess_sqw_v4< TestCase
         end
         %
         function test_serialize_deserialize_empty_faccess(~)
-            skipTest('Re #1795 no proper comparison for sqw faccessors')            
+            skipTest('Re #1795 no proper comparison for sqw faccessors')
             fo = faccess_sqw_v4();
 
             bys = fo.to_struct();
@@ -602,6 +622,8 @@ classdef test_faccess_sqw_v4< TestCase
             f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
             assertExceptionThrown(f, 'HORACE:validate_ranges:invalid_argument');
         end
+
+        %%-----------------------------------------------------------------
         function obj = test_write_read_correctV4_filebacked(obj)
 
             clobC = set_temporary_config_options(hor_config, 'mem_chunk_size', 1000, 'fb_scale_factor', 3);
@@ -655,6 +677,7 @@ classdef test_faccess_sqw_v4< TestCase
 
             assertEqualToTol(sample,rdd,'ignore_str',true)
         end
+
         function test_get_set_pix_metadata(obj)
 
             test_f = fullfile(tmp_dir,'set_get_pix_metadata.sqw');
@@ -686,6 +709,7 @@ classdef test_faccess_sqw_v4< TestCase
             assertElementsAlmostEqual(meta.data_range(:,4:end),ref_range(:,4:end));
 
         end
+
         %         function test_build_correct(obj)
         %             % TEST used in preparation of first v4 sample file and
         %             % is not testing
@@ -706,6 +730,7 @@ classdef test_faccess_sqw_v4< TestCase
         %
         %             assertEqualToTol(sample,rdd)
         %         end
+
         function test_read_correct(obj)
             sample = read_sqw(obj.old_origin);
 
@@ -725,8 +750,9 @@ classdef test_faccess_sqw_v4< TestCase
             % work
             sample.data.proj = rdd.data.proj;
 
-            assertEqualToTol(sample,rdd,1.e-15,'-ignore_date','ignore_str',true)
+            assertEqualToTol(sample,rdd,1.e-15,'-ignore_date','-ignore_str')
         end
+
         function test_should_load_file(obj)
             to = faccess_sqw_v4();
             co = onCleanup(@()to.delete());

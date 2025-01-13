@@ -100,9 +100,13 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(exp_info.filename,'slice_n_c_m1_ei140')
 
             det = to.get_detpar();
-            assertEqual(det.filename,'slice_n_c_m1_ei140.par')
-            assertEqual(det.filepath,'C:\Russell\PCMO\ARCS_Oct10\Data\')
-            assertEqual(numel(det.group),58880)
+            assertTrue(isa(det,'unique_objects_container'))
+            assertEqual(det.n_objects,1);
+            udi = det.unique_objects;
+            
+            assertEqual(udi{1}.filename,'slice_n_c_m1_ei140.par')
+            assertEqual(udi{1}.filepath,'C:\Russell\PCMO\ARCS_Oct10\Data\')
+            assertEqual(numel(udi{1}.group),58880)
 
             data = to.get_data();
             assertEqual(size(data.s,1),numel(data.p{1})-1)
@@ -130,9 +134,13 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(header.filename,'map11014.spe;1')
 
             det = to.get_detpar();
-            assertEqual(det.filename,'9cards_4_4to1.par')
-            assertEqual(det.filepath,'c:\data\Fe\')
-            assertEqual(numel(det.group),36864)
+            assertTrue(isa(det,'unique_objects_container'))
+            assertEqual(det.n_objects,1);
+            udi = det.unique_objects;
+            
+            assertEqual(udi{1}.filename,'9cards_4_4to1.par')
+            assertEqual(udi{1}.filepath,'c:\data\Fe\')
+            assertEqual(numel(udi{1}.group),36864)
 
             data = to.get_data();
             assertEqual(size(data.s,1),numel(data.p{1})-1)

@@ -63,35 +63,6 @@ end
 % ------------------------------------------
 [exp_info,~]  = obj.get_exp_info('-all');
 
-% Get detector parameters
-% -----------------------
-if ~(opts.head||opts.his)
-    detpar = obj.get_detpar();
-    if ~isempty(detpar)
-        if  isstruct(detpar) && IX_detector_array.check_detpar_parms(detpar)
-            detector = IX_detector_array(detpar);
-            det_arrays = exp_info.detector_arrays;
-            if exp_info.detector_arrays.n_runs == 0
-                det_arrays = det_arrays.add_copies_(detector, exp_info.n_runs);
-                exp_info.detector_arrays = det_arrays;
-
-            elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
-                exp_info.detector_arrays = exp_info.detector_arrays.replace_all(detector);
-            else
-                error('HORACE:get_sqw:invalid_data', ...
-                    ['the detector arrays input with exp_info are neither zero length',...
-                    'nor as long as the number of runs in exp_info.\n', ...
-                    'the formation of exp_info upstream may be faulty.']);
-            end
-        else
-            error('HORACE:get_sqw:invalid_data', ...
-                'detpar input is not a struct as per this file format');
-        end
-    else
-        ; % there was no detpar info in the file; currently do nothing, not an error state
-    end
-end
-
 % Get data
 % --------
 if opts.verbatim || opts.keep_original
@@ -104,8 +75,6 @@ if (opts.head || opts.his)
 else
     opt2 = {};
 end
-
-
 data_opt= [opt1, opt2];
 sqw_struc.data = obj.get_data(data_opt{:});
 %
@@ -171,4 +140,3 @@ end
 if nargout>1
     varargout{1} = obj;
 end
-
