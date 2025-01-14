@@ -55,5 +55,40 @@ classdef test_horace_binfile_interface < TestCase
             assertTrue(isa(uob{1},'IX_detector_array'));
             assertEqual(uob{1}.ndet,96);
         end
+        %
+        function test_works_with_null_inputs(~)
+            detr = unique_objects_container('baseclass','IX_detector_array');
+            deta = horace_binfile_interface.convert_old_det_forms(detr,0);
+
+            assertEqual(detr,deta);
+        end
+        function test_throw_with_wrong_input(~)
+            function detr = thrower()
+                detr = horace_binfile_interface.convert_old_det_forms('wrong',0);
+            end
+            assertExceptionThrown(@thrower,'HORACE:horace_binfile_interface:invalid_argument');
+        end
+        function test_vector_n_objects_throw_with_container(~)
+            detr = unique_objects_container('baseclass','IX_detector_array');
+
+            function detr = thrower(detr)
+                detr = horace_binfile_interface.convert_old_det_forms(detr,[1,1]);
+            end
+            assertExceptionThrown(@()thrower(detr),'HORACE:horace_binfile_interface:invalid_argument');
+        end
+        function test_non_numeric_n_objects_throw_with_container(~)
+            detr = unique_objects_container('baseclass','IX_detector_array');
+
+            function detr = thrower(detr)
+                detr = horace_binfile_interface.convert_old_det_forms(detr,'a');
+            end
+            assertExceptionThrown(@()thrower(detr),'HORACE:horace_binfile_interface:invalid_argument');
+        end
+        function test_zero_instances_throw(obj)
+            function det = thrower()
+                det = horace_binfile_interface.convert_old_det_forms(obj.basic_det,0);
+            end
+            assertExceptionThrown(@thrower,'HERBERT:unique_objects_container:invalid_argument');
+        end
     end
 end

@@ -323,17 +323,23 @@ classdef unique_objects_container < serializable
             [is,unique_ind,obj] = contains_(obj,value,nargout);
         end
 
-        function obj = replicate_runs(obj,n_objects)
+        function obj = replicate_runs(obj,n_objects,varargin)
             % function expands container onto specified number of runs.
             % only single unique object allowed to be present in the
             % container initially
             if isempty(n_objects)
                 n_objects = 1;
             end
-            validateattributes(n_objects, {'numeric'}, {'>', 0, 'scalar'})
+            if ~isnumeric(n_objects) || ~isscalar(n_objects)|| n_objects<=0
+                error('HERBERT:unique_objects_container:invalid_argument',[...                
+                    'n_objects have to be numeric positive scalar.\n' ...
+                    'It is: %s of class %s'],...
+                num2str(n_objects),class(n_objects));
+            end
             if obj.n_unique ~= 1
-                error('HERBERT:unique_objects_container:invalid_argument',...
-                    'The method works only on containers containing a single unique run. This container contains %d unique runs.', ...
+                error('HERBERT:unique_objects_container:invalid_argument',[...
+                    'The method works only on containers containing a single unique run.\n' ...
+                    'This container contains %d unique runs.'], ...
                     obj.n_unique);
             end
 
