@@ -163,9 +163,10 @@ classdef unique_only_obj_container < ObjContainersBase
             end
         end
         function obj = get(self,idx)
-            % given the non-unique index nuix that you know about for your
-            % object (it was returned when you added it to the container
-            % with add) get the unique object associated
+            % given the non-unique constant permanent global index idx
+            % that you know about for your object (it was returned when
+            % you added it to the container with add/replace) get the
+            % unique object associated with this index
             %
             % Input:
             % - nuix : non-unique index that has been stored somewhere for
@@ -173,7 +174,7 @@ classdef unique_only_obj_container < ObjContainersBase
             % Output:
             % - obj : the unique object store for this index
             %
-            obj = self.get_unique_objects(self.lidx_(idx));
+            obj = self.get_unique_objects(idx);
         end
 
 
@@ -319,6 +320,19 @@ classdef unique_only_obj_container < ObjContainersBase
             n = self.n_unique_;
         end
         function [self,nuix] = add_single(self,obj)
+            %ADD_SINGLE Add single object to the unique objects container
+            % if it is not already there. If it is, increase number of object references
+            %
+            %
+            % Input
+            % -----
+            % self - the unique_objects_container in question
+            % obj  - the object to be added to the container
+            %
+            % Output
+            % ------
+            % self - the modified container (modified by adding obj)
+            % nuix - the global insertion index at which obj is added in the container
             [self,nuix] = add_if_new_single_(self,obj);
         end
 

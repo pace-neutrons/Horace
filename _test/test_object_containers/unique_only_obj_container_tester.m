@@ -5,6 +5,8 @@ classdef unique_only_obj_container_tester < unique_only_obj_container
     properties(Dependent)
         mem_expansion_chunk
         total_allocated
+        lidx_full 
+        gidx_full
     end
 
     methods
@@ -16,6 +18,12 @@ classdef unique_only_obj_container_tester < unique_only_obj_container
         end
         function lid = get.total_allocated(self)
             lid =self.total_allocated_;
+        end
+        function lid = get.lidx_full(obj)
+            lid = obj.lidx_(1:obj.max_obj_idx_);
+        end
+        function gid  =get.gidx_full(obj)
+            gid = obj.idx_(1:obj.max_obj_idx_);
         end
     end
 end
