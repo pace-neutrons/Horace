@@ -49,7 +49,8 @@ function genie_figure_make_cur (fig)
 %     If only one number (or handle) is given for a particular figure name, then
 %     that figure is chosen.
 %     If more than one number (or handle) is given with the same figure name,
-%     then the most recently active of those figures is chosen.
+%     and none of them is already the current genie_figure, then the most
+%     recently active of those figures is chosen.
 
 
 % Get figure handles
@@ -60,53 +61,61 @@ else
 end
 
 % Determine which belong to genie_figures
-[ok, current] = is_genie_figure(fig_handle);
+ok = is_genie_figure(fig_handle);
 if ~any(ok)
-    disp(['No ''Keep''/''Make Current'' figure(s) with given name(s), ', ...
-        'figure number(s) or figure handle(s)'])
+    warning(['''make current'' ignored - no ''Keep''/''Make Current''', ...
+        'figure(s) with given name(s), figure number(s) or figure handle(s)'])
     return
 end
 
-% Pick out the handles of genie_figures which have 'current' status
-genie_fig_handle_curr = fig_handle(current);
-genie_fig_handle_keep = fig_handle(ok & ~current);
+% Pick out the handles of those figures that are genie_figures
+% There is at least one if this point has been reached
+fig_handle = fig_handle(ok);
 
-
-
-% Make the most recent figure with a given name the current figure.
-% Use the fact that the handle array is in order of activity
-
-% Get handles to all (and only) genie_figures that have 'keep' status
-fig_handle = fig_handle(ok & ~current);
-if numel(fig_handle) > 1
-    [fig_name, ind] = unique(get(fig_handle, 'Name'), 'first');
-    fig_handle=fig_handle(ind);
+% Get unique genie_figure names
+if numel(fig_handle)>1
+    fig_name = unique(get(fig_handle, 'Name'));     % output is cell array
+else
+    fig_name = {get(fig_handle, 'Name')};   % make output a cell array
 end
 
-for h=fig_handle'   % index of 'for' statement needs to be a row vector
-    name=get(h,'Name');
+% Loop over unique genie_figure names
+for i = 1:numel(fig_name)
+    % Figure handles for a particular genie_figure name, in order of decreasing
+    % recent active status (that is, h(1) is the most recently active, h(2) is
+    % the net most recently active etc.
+    h = get_figure_handle(fig_name{i});
     
-    % Find the current figure with the given name, if there is one, and keep it
-    hcur=findobj('Type','figure','Tag',[name,'$current$']);
-    if ~isempty(hcur)
-        genie_figure_keep(hcur)
+    % Pick out those figures with the genie_figure name that are in the input
+    % argument, fig, in decreasing order of recent active status
+    ok = ismember(h, fig_handle);
+    h = h(ok);
+    
+    % If one of those figures has the genie_figure 'current' status, then no
+    % need to do anything; if none of them have, set the most recently active
+    % with the genie_figure 'current' status.
+    hcur = findobj('Type', 'figure', 'Tag', [fig_name{i},'$current$']);
+    if isempty(hcur) || ~any(h==hcur)
+        % Keep the current figure, if there is one
+        if ~isempty(hcur)
+            genie_figure_keep(hcur)
+        end
+        
+        % Set tag to indicate figure is current
+        set(h(1), 'Tag', [fig_name{i},'$current$']);
+        
+        % Enable 'Keep' uimenu option (should be present in a genie_figure, but
+        % gracefully pass over any figures that have been mangled)
+        hmenu = findobj(h(1), 'Type', 'uimenu', 'Tag', 'keep');
+        if ~isempty(hmenu)
+            set(hmenu, 'Enable', 'on'),
+        end
+        
+        % Disable 'Make Current' uimenu option (should be present in a genie_figure,
+        % but gracefully pass over any figures that have been mangled)
+        hmenu = findobj(h(1), 'Type', 'uimenu', 'Tag', 'make_cur');
+        if ~isempty(h(1))
+            set(hmenu, 'Enable', 'off'),
+        end
     end
-    
-    % Set tag to indicate figure is current
-    set(h, 'Tag', [name,'$current$']);
-    
-    % Enable 'Keep' uimenu option (should be present in a genie_figure, but
-    % gracefully pass over any figures that have been mangled)
-    hmenu = findobj(h, 'Type', 'uimenu', 'Tag', 'keep');
-    if ~isempty(hmenu)
-        set(hmenu, 'Enable', 'on'),
-    end
-    
-    % Disable 'Make Current' uimenu option (should be present in a genie_figure,
-    % but gracefully pass over any figures that have been mangled)
-    hmenu = findobj(h, 'Type', 'uimenu', 'Tag', 'make_cur');
-    if ~isempty(h)
-        set(hmenu, 'Enable', 'off'),
-    end
-    
 end

@@ -41,18 +41,18 @@ end
 % Determine which belong to genie_figures
 [ok, current] = is_genie_figure(fig_handle);
 if ~any(ok)
-    disp(['No ''Keep''/''Make Current'' figure(s) with given name(s), ', ...
-        'figure number(s) or figure handle(s)'])
+    warning(['''keep'' ignored - no ''Keep''/''Make Current'' figure(s) ', ...
+        'with given name(s), figure number(s) or figure handle(s)'])
     return
 end
 
 % Pick out the handles of genie_figures which have 'current' status
-genie_fig_handle = fig_handle(current);
+genie_fig_handle_curr = fig_handle(current);
 
 % Keep all the genie_figures with 'current' status. By construction, there is at
 % most one genie_figure for each genie_figure name, and all others with the same
 % name must have 'keep' status.
-for h = make_row(genie_fig_handle)  % index of 'for' must be a row vector 
+for h = make_row(genie_fig_handle_curr)  % index of 'for' must be a row vector 
     name = get(h, 'Name');
     
     % Set the figure tag to indicate the figure has 'keep' status

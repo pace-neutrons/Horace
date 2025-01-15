@@ -14,9 +14,9 @@ function [ok, current] = is_genie_figure (fig_handle)
 %               - false where not.
 %
 %   current     Logical array with same size as fig_handle
-%               - true for genie figures which are 'current' status;
-%               - false for genie figures that are kept, or figures that are not
-%                 genie figures
+%               - true for genie figures which have 'current' status;
+%               - false for genie figures that have 'keep' status, or figures
+%                 that are not genie figures
 %
 % Evaluate the following to determine which genie_figures are 'keep' status:
 %   keep = (ok & ~current)

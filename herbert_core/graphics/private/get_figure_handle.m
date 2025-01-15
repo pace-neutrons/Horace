@@ -18,10 +18,12 @@ function fig_handle = get_figure_handle (varargin)
 % - There may be several figures with the same name (the name is not a unique
 %   identifier); the figure handle will be retuned for all figures with a given
 %   name.
-% - A figure handle can still exist even if there is no corresponding figure,
+% - Only unique figure handles are returned.
+% - Only figure handles to currently existing figures are returned.
+%  (A figure handle could still exist even if there is no corresponding figure,
 %   for example if the handle was saved in a variable and the figure
-%   later deleted. The return argument from this function does not include
-%   these handles; it only returns handles to currently existing figures.
+%   later deleted. This function therefore acts as a filter on input figure
+%   handles to remove those handles for which there is no longer a figure.)
 %
 %
 % Input:

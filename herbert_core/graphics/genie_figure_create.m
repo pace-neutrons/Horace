@@ -77,7 +77,7 @@ else
         'Check input figure name is a character string')
 end
 
-% 
+% genie_figure tags for the 'current' and 'keep' status figures
 tag_current = [fig_name,'$current$'];
 tag_keep = [fig_name,'$keep$'];
 
@@ -93,7 +93,7 @@ if isempty(fig_handle)
     % Set the size of the newly created figure to match the dimensions of the
     % most recently active genie_figure with the same name. Otherwise use the
     % default figure size.
-    fig_handle_keep = findobj('Type', 'figure', 'Tag', tag_keep);
+    fig_handle_keep = findobj('Type', 'figure', 'Name', fig_name, 'Tag', tag_keep);
     if ~isempty(fig_handle_keep)
         set(fig_handle, 'Position', get(fig_handle_keep(1), 'Position'));
     end
