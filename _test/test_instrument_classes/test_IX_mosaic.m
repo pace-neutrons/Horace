@@ -32,6 +32,12 @@ classdef test_IX_mosaic < TestCaseWithSave
             mosaic = IX_mosaic ([1,1,0],[1,-1,0],[10,12,7]);
             assertEqualWithSave(obj,mosaic);
         end
+
+        function test_hashable_prop(~)
+            ap = IX_mosaic ([1,1,0],[1,-1,0],[10,12,7]);
+            hashable_obj_tester(ap);
+        end
+        
         %
         function test_mosaic_matrix(obj)
             xmos = [1,1,0];

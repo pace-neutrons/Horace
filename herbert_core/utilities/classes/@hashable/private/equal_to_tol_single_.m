@@ -2,7 +2,8 @@ function [iseq, mess] =equal_to_tol_single_(obj1, obj2,opt,varargin)
 % Compare single pair of hashable objects
 %
 % internal procedure used by equal_to_toll method to compare
-% single pair of hashable objects
+% single pair of hashable objects from possible array of such objects
+%
 % Input:
 % obj       -- first object to compare
 % other_obj -- second object to compare

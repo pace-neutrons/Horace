@@ -321,7 +321,7 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             inst1 = maps_instrument(300,700,'S');
             inst = inst1.to_struct();
             [struc_pos,pos] = ser.calculate_positions(test_format,inst);
-            assertEqual(pos-1,2834);
+            assertEqual(pos-1,3294); % was 2834 before adding hashing field to instrument component
 
             bytes = ser.serialize(inst,test_format);
             assertEqual(numel(bytes),pos-1);
@@ -369,7 +369,7 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             samp = samp1.to_struct();
             [struc_pos,pos] = ser.calculate_positions(test_format,samp);
 
-            assertEqual(pos-1,1209); % was 1126 before adding alatt/angdeg to IX_sample
+            assertEqual(pos-1,1393); % was 1209 before adding hash fields to instrument components
 
             bytes = ser.serialize(samp,test_format);
             assertEqual(numel(bytes),pos-1);

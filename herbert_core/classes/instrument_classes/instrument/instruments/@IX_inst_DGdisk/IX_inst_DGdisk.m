@@ -7,7 +7,7 @@ classdef IX_inst_DGdisk < IX_inst
         mandatory_mod_fields_ = false(1,3);
         horiz_div_ = IX_divergence_profile
         vert_div_ = IX_divergence_profile
-        % divergency component fields set indicators for object to be valid
+        % divergence component fields set indicators for object to be valid
         mandatory_div_fields_ = false(1,2);
     end
 
@@ -235,6 +235,7 @@ classdef IX_inst_DGdisk < IX_inst
             mcm = obj.mod_shape_mono;
             mcm.do_check_combo_arg = true;
             obj.mod_shape_mono_ = mcm.check_combo_arg();
+            obj = obj.clear_hash();
         end
     end
     %======================================================================

@@ -21,12 +21,11 @@ classdef test_faccess_sqw_v4< TestCase
             end
             obj=obj@TestCase(name);
 
-            % sqw
             obj.sample_dir = fileparts(mfilename('fullpath'));
-            obj.sample_file = fullfile(obj.sample_dir,'faccess_sqw_v4_sample.sqw');
+            % sqw
             hp = horace_paths;
-
-            obj.old_origin = fullfile(hp.test_common,'sqw_1d_2.sqw');
+            obj.sample_file = fullfile(hp.test_common,'faccess_sqw_v4_sample.sqw');
+            obj.old_origin  = fullfile(hp.test_common,'sqw_1d_2.sqw');
         end
         %------------------------------------------------------------------
         % tests

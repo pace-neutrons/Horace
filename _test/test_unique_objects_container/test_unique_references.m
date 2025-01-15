@@ -30,15 +30,11 @@ classdef test_unique_references < TestCase
         end
         %------------------------------------------------------------------
         function test_save_restore_global_state_with_replacement(~)
-            % Tests that instances in the GLC are still stored in mem and only cleared on 
+            % Tests that instances in the GLC are still stored in mem and only cleared on
             % unique_references_container's save/load. This expands on the
             % basic test below by overwriting elements after initialisation
-            
-            clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            function urc_clearer()
-                unique_references_container.global_container('CLEAR','multifit_issue')
-            end
-            clSt  = onCleanup(@urc_clearer);
+
+            [clSt,clWa]  = test_unique_references.set_multifit_issue_state_clearer();
 
             urc = unique_references_container('multifit_issue','char');
             % initialize urc with 3 duplicate 'aaa' values
@@ -65,10 +61,12 @@ classdef test_unique_references < TestCase
             % we store urc in a struct, clear glc of all content and then
             % reload urc from the structure as urr
             savestr = urc.to_struct();
+            % need to keep structures for comparison as urc is invalidated
+            % in the next row
             unique_references_container.global_container( ...
                 'CLEAR','multifit_issue');
             urr = serializable.from_struct(savestr);
-            
+
             % glr the reconstructed unique-objects is refreshed and no
             % longer contains the values which might be garbag-collected
             glr = unique_references_container.global_container( ...
@@ -79,25 +77,19 @@ classdef test_unique_references < TestCase
             assertEqual(glr.n_unique,1)
             assertEqual(glr.unique_objects,{'bbb'})
 
-            % check that the to_struct values for old and new urc and urr 
+            % check that the to_struct values for old and new urc and urr
             % are the same ie retained values are equal and values for
             % garbage collection are not referred to by either urc and urr
             savestr_cp = urr.to_struct();
             assertEqual(savestr,savestr_cp);
-            clear clSt;
+            clear clSt; % clear state first to keep warning off on deletion
         end
 
         function test_save_restore_global_state_two_urcs(~)
             % Test that 2 unique containers have the required contributions
             % to the common global container and that is preserved when the
             % global container is cleared and reconstituted
-            clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
- 
-            % prepare for final cleanup
-            function urc_clearer()
-                unique_references_container.global_container('CLEAR','multifit_issue')
-            end
-            clSt  = onCleanup(@urc_clearer);
+            [clSt,clWa]  = test_unique_references.set_multifit_issue_state_clearer();
 
             % initialise two unique containers with some unique and some
             % shared objects
@@ -122,10 +114,12 @@ classdef test_unique_references < TestCase
             assertEqual(glc.unique_objects,{'aaa','bbb','ccc'})
 
             % convert both containers to structs, clear the global
-            % container, and reconstruct the 2 contaners (and hence the 
+            % container, and reconstruct the 2 contaners (and hence the
             % global container) from the structs
             savestr1_or = urc1.to_struct();
             savestr2_or = urc2.to_struct();
+            % need to keep structures for comparion as urc1 and urc2 is
+            % invalidated in the next row
             unique_references_container.global_container( ...
                 'CLEAR','multifit_issue');
             urr1 = serializable.from_struct(savestr1_or);
@@ -141,23 +135,19 @@ classdef test_unique_references < TestCase
             assertEqual(glr.unique_objects,{'aaa','bbb','ccc'})
 
             % assert that the struct versions of the containers are the
-            % same before and after the global cleaar
+            % same before and after the global clear
             savestr_copy1 = urr1.to_struct();
             savestr_copy2 = urr2.to_struct();
             assertEqual(savestr1_or,savestr_copy1);
             assertEqual(savestr2_or,savestr_copy2);
-            clear clSt;
+            clear clSt; % clear state first to keep warning off on deletion
         end
 
         function test_save_restore_global_state(~)
             % test unique container has the correct behaviour for its
             % global storage - basic test. the test above also tests
             % correctness of all this when overwriting elements.
-            clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
-            function urc_clearer()
-                unique_references_container.global_container('CLEAR','multifit_issue')
-            end
-            clSt  = onCleanup(@urc_clearer);
+            [clSt,clWa]  = test_unique_references.set_multifit_issue_state_clearer();
 
             % initialise container with some unique and some duplicate
             % items
@@ -179,10 +169,12 @@ classdef test_unique_references < TestCase
             % store the container as a struct, clear the global container
             % and restore a copy of the original container
             savestr = urc.to_struct();
+            % need to keep structures for comparion as urc is
+            % invalidated in the next row
             unique_references_container.global_container( ...
                 'CLEAR','multifit_issue');
             urr = serializable.from_struct(savestr);
-            
+
             % extract the global container again and make sure it still has
             % the required contents
             glr = unique_references_container.global_container( ...
@@ -196,10 +188,19 @@ classdef test_unique_references < TestCase
             % of struct conversios
             savestr_cp = urr.to_struct();
             assertEqual(savestr,savestr_cp);
-            clear clSt;
+            clear clSt; % clear state first to keep warning off on deletion
         end
-
-
+    end
+    methods(Static)
+        function [clSt,clWa]  = set_multifit_issue_state_clearer(~)
+            clWa = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
+            function urc_clearer()
+                unique_references_container.global_container('CLEAR','multifit_issue')
+            end
+            clSt  = onCleanup(@urc_clearer);
+        end
+    end
+    methods
         %------------------------------------------------------------------
         function test_unique_reference_non_pollute_ws(obj)
             clOb = set_temporary_warning('off','HERBERT:unique_references_container:debug_only_argument');
@@ -208,12 +209,14 @@ classdef test_unique_references < TestCase
             sqw1 = sqw.generate_cube_sqw(4);
             sqw1.experiment_info.instruments=obj.mi1;
             assertTrue(isa(sqw1.experiment_info.instruments(1),'IX_inst_DGfermi'))
+            assertTrue(sqw1.experiment_info.instruments(1).hash_defined)
 
             sqw2 = sqw.generate_cube_sqw(5);
             sqw2.experiment_info.instruments =obj.li;
             assertTrue(isa(sqw2.experiment_info.instruments(1),'IX_inst_DGdisk'))
             glc = unique_references_container.global_container( ...
                 'value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            assertTrue(sqw1.experiment_info.instruments(1).hash_defined)
 
             assertEqual(glc.n_objects,3);
             contents = glc.unique_objects();
@@ -235,12 +238,15 @@ classdef test_unique_references < TestCase
             assertTrue(isa(lobj.sqw2.experiment_info.instruments(1),'IX_inst_DGdisk'))
             glc = unique_references_container.global_container( ...
                 'value','GLOBAL_NAME_INSTRUMENTS_CONTAINER');
+            assertTrue(lobj.sqw2.experiment_info.instruments(1).hash_defined)
 
             assertEqual(glc.n_objects,1);
             contents = glc.unique_objects();
             classnames = cellfun(@class,contents,'UniformOutput',false);
 
-            assertTrue(ismember('IX_inst_DGdisk',classnames));
+            is_disk = ismember(classnames,'IX_inst_DGdisk');
+            assertTrue(any(is_disk));
+
             assertFalse(ismember('IX_inst_DGfermi',classnames));
         end
 
@@ -292,6 +298,8 @@ classdef test_unique_references < TestCase
             assertEqual(gc.n_objects,3);
             assertEqual(gc.unique_objects{1},ex2_rec.samples(1));
             assertEqual(gc.unique_objects{3},ex2_rec.samples(3));
+            assertTrue(gc.unique_objects{1}.hash_defined)
+            assertTrue(gc.unique_objects{3}.hash_defined)
         end
         %
         function test_save_load_add_to_experiment(obj)

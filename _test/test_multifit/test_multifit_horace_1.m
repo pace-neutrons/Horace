@@ -23,25 +23,25 @@ classdef test_multifit_horace_1 < TestCaseWithSave
     end
 
     methods
-        function this = test_multifit_horace_1(name)
+        function obj = test_multifit_horace_1(name)
             if nargin == 0
                 name = 'test_multifit_horace_1';
             end
             % Construct object
             output_file = 'test_multifit_horace_1_output.mat';
-            this = this@TestCaseWithSave(name, output_file);
+            obj = obj@TestCaseWithSave(name, output_file);
 
             % Read in data
             data_dir = fileparts(mfilename('fullpath'));
 
-            this.w1data = read_sqw(fullfile(data_dir,'w1data.sqw'));
-            this.w2data = read_sqw(fullfile(data_dir,'w2data.sqw'));
+            obj.w1data = read_sqw(fullfile(data_dir,'w1data.sqw'));
+            obj.w2data = read_sqw(fullfile(data_dir,'w2data.sqw'));
             hp = horace_paths;
-            this.w4ddata = read_sqw(fullfile(hp.test_common,'sqw_4d.sqw'));
-            this.win=[this.w1data,this.w2data];     % combine the two cuts into an array of sqw objects and fit
+            obj.w4ddata = read_sqw(fullfile(hp.test_common,'sqw_4d.sqw'));
+            obj.win=[obj.w1data,obj.w2data];     % combine the two cuts into an array of sqw objects and fit
 
             % Save reference results, if '-save' option is requested
-            this.save();
+            obj.save();
         end
 
         % ------------------------------------------------------------------------------------------------
@@ -64,9 +64,9 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % Test against saved or store to save later; ignore string
             % changes - these are filepaths
             tol = [3e-5,3e-5];
-            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
-            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, '-ignore_str')
+            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, '-ignore_str', '-ignore_date')
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, '-ignore_str', '-ignore_date')
         end
 
         function obj = test_fit_one_dataset_fb(obj)
@@ -78,7 +78,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             w1data_fb = obj.w1data;
             w1data_fb.pix = PixelDataFileBacked(obj.w1data.pix);
 
-            mss = multifit_sqw_sqw([w1data_fb]);
+            mss = multifit_sqw_sqw(w1data_fb);
             mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
             mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
             mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
@@ -105,8 +105,9 @@ classdef test_multifit_horace_1 < TestCaseWithSave
         % ------------------------------------------------------------------------------------------------
         function obj = test_fit_multidimensional_dataset(obj)
             % Example of simultaneously fitting more than one sqw object
+            %
 
-            mss = multifit_sqw_sqw([obj.w4ddata]);
+            mss = multifit_sqw_sqw(obj.w4ddata);
             mss = mss.set_fun(@sqw_bcc_hfm,  [75,5,2.7,10,-75]);  % set foreground function(s)
             mss = mss.set_free([1,1,1,1,0]); % set which parameters are floating
             mss = mss.set_bfun(@linear_bkgd_sqw,0); % set background function(s)
@@ -115,17 +116,17 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Simulate at the initial parameter values
             wsim_1 = mss.simulate();
-            %c2s = cut(wsim_1,[],[],[-0.1,0.1],[100,120]);
 
             % And now fit
             [wfit_1, fitpar_1] = mss.fit();
 
+
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
             tol = [3e-5,3e-5];
-            assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, 'ignore_str', 1)
-            assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            assertEqualToTolWithSave (obj, fitpar_1,'tol', tol, '-ignore_str')
+            assertEqualToTolWithSave (obj, wsim_1,  'tol', tol, '-ignore_str', '-ignore_date')
+            assertEqualToTolWithSave (obj, wfit_1,  'tol', tol, '-ignore_str', '-ignore_date')
 
         end
 

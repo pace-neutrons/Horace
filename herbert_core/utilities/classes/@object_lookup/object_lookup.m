@@ -46,56 +46,56 @@ classdef object_lookup < serializable
     %   (3) Indexed evaluation of other methods or functions may be needed.
     %
     % See also pdf_table_lookup
-    
+
     properties (Access=private)
         % Object array of unique instance of objects in the input array or cell array
         % (Column vector)
         object_store_ = zeros(0,1)
-        
+
         % Cell array of indices into object_store_
         % (Column vector of column vectors)
         % ind{i} is a column vector of indices for the ith object array.
         % The length of ind{i} = number of objects in the ith object array
         indx_ = cell(0,1)
-        
+
         % Cell array of sizes of original object arrays
         % (Column cellarray of row vectors)
         sz_ = cell(0,1)
-        
+
     end
-    
+
     properties (Dependent)
         % Mirrors of private properties; these define object state:
         % ---------------------------------------------------------
         % Object array of unique instance of objects in the input array or cell array
         object_store
-        
+
         % Cell array of indices into object_store
         % (Column vector of column vectors)
         % indx{i} is a column vector of indices for the ith object array.
         % The length of indx{i} = number of objects in the ith object array
         indx
-        
+
         % The sizes of each of the stored arrays
         % (Column cellarray of row vectors)
         sz
-        
+
         % Generic properties across all detector banks:
         % ---------------------------------------------
         % The number of arrays stored in the object_lookup (scalar)
         % Read only
         narray
-        
+
         % The number of elements in each of the stored arrays (column vector)
         % Read only
         nelmts
-        
+
         % True or false according as the object having at least one object array
         % Read only
         filled
-        
+
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -104,9 +104,9 @@ classdef object_lookup < serializable
             % CONSTRUCTOR Create object lookup from various types of arrays of objects.
             % This can be done by one of the following 4 argument
             % combinations:
-            % 
+            %
             % A. No arguments
-            % 
+            %
             % Create an "empty" object. It is expected that this will be
             % immediately followed by a serialisable loadobj to populate
             % the lookup:
@@ -117,7 +117,7 @@ classdef object_lookup < serializable
             % cellarray of unique_objects_containers. It is expected that
             % this option will take objects created from a parent
             % unique_references_container (e.g. all moderators from a
-            % unique_references_container of instruments - the output 
+            % unique_references_container of instruments - the output
             % unique_objects_container has a very similar function to
             % object_lookup) and insert them as the equivalent contents of
             % the object_lookup.
@@ -127,7 +127,7 @@ classdef object_lookup < serializable
             %                           unique_objects_container2,...})
             %
             % C. Create object_lookup from one or more object (cell-)array(s):
-            % 
+            %
             %   >> obj = object_lookup (objArr)
             %   >> obj = object_lookup (objArr1, objArr2, objArr3,...)
             %   >> obj = object_lookup ({objArr1, objArr2, objArr3,...})
@@ -156,7 +156,7 @@ classdef object_lookup < serializable
             %               object
             %   Also for option C if required:
             %   Optional keyword-value pair:
-            %   'repeat', sz_repmat   
+            %   'repeat', sz_repmat
             %               sz_repmat is one of:
             %                 - the size of a single array:   sz
             %                 - a cell array of array sizes: {sz1,sz2,...szN}
@@ -225,14 +225,14 @@ classdef object_lookup < serializable
             % Output:
             % -------
             %   obj         Object_lookup object
-            
-            
+
+
             % Option A for input arguments:
             % No input arguments: default constructor - do nothing
             if nargin==0
-                return  
+                return
             end
-            
+
             % Option D for input arguments:
             if (nargin==2 || nargin==3) && all(cellfun (@isnumeric, varargin(2:end)))
                 % Input can only be one of:
@@ -243,7 +243,7 @@ classdef object_lookup < serializable
                 sz = varargin{3};
                 repeat = false;     % no implicit repmat
 
-            % Option B for input arguments (single container):
+                % Option B for input arguments (single container):
             elseif isa(varargin{1}, 'unique_objects_container')
 
                 objects = varargin{1};
@@ -267,7 +267,7 @@ classdef object_lookup < serializable
 
                 if any(nel==0)
                     error('HERBERT:object_lookup:invalid_argument', ...
-                          'Cannot have empty object containers');
+                        'Cannot have empty object containers');
                 end
 
                 % Fill lookup properties
@@ -277,7 +277,7 @@ classdef object_lookup < serializable
                 sz = sz(:);
                 repeat = false; % no implicit repmat
 
-            % Option B for input arguments (multiple containers):
+                % Option B for input arguments (multiple containers):
             elseif iscell(varargin{1}) && all(cellfun(@(x) isa(x, 'unique_objects_container'), varargin{1}))
 
                 objects = varargin{1};
@@ -287,7 +287,7 @@ classdef object_lookup < serializable
 
                 if any(nel==0)
                     error('HERBERT:object_lookup:invalid_argument', ...
-                          'Cannot have empty object containers');
+                        'Cannot have empty object containers');
                 end
 
                 % Fill lookup properties
@@ -297,12 +297,12 @@ classdef object_lookup < serializable
                 sz = sz(:);
                 repeat = false; % no implicit repmat
 
-            % Option C for input arguments:
+                % Option C for input arguments:
             else
                 % Input can only be one of:
                 %   >> obj = object_lookup (objects)
                 %   >> obj = object_lookup (objects, 'repeat', sz_repmat)
-                
+
                 % Strip off 'repeat' option, if present
                 if numel(varargin)>=3 && ischar(varargin{end-1})
                     % If the penultimate argument is a character array, then it
@@ -320,13 +320,13 @@ classdef object_lookup < serializable
                     objArr = varargin;
                     repeat = false;
                 end
-                
+
                 % If there is only one argument before any keyword, and it is a
                 % cell array, pick this out as the set of object arrays
                 if numel(objArr)==1 && iscell(objArr{1})
                     objArr = objArr{1};
                 end
-                
+
                 % Check all objects are in fact Matlab objects (i.e. we exclude
                 % instances of MATLAB numeric, logical, char, cell, struct, and
                 % function handle classes) and they have the same class
@@ -341,65 +341,65 @@ classdef object_lookup < serializable
                         ['The object arrays to be stored cannot be MATLAB ',...
                         'numeric, logical, char, cell, struct or handle classes'])
                 end
-                
+
                 % Prepare properties
                 n_objArr = numel(objArr);
-                
+
                 % Now that the object arrays have been identified, validate the
                 % repeat option argument before the unique object array is
                 % determined - that could be a very expensive operation
                 if repeat
                     sz_repmat = parse_sz_repmat (sz_repmat, n_objArr, n_objArr);
                 end
-                
+
                 % Assemble the objects into one array
                 nel = cellfun (@numel, objArr(:));
                 nend = cumsum(nel);
                 nbeg = nend - nel + 1;
                 ntot = nend(end);
-                
+
                 object_store = repmat(objArr{1}(1),[ntot,1]);
                 for i=1:n_objArr
                     object_store(nbeg(i):nend(i)) = objArr{i}(:);
                 end
-                
+
                 % Create column cell array of index arrays into the full object list
                 indx = mat2cell ((1:ntot)', nel, 1);
-                
+
                 % Get object array sizes as a column cell array
                 sz = cellfun (@size, objArr(:), 'uniformOutput', false);
-                
+
             end
             % End of argument option combinations
-            
+
             % Now build the object:
-            
+
             % - Disable interdependency validation
             obj.do_check_combo_arg_ = false;
-            
+
             % - Build object from the state-defining properties
             obj.object_store = object_store;
             obj.indx = indx;
             obj.sz = sz;
-            
+
             % - Turn on interdependency checking and check property
             %   interdependencies
             obj.do_check_combo_arg_ = true;
             obj = obj.check_combo_arg();
-            
+
             % - Implicit repmat of stored objects, if requested
             % NB true only for some of option C for arguments
             if repeat
                 obj = obj.object_repmat (sz_repmat);
             end
-            
+
         end
-        
-        
+
+
         %------------------------------------------------------------------
         % Set methods for dependent properties
         %------------------------------------------------------------------
-        
+
         % Mirrors of private properties; these define object state:
         % ---------------------------------------------------------
         function obj = set.object_store (obj, val)
@@ -426,26 +426,26 @@ classdef object_lookup < serializable
             %   called object_array
             %
             % See also object_array object_element
-            
+
             % The object store is turned into a column vector. An empty object
             % array is permitted.
             % Duplicate elements are removed and the corresponding index arrays
             % in property indx are updated in the call to check_combo_arg
-            
+
             if ~isobject(val)
                 error('HERBERT:object_lookup:invalid_argument', ...
                     'Property ''object_store'' must be a Matlab object or array of objects')
             end
-            
+
             obj.object_store_ = val(:);     % ensure column vector
-            
+
             % Check interdependencies
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
-        
+
+
         function obj = set.indx (obj, val)
             % Set index arrays into the object_store
             %
@@ -461,10 +461,10 @@ classdef object_lookup < serializable
             % - val will be stored as a column callarray of column vectors,
             %   which is how it will be returned by the corresponding getter:
             %       >> val = obj.indx
-            
+
             % It is valid for an index array to be empty: this corresponds to an
             % empty stored object array
-            
+
             % The following permits empty index arrays to pass the test, thereby
             % permitting the default object (i.e. constructor called with no
             % arguments) to pass.
@@ -477,19 +477,19 @@ classdef object_lookup < serializable
                 error('HERBERT:object_lookup:invalid_argument', ...
                     'Property ''indx'' must be a cell array of integer arrays')
             end
-            
+
             % Make the set of indices a column cell array of column vectors
             % Note x(:) makes any empty array have size (0,1), as desired for
             % this property for any empty object array
             obj.indx_ = cellfun (@(x)(x(:)), val(:), 'uniformOutput', false);
-            
+
             % Check interdependencies
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
-        
+
+
         function obj = set.sz (obj, val)
             % Set the array sizes for the object arrays in the object_store
             % Use this setter to reshape the stored object arrays
@@ -501,57 +501,57 @@ classdef object_lookup < serializable
             %           - Row vector if a single stored object array
             %           - Cell array of row vectors where sz{i} is the Matlab
             %             array size of the ith stored object array
-            
+
             % Stored object arrays can have zero size
-            
+
             if ~iscell(val)
                 val = {val};    % turn into a cell array with one element
             end
-            
+
             size_array = @(x)(isrow(x) && numel(x)>=2 && all(x>=0) && all(rem(x,1)==0));
             if ~all (cellfun (@isnumeric, val), 'all') ||...
                     ~all (cellfun (@(x)size_array(x), val), 'all')
                 error('HERBERT:object_lookup:invalid_argument', ...
                     'Property ''sz'' must be a cell array of valid Matlab array sizes')
             end
-            
+
             % Trim excess trailing singleton dimensions in the size vectors, and
             % make the set of indices a column cell array
             sz_trim = @(sz)(sz(1:max([2, find(sz~=1,1,'last')])));
             obj.sz_ = cellfun (@(x)(sz_trim(x)), val(:), 'uniformOutput', false);
-            
+
             % Check interdependencies
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         %------------------------------------------------------------------
-        
+
         % Mirrors of private properties; these define object state:
         function val = get.object_store(obj)
             val = obj.object_store_;
         end
-        
+
         function val = get.indx(obj)
             val = obj.indx_;
         end
-        
+
         function val = get.sz(obj)
             val = obj.sz_;
         end
-        
+
         % Other dependent properties:
         function val = get.narray(obj)
             val = numel(obj.sz_);
         end
-        
+
         function val = get.nelmts(obj)
             val = cellfun(@prod, obj.sz_);
         end
-        
+
         function val = get.filled(obj)
             val = (numel(obj.object_store_)>0);
         end
@@ -565,22 +565,23 @@ classdef object_lookup < serializable
         end
 
         function obj = sort(obj)
-            N = numel(obj.object_store_);
-            hash1 = obj.hashify(obj.object_store_(1));
-            object_hashes = repmat({hash1},numel(obj.object_store_),1);
-            for ii=2:numel(obj.object_store)
-                object_hashes{ii} = obj.hashify(obj.object_store_(ii));
+            Nobj = numel(obj.object_store_);
+            object_hashes = cell(Nobj,1);
+            for ii=1:Nobj
+                [obj.object_store_(ii),object_hashes{ii}] = build_hash(obj.object_store_(ii));
             end
             [~, sorted_idx] = sort(object_hashes);
             obj.object_store_ = obj.object_store_(sorted_idx);
-            [present, inverse_idx] = ismember(1:N, sorted_idx);
+            [present, inverse_idx] = ismember(1:Nobj, sorted_idx);
+            % All these checks indicate that at this stage obect may be
+            % built incorectly. Why may it happen? Re #1797.
             if any(~present)
                 error('HERBERT:object_lookup:invalid_argument','missing indices');
             end
             if numel(unique(inverse_idx))<numel(inverse_idx)
                 error('HERBERT:object_lookup:invalid_argument','duplicate indices');
             end
-            if max(inverse_idx)>N || min(inverse_idx)<1
+            if max(inverse_idx)>Nobj || min(inverse_idx)<1
                 error('HERBERT:object_lookup:invalid_argument','incorrect indices');
             end
             for ii=1:numel(obj.indx)
@@ -589,11 +590,11 @@ classdef object_lookup < serializable
                     obj.indx_{ii}(jj) = inverse_idx(k);
                 end
             end
-        end        
+        end
         %------------------------------------------------------------------
     end
-    
-    
+
+
     %======================================================================
     % Interface to test private functions
     %======================================================================
@@ -604,32 +605,32 @@ classdef object_lookup < serializable
     % is not accesible unless the test folder is placed on the Matlab path.
     % Thereby users of object_lookup will not have access to these protected
     % methods
-    
+
     methods (Access=protected)
         function [ind, ielmts, func, args, split] = test_parse_eval_method (~, varargin)
             [ind, ielmts, func, args, split] = parse_eval_method (varargin{:});
         end
-        
+
         function split = test_parse_split (~, varargin)
             split = parse_split (varargin{:});
         end
     end
-    
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
-    
+
     methods
         function ver = classVersion (~)
             % Current version of class definition
             ver = 2;
         end
-        
+
         function flds = saveableFields (~)
             % Return cellarray of properties defining the class
             flds = {'object_store', 'indx', 'sz'};
         end
-        
+
         function obj = check_combo_arg (obj)
             % Verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check.
@@ -638,7 +639,7 @@ classdef object_lookup < serializable
             %
             % Throw an error if the properties are inconsistent and return
             % without problem it they are not.
-            
+
             % Check the number of index arrays and the number of size vectors are
             % the same. This gives the number of stored arrays
             if numel(obj.indx_) ~= numel(obj.sz_)
@@ -646,7 +647,7 @@ classdef object_lookup < serializable
                     ['The number of stored array sizes is inconsistent with the ',...
                     'number of index arrays'])
             end
-            
+
             % Check the sizes of the stored object arrays are consistent with the
             % length of the index arrays
             nel = cellfun(@prod, obj.sz_);
@@ -656,7 +657,7 @@ classdef object_lookup < serializable
                     ['The number of elements in one or more index arrays is ',...
                     'inconsistent with the size of the corresponding stored object array(s)'])
             end
-            
+
             % Check that indices are in range of the number of objects
             % Empty index arrays are in range, even for an empty object_store
             nobj = numel(obj.object_store_);
@@ -666,14 +667,14 @@ classdef object_lookup < serializable
                     ['One or more index arrays in ''indx'' point to objects ',...
                     'out of range of the stored objects'])
             end
-            
+
             % Get unique entries and update index arrays
             % Use the fact that if:
             %   A = B(m), where m is an indexing array, and
             %   B = C(n),
             % then
             %   A = C(q), with q = n(m)
-            
+
             if fieldsNumLogChar (obj.object_store_, 'indep')
                 [obj_unique, ~, ind_n] = uniqueObj (obj.object_store_);    % simple object
             else
@@ -682,11 +683,11 @@ classdef object_lookup < serializable
             obj.object_store_ = obj_unique;
             ind_m = cell2mat(obj.indx_);
             obj.indx_ = mat2cell (ind_n(ind_m), nel, 1);
-            
+
         end
-        
+
     end
-    
+
     %----------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -696,27 +697,7 @@ classdef object_lookup < serializable
             obj = loadobj@serializable(S,obj);
         end
 
-        function hash = hashify(obj)
-            % makes a hash from the argument object
-            % which will be unique to any identical object
-            %
-            % Input:
-            % - obj : object to be hashed
-            % Output:
-            % - hash : the resulting hash, a row vector of uint8's
-            %
-            Engine = java.security.MessageDigest.getInstance('MD5');
-            if isa(obj,'serializable') 
-                % use default serializer, build up by us for serializable objects
-                Engine.update(obj.serialize());
-            else
-                %convert_to_stream_f_ = @getByteStreamFromArray;
-                Engine.update(getByteStreamFromArray(obj));
-            end
-            hash = typecast(Engine.digest,'uint8');
-            hash = char(hash');
-        end
     end
     %======================================================================
-    
+
 end

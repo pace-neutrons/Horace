@@ -1,4 +1,4 @@
-classdef (Abstract) IX_det_abstractType < serializable
+classdef (Abstract) IX_det_abstractType < hashable
     % Abstract class to be inherited by detector classes
     % Defines one or more generic properties and required methods for all
     % detector types.

@@ -3,7 +3,6 @@ classdef test_smooth < TestCaseWithSave
     properties
         sqw_file_1d_name = 'sqw_1d_1.sqw';
         sqw_file_2d_name = 'sqw_2d_1.sqw';
-        sqw_file_4d_name = 'sqw_4d.sqw';
 
         test_sqw_1d_fullpath = '';
         test_sqw_2d_fullpath = '';
@@ -24,7 +23,6 @@ classdef test_smooth < TestCaseWithSave
 
             obj.test_sqw_1d_fullpath = fullfile(pths.test_common, obj.sqw_file_1d_name);
             obj.test_sqw_2d_fullpath = fullfile(pths.test_common, obj.sqw_file_2d_name);
-            obj.test_sqw_4d_fullpath = fullfile(pths.test_common, obj.sqw_file_4d_name);
             obj.save();
         end
 

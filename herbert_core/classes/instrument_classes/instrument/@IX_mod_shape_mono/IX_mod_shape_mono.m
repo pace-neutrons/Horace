@@ -1,4 +1,4 @@
-classdef IX_mod_shape_mono < serializable
+classdef IX_mod_shape_mono < hashable
     % Moderator - shaping chopper - monochromating chopper as a single object
 
     properties (Access=private)
@@ -226,6 +226,7 @@ classdef IX_mod_shape_mono < serializable
                 obj.t_m_offset_ = obj.t_m_offset_calibrate_();
                 [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
             end
+            obj = obj.clear_hash();
         end
 
     end

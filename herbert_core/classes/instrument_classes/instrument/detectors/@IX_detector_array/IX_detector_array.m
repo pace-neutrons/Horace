@@ -1,4 +1,4 @@
-classdef IX_detector_array < serializable
+classdef IX_detector_array < hashable
     % Full description of a set of detector banks. Each bank is made up of
     % an array of detectors of a single type e.g. one can contain an array
     % of 3He tubes (an object of class IX_det_He3tube), another an array of
@@ -12,7 +12,7 @@ classdef IX_detector_array < serializable
     %       across all of the detector banks, not just within one detector
     %       bank (which is all that an instance of IX_detector_bank will
     %       ensure).
-    %   (2) Methods such as calculation of detector efficieny will operate
+    %   (2) Methods such as calculation of detector efficiency will operate
     %       on the entire IX_detector_array, calling the correct functions
     %       for each of the different detector types in the different
     %       banks.
@@ -23,14 +23,14 @@ classdef IX_detector_array < serializable
     % single detector bank of heterogeneous detector types. For example, get
     % methods of IX_detector_bank which are generic for all detector types, such
     % as x2 (sample-detector distance) and phi and azim (scattering angles),
-    % return the values for all detectors in the array of detectgor banks.
+    % return the values for all detectors in the array of detector banks.
     % Similarly, the set methods for these properties apply across all of the
     % detectors. This is useful, for example, when setting the distances and
     % scattering angles after a recalibration.
     %
     % To get or set properties that are specific to a particular detector type,
     % you need to get a particular detector bank, and get or set its properties
-    % using the approperiate getter and setter methods. For example, it has no
+    % using the appropriate getter and setter methods. For example, it has no
     % meaning to ask for the 3He pressure for an IX_detector_array if it
     % contains banks of scintillator detectors. Once you have changed the
     % properties of a particular detector bank, you can then set the detector
@@ -41,20 +41,20 @@ classdef IX_detector_array < serializable
     %   my_He3bank = detarray.det_bank(3);  % get 3rd detector bank
     %   my_bank.atms = 6.3;                 % set all gas pressures to 6.3 atms
     %   det_array.det_bank(3) = my_He3bank; % reset the detector bank
-    
-    
+
+
     properties (Access=private)
         % Array of IX_detector_bank objects (column vector, length = number
         % of detector banks)
         det_bank_ = IX_detector_bank()
-        
+
         % Path to file source, if any
         filepath_ = ''
-        
+
         % Name of file source, if any
         filename_ = ''
     end
-    
+
     properties (Dependent)
         % Mirrors of private properties; these define object state:
         % ---------------------------------------------------------
@@ -65,7 +65,7 @@ classdef IX_detector_array < serializable
         filepath
         % Name of file source, if any.
         filename
-        
+
         % Generic properties across all detector banks:
         % ---------------------------------------------
         % Detector identifiers, unique integers greater or equal to one.
@@ -95,7 +95,7 @@ classdef IX_detector_array < serializable
         % which has components in the secondary spectrometer coordinate frame.
         % This is an alternative representation of the information in dmat
         rotvec
-        
+
         % Other dependent properties:
         % ---------------------------
         % Number of detectors summed across all the detector banks (get access
@@ -105,7 +105,7 @@ classdef IX_detector_array < serializable
         % only) (column vector length equal to number of detector banks)
         ndet_bank
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -135,7 +135,7 @@ classdef IX_detector_array < serializable
             %                       for a detpar:
             %                       'filename','filepath','group','x2','phi',...
             %                       'azim', 'width', 'height'
-            
+
             if nargin>0
                 is_detector_bank = cellfun(@(x)(isa(x,'IX_detector_bank')), varargin);
                 if all(is_detector_bank)
@@ -144,7 +144,7 @@ classdef IX_detector_array < serializable
                     tmp = cellfun (@(x)(x(:)), varargin, 'uniformOutput', false);
                     obj.det_bank_ = cat(1,tmp{:});
                     clear tmp
-                    
+
                     % Check that the detector identifiers are all unique
                     id = arrayfun (@(O)(O.id), obj.det_bank_, 'uniformOutput', false);
                     id_all = cat(1,id{:});
@@ -152,7 +152,7 @@ classdef IX_detector_array < serializable
                         error ('HERBERT:IX_detector_array:invalid_argument',...
                             'Detector identifiers must all be unique')
                     end
-                    
+
                 elseif numel(varargin)==1 && isstruct(varargin{1})
                     % Single argument that is a structure. Assume attempt to
                     % initialise with a detpar structure
@@ -162,9 +162,9 @@ classdef IX_detector_array < serializable
                             'Detpar structure must be a scalar structure')
                     elseif all( isfield(S, {'filename','filepath',...
                             'group','x2','phi','azim', 'width', 'height'}))
-                        
+
                         % get the default types and parameters for a detector - these should have been
-                        % set by the user before use here. 
+                        % set by the user before use here.
                         % NOTE - this is an interim solution to obtain
                         % detector parameter values until they are
                         % available in nxspe. #1338 tracks the need to
@@ -193,9 +193,9 @@ classdef IX_detector_array < serializable
                                 IX_det_TobyfitClassic (S.width, S.height));
                         else
                             error('HORACE:IX_detector_array:invalid_type', ...
-                                  'unsupported detector type');
+                                'unsupported detector type');
                         end
-                        
+
                         obj.filename_ = S.filename;
                         obj.filepath_ = S.filepath;
                     else
@@ -204,7 +204,7 @@ classdef IX_detector_array < serializable
                             '''filename'',''filepath'',''group'',''x2'','...
                             '''phi'',''azim'', ''width'', ''height'''])
                     end
-                    
+
                 else
                     % Delegate processing of varargin to IX_detector_bank.
                     % This implies that varargin is the whole set of
@@ -212,13 +212,13 @@ classdef IX_detector_array < serializable
                     obj.det_bank_ = IX_detector_bank (varargin{:});
                 end
             end
-            
+
         end
-        
+
         %------------------------------------------------------------------
         % Set methods for dependent properties
         %------------------------------------------------------------------
-        
+
         % Mirrors of private properties; these define object state:
         % ---------------------------------------------------------
         function obj = set.det_bank (obj, val)
@@ -231,7 +231,7 @@ classdef IX_detector_array < serializable
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %---------------------------
         function obj = set.filepath (obj, val)
             if isempty(val)
@@ -241,11 +241,8 @@ classdef IX_detector_array < serializable
                     'Filepath must be a string ')
             end
             obj.filepath_ = val;
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
         end
-        
+
         %---------------------------
         function obj = set.filename (obj, val)
             if isempty(val)
@@ -255,11 +252,8 @@ classdef IX_detector_array < serializable
                     'Filename must be a string ')
             end
             obj.filename_ = val;
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg();
-            end
         end
-        
+
         % Generic properties across all detector banks:
         % ---------------------------------------------
         function obj = set.id (obj, val)
@@ -284,12 +278,12 @@ classdef IX_detector_array < serializable
                 tmp(i).id = val(nbeg(i):nend(i));
             end
             obj.det_bank_ = tmp;
-            
+
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %---------------------------
         function obj = set.x2 (obj, val)
             ndets = obj.ndet_bank;
@@ -313,12 +307,12 @@ classdef IX_detector_array < serializable
                 end
             end
             obj.det_bank_ = tmp;
-            
+
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %---------------------------
         function obj = set.phi (obj, val)
             ndets = obj.ndet_bank;
@@ -342,12 +336,12 @@ classdef IX_detector_array < serializable
                 end
             end
             obj.det_bank_ = tmp;
-            
+
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %---------------------------
         function obj = set.azim (obj, val)
             ndets = obj.ndet_bank;
@@ -371,12 +365,12 @@ classdef IX_detector_array < serializable
                 end
             end
             obj.det_bank_ = tmp;
-            
+
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %---------------------------
         function obj = set.dmat (obj, val)
             ndets = obj.ndet_bank;
@@ -407,12 +401,12 @@ classdef IX_detector_array < serializable
                 end
             end
             obj.det_bank_ = tmp;
-            
+
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %---------------------------
         function obj = set.rotvec (obj, val)
             ndets = obj.ndet_bank;
@@ -443,30 +437,30 @@ classdef IX_detector_array < serializable
                 end
             end
             obj.det_bank_ = tmp;
-            
+
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
-        
+
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         %------------------------------------------------------------------
-        
+
         % Mirrors of private properties; these define object state:
         function val = get.det_bank (obj)
             val = obj.det_bank_;
         end
-        
+
         function val = get.filename (obj)
             val = obj.filename_;
         end
-        
+
         function val = get.filepath (obj)
             val = obj.filepath_;
         end
-        
+
         % Generic properties across all detector banks:
         function val = get.id(obj)
             if numel(obj.det_bank_)>1
@@ -476,7 +470,7 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.id;
             end
         end
-        
+
         function val = get.group(obj)
             val = obj.id';
         end
@@ -489,7 +483,7 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.x2;
             end
         end
-        
+
         function val = get.phi(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun (@(O)(O.phi), obj.det_bank_, 'uniformOutput', false);
@@ -498,7 +492,7 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.phi;
             end
         end
-        
+
         function val = get.azim(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun (@(O)(O.azim), obj.det_bank_, 'uniformOutput', false);
@@ -507,7 +501,7 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.azim;
             end
         end
-        
+
         function val = get.dmat(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun(@(O)(O.dmat), obj.det_bank_, 'uniformOutput', false);
@@ -516,7 +510,7 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.dmat;
             end
         end
-        
+
         function val = get.rotvec(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun(@(O)(O.rotvec), obj.det_bank_, 'uniformOutput', false);
@@ -525,7 +519,7 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.rotvec;
             end
         end
-        
+
         function val = get.ndet(obj)
             if numel(obj.det_bank_)>1
                 val = sum(arrayfun (@(O)(O.ndet), obj.det_bank_));
@@ -533,7 +527,7 @@ classdef IX_detector_array < serializable
                 val = obj.det_bank_.ndet;
             end
         end
-        
+
         function val = get.ndet_bank(obj)
             if numel(obj.det_bank_)>1
                 val = arrayfun (@(O)(O.ndet), obj.det_bank_);
@@ -542,8 +536,8 @@ classdef IX_detector_array < serializable
             end
         end
     end
-    
-    methods    
+
+    methods
         function val = get_detpar_representation(obj)
             %GET_DETPAR_REPRESENTATION convert first detector bank into detpar struct
             % intended for use initialising from a *default* IX_detector_array
@@ -553,13 +547,17 @@ classdef IX_detector_array < serializable
             val.x2       = obj.det_bank_(1).x2;
             val.phi      = obj.det_bank_(1).phi;
             val.azim     = obj.det_bank_(1).azim;
-            val.width    = obj.det_bank_(1).width; 
-            val.height   = obj.det_bank_(1).height; 
+            val.width    = obj.det_bank_(1).width;
+            val.height   = obj.det_bank_(1).height;
             val.filename = obj.filename_;
-            val.filepath = obj.filepath_;        
+            val.filepath = obj.filepath_;
+        end
+        function obj = check_combo_arg(obj)
+            % TODO: at least array equal length should be validated
+            obj = obj.clear_hash();
         end
     end
-    
+
     methods(Static)
         function is_dp_struct = check_detpar_parms(dp)
             % checks input dp to see if it is a proper old-style detpar struct.
@@ -580,26 +578,33 @@ classdef IX_detector_array < serializable
 
             is_dp_struct = isstruct(dp) && all( isfield(dp,{'group','x2','phi','azim', ...
                 'filename','filepath','width','height'}));
-                end
+        end
     end
-    
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
-    
+
     methods
         function ver = classVersion(~)
             % Current version of class definition
             ver = 1;
         end
-        
+        function flds = hashableFields(~)
+            % Return cellarray of properties defining the class hash for
+            % comparison. Filename and filepath should not be used in
+            % hashes as detectors retrieved from different experiment files
+            % are usually the same.
+            flds = {'det_bank'};
+        end
+
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class
             flds = {'det_bank', 'filename', 'filepath'};
         end
-        
+
     end
-    
+
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -610,5 +615,4 @@ classdef IX_detector_array < serializable
         end
     end
     %======================================================================
-    
 end

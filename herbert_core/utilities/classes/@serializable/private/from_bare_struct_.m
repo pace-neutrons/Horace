@@ -104,7 +104,7 @@ for i=1:numel(fields_names)
     if isstruct(val)
         if isfield(val,'serial_name')
             % Structure is one that has been created by to_struct
-            val = serializable.from_struct (val);
+            val = obj.from_struct (val);
         end
     end
     obj.(field_name) = val;

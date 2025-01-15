@@ -36,6 +36,7 @@ if ~isfield(S,'version') || S.version<4
         if isfield(ss,'experiment_info') && isstruct(ss.experiment_info)
             ss.experiment_info = Experiment.loadobj(ss.experiment_info);
         end
+
         % the detpar value will be put in further down in from_bare_struct.
         % NB reminder that this will require experiment_info having an empty
         % detector_arrays rather than being preconstructed

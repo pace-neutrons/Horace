@@ -311,9 +311,12 @@ classdef (Abstract=true) serializable
             iseq  = equal_to_tol(obj1,obj2);
         end
 
-        % Return logical variable stating if two serializable objects are
-        % unequal or not
-        isne = ne (obj1, obj2)
+        function  isne = ne (obj1, obj2)
+            % Return logical variable stating if two serializable objects are
+            % unequal or not. Should be optimized for comparing ne.            
+            isne  = ~equal_to_tol(obj1,obj2);
+        end
+        
 
         % Return logical variable stating if two serializable objects are equal
         % or not given some conditions of their equality.
