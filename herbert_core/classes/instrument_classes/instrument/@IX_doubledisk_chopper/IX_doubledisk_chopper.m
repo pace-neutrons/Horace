@@ -34,6 +34,10 @@ classdef IX_doubledisk_chopper < serializable
         aperture_height
         jitter
     end
+    properties(Dependent,Hidden=true)
+        % get access to distribution function
+        pdf
+    end
 
     methods
         %------------------------------------------------------------------
@@ -141,7 +145,7 @@ classdef IX_doubledisk_chopper < serializable
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.frequency_~=val_old;  % recompute the lookup table
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf );
+                obj = obj.check_combo_arg(recompute_pdf );
             end
         end
 
@@ -153,7 +157,7 @@ classdef IX_doubledisk_chopper < serializable
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.radius_~=val_old;  % recompute the lookup table
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf );
+                obj = obj.check_combo_arg(recompute_pdf );
             end
         end
 
@@ -164,7 +168,7 @@ classdef IX_doubledisk_chopper < serializable
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.slot_width_~=val_old;
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf);
+                obj = obj.check_combo_arg(recompute_pdf);
             end
         end
 
@@ -176,7 +180,7 @@ classdef IX_doubledisk_chopper < serializable
             if obj.do_check_combo_arg_ % not a check but done this way to avoid
                 % pdf recalculations if multiple properties are set
                 recompute_pdf = obj.aperture_width_~=val_old;
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf);
+                obj = obj.check_combo_arg(recompute_pdf);
             end
         end
 
@@ -191,7 +195,7 @@ classdef IX_doubledisk_chopper < serializable
                 % pdf recalculations if multiple properties are set
 
                 recompute_pdf =  obj.jitter_~=val_old;
-                obj.pdf_ = obj.check_combo_arg(recompute_pdf);
+                obj = obj.check_combo_arg(recompute_pdf);
             end
         end
 
@@ -233,6 +237,9 @@ classdef IX_doubledisk_chopper < serializable
             val=obj.jitter_;
         end
 
+        function pf = get.pdf(obj)
+            pf = obj.pdf_;
+        end
         %------------------------------------------------------------------
         function ver = classVersion(~)
             ver = 2;

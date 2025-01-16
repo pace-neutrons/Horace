@@ -262,6 +262,7 @@ classdef IX_moderator < serializable
         function val=get.energy(obj)
             val=obj.energy_;
         end
+
         function pf = get.pdf(obj)
             pf = obj.pdf_;
         end
