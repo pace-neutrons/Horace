@@ -102,6 +102,15 @@ classdef test_hashable_methods <  TestCase
             assertEqual(data,rec_data);
         end
         %------------------------------------------------------------------
+        function test_is_equal_four(obj)
+            data = obj.build_IX_array(4);
+            data(2) = data(1);
+            data(3) = build_hash(data(1));
+            data(4) = build_hash(data(1));            
+
+            assertTrue(isequal(data(1),data(2),data(3),data(4)));
+        end         
+        
         function test_is_equal_both_hashes(obj)
             data = obj.build_IX_array(1);
             assertFalse(data.hash_defined);
