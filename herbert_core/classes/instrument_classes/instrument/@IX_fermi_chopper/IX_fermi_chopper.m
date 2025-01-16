@@ -49,6 +49,10 @@ classdef IX_fermi_chopper < serializable
         phase
         jitter
     end
+    properties(Dependent,Hidden=true)
+        % get access to distribution function
+        pdf
+    end
 
     methods
         %------------------------------------------------------------------
@@ -315,7 +319,9 @@ classdef IX_fermi_chopper < serializable
         function val=get.jitter(obj)
             val=obj.jitter_;
         end
-
+        function pf = get.pdf(obj)
+            pf = obj.pdf_;
+        end
         %------------------------------------------------------------------
         function pdf = recompute_pdf_ (self)
             % Compute the pdf_table object if there is non-zero transmission
