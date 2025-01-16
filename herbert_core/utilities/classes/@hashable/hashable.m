@@ -94,7 +94,7 @@ classdef hashable < serializable
                 [obj(i),hash{i},is_calculated(i)] = build_single_hash_(obj(i));
             end
             is_calculated = any(is_calculated);
-            if numel(hash) == 1
+            if isscalar(hash)
                 hash = hash{1};
             end
         end
