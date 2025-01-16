@@ -126,6 +126,9 @@ classdef hashable < serializable
         % Return logical variable stating if two serializable objects are
         % unequal or not
         isne = ne (obj1, obj2)
+        % overload of standard isequal method properly handling the case
+        % when one object has hash calculated and another one has not
+        iseq = isequal(obj1,varargin);
     end
     methods(Access=protected)
         function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
