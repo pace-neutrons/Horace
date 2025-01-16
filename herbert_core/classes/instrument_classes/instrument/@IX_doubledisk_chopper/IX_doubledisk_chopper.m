@@ -36,6 +36,8 @@ classdef IX_doubledisk_chopper < serializable
     end
     properties(Dependent,Hidden=true)
         % get access to distribution function
+        % hidden not to polute public interface, as raw function is used in
+        % tests only
         pdf
     end
 

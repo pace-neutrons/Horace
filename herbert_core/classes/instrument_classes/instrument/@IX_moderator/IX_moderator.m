@@ -47,7 +47,9 @@ classdef IX_moderator < serializable
         temperature
     end
     properties(Dependent,Hidden=true)
-        % get access to distribution function
+        % get access to distribution function.
+        % hidden not to polute public interface, as raw function is used in
+        % tests only
         pdf
     end
 
