@@ -139,7 +139,7 @@ npix = zeros(size(win));
 keywrd_def = struct('tables',1);
 flags = {'tables'};
 [args,keywrd] = parse_arguments (varargin,keywrd_def,flags);
-if numel(args)==1
+if isscalar(args)
     ipix = args{1};
 elseif numel(args)>0
     ok = false;
