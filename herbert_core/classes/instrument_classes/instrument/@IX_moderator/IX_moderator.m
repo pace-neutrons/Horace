@@ -46,6 +46,10 @@ classdef IX_moderator < serializable
         energy
         temperature
     end
+    properties(Dependent,Hidden=true)
+        % get access to distribution function
+        pdf
+    end
 
     methods
         %------------------------------------------------------------------
@@ -257,6 +261,9 @@ classdef IX_moderator < serializable
 
         function val=get.energy(obj)
             val=obj.energy_;
+        end
+        function pf = get.pdf(obj)
+            pf = obj.pdf_;
         end
     end
     methods
