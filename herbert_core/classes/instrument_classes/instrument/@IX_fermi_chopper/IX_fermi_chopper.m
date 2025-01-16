@@ -49,6 +49,12 @@ classdef IX_fermi_chopper < hashable
         phase
         jitter
     end
+    properties(Dependent,Hidden=true)
+        % get access to distribution function
+        % hidden not to polute public interface, as raw function is used in
+        % tests only
+        pdf
+    end
 
     methods
         %------------------------------------------------------------------
@@ -318,7 +324,9 @@ classdef IX_fermi_chopper < hashable
         function val=get.jitter(obj)
             val=obj.jitter_;
         end
-
+        function pf = get.pdf(obj)
+            pf = obj.pdf_;
+        end
         %------------------------------------------------------------------
         function pdf = recompute_pdf_ (self)
             % Compute the pdf_table object if there is non-zero transmission

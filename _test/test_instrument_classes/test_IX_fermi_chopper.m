@@ -114,6 +114,18 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
             T = partial_transmission (f, [-eps,0,eps]);
             assertEqual (T, [0,0,1])
         end
+        
+        function test_pdf_stable(obj)
+            fermi_arr = [IX_fermi_chopper(12,610,0.049,1.3,0.0228),...
+                IX_fermi_chopper(12,620,0.049,1.3,0.0228);...
+                IX_fermi_chopper(12,630,0.049,1.3,0.0228),...
+                IX_fermi_chopper(12,640,0.049,1.3,0.0228)];
+
+            for i=1:numel(fermi_arr)
+                assertFalse(isempty(fermi_arr(i).pdf))
+                assertEqualToTolWithSave(obj,fermi_arr(i).pdf,1.e-14);
+            end
+        end
 
         function test_prev_versions_array(obj)
 
