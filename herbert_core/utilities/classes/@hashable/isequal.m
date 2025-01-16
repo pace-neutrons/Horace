@@ -9,7 +9,12 @@ argi = cellfun(@clear_hash_for_hashable,varargin,...
 is = builtin('isequal',argi{:});
 
 
-function x = clear_hash_for_hashable(x)
-if isa(x,'hashable')
-    x = x.clear_hash();
+function ha = clear_hash_for_hashable(ha)
+if isa(ha,'hashable')
+    if isscalar(ha)
+        ha = ha.clear_hash();
+    else
+        ha = arrayfun(@(x)clear_hash(x),ha);
+    end
+
 end
