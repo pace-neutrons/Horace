@@ -1,4 +1,4 @@
-classdef IX_moderator < serializable
+classdef IX_moderator < hashable
     % Moderator class definition
 
     properties (Constant, Access=private)
@@ -158,6 +158,7 @@ classdef IX_moderator < serializable
                 error('IX_moderator:invalid_argument',...
                     'Moderator name must be a character string (or empty string)')
             end
+            obj = obj.clear_hash();
         end
 
         function obj=set.distance(obj,val)
@@ -168,6 +169,7 @@ classdef IX_moderator < serializable
                 error('IX_moderator:invalid_argument',...
                     'Distance must be a numeric scalar')
             end
+            obj = obj.clear_hash();
         end
 
         function obj=set.angle(obj,val)
@@ -178,6 +180,7 @@ classdef IX_moderator < serializable
                 error('IX_moderator:invalid_argument',...
                     'Moderator face angle must be a numeric scalar')
             end
+            obj = obj.clear_hash();
         end
         function obj=set.pulse_model(obj,val)
             obj = check_and_set_pulse_model_(obj,val);
@@ -197,22 +200,27 @@ classdef IX_moderator < serializable
 
         function obj=set.width(obj,val)
             obj = check_and_set_nonnegative_scalar_(obj,'width',val);
+            obj = obj.clear_hash();
         end
 
         function obj=set.height(obj,val)
             obj = check_and_set_nonnegative_scalar_(obj,'height',val);
+            obj = obj.clear_hash();
         end
 
         function obj=set.thickness(obj,val)
             obj = check_and_set_nonnegative_scalar_(obj,'thickness',val);
+            obj = obj.clear_hash();
         end
 
         function obj=set.temperature(obj,val)
             obj = check_and_set_nonnegative_scalar_(obj,'temperature',val);
+            obj = obj.clear_hash();
         end
 
         function obj=set.energy(obj,val)
             obj = check_and_set_nonnegative_scalar_(obj,'energy',val);
+            obj = obj.clear_hash();
         end
 
         %------------------------------------------------------------------
@@ -304,6 +312,7 @@ classdef IX_moderator < serializable
                 do_recompute_pdf = true;
             end
             obj = check_combo_recalc_pdf_(obj,do_recompute_pdf);
+            obj = obj.clear_hash();
         end
 
     end

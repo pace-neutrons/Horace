@@ -101,6 +101,45 @@ classdef test_hashable_methods <  TestCase
 
             assertEqual(data,rec_data);
         end
+        %------------------------------------------------------------------
+        function test_is_equal_four(obj)
+            data = obj.build_IX_array(4);
+            data(2) = data(1);
+            data(3) = build_hash(data(1));
+            data(4) = build_hash(data(1));            
+
+            assertTrue(isequal(data(1),data(2),data(3),data(4)));
+        end         
+        
+        function test_is_equal_both_hashes(obj)
+            data = obj.build_IX_array(1);
+            assertFalse(data.hash_defined);
+            data1 = build_hash(data);
+            data  = build_hash(data);            
+
+            assertTrue(isequal(data,data1));
+        end         
+        function test_is_equal_first_nohash_second_hash(obj)
+            data = obj.build_IX_array(1);
+            assertFalse(data.hash_defined);
+            data1 = build_hash(data);
+
+            assertTrue(isequal(data,data1));
+        end 
+        function test_is_equal_first_hash_second_no_hash(obj)
+            data = obj.build_IX_array(1);
+            assertFalse(data.hash_defined);
+            data1 = build_hash(data);
+
+            assertTrue(isequal(data1,data));
+        end
+        function test_is_equal_both_no_hash(obj)
+            data = obj.build_IX_array(1);
+            assertFalse(data.hash_defined);
+            data1 = data;
+
+            assertTrue(isequal(data,data1));
+        end
     end
     methods(Static,Access=private)
         function [data,run_id] = build_IX_array(n_elements)

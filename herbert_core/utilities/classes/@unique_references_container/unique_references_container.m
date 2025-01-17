@@ -122,7 +122,7 @@ classdef unique_references_container < serializable
         % instruments and samples
 
         unique_objects; % returns unique_objects_container. Hidden not to
-        % expose expensive operation to view 
+        % expose expensive operation to view but widely used in access/save/load operations 
     end
 
     methods % property (and method) set/get
@@ -282,7 +282,7 @@ classdef unique_references_container < serializable
                 [obj,hash] = build_hash(obj);
                 % as this code updates self and hence glc, need to refetch it every
                 % time here
-                glc = self.global_container('value',self.global_name);                
+                glc = self.global_container('value',self.global_name);
                 [~,loc] = ismember( hash, glc.stored_hashes_ );
                 if loc == 0 || isempty(loc)
                     self = self.add_single_( obj, [], hash );

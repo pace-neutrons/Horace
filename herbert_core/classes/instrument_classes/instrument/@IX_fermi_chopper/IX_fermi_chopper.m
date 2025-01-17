@@ -1,4 +1,4 @@
-classdef IX_fermi_chopper < serializable
+classdef IX_fermi_chopper < hashable
     % Fermi chopper class definition
     properties (Constant, Access=private)
         % Conversion constant. Should replace by a class that gives constants
@@ -152,6 +152,7 @@ classdef IX_fermi_chopper < serializable
                     'Fermi chopper name must be a character string (or empty string). It is %s', ...
                     disp2str(val));
             end
+            obj = obj.clear_hash();
         end
         function obj=set.distance(obj,val)
             if isscalar(val) && isnumeric(val)
@@ -162,6 +163,7 @@ classdef IX_fermi_chopper < serializable
                     'Distance must be a numeric scalar. It is: %s',...
                     disp2str(val));
             end
+            obj = obj.clear_hash();
         end
         function obj=set.frequency(obj,val)
             obj = check_and_set_frequency_(obj,val);
@@ -203,6 +205,7 @@ classdef IX_fermi_chopper < serializable
             end
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg(false);
+                obj = obj.clear_hash();
             end
         end
 
@@ -214,7 +217,7 @@ classdef IX_fermi_chopper < serializable
                     'Chopper aperture width must be a numeric scalar greater or equal to zero It is: %s', ...
                     disp2str(val));
             end
-
+            obj = obj.clear_hash();
         end
 
         function obj=set.height(obj,val)
@@ -225,7 +228,7 @@ classdef IX_fermi_chopper < serializable
                     'Chopper aperture height must be a numeric scalar greater or equal to zero It is: %s', ...
                     disp2str(val));
             end
-
+            obj = obj.clear_hash();
         end
 
         function obj=set.energy(obj,val)
@@ -401,7 +404,9 @@ classdef IX_fermi_chopper < serializable
 
             if do_recompute_pdf
                 obj.pdf_ = recompute_pdf_(obj);   % recompute the lookup table
+                obj = obj.clear_hash();           % clear hash as object is different
             end
+
         end
     end
     methods(Access=protected)

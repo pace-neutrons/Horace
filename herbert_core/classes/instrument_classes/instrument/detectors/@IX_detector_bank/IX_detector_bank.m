@@ -1,9 +1,9 @@
-classdef IX_detector_bank < serializable
+classdef IX_detector_bank < hashable
     % IX_detector_bank    Defines a detector bank for detectors of one type
     % The object contains detector positional information and the detector
     % information for a detector bank of a single detector type (for example an
-    % array of 3He tubes, or an array of slab deteectors).
-    
+    % array of 3He tubes, or an array of slab detectors).
+
     properties (Access=private)
         % Detector identifiers, integers greater than 0 (column vector)
         id_  = 1;
@@ -18,7 +18,7 @@ classdef IX_detector_bank < serializable
         % Scalar object of IX_det_abstractType
         det_ = IX_det_slab;
     end
-    
+
     properties (Dependent)
         % Mirrors of private properties; these define object state:
         % ---------------------------------------------------------
@@ -30,7 +30,7 @@ classdef IX_detector_bank < serializable
         phi
         % Azimuthal angle (degrees) (column vector)
         % The sense of rotation is that sitting on the beamstop and looking
-        % at the sample, azim = 0 is to the east i.e. to the right, 
+        % at the sample, azim = 0 is to the east i.e. to the right,
         % azim = 90 is north i.e. vertically up etc.
         azim
         % Detector orientation matrix (size [3,3,ndet])
@@ -45,9 +45,9 @@ classdef IX_detector_bank < serializable
         rotvec
         % Detector array object (scalar instance of IX_det_abstractType)
         % Information about an array of detector elements of the same type e.g.
-        % IX_det_He3tube. The detector type inherits from IX_det_abstractType 
+        % IX_det_He3tube. The detector type inherits from IX_det_abstractType
         det
-        
+
         width
         height
 
@@ -56,8 +56,8 @@ classdef IX_detector_bank < serializable
         % Number of detectors (get access only) (scalar)
         ndet
     end
-    
-    
+
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -103,14 +103,14 @@ classdef IX_detector_bank < serializable
             % The default if neither is given is that the detector coordinate
             % frame is the same as the secondary spectrometer coordinate
             % frame i.e. the default is: 'dmat',eye(3)
-            
+
             if nargin>0
                 % Define parameters accepted by constructor as keys and also the
                 % order of the positional parameters, if the parameters are
                 % provided without their names
                 property_names = {'id', 'x2', 'phi', 'azim', 'det' 'dmat', 'rotvec'};
                 mandatory = [true, true, true, true, true, false, false];
-                
+
                 % Set positional parameters and key-value pairs and check their
                 % consistency using public setters interface. Run
                 % check_combo_arg after all settings have been done.
@@ -118,7 +118,7 @@ classdef IX_detector_bank < serializable
                 options = struct('key_dash', true, 'mandatory_props', mandatory);
                 [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                     property_names, options, varargin{:});
-                
+
                 if ~isempty(remains)
                     error('HERBERT:IX_det_He3tube:invalid_argument', ...
                         ['Unrecognised extra parameters provided as input to ',...
@@ -127,7 +127,7 @@ classdef IX_detector_bank < serializable
             end
 
         end
-        
+
         %------------------------------------------------------------------
         % Set methods for dependent properties
         function obj = set.id (obj, val)
@@ -141,7 +141,7 @@ classdef IX_detector_bank < serializable
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj = set.x2 (obj, val)
             if any(val(:)<0)
                 error('HERBERT:IX_detector_bank:invalid_argument',...
@@ -152,7 +152,7 @@ classdef IX_detector_bank < serializable
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj = set.phi (obj, val)
             if any(val(:)<0) || any(val(:)>180)
                 error('HERBERT:IX_detector_bank:invalid_argument',...
@@ -164,7 +164,7 @@ classdef IX_detector_bank < serializable
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj = set.azim (obj, val)
             if ~isnumeric(val)
                 error('HERBERT:IX_detector_bank:invalid_argument',...
@@ -175,21 +175,21 @@ classdef IX_detector_bank < serializable
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj = set.dmat (obj, val)
             [~, obj.dmat_] = det_orient_trans (val, 'dmat');
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj = set.rotvec (obj, val)
             [~, obj.dmat_] = det_orient_trans (val, 'rotvec', 'dmat');
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         function obj = set.det (obj, val)
             if ~isa(val,'IX_det_abstractType') || ~isscalar(val)
                 error('HERBERT:IX_detector_bank:invalid_argument',...
@@ -200,64 +200,64 @@ classdef IX_detector_bank < serializable
                 obj = obj.check_combo_arg();
             end
         end
-        
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val = get.width(obj)
             val = obj.det_.width;
         end
-        
+
         function val = get.id(obj)
             val = obj.id_;
         end
-        
+
         function val = get.x2(obj)
             val = obj.x2_;
         end
-        
+
         function val = get.phi(obj)
             val = obj.phi_;
         end
-        
+
         function val = get.azim(obj)
             val = obj.azim_;
         end
-        
+
         function val = get.dmat(obj)
             val = obj.dmat_;
         end
-        
+
         function val = get.rotvec(obj)
             val = rotmat_to_rotvec (permute (obj.dmat_, [2,1,3]));
         end
-        
+
         function val = get.det(obj)
             val = obj.det_;
         end
-        
+
         function val = get.ndet(obj)
             val = obj.det_.ndet;
         end
-        
+
         function val = get.height(obj)
             val = obj.det_.height;
         end
-        
-        
+
+
         %------------------------------------------------------------------
-        
+
     end
-    
+
     %======================================================================
     % SERIALIZABLE INTERFACE
     %======================================================================
-    
+
     methods
         function ver = classVersion(~)
             % Current version of class definition
             ver = 1;
         end
-        
+
         function flds = saveableFields(~)
             % Return cellarray of properties defining the class
             flds = {'id', 'x2', 'phi', 'azim', 'dmat', 'det'};
@@ -282,7 +282,7 @@ classdef IX_detector_bank < serializable
                     'scattering angles ''phi'' and ''azim'' are non-scalar or ',...
                     'arrays with length different to the number of detector indices'])
             end
-            
+
             if size(obj.dmat_,3)==1 && nd>1
                 obj.dmat_ = repmat(obj.dmat_, [1,1,nd]);
             elseif size(obj.dmat_,3)~=nd
@@ -290,7 +290,7 @@ classdef IX_detector_bank < serializable
                     ['The number of detector orientations must be unity or ',...
                     'match the number of detector identifiers'])
             end
-            
+
             if obj.det_.ndet==1 && nd>1
                 obj.det_ = obj.det_.replicate(nd);
             elseif obj.det_.ndet~=nd
@@ -298,10 +298,11 @@ classdef IX_detector_bank < serializable
                     ['The number of detectors must be unity or match the ',...
                     'number of detector identifiers'])
             end
+            obj = obj.clear_hash();
         end
-        
+
     end
-    
+
     %----------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -312,5 +313,5 @@ classdef IX_detector_bank < serializable
         end
     end
     %======================================================================
-    
+
 end

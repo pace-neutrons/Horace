@@ -96,8 +96,6 @@ classdef Experiment < serializable
             %
             % Each argument can be a single object or array of objects.
 
-            obj = obj@serializable();
-
             % initialising the compressed component containers.
             % these may be overwritten if they are passed in as arguments
             % below

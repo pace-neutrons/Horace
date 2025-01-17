@@ -1,10 +1,12 @@
 classdef test_upgrade_file_format< TestCase
 
     properties
-        source_mat = 'testsqw_w3_small_v1.mat'
+        source_mat  = 'testsqw_w3_small_v1.mat'
         source_sqw1 = 'sqw_2d_2.sqw'
+        source_sqV4 = 'faccess_sqw_v4_sample.sqw'
         ff_source_mat;
         ff_source_sqw;
+        ff_source_sqwV4;
         working_dir
         test_common;
     end
@@ -17,10 +19,55 @@ classdef test_upgrade_file_format< TestCase
             obj = obj@TestCase(name);
             hc = horace_paths;
             obj.test_common = hc.test_common;
-            obj.ff_source_mat = fullfile(obj.test_common,obj.source_mat);
-            obj.ff_source_sqw = fullfile(obj.test_common,obj.source_sqw1);
+            obj.ff_source_mat  = fullfile(obj.test_common,obj.source_mat);
+            obj.ff_source_sqw  = fullfile(obj.test_common,obj.source_sqw1);
+            obj.ff_source_sqwV4= fullfile(obj.test_common,obj.source_sqV4);
             obj.working_dir = tmp_dir();
         end
+        %
+        function test_upgrade_instr_sample_no_hash_to_hash(obj)
+            % this file contains old V4 version which do not have hashes
+            source = obj.ff_source_sqwV4;
+            [clFile,test_fl] = obj.copy_my_file(source);
+
+
+
+            facc = sqw_formats_factory.instance().get_loader(test_fl);
+            facc = facc{1};
+            %
+            sam  = facc.get_sample('-all');
+            obj.check_container(sam,109)
+
+            ins  = facc.get_instrument('-all');
+            obj.check_container(ins,109)
+
+            det  = facc.get_detpar();
+            assertTrue(isstruct(det));
+
+            facc.delete();
+            clWarn = set_temporary_warning('off','HORACE:test_upgrade_instr_sample');
+            warning('HORACE:test_upgrade_instr_sample','test warning issued to ensure other warning do not polute workspace')
+
+            % upgrade instrument, sample and detectors in file to hashable
+            % version
+            upgrade_file_format(test_fl);
+            % no warning about old file format and any other
+            [~,wcl] = lastwarn;
+            assertEqual(wcl,'HORACE:test_upgrade_instr_sample')
+
+            facc = sqw_formats_factory.instance().get_loader(test_fl);
+            facc = facc{1};
+
+            sam  = facc.get_sample('-all');
+            obj.check_container(sam,109)
+
+            ins  = facc.get_instrument('-all');
+            obj.check_container(ins,109)
+
+            det  = facc.get_detpar();
+            obj.check_container(det,109)
+        end
+        %------------------------------------------------------------------
         function test_upgrade_for_legacy_alignment(obj)
             %
             source = fullfile(obj.test_common,'sqw_4d.sqw');
@@ -34,6 +81,10 @@ classdef test_upgrade_file_format< TestCase
             assertEqual(wcl,'SQW_FILE:old_version')
             assertTrue(isa(fl{1},'sqw'));
             assertTrue(fl{1}.is_filebacked);
+
+            obj.check_container(fl{1}.experiment_info.instruments,23);
+            obj.check_container(fl{1}.experiment_info.samples,23);            
+            obj.check_container(fl{1}.experiment_info.detector_arrays,23);                        
         end
         function test_upgrade_single_sqw_filebacked_noupgrade_range_warning(obj)
             [clFile,targ_f] = obj.copy_my_file(obj.ff_source_sqw);
@@ -48,6 +99,11 @@ classdef test_upgrade_file_format< TestCase
             [~,e] = lastwarn;
             assertEqual(e,'TESTS:my_warning');
             assertFalse(w2.pix.is_range_valid())
+
+            obj.check_container(w2.experiment_info.instruments,186);
+            obj.check_container(w2.experiment_info.samples,186);            
+            obj.check_container(w2.experiment_info.detector_arrays,186);                        
+
         end
 
         function test_upgrade_single_sqw_filebacked_upgrade_range_no_warning(obj)
@@ -95,6 +151,15 @@ classdef test_upgrade_file_format< TestCase
         end
     end
     methods(Access=private)
+        function check_container(~,uob_present,n_runs)
+            assertTrue(isa(uob_present,'unique_references_container'));
+            assertEqual(uob_present.n_objects,n_runs);
+            assertEqual(uob_present.n_unique_objects,1);
+            uob_here= uob_present.unique_objects.unique_objects{1};
+            % hash has been calculated while putting into urc
+            assertTrue(uob_here.hash_defined)
+        end
+
         function [clOb,targ_f] = copy_my_file(obj,flilelist)
             if istext(flilelist)
                 filelist = cellstr(flilelist);

@@ -41,7 +41,15 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
 
             obj.save()
         end
-
+        %--------------------------------------------------------------------------
+        function test_hashable_prop(~)
+            %flds = {'distance','frequency','radius','curvature','slit_width',...
+            %    'slit_spacing','width','height','energy',...
+            %    'phase','jitter','name'};
+            changed_prop = {13,620,0.04,1.2,0.01,0.02,3,11,320,false,0.02,'SS_Chopper'};
+            ap = IX_fermi_chopper(12,610,0.049,1.3,0.0228,0.03,2,10,300,true,0.01,'S_Chopper');
+            hashable_obj_tester(ap,changed_prop);
+        end
         %--------------------------------------------------------------------------
         function test_pulse_shape (self)
             t = -20:0.001:20;

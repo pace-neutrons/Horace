@@ -4,14 +4,13 @@ classdef hashable < serializable
         hash_value_ = [];
     end
     properties(Dependent,Hidden)
-        % expose internal hash_value_ value for debugging purposes
-        hash_value;
+        % expose internal hash_value_ value mainly for debugging purposes
+        hash_value; % Normal usage involves calling [obj,hash] = build_hash(obj)
+        % method on hashable object, to calculate hash only once
 
         % returns true if hash have been calculated and stored with the object
         % and false otherwise.
-        hash_defined; % Provided to simplify possible future hash
-        % type replacement, e.g. from char value to uint64 or something
-        % similar.
+        hash_defined;
     end
 
     %---------------------------------------------------------------------------
@@ -42,7 +41,8 @@ classdef hashable < serializable
             val = obj.hash_value_;
         end
         function is = get.hash_defined(obj)
-            is  = ~isempty(obj.hash_value_);
+            is = arrayfun(@(x)~isempty(x.hash_value_),obj);
+            is = all(is);
         end
 
         function S = to_struct (obj)
@@ -94,7 +94,7 @@ classdef hashable < serializable
                 [obj(i),hash{i},is_calculated(i)] = build_single_hash_(obj(i));
             end
             is_calculated = any(is_calculated);
-            if numel(hash) == 1
+            if isscalar(hash)
                 hash = hash{1};
             end
         end
@@ -126,13 +126,19 @@ classdef hashable < serializable
         % Return logical variable stating if two serializable objects are
         % unequal or not
         isne = ne (obj1, obj2)
+        % overload of standard isequal method properly handling the case
+        % when one object has hash calculated and another one has not
+        iseq = isequal(obj1,varargin);
     end
     methods(Access=protected)
         function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
             % internal procedure used by equal_to_toll method to compare
-            % single pair of hashable objects. 
-            % 
-            % Overloads similar one in serializable class.
+            % single pair of hashable objects.
+            %
+            % Overloads similar one in serializable class. Initially
+            % compares hashes and if hashes are different runs more
+            % accurate comparison using equal_to_tol_single for a
+            % serializable object.
             %
             % Input:
             % obj       -- first object to compare

@@ -229,9 +229,7 @@ if ~isfield(detpar,'filepath'), detpar.filepath = ''; end
 if ~isfield(detpar,'group'), detpar.group = 1; end
 
 detpar = IX_detector_array(detpar);
-exper = Experiment(detpar,instrument,sample,expdata);
-wres.experiment_info = exper;
-
+wres.experiment_info = Experiment(detpar,instrument,sample,expdata);
 
 
 % Make data structure

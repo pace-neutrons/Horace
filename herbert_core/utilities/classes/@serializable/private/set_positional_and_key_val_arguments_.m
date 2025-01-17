@@ -125,7 +125,7 @@ end
 
 % Turn off property interdependence validation so that property values can be
 % set without interdependency checking
-obj.do_check_combo_arg_ = false;
+obj.do_check_combo_arg = false;
 
 % Parse input arguments to determine the presence of keywords
 [obj, remains, key_ind, key_pos, val_pos, is_positional, argi] = ...
@@ -184,7 +184,7 @@ for i=1:numel(key_pos)
 end
 
 % Now check for interdependency of properties
-obj.do_check_combo_arg_ = true;
+obj.do_check_combo_arg = true;
 obj=obj.check_combo_arg();
 
 end
