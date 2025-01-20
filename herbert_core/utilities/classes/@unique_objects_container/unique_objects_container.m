@@ -84,6 +84,7 @@ classdef unique_objects_container < ObjContainersBase
     properties (Access=protected)
         stored_hashes_ = cell(1,0);  % their hashes are stored
         % (default respecified in constructor inputParser)
+        n_duplicates_   = zeros(1,0); % number of duplicated        
     end
     properties(Dependent,Hidden)
         % property containing list of stored hashes for unique objects for
