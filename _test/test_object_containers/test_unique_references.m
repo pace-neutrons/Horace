@@ -33,7 +33,172 @@ classdef test_unique_references < TestCase
             %unique_obj_store.instance('clear');
             obj.clStore = [];
         end
+        %------------------------------------------------------------------
+        function test_save_restore_global_state_with_replacement(~)
+            % Tests that instances in the GLC are still stored in mem and only cleared on
+            % unique_references_container's save/load. This expands on the
+            % basic test below by overwriting elements after initialisation
 
+            clSt  = test_unique_references.set_multifit_issue_state_clearer();
+
+            urc = unique_references_container('char');
+            % initialize urc with 3 duplicate 'aaa' values
+            urc(1) = 'aaa';
+            urc(2) = 'aaa';
+            urc(3) = 'aaa';
+            % overwrite these elements with 'bbb' values
+            urc(1) = 'bbb';
+            urc(2) = 'bbb';
+            urc(3) = 'bbb';
+
+            % extract implementing unique-objects for testing
+            glc = unique_obj_store.instance().get_objects('char');
+            % although urc no longer has 'aaa' values, they are retained in
+            % glc as there is no garbage collection. We expect the
+            % following tests to fail when garbage collection is
+            % implemented.
+            assertTrue(isa(glc,'unique_only_obj_container'))
+            assertEqual(glc.n_objects,1)
+            assertEqual(glc.n_unique,1)
+            assertEqual(glc.unique_objects,{'bbb'})
+
+            % we store urc in a struct, clear glc of all content and then
+            % reload urc from the structure as urr
+            savestr = urc.to_struct();
+            % need to keep structures for comparison as urc is invalidated
+            % in the next row
+            unique_obj_store.instance().clear('char');
+            urr = serializable.from_struct(savestr);
+
+            % glr the reconstructed unique-objects is refreshed and no
+            % longer contains the values which might be garbag-collected
+            glr = unique_obj_store.instance().get_objects('char');
+            % there are no longer any 'aaa' values in the global container
+            assertTrue(isa(glr,'unique_only_obj_container'))
+            assertEqual(glr.n_objects,1)
+            assertEqual(glr.n_unique,1)
+            assertEqual(glr.unique_objects,{'bbb'})
+
+            % check that the to_struct values for old and new urc and urr
+            % are the same ie retained values are equal and values for
+            % garbage collection are not referred to by either urc and urr
+            savestr_cp = urr.to_struct();
+            assertEqual(savestr,savestr_cp);
+            clear clSt; % clear state first to keep warning off on deletion
+        end
+
+        function test_save_restore_global_state_two_urcs(~)
+            % Test that 2 unique containers have the required contributions
+            % to the common global container and that is preserved when the
+            % global container is cleared and reconstituted
+            clSt  = test_unique_references.set_multifit_issue_state_clearer();
+
+            % initialise two unique containers with some unique and some
+            % shared objects
+            urc1 = unique_references_container('char');
+            urc1(1) = 'aaa';
+            urc1(2) = 'aaa';
+            urc1(3) = 'aaa';
+            urc1(4) = 'bbb';
+            urc2 = unique_references_container('char');
+            urc2(1) = 'ccc';
+            urc2(2) = 'ccc';
+            urc2(3) = 'ccc';
+            urc2(4) = 'bbb';
+
+            % extract the common global container and check correctness of
+            % its contents
+            glc = unique_obj_store.instance().get_objects('char');
+            assertTrue(isa(glc,'unique_only_obj_container'))
+            assertEqual(glc.n_objects,3)
+            assertEqual(glc.n_unique,3)
+            assertEqual(glc.unique_objects,{'aaa','bbb','ccc'})
+
+            % convert both containers to structs, clear the global
+            % container, and reconstruct the 2 contaners (and hence the
+            % global container) from the structs
+            savestr1_or = urc1.to_struct();
+            savestr2_or = urc2.to_struct();
+            % need to keep structures for comparion as urc1 and urc2 is
+            % invalidated in the next row
+            unique_obj_store.instance().clear('char');
+
+            urr1 = serializable.from_struct(savestr1_or);
+            urr2 = serializable.from_struct(savestr2_or);
+
+            % extract again the global container and check it still has the
+            % right contents
+            glr = unique_obj_store.instance().get_objects('char');
+            assertTrue(isa(glr,'unique_only_obj_container'))
+            assertEqual(glr.n_objects,3)
+            assertEqual(glr.n_unique,3)
+            assertEqual(glr.unique_objects,{'aaa','bbb','ccc'})
+
+            % assert that the struct versions of the containers are the
+            % same before and after the global clear
+            savestr_copy1 = urr1.to_struct();
+            savestr_copy2 = urr2.to_struct();
+            assertEqual(savestr1_or,savestr_copy1);
+            assertEqual(savestr2_or,savestr_copy2);
+            clear clSt; % clear state first to keep warning off on deletion
+        end
+
+        function test_save_restore_global_state(~)
+            % test unique container has the correct behaviour for its
+            % global storage - basic test. the test above also tests
+            % correctness of all this when overwriting elements.
+            clSt  = test_unique_references.set_multifit_issue_state_clearer();
+
+            % initialise container with some unique and some duplicate
+            % items
+            urc = unique_references_container('char');
+            urc(1) = 'aaa';
+            urc(2) = 'aaa';
+            urc(3) = 'aaa';
+            urc(4) = 'bbb';
+
+            % extract the global container and check that its contents are
+            % correct
+            glc = unique_obj_store.instance().get_objects('char');
+            assertTrue(isa(glc,'unique_only_obj_container'))
+            assertEqual(glc.n_objects,2)
+            assertEqual(glc.n_unique,2)
+            assertEqual(glc.unique_objects,{'aaa','bbb'})
+
+            % store the container as a struct, clear the global container
+            % and restore a copy of the original container
+            savestr = urc.to_struct();
+            % need to keep structures for comparion as urc is
+            % invalidated in the next row
+            unique_obj_store.instance().clear('char');
+            urr = serializable.from_struct(savestr);
+
+            % extract the global container again and make sure it still has
+            % the required contents
+            glr = unique_obj_store.instance().get_objects('char');
+            assertTrue(isa(glr,'unique_only_obj_container'))
+            assertEqual(glr.n_objects,2)
+            assertEqual(glr.n_unique,2)
+            assertEqual(glr.unique_objects,{'aaa','bbb'})
+
+            % check the old and new containers are identical by comparison
+            % of struct conversios
+            savestr_cp = urr.to_struct();
+            assertEqual(savestr,savestr_cp);
+            clear clSt; % clear state first to keep warning off on deletion
+        end
+    end
+    methods(Static)
+        function clSt  = set_multifit_issue_state_clearer(~)
+            function urc_clearer(old_val)
+                unique_obj_store.instance().set_objects(old_val);
+            end
+            old_store = unique_obj_store.instance().get_objects('char');            
+            unique_obj_store.instance().clear('char');
+            clSt  = onCleanup(@()urc_clearer(old_store));
+        end
+    end
+    methods
         function test_unique_reference_non_pollute_ws(obj)
             function clearer()
                 unique_obj_store.instance().clear('IX_inst');
@@ -995,7 +1160,8 @@ classdef test_unique_references < TestCase
             %-----
             stor = unique_obj_store.instance().get_objects('char');
             assertEqual(stor.n_objects,6)
-            assertEqual(stor.unique_objects,{'1','2','3','4','5','6'})
+            assertEqual(stor.unique_objects,{'6','2','3','4','5','1'})
+            assertEqual(stor.get_at_direct_idx(1:6),'123456');
             assertEqual(stor.n_duplicates,[1,  1,  1,  2,  2,  2]);
         end
 
@@ -1027,7 +1193,7 @@ classdef test_unique_references < TestCase
             end
             uobj = urc1.unique_objects;
             assertEqual(uobj.unique_objects,{'5','4','3','6'});
-            assertEqual(urc1(1:6),'543456');            
+            assertEqual(urc1(1:6),'543456');
 
             uobj = urc2.unique_objects;
             assertEqual(uobj.unique_objects,orobj(1:3));

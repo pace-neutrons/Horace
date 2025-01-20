@@ -46,7 +46,7 @@ classdef unique_obj_store<handle
     %----------------------------------------------------------------------
     % store operations
     methods
-        function stor = get_objects(obj,class_name)
+        function stor= get_objects(obj,class_name)
             % return unique storage container for objects, defined by
             % specified class name
             if isfield(obj.stor_holder_,class_name)
@@ -78,7 +78,7 @@ classdef unique_obj_store<handle
             % or no object is stored at particular index.
             if ~isfield(obj.stor_holder_,class_name)
                 error('HERBERT:unique_obj_store:invalid_argument',...
-                    'Attempt to get value from emtpy store: %s',...
+                    'Attempt to get value from empty store: %s',...
                     class_name);
             end
             stor = obj.stor_holder_.(class_name);
@@ -86,7 +86,7 @@ classdef unique_obj_store<handle
                 val = stor.get_at_direct_idx(glidx);
             else
                 error('HERBERT:unique_obj_store:invalid_argument',...
-                    'Global index %d is outsie of the ranges [1,%d] of global store: %s', ...
+                    'Global index %d is outside of the ranges [1,%d] of global store: %s', ...
                     glidx,stor.n_objects,class_name);
             end
         end
@@ -98,7 +98,9 @@ classdef unique_obj_store<handle
             %
             % WARNING: calling this method would invalidate all
             % unique_rererences containers referring to this class.
-            % USE CAREFULY, normally in tests, do avoid test side-effects
+            % USE CAREFULY, normally in tests, to avoid test side-effects.
+            % Store initial state of the container before the test and
+            % restore it after clearing the test contents.
             %
             if isfield(obj.stor_holder_,class_name)
                 obj.stor_holder_ = rmfield(obj.stor_holder_,class_name);

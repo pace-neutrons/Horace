@@ -189,19 +189,6 @@ classdef unique_objects_container < ObjContainersBase
             %
             obj = self.get_unique_objects(nuix);
         end
-        function obj = replicate_runs(obj,n_objects)
-            % function expands container onto specified number of runs.
-            % only single unique object allowed to be present in the
-            % container initially
-            validateattributes(n_objects, {'numeric'}, {'>', 0, 'scalar'})
-            if obj.n_unique ~=1
-                error('HERBERT:unique_objects_container:invalid_argument',...
-                    'The method works only on containers containing a single unique run. This container contains %d unique runs.', ...
-                    obj.n_unique);
-            end
-
-            obj.idx_ = ones(1,n_objects);
-        end
 
         function sset = get_subset(self,indices)
             sset = unique_objects_container('baseclass',self.baseclass);

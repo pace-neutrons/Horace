@@ -37,7 +37,7 @@ classdef unique_references_container < ObjContainersBase
     % Either kind of brace or parenthesis may be used.
     % For u(9) = 'b', at least 8 elements must already be present in u.
     % If the 9th element does not already exist, the container will be
-    % extended to accomodate it.
+    % extended to accommodate it.
     % An element may always be added to the end of the container by
     % >> u = u.add('c'); % here 'c' is added as the new last element
     % regardless of the size. Note that this is not a handle class and the

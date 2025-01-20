@@ -210,7 +210,8 @@ classdef test_unique_only_obj < TestCase
             assertEqual(gidx,1); % this 1 will go to idx(5)=1 of reference container
             assertEqual(oc.n_objects,4)
             assertEqual(oc.idx,[1,2,3,4,0])
-            assertEqual(oc.unique_objects,{'1','2','3','4',[]});
+            assertEqual(oc.unique_objects,{'1','2','3','4'});
+            assertEqual(oc.get_at_direct_idx(1:5),{'1','2','3','4',[]});
             assertEqual(oc.n_duplicates,[2,1,2,1,0]);
 
             [oc,gidx] = oc.add('100');
@@ -218,6 +219,7 @@ classdef test_unique_only_obj < TestCase
             assertEqual(oc.n_objects,5)
             assertEqual(oc.idx,[1,2,3,4,5])
             assertEqual(oc.unique_objects,{'1','2','3','4','100'});
+            assertEqual(oc.get_at_direct_idx(1:5),'1234100');            
             assertEqual(oc.n_duplicates,[2,1,2,1,1]);
         end
 
@@ -232,14 +234,15 @@ classdef test_unique_only_obj < TestCase
             assertEqual(gidx,2); % this 2 will go to idx(3)=2 of reference container
             assertEqual(oc.n_objects,4)
             assertEqual(oc.idx,[1,2,0,4,5])
-            assertEqual(oc.unique_objects,{'1','2',[],'4','5'});
+            assertEqual(oc.unique_objects,{'1','2','5','4'});
             assertEqual(oc.n_duplicates,[1,2,0,1,2]);
 
             [oc,gidx] = oc.add('100');
             assertEqual(gidx,3);
             assertEqual(oc.n_objects,5)
             assertEqual(oc.idx,[1,2,3,4,5])
-            assertEqual(oc.unique_objects,{'1','2','100','4','5'});
+            assertEqual(oc.unique_objects,{'1','2','5','4','100'});
+            assertEqual(oc.get_at_direct_idx(1:5),'1210045');
             assertEqual(oc.n_duplicates,[1,2,1,1,2]);
 
 
@@ -264,7 +267,7 @@ classdef test_unique_only_obj < TestCase
             assertEqual(oc.n_objects,4)
             assertEqual(oc.idx,[1,2,0,4,5])
 
-            assertEqual(oc.unique_objects,{1,2,[],4,5});
+            assertEqual(oc.unique_objects,{1,2,5,4});
             assertEqual(oc.n_duplicates,[1,2,0,1,2]);
             % local indices make array continuous and last object is placed
             % on the empty space

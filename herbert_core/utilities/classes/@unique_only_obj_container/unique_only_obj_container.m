@@ -1,5 +1,5 @@
 classdef unique_only_obj_container < ObjContainersBase
-    %UNQUE_ONLY_OBJ_CONTAINER contains only unique objects prviding
+    %UNQUE_ONLY_OBJ_CONTAINER contains only unique objects providing
     %permanent references (pointers) to these objects
     %
     % Despite this is still serializable object, there are no situation
@@ -11,8 +11,8 @@ classdef unique_only_obj_container < ObjContainersBase
         stored_hashes_  = cell(1,0);  % the hashes of unique objects stored
         %                             % for fast processing and search
         %                               operations
-        n_duplicates_   = zeros(1,0); % number of duplicateds
-        lidx_           = zeros(1,0); % continuous array of local indices for the objects in the contianer
+        n_duplicates_   = zeros(1,0); % number of duplicated
+        lidx_           = zeros(1,0); % continuous array of local indices for the objects in the container
 
         total_allocated_ = 0;    % total size of allocated memory
         max_obj_idx_     = 0;    % maximal position of global index of
@@ -33,10 +33,10 @@ classdef unique_only_obj_container < ObjContainersBase
     properties(Access=protected)
         % typical experiment may contain ~200 runs. The configuration is
         % usually unique, but in special cases may differ between runs.
-        % let's select number which mimimize memory storage but from another,
-        % do not reallocate memory too often to accomodate all runst which
+        % let's select number which minimize memory storage but from another,
+        % do not reallocate memory too often to accommodate all runs which
         % may become unique. If these assumptions are insufficient, we may
-        % always introduce more complex algorithm (e.g. doupling each
+        % always introduce more complex algorithm (e.g. doubling each
         % allocation size. see e.g. C++ stl algorithms for vector) in a future.
         mem_expansion_chunk_ = 100;
     end
@@ -45,7 +45,7 @@ classdef unique_only_obj_container < ObjContainersBase
             % Expand memory used for keeping and managing container objects
             % if current memory is insufficient for keeping more objects.
             %
-            % memory manament idea borrowed from Alen & Tildesley "Computer
+            % memory management idea borrowed from Alen & Tildesley "Computer
             % simulation of liquids
             n_existing            = self.n_unique_;
             lidx_first_empty      = n_existing  + 1;
@@ -95,34 +95,36 @@ classdef unique_only_obj_container < ObjContainersBase
             ms = numel(self.idx_);
         end
         function is = is_in(self,gidx)
-            % returns true if input global idx is within alowed indixes range
+            % returns true if input global idx is within allowed indices range
             % of the container or false otherwise
             is = all(gidx>0 & gidx<=self.max_obj_idx_);
         end
         function lix = get.lidx(self)
             lix = self.lidx_;
         end
-        function obj = get_at_direct_idx(self,lidx)
+        function out = get_at_direct_idx(self,gidx)
             % return object given its direct location in the container's
             % local storage.
             %
             % Used by unique_references_container to obtain objects from
             % pointers stored in them
-            self.check_if_range_allowed(lidx);
-            n_targ = numel(lidx);
-            targ = cell(1,n_targ);
-            obj = self.unique_objects_{lidx(1)};
+            self.check_if_range_allowed(gidx);
+            n_targ = numel(gidx);
+            out = cell(1,n_targ);
+            obj = self.unique_objects_{gidx(1)};
             base_class = class(obj);
             same_class = true;
-            targ{1}=obj;
+            out{1}=obj;
             for i=2:n_targ
-                targ{i} = self.unique_objects_{lidx(i)};
-                if ~strcmp(class(targ{i}),base_class) % check if we can
+                out{i} = self.unique_objects_{gidx(i)};
+                if ~strcmp(class(out{i}),base_class) % check if we can
                     same_class = false; % merge different classes in one array
+                    % may be addressed by mixing arrays, but we are not
+                    % using them right now.
                 end
             end
             if same_class
-                obj = [targ{:}];
+                out = [out{:}];
             end
 
         end
@@ -162,7 +164,7 @@ classdef unique_only_obj_container < ObjContainersBase
                 end
             end
         end
-        function obj = get(self,idx)
+        function obj = get(self,lidx)
             % given the non-unique constant permanent global index idx
             % that you know about for your object (it was returned when
             % you added it to the container with add/replace) get the
@@ -174,7 +176,7 @@ classdef unique_only_obj_container < ObjContainersBase
             % Output:
             % - obj : the unique object store for this index
             %
-            obj = self.get_unique_objects(idx);
+            obj = self.get_unique_objects(lidx);
         end
 
 
@@ -242,11 +244,11 @@ classdef unique_only_obj_container < ObjContainersBase
             % if provided with argument, return object, located at
             % specified non-unique index
             if nargin == 1
-                uo = self.unique_objects_(1:self.max_obj_idx_);
+                uo = self.unique_objects_(self.lidx_(1:self.n_unique_));
             else
                 nuidx = varargin{1};
                 self.check_if_range_allowed(nuidx);
-                uidx = self.idx_(nuidx);
+                uidx = self.lidx_(nuidx);
                 if numel(uidx)==1
                     uo = self.unique_objects_{uidx};
                 else % this makes {a:b}  behave like (a:b).
@@ -364,7 +366,6 @@ classdef unique_only_obj_container < ObjContainersBase
             % serializable object.
             flds = unique_only_obj_container.fields_to_save_;
         end
-
 
         function obj = check_combo_arg(obj,with_checks)
             % runs after changing property or number of properties to check
