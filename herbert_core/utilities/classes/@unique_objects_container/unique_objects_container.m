@@ -126,6 +126,29 @@ classdef unique_objects_container < ObjContainersBase
             uoca = get_unique_objects(self);
         end
 
+        function obj = replicate_runs(obj,n_objects,varargin)
+            % function expands container onto specified number of runs.
+            % only single unique object allowed to be present in the
+            % container initially
+            if isempty(n_objects)
+                n_objects = 1;
+            end
+            if ~isnumeric(n_objects) || ~isscalar(n_objects)|| n_objects<=0
+                error('HERBERT:unique_objects_container:invalid_argument',[...                
+                    'n_objects have to be numeric positive scalar.\n' ...
+                    'It is: %s of class %s'],...
+                num2str(n_objects),class(n_objects));
+            end
+            if obj.n_unique ~= 1
+                error('HERBERT:unique_objects_container:invalid_argument',[...
+                    'The method works only on containers containing a single unique run.\n' ...
+                    'This container contains %d unique runs.'], ...
+                    obj.n_unique);
+            end
+
+            obj.idx_ = ones(1,n_objects);
+            obj.n_duplicates_(1) = n_objects;
+        end
         function [ix, hash,obj] = find_in_container(self,obj)
             %FIND_IN_CONTAINER Finds if obj is contained in self
             % Input:

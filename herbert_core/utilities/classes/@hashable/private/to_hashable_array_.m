@@ -24,8 +24,8 @@ field_names = hashableFields (obj(1));
 % Recursively turn hashable fields values into array which defines
 % object's hash
 arr = cell (1,numel(field_names)*numel(obj)+1);
-arr{1} = uint8(class(obj))'; % ensure hashable array never empty 
-% and two different empty objects do not have the same hashes.
+arr{1} = uint8(class(obj))'; % ensure hashable array never empty and two
+% different empty objects of different classes do not have the same hashes.
 ic = 1;
 for j = 1:numel(obj)
     obj_tmp = obj(j);   % get cow pointer to j-th object to save expensive indexing
@@ -50,7 +50,8 @@ for j = 1:numel(obj)
             if iscell(hash) % use array of hashes as source for final hash
                 hash = strjoin(hash ,'');
             end
-            tm = uint8(hash); % use typecast for numeric hash.
+            tm = uint8(hash); % use uint8 for char hash.
+            %                   Use typecast for numeric hash.
             %<----- end of hash-class dependent block
             arr{ic} = tm(:);
         elseif isa(val,'double')

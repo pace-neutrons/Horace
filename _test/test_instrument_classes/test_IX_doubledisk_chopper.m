@@ -80,6 +80,19 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
             assertEqualWithSave (self,chop,'',[0,1.e-9]);
 
         end
+
+        function test_pdf_stable(obj)
+            disk_arr = [IX_doubledisk_chopper(12,120,0.5,0.01,0.02),...
+                IX_doubledisk_chopper(12,120,0.5,0.01,0.04,3);...
+                IX_doubledisk_chopper(15,120,0.5,0.01),...
+                IX_doubledisk_chopper(122,120,0.5,0.01,0.03)];
+
+            for i=1:numel(disk_arr)
+                assertFalse(isempty(disk_arr(i).pdf))
+                assertEqualToTolWithSave(obj,disk_arr(i).pdf,1.e-14);
+            end
+        end
+        
         %--------------------------------------------------------------------------
         function test_prev_versions_array(obj)
 

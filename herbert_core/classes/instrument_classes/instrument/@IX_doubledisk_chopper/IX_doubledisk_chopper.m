@@ -34,6 +34,12 @@ classdef IX_doubledisk_chopper < hashable
         aperture_height
         jitter
     end
+    properties(Dependent,Hidden=true)
+        % get access to distribution function
+        % hidden not to polute public interface, as raw function is used in
+        % tests only
+        pdf
+    end
 
     methods
         %------------------------------------------------------------------
@@ -236,6 +242,9 @@ classdef IX_doubledisk_chopper < hashable
             val=obj.jitter_;
         end
 
+        function pf = get.pdf(obj)
+            pf = obj.pdf_;
+        end
         %------------------------------------------------------------------
         function ver = classVersion(~)
             ver = 2;

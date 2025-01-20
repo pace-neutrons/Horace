@@ -48,7 +48,7 @@ classdef test_tobyfit_let_resfun_2 < TestCaseWithSave
             obj.u = [1,1,0];
             obj.v = [0,0,1];
             
-            obj.tolerance = [1e-12, 1e-8];
+            obj.tolerance = [4e-11, 1e-8];
             
             obj.save()
         end

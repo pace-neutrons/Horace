@@ -64,9 +64,9 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % Test against saved or store to save later; ignore string
             % changes - these are filepaths
             tol = [3e-5,3e-5];
-            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
-            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
-            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1, '-ignore_date')
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, '-ignore_str')
+            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, '-ignore_str', '-ignore_date')
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, '-ignore_str', '-ignore_date')
         end
 
         function obj = test_fit_one_dataset_fb(obj)
@@ -78,7 +78,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             w1data_fb = obj.w1data;
             w1data_fb.pix = PixelDataFileBacked(obj.w1data.pix);
 
-            mss = multifit_sqw_sqw([w1data_fb]);
+            mss = multifit_sqw_sqw(w1data_fb);
             mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
             mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
             mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
@@ -106,16 +106,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
         function obj = test_fit_multidimensional_dataset(obj)
             % Example of simultaneously fitting more than one sqw object
             %
-            disp('*********************************************************')
-            disp(unique_obj_store.instance())
-            disp(obj.w4ddata.detpar)
-            disp(obj.w4ddata.detpar.unique_objects)
-            disp('****-->')
-            disp(obj.w4ddata.detpar.unique_objects.unique_objects)
-            disp(size(obj.w4ddata.detpar.unique_objects.unique_objects))
-            dss = unique_obj_store.instance().get_objects('IX_detector_array')
-            disp(dss(1))
-            disp('*********************************************************')
+
             mss = multifit_sqw_sqw(obj.w4ddata);
             mss = mss.set_fun(@sqw_bcc_hfm,  [75,5,2.7,10,-75]);  % set foreground function(s)
             mss = mss.set_free([1,1,1,1,0]); % set which parameters are floating
@@ -125,26 +116,17 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Simulate at the initial parameter values
             wsim_1 = mss.simulate();
-            %c2s = cut(wsim_1,[],[],[-0.1,0.1],[100,120]);
-            disp('*********************************************************')
-            disp(unique_obj_store.instance())
-            disp(wsim_1.detpar)
-            disp(wsim_1.detpar.unique_objects)
-            disp(wsim_1.detpar.unique_objects.unique_objects)
-            disp(size(wsim_1.detpar.unique_objects.unique_objects))
-            dss = unique_obj_store.instance().get_objects('IX_detector_array')
-            disp(dss(1))
-            disp('*********************************************************')
 
             % And now fit
             [wfit_1, fitpar_1] = mss.fit();
 
+
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
             tol = [3e-5,3e-5];
-            assertEqualToTolWithSave (obj, fitpar_1, 'tol', tol, '-ignore_str')
-            assertEqualToTolWithSave (obj, wsim_1, 'tol', tol, '-ignore_str', '-ignore_date')
-            assertEqualToTolWithSave (obj, wfit_1, 'tol', tol, '-ignore_str', '-ignore_date')
+            assertEqualToTolWithSave (obj, fitpar_1,'tol', tol, '-ignore_str')
+            assertEqualToTolWithSave (obj, wsim_1,  'tol', tol, '-ignore_str', '-ignore_date')
+            assertEqualToTolWithSave (obj, wfit_1,  'tol', tol, '-ignore_str', '-ignore_date')
 
         end
 
