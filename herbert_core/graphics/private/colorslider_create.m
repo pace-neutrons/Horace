@@ -14,7 +14,7 @@ fig_handle = ancestor(axes_handle, 'figure');
 
 % Plot colorbar
 cbar_handle = colorbar(axes_handle);
-pos_h = get(cbar_handle, 'position');   % get position of the colorbar
+pos_cbar = get(cbar_handle, 'position');   % get position of the colorbar
 
 % Get color scale limits
 irange = get(axes_handle, 'clim');
@@ -23,24 +23,37 @@ i_max = irange(2);
 range = i_max-i_min;
 
 % Get text size and font of colorbar annotations, and size of box that will take
-% height of that text (do this by plotting some text, and enquiring the extent)
+% height of that text (do this by plotting some text, and enquiring the extent).
+% The sample text is the largest expected for 'g' format with three significant
+% figures for double precision. The extent is normalised in terms of the axes
+% width and height.
 txtFont = get(cbar_handle, 'FontName');
 txtSize = get(cbar_handle, 'FontSize');
-htmp = text(0.9, 0.9, '1234567890', 'FontName', txtFont, 'FontSize', txtSize,...
+htmp = text(0.9, 0.9, '-8.88e+888', 'FontName', txtFont, 'FontSize', txtSize,...
     'units', 'normalized');
-tmp = get(htmp, 'Extent');  % in units normalised to graph having height 0->1
+box_extent = get(htmp, 'Extent');  % in units normalised to axes
 delete(htmp);
-% Get box height; normalised to same units as window itself, reduce as box is
-% very generous
-box_height = 0.7*(tmp(4)/pos_h(4));
-slider_height = pos_h(4)/20;
+
+% Get size of axes in the units of the figure size.
+axes_position = get(axes_handle, 'Position');
+xscale = axes_position(3);  % width of axes in normalised figure coordinates
+yscale = axes_position(4);  % height of axes in normalised figure coordinates
+
+% Get box height; normalised to figure size
+box_width = xscale*box_extent(3);
+box_height = yscale*box_extent(4);
+
+% Define slider dimensions as proportions of box dimensions
+slider_width = 0.5*box_width;
+slider_height = box_height;
 
 
 % Bottom slider
 % -------------
 % Positions for editbox and slider
-pos_lo_editbox = [pos_h(1)+pos_h(3), pos_h(2), pos_h(3)*2.5, box_height];
-pos_lo_slider = [pos_h(1)+pos_h(3)*2, pos_h(2)+box_height, pos_h(3)*1.5, slider_height];
+pos_lo_editbox = [pos_cbar(1) + pos_cbar(3), pos_cbar(2), box_width, box_height];
+pos_lo_slider = [pos_cbar(1) + pos_cbar(3) + box_width - slider_width, ...
+    pos_cbar(2)+box_height, slider_width, slider_height];
 
 % Create slider
 % (The SliderStep is adjusted such that in real terms it is [0.02 0.10] of the
@@ -65,10 +78,11 @@ h_value_min = uicontrol(fig_handle, 'Style', 'edit',...
 % Top slider
 % ----------
 % Positions for editbox and slider
-pos_hi_editbox = [pos_h(1)+pos_h(3), pos_h(2)+pos_h(4)-box_height,...
-    pos_h(3)*2.5, box_height];
-pos_hi_slider = [pos_h(1)+pos_h(3)*2, pos_h(2)+pos_h(4)-box_height-slider_height,...
-    pos_h(3)*1.5, slider_height];
+pos_hi_editbox = [pos_cbar(1) + pos_cbar(3), pos_cbar(2) + pos_cbar(4) - box_height, ...
+    box_width, box_height];
+pos_hi_slider = [pos_cbar(1) + pos_cbar(3) + box_width - slider_width, ...
+    pos_cbar(2) + pos_cbar(4) - box_height - slider_height, ...
+    slider_width, slider_height];
 
 % Create slider
 h_slider_max=uicontrol(fig_handle, 'Style', 'slider',...
