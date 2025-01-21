@@ -28,7 +28,7 @@ end
 function colorslider_delete_private (fig_handle, colorbar_handle, tags)
 % Delete colorslider sliders and edit boxes. These uicontrol objects will have
 % had their UserData property set to the handle of the colorbar to which they
-% were associated.
+% are associated.
 
 colorbar_is_colorslider = false;
 for i = 1:numel(tags)
