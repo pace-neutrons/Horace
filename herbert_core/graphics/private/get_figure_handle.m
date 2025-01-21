@@ -76,6 +76,7 @@ else
     single_figure_only = false;
     narg = nargin;
 end
+
 % Get fig argument, if present
 if narg==1
     fig = varargin{1};

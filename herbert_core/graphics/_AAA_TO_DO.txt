@@ -70,9 +70,6 @@ genie_figure_parse_pot_args2
 ================================
 Small to do:
 ================================
-Add paoc, psoc etc to Herbert and Horace
-
-overplotting seems to be resetting limits in 2015a (but not 2014a) - why?
 
 Horace: 1D objects don't understand da,ds etc, and 2D don't know dl, dp...
         I think that this is correct; cannot in general combine 1d objects
@@ -84,9 +81,7 @@ now done in genie_figure_parse_pot_args.
 
 get rid of verLessThan? When was it introduced?
 
-graph_range to get limits for hggroup objects
-
-No 2D contour plot at the moment (dc, pc)
+No 2D contour plot at the moment (dc, pc, pcoc)
 
 Implement smoothing in 2D
 

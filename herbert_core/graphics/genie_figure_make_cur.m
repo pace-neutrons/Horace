@@ -1,21 +1,22 @@
 function genie_figure_make_cur (fig)
-% Make one genie_figure active for plotting for each of a selection of names
+% Set genie_figure(s) active for plotting
 %
-% Make the current figure the active genie_figure of its name (but only if it a
-% genie_figure):
+% If the current figure is a genie_figure, make it the active genie_figure:
+%
 %   >> genie_figure_make_cur
 %
 % Make one genie_figure active for each of the name(s) of figures with selected
 % figure name(s), number(s), or handle(s), if there is one available:
+%
 %   >> genie_figure_make_cur (fig)
 %
 % Make one of each genie_figure name active, if there is one available:
+%
 %   >> genie_figure_make_cur ('-all')
 %
-% Only operates on genie_figures, that is, those with the 'keep'/'make_cur' menu
-% items.
-% If more than one figure with the same name is provided, then the most
-% recently active one is made current.
+% This function only operates on genie_figures, that is, those with the
+% 'keep'/'make_cur' menu items.
+%
 %
 % Input:
 % ------

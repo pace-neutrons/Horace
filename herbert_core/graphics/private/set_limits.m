@@ -91,7 +91,7 @@ if strcmpi(axName, 'Z') && numel(axis)/2 ~= 3
         error('HERBERT:graphics:invalid_argument', ['No z-axis or colour ', ...
             'data on the current figure and axes - change limits ignored']);
     end
-    axName = 'C';
+    axName = 'C';   % update axis name so colour limits will be changed
     
 elseif strcmpi(axName, 'C')
     % The function has been requested to operate on the colour scale. Check
@@ -125,8 +125,8 @@ if nargout>0
 end
 
 
-% Set x-axis plot limits
-% ----------------------
+% Set plot limits
+% ---------------
 % If we got this far, then there is a request to alter the plot limits.
 
 % Case of change limits to the full range of the data, optionally setting the
@@ -152,6 +152,9 @@ if narg==0 || (narg==1 && ~isempty(varargin{1}) && is_string(varargin{1}))
     % Sets limit mode to 'auto', so further plotting to the same figure results
     % in expansion of the axis range if needed to display the additional data
     set(gca, [axName,'LimMode'], 'auto');
+    if strcmpi(axName, 'C')
+        colorslider('update')   % update colorslider, if present
+    end
     return
 end
 
@@ -204,6 +207,9 @@ end
 nrange = size(range,1);
 for i=1:nrange
     set(gca, [axName,'Lim'], range(i,:));
+    if strcmpi(axName, 'C')
+        colorslider('update')   % update colorslider, if present
+    end
     if i~=nrange
         input('hit <CR> to continue')
     end
@@ -233,8 +239,8 @@ xdata_h = findobj(axes_handle, '-property', 'XData');
 
 % Get the XData and YData for those objects (note that every object that has
 % XData also has YData)
-xdata_cell = get(xdata_h, 'XData');
-ydata_cell = get(xdata_h, 'YData');
+xdata_cell = get(xdata_h, {'XData'});   % enforces cell if only one handle
+ydata_cell = get(xdata_h, {'YData'});
 
 % While every object that has XData also has YData, not all of those objects
 % will have Zdata or CData.

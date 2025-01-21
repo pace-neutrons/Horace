@@ -12,8 +12,9 @@ function genie_figure_keep (fig)
 % Keep all genie_figures:
 %   >> genie_figure_keep ('-all')
 %
-% Only operates on genie_figures, that is, those with the 'keep'/'make_cur' menu
-% items.
+% This function only operates on genie_figures, that is, those with the
+% 'keep'/'make_cur' menu items.
+%
 %
 % Input:
 % ------

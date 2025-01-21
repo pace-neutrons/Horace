@@ -55,5 +55,5 @@ if isempty(axes_h)
 end
 
 % Get plot handle(s)
-plot_h = get(axes_h, 'children');
-plot_type = get(plot_h, 'type');
+plot_h = get(axes_h, 'Children');
+plot_type = get(plot_h, 'Type');
