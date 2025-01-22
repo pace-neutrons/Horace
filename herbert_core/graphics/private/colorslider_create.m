@@ -51,9 +51,9 @@ slider_height = box_height;
 % Bottom slider
 % -------------
 % Positions for editbox and slider
-pos_lo_editbox = [pos_cbar(1) + pos_cbar(3), pos_cbar(2), box_width, box_height];
+pos_lo_editbox = [pos_cbar(1) + pos_cbar(3), pos_cbar(2) - box_height/2, box_width, box_height];
 pos_lo_slider = [pos_cbar(1) + pos_cbar(3) + box_width - slider_width, ...
-    pos_cbar(2)+box_height, slider_width, slider_height];
+    pos_cbar(2) + box_height/2, slider_width, slider_height];
 
 % Create slider
 % (The SliderStep is adjusted such that in real terms it is [0.02 0.10] of the
@@ -78,10 +78,10 @@ h_value_min = uicontrol(fig_handle, 'Style', 'edit',...
 % Top slider
 % ----------
 % Positions for editbox and slider
-pos_hi_editbox = [pos_cbar(1) + pos_cbar(3), pos_cbar(2) + pos_cbar(4) - box_height, ...
+pos_hi_editbox = [pos_cbar(1) + pos_cbar(3), pos_cbar(2) + pos_cbar(4) - box_height/2, ...
     box_width, box_height];
 pos_hi_slider = [pos_cbar(1) + pos_cbar(3) + box_width - slider_width, ...
-    pos_cbar(2) + pos_cbar(4) - box_height - slider_height, ...
+    pos_cbar(2) + pos_cbar(4) - box_height/2 - slider_height, ...
     slider_width, slider_height];
 
 % Create slider
