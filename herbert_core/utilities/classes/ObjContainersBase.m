@@ -276,6 +276,21 @@ classdef ObjContainersBase < serializable
             end
             [self,nuix] = self.add_single(obj);
         end % add()
+        %
+        function obj = get(self,nuix)
+            % given the non-unique global index nuix that you know about
+            % for your object (it was returned when you added it to the
+            % container with add or replace) get the unique object
+            % associated with this index.
+            %
+            % Input:
+            % - nuix : non-unique index that has been stored somewhere for
+            %          this object
+            % Output:
+            % - obj : the unique object store for this index
+            %
+            obj = self.get_unique_objects(nuix);
+        end
     end
     %  Setter/getters for common interface with class-specific
     %  implementation
@@ -323,7 +338,7 @@ classdef ObjContainersBase < serializable
         uoca = expose_unique_objects(self)
 
         %Finds if obj is contained in self
-        [ix, hash,obj] = find_in_container(self,obj)
+        [ix, hash,obj] = find_in_container(self,obj,varargin)
 
         % expand container onto specified number of runs.
         % only single unique object allowed to be present in the

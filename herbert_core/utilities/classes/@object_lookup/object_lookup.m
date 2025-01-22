@@ -36,7 +36,7 @@ classdef object_lookup < serializable
     % for random number generation. That class provides random sampling from a
     % set of arrays of one-dimensional probability distribution functions.
     % This class is more general because random sampling that results in a vector
-    % or array is supported, for example when the object method rand suplies a set
+    % or array is supported, for example when the object method rand supplies a set
     % of points in a 3D volume.
     %
     % The reason for using this class rather than pdf_table_lookup is when one or

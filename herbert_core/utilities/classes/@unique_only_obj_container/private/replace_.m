@@ -39,9 +39,9 @@ no_more_duplicates = self.n_duplicates_(old_gidx) == 0;
 
 % Find if the object is already in the container. ix is
 % returned as the index to the object in the container.
-% hash is returned as the hash of the object. If ix is empty
+% hash is returned as the hash of the object. If lidx is empty
 % then the object is not in the container.
-[lidx_n,hash,obj] = self.find_in_container(obj);
+[lidx_n,hash,obj] = self.find_in_container(obj,false);
 
 % If the object is not in the container.
 % store the hash in the stored hashes
@@ -63,7 +63,7 @@ if isempty(lidx_n) % means obj not in container and should be added
         self.idx_(idx_free) = lidx_first_empty;
         gidx                = idx_free;
 
-        self.n_unique_           = self.n_unique_+1;
+        self.n_unique_      = self.n_unique_+1;
     end
     self.max_obj_idx_        = find(self.n_duplicates_>0,1,"last");    
     % if it is in the container, then ix is the unique object index

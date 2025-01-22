@@ -150,45 +150,32 @@ classdef unique_objects_container < ObjContainersBase
             obj.idx_ = ones(1,n_objects);
             obj.n_duplicates_(1) = n_objects;
         end
-        function [ix, hash,obj] = find_in_container(self,obj)
+
+        function [lidx, hash,obj] = find_in_container(self,obj,varargin)
             %FIND_IN_CONTAINER Finds if obj is contained in self
             % Input:
             % - obj : the object which may or may not be uniquely contained
             %         in self
             % Output:
-            % - ix   : the index of the unique object in self.unique_objects_,
+            % - lidx : the index of the unique object in self.unique_objects_,
             %          if it is stored, otherwise empty []
             % - hash : the hash of the object from hashify
             %
             % - obj  : input object. If hashable, contains calculated hash
-            %          value, if this value have not been there initially
+            %          value, if this value have not been there initially            
             %
             [obj,hash] = build_hash(obj);
             if isempty(self.stored_hashes_)
-                ix = []; % object not stored as nothing is stored
+                lidx = []; % object not stored as nothing is stored
             else
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
-                [~,ix] = ismember( hash, self.stored_hashes_ );
-                if ix<1
-                    ix = []; % ismember returns 0 in this case, not []
+                [~,lidx] = ismember( hash, self.stored_hashes_ );
+                if lidx<1
+                    lidx = []; % ismember returns 0 in this case, not []
                 end
             end
-        end
-
-        function obj = get(self,nuix)
-            % given the non-unique index nuix that you know about for your
-            % object (it was returned when you added it to the container
-            % with add) get the unique object associated
-            %
-            % Input:
-            % - nuix : non-unique index that has been stored somewhere for
-            %          this object
-            % Output:
-            % - obj : the unique object store for this index
-            %
-            obj = self.get_unique_objects(nuix);
         end
 
         function sset = get_subset(self,indices)

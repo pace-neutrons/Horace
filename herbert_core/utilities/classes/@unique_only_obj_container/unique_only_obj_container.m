@@ -138,49 +138,49 @@ classdef unique_only_obj_container < ObjContainersBase
             uoca = get_unique_objects(self);
         end
 
-        function [lidx, hash,obj] = find_in_container(self,obj)
+        function [idx, hash,obj] = find_in_container(self,obj,return_global)
             %FIND_IN_CONTAINER Finds if obj is contained in self
             % Input:
             % - obj  : the object which may or may not be uniquely contained
             %         in self
+            % - return_global
+            %        : if present and true return unmutable global index
+            %          defining external position of object in the
+            %          unique objects container.
             % Output:
-            % - lix  : the index of the unique object in self.unique_objects_,
-            %          if it is stored, otherwise empty []
-            % - hash : the hash of the object from hashify
+            % - idx  : the index of the unique object in self.lidx_ or
+            %          self.idx_ depending of return_global being true or
+            %          false, if it is stored, otherwise empty []
+            % - hash : the hash of the object from build_hash
             %
             % - obj  : input object. If hashable, contains calculated hash
             %          value, if this value have not been there initially
             %
+            if nargin <3
+                return_global = false;
+            end
             [obj,hash] = build_hash(obj);
             if isempty(self.stored_hashes_)
-                lidx = []; % object not stored as nothing is stored
+                idx = []; % object not stored as nothing is stored
+                return
             else
                 % get intersection of array stored_hashes_ with (single) array
                 % hash from hashify. Calculates the index of the hash in
                 % stored_hashes.
-                [present,lidx] = ismember(hash,self.stored_hashes_(self.lidx_(1:self.n_unique_)));
+                [present,idx] = ismember(hash,self.stored_hashes_(self.lidx_(1:self.n_unique_)));
                 if ~present
-                    lidx = []; % ismember returns 0 in this case, not []
+                    idx = []; % ismember returns 0 in this case, not []
+                    return
                 end
             end
-        end
-        function obj = get(self,lidx)
-            % given the non-unique constant permanent global index idx
-            % that you know about for your object (it was returned when
-            % you added it to the container with add/replace) get the
-            % unique object associated with this index
-            %
-            % Input:
-            % - nuix : non-unique index that has been stored somewhere for
-            %          this object
-            % Output:
-            % - obj : the unique object store for this index
-            %
-            obj = self.get_unique_objects(lidx);
+            if return_global % if requested, return container global indices
+                % which may be used as permanent reference to the object
+                % outside of the container
+                idx = self.lidx_(idx);
+            end
         end
 
-
-        function self = replicate_runs(self,n_duplicates,pos)
+        function self = replicate_runs(self,n_duplicates,gidx)
             % function expands number of references onto unique object in
             % the contaner at specified position by additional number of
             % references provided as input.
@@ -189,7 +189,7 @@ classdef unique_only_obj_container < ObjContainersBase
             % after replication by 10, it will have 10 references.
             % if it had 2 references, it will be 11 references.
             %
-            self.n_duplicates_(pos) = self.n_duplicates_(pos)+n_duplicates-1;
+            self.n_duplicates_(gidx) = self.n_duplicates_(gidx)+n_duplicates-1;
         end
 
         function sset = get_subset(self,indices)

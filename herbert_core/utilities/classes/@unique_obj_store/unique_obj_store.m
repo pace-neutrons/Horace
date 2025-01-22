@@ -1,7 +1,6 @@
 classdef unique_obj_store<handle
-    %UNIQUE_OBJ_STORE contains unique objects used by
-    %unique references container as the reference point.
-    %
+    %UNIQUE_OBJ_STORE contains all unique objects used by
+    %unique references containers as the reference point.
     %
 
     properties(Dependent)
@@ -20,7 +19,8 @@ classdef unique_obj_store<handle
         n_obj_per_type
     end
     properties(Access=private)
-        % structure, used for storing
+        % structure, used for attaching various types of unique object
+        % containers to it.
         stor_holder_ = struct();
     end
     %----------------------------------------------------------------------
@@ -48,7 +48,10 @@ classdef unique_obj_store<handle
     methods
         function stor= get_objects(obj,class_name)
             % return unique storage container for objects, defined by
-            % specified class name
+            % input class name
+            %
+            % if there are no such class name objects stored, returns
+            % empty container of this class objects
             if isfield(obj.stor_holder_,class_name)
                 stor = obj.stor_holder_.(class_name);
             else
@@ -56,8 +59,12 @@ classdef unique_obj_store<handle
             end
         end
         function obj = set_objects(obj,unique_storage)
-            % return unique storage container for objects, defined by
-            % specified class name
+            % sets the unique objects container with unique objects
+            % referred by unique_reference_container for further usave.
+            %
+            % Normally should be used after get_objects retrieve this
+            % container and unque_references_container modified it
+            %
             if ~isa(unique_storage,'unique_only_obj_container')
                 error('HERBERT:unique_obj_storage:invalid_argument', ...
                     'Only unique_only_obj_container may be set as storage of unique objects. Attempt to set %s', ...
@@ -72,8 +79,9 @@ classdef unique_obj_store<handle
             obj.stor_holder_.(fldname) = unique_storage;
         end
         function val = get_value(obj,class_name,glidx)
-            % return the value, stored in global memory at index provided
-            % as input.
+            % return the value, stored in global memory in container defined
+            % by its imput name at the input index.
+            %
             % Throws if no such class store is currently in memory
             % or no object is stored at particular index.
             if ~isfield(obj.stor_holder_,class_name)
@@ -100,7 +108,7 @@ classdef unique_obj_store<handle
             % unique_rererences containers referring to this class.
             % USE CAREFULY, normally in tests, to avoid test side-effects.
             % Store initial state of the container before the test and
-            % restore it after clearing the test contents.
+            % restore it after the clearing the test contents.
             %
             if isfield(obj.stor_holder_,class_name)
                 obj.stor_holder_ = rmfield(obj.stor_holder_,class_name);
@@ -113,14 +121,17 @@ classdef unique_obj_store<handle
             %
             % Usage:
             %>>con = unique_obj_store.instance(); returns unique instance
-            % of the
+            % of the container with all unique object containers attached
+            % to it. It is handle, so it allows direct synchroneous global
+            % modification of all its values on local copy of the object
             %
             % con = unique_obj_store.instance('clear');
-            % Where optional parameter does the following:
-            % 'clear' -- removes all configurations from memory.
-            % a_config_folder_name -- if present, sets the location of the
-            %                         current config store in memory to the
-            %                         folder provided
+            %
+            % 'clear' -- removes all unique objects from memory.
+            %         Invalidates all unuque_references_containers which
+            %         use these obhects.
+            % DANGEROUS OPTION! normally should use Matlab's "clear all"
+            %         instead.
             %
             persistent obj_holder_;
             if nargin>0
@@ -137,11 +148,6 @@ classdef unique_obj_store<handle
                 obj = obj_holder_;
             end
         end
-        % the global container is a persistent struct in static method
-        % global_container. This contains one field for each category (or
-        % global name). Each field contains a unique_objects_container with
-        % the relevant baseclass.
-
     end
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want

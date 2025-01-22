@@ -164,42 +164,38 @@ classdef unique_references_container < ObjContainersBase
             unique_obj_store.instance().set_objects(storage);
         end
 
-        function [obj_idx,hash,obj] = find_in_container(self, obj)
+        function [idx,hash,obj] = find_in_container(self, obj,return_global)
             %FIND_IN_CONTAINER Finds if obj is contained in self
             % Input:
             % - obj : the object which may or may not be uniquely contained
             %         in self
+            % - return_global
+            %        : if present and true return unmutable global index
+            %          defining external position of object in the
+            %          unique objects container. if false, return index of
+            %          the object used in this container
             % Output:
-            % - ix   : the index of the unique object in self.unique_objects_,
-            %          if it is stored, otherwise empty []
+            % - ix   : the index of the input object in list of local indices
+            %          self.idx_ if return_global is false, or 
+            %          unique index of the object in the global storage
+            %          If object is not stored, return emtpy []
             % - hash : the hash of the object from hashify
             %
             % - obj  : input object. If hashable, contains calculated hash
             %          value, if this value have not been there initially
-
-            obj_idx  = [];
+            if nargin <3
+                return_global = false;
+            end
+            idx  = [];
             storage = unique_obj_store.instance().get_objects(self.baseclass);
-            [igx,hash,obj] = storage.find_in_container(obj);
-            if isempty(igx )
+            [gidx,hash,obj] = storage.find_in_container(obj,true);
+            if isempty(gidx )
                 return;
             end
-            obj_idx = find(igx == self.idx_,1);
+            if ~return_global % return local index within this container.
+                idx = find(gidx == self.idx_,1);
+            end
         end
-
-        function obj = get(self,nuix)
-            % given the non-unique index nuix that you know about for your
-            % object (it was returned when you added it to the container
-            % with add) get the unique object associated
-            %
-            % Input:
-            % - nuix : non-unique index that has been stored somewhere for
-            %          this object
-            % Output:
-            % - obj : the unique object store for this index
-            %
-            obj = self.get_unique_objects(nuix);
-        end
-
 
         function sset = get_subset(self, indices)
             % retrieve set of objects, defined by input indices
@@ -427,28 +423,6 @@ classdef unique_references_container < ObjContainersBase
         end
     end
 
-    methods (Access = protected)
-        function [self] = replace_all(self,obj)
-            %REPLACE_ALL - substitute object obj at all positions in container
-            %
-            % Input
-            % -----
-            % - obj:  objects to be inserted into the container
-            %         to replace all existing content
-            %
-            % The old values are overwritten.
-            storage = unique_obj_store.instance().get_objects(self.baseclass);
-            [igdx,~,obj] = storage.find_in_container(obj);
-            if ~isempty(igdx)
-                self.idx_(:) = igdx;
-                return;
-            end
-            [self,igdx] = storage.add_if_new(obj);
-            self.idx_(:) = igdx;
-
-            unique_obj_store.instance().set_objects(storage);
-        end
-    end
     methods (Static)
         %==========================================================================
         % (save)/load functionality via serializable
