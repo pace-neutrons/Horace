@@ -58,9 +58,13 @@ classdef test_unique_references < TestCase
             % following tests to fail when garbage collection is
             % implemented.
             assertTrue(isa(glc,'unique_only_obj_container'))
-            assertEqual(glc.n_objects,1)
-            assertEqual(glc.n_unique,1)
-            assertEqual(glc.unique_objects,{'bbb'})
+            assertEqual(glc.n_unique,glc.n_objects)
+            %Re #1816 this tests operation with ref_counting and replacing deleted.
+            %assertEqual(glc.n_objects,1)
+            %assertEqual(glc.unique_objects,{'bbb'})
+            %Re #1816 tests refcounting without deleteon.
+            assertEqual(glc.n_objects,2)
+            assertEqual(glc.unique_objects,{'aaa','bbb'})
 
             % we store urc in a struct, clear glc of all content and then
             % reload urc from the structure as urr
@@ -193,7 +197,7 @@ classdef test_unique_references < TestCase
             function urc_clearer(old_val)
                 unique_obj_store.instance().set_objects(old_val);
             end
-            old_store = unique_obj_store.instance().get_objects('char');            
+            old_store = unique_obj_store.instance().get_objects('char');
             unique_obj_store.instance().clear('char');
             clSt  = onCleanup(@()urc_clearer(old_store));
         end
@@ -286,7 +290,9 @@ classdef test_unique_references < TestCase
 
             % check the state of the global container
             gc = unique_obj_store.instance().get_objects('IX_samp');
-            assertEqual(gc.n_objects,4); % sam2, sam3 and sam4 have been replacemed in ex2
+            %Re #1816 this tests operation with ref_counting and replacing deleted.
+            %assertEqual(gc.n_objects,4); % sam2, sam3 and sam4 have been replacemed in ex2
+            assertEqual(gc.n_objects,7)
 
             % test conversion to struct and clearing of all sample objects
             % associated with ex2, and then its restoration and checking
@@ -403,10 +409,17 @@ classdef test_unique_references < TestCase
             % assertEqual(ind,[1 2 3 4]);
 
             glc = unique_obj_store.instance().get_objects('double');
-            assertEqual( glc.n_objects, 3);
-            assertEqual( glc.n_unique, 3);
-            assertEqual( glc.n_duplicates,[1,2,1]);
-            assertEqual( glc.unique_objects, {0.555,0.222,0.333});
+            % Re #1816 checks reference counting
+            %assertEqual( glc.n_objects, 3);
+            %assertEqual( glc.n_unique, 3);
+            %assertEqual( glc.n_duplicates,[1,2,1]);
+            %assertEqual( glc.unique_objects, {0.555,0.222,0.333});
+            % Re #1617 this checks container without removing unused
+            assertEqual( glc.n_objects, 4);
+            assertEqual( glc.n_unique, 4);
+            assertEqual( glc.n_duplicates,[1,2,1,1]);
+            assertEqual( glc.unique_objects, {0.1110,0.2220,0.3330,0.5550});
+
         end
 
         function test_save_load(~)
@@ -508,9 +521,13 @@ classdef test_unique_references < TestCase
             %-----
             glc = unique_obj_store.instance().get_objects('IX_inst');
             assertTrue( isa( glc, 'unique_only_obj_container') );
+            %Re #1816 this test for operation with ref_counting and replacing deleted.
             assertEqual( glc.n_objects, 4);
             assertEqual( glc.n_unique, 4);
-            assertEqual( glc.n_duplicates,[2,1,1,1]);
+            %assertEqual( glc.n_duplicates,[2,1,1,1]);
+            %Re #1816 this tests code without replacement
+            assertEqual( glc.n_duplicates,[2,2,1,1]);
+
         end
         function xest_searh_with_conditions(~)
             %TODO: do we want to allow search over other conditions but
@@ -750,9 +767,9 @@ classdef test_unique_references < TestCase
             function thrower2()
                 urc2(1) = obj.mi1;
             end
-            ex = assertExceptionThrown(@thrower2,'HERBERT:unique_objects_container:invalid_argument');
+            ex = assertExceptionThrown(@thrower2,'HERBERT:ObjContainerBase:invalid_argument');
             assertEqual(ex.message, ...
-                'Can not place object of class "IX_inst_DGfermi" in the container with baseclass: "char"');
+                'Assigning object of class: "IX_inst_DGfermi" to container with baseclass: "char" is prohibited');
             assertEqual( urc2(1),'aaaaa'); % warning was issued and object was not replaced
             assertEqual(urc2.n_runs,1); % warning was issued and object was not added
             assertEqual(urc2.n_objects,1); % warning was issued and object was not added
@@ -1101,7 +1118,10 @@ classdef test_unique_references < TestCase
             assertEqual(stor.n_unique,2)
             assertEqual(stor.unique_objects{1},thingy_tester(111))
             assertEqual(stor.unique_objects{2},thingy_tester(222))
-            assertEqual(stor.n_duplicates,[1,1]);
+            %Re #1816 this tests operation with ref_counting and replacing deleted.
+            %assertEqual(stor.n_duplicates,[1,1]);
+            %Re #1816 tests refcounting without deleteon.
+            assertEqual(stor.n_duplicates,[2,1]);
         end
 
         function test_use_properties_one_reference(~)
@@ -1124,9 +1144,14 @@ classdef test_unique_references < TestCase
             assertEqual(me.message, ...
                 'Some or all input indices: [2..2] are outside allowed range [1:1] for container: unique_references_container');
             stor = unique_obj_store.instance().get_objects('thingy_tester');
-            assertEqual(stor.n_objects,1)
-            assertEqual(stor.n_unique,1)
-            assertEqual(stor.unique_objects{1},thingy_tester(222))
+            assertEqual(stor.n_unique,stor.n_unique)
+            %Re #1816 this tests operation with ref_counting and replacing deleted.
+            %assertEqual(stor.n_objects,1)
+            %assertEqual(stor.unique_objects{1},thingy_tester(222))
+            %Re #1816 tests refcounting without deleteon.
+            assertEqual(stor.n_objects,2)
+            assertEqual(stor.unique_objects{1},thingy_tester(111))            
+            assertEqual(stor.unique_objects{2},thingy_tester(222))
         end
         %-----------------------------------------------------------------
         function test_two_urc_one_fully_replaced_through_index(~)
@@ -1160,9 +1185,15 @@ classdef test_unique_references < TestCase
             %-----
             stor = unique_obj_store.instance().get_objects('char');
             assertEqual(stor.n_objects,6)
-            assertEqual(stor.unique_objects,{'6','2','3','4','5','1'})
             assertEqual(stor.get_at_direct_idx(1:6),'123456');
-            assertEqual(stor.n_duplicates,[1,  1,  1,  2,  2,  2]);
+            %Re #1816 this tests operation with ref_counting and replacing deleted.
+            % assertEqual(stor.unique_objects,{'6','2','3','4','5','1'})
+            % assertEqual(stor.get_at_direct_idx(1:6),'123456');
+            % assertEqual(stor.n_duplicates,[1,  1,  1,  2,  2,  2]);
+            %Re #1816 tests refcounting without deleteon.
+            assertEqual(stor.unique_objects,{'1','2','3','4','5','6'})
+            assertEqual(stor.n_duplicates,[2,  2,  2,  2,  2,  2]);
+
         end
 
 
@@ -1203,7 +1234,11 @@ classdef test_unique_references < TestCase
             assertEqual(stor.n_objects,6)
             assertEqual(stor.unique_objects,orobj)
             %                            {'1','2','3','4','5','6'};
-            assertEqual(stor.n_duplicates,[1,  1,  2,  2,  2,  1]);
+
+            %Re #1816 this tests operation with ref_counting and replacing deleted.
+            %assertEqual(stor.n_duplicates,[1,  1,  2,  2,  2,  1]);
+            %Re #1816 tests refcounting without deleteon.
+            assertEqual(stor.n_duplicates,[2, 2,  3,  2,  2,  1]);
         end
 
 
@@ -1240,10 +1275,13 @@ classdef test_unique_references < TestCase
 
             %-----
             stor = unique_obj_store.instance().get_objects('char');
-            assertEqual(stor.n_objects,10)
+            assertEqual(stor.n_objects,stor.n_unique);
             assertEqual(stor.n_unique,10)
             assertEqual(stor.unique_objects,[orobj(:);nobj(:)]')
-            assertEqual(stor.n_duplicates,ones(1,10));
+            %Re #1816 this tests operation with ref_counting and replacing deleted.
+            %assertEqual(stor.n_duplicates,ones(1,10));
+            %Re #1816 tests refcounting without deleteon.
+            assertEqual(stor.n_duplicates,[2,2,2,2,2,1,1,1,1,1]);
         end
 
         function test_one_urc_fully_replaced_through_index(~)
@@ -1268,10 +1306,16 @@ classdef test_unique_references < TestCase
 
             %-----
             stor = unique_obj_store.instance().get_objects('char');
-            assertEqual(stor.n_objects,5)
-            assertEqual(stor.n_unique,5)
-            assertEqual(stor.unique_objects(1:5),{'6','7','8','9','10'})
-            assertEqual(stor.n_duplicates,[1,1,1,1,1]);
+            assertEqual(stor.n_objects,stor.n_unique);
+            %Re #1816 this tests operation with ref_counting and replacing deleted.
+            %assertEqual(stor.n_objects,5)
+            %assertEqual(stor.unique_objects(1:5),{'6','7','8','9','10'})
+            %assertEqual(stor.n_duplicates,[1,1,1,1,1]);
+            %Re #1816 tests refcounting without deleteon.
+            assertEqual(stor.n_objects,10)
+            assertEqual(stor.unique_objects,{'1','2','3','4','5','6','7','8','9','10'})
+            assertEqual(stor.n_duplicates,ones(1,10));
+
         end
         %------------------------------------------------------------------
         function test_two_urc_work_fine(~)

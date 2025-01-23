@@ -405,6 +405,9 @@ classdef unique_objects_container < ObjContainersBase
             % -------
             % - out - single unique_objects_container combining the contents of
             %         the elements of the input array objs
+            % NOTE: addition of cellarrays of objects is artificially
+            % prohibited.
+            %
 
             if isempty(objs)
                 error('HERBERT:unique_objects_container:invalid_argument', ...

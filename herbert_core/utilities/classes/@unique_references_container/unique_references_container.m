@@ -262,12 +262,29 @@ classdef unique_references_container < ObjContainersBase
             % - obj:  object to be inserted into the container
             % - nuix: (non-unique index) position at which it is to be
             %         inserted.
+            % Optional: 
+            % '+'     if this argument is present, the replacement is
+            %         allowed not on existing objects/indices only but 
+            %         at position n_objects+1, where operation works like
+            %         simple addition.
+            % Result:
             % The old value is overwritten.
             self.check_if_range_allowed(nuix,varargin{:});
             storage = unique_obj_store.instance().get_objects(self.baseclass);
-
-            gidx             = self.idx_(nuix);
-            [storage,gidx]   = storage.replace(obj,gidx,varargin{:});
+            %--------------------------------------------------------------
+            % This is solution with reference counters which deletes
+            % objects not referenced any more.            
+            %gidx             = self.idx_(nuix);
+            %[storage,gidx]   = storage.replace(obj,gidx,varargin{:});
+            %--------------------------------------------------------------
+            % This is Chris solution implemented on
+            % unique_only_obj_container. On unique_obj_container it should
+            % be add_if_new (check presence in the container first if the
+            % method is not implemented as such). On
+            % unique_only_obj_container add is implemented as add_if_new,
+            % so only new objects are placed in the container. Old objects
+            % increase their reference counter.
+            [storage,gidx]   = storage.add(obj);
             self.idx_(nuix)  = gidx;
             unique_obj_store.instance().set_objects(storage);
         end
