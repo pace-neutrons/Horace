@@ -26,6 +26,70 @@ classdef test_unique_objects < TestCase
             assertEqual(uoc.n_unique,2)
             assertEqual(uoc.idx,[1,2]);
         end
+        %------------------------------------------------------------------
+        function test_concatenate_some_different(~)
+            uoc = unique_objects_container('char');
+            uoc(1)='aa';
+            uoc(2)='bb';
+            uoc(3)='cc';
+            uoc(4)='aa';
+            uoc2 = uoc;
+            uoc2(3) = 'dd';
+            uoc2(4) = 'ee';
+
+            conc = unique_objects_container.concatenate({uoc,uoc2});
+            assertEqual(conc.n_objects,8)
+            assertEqual(conc.n_unique,5)
+            assertEqual(conc.unique_objects,{'aa','bb','cc','dd','ee'});
+            assertEqual(conc.n_duplicates,[3,2,1,1,1]) ;
+            assertEqual(conc.idx,[uoc.idx,uoc.idx(1:2),[4,5]]);
+        end
+
+        function test_concatenate_same(~)
+            uoc = unique_objects_container('char');
+            uoc(1)='aa';
+            uoc(2)='bb';
+            uoc(3)='cc';
+            uoc(4)='aa';
+
+            conc = unique_objects_container.concatenate({uoc,uoc});
+            assertEqual(conc.n_objects,8)
+            assertEqual(conc.n_unique,3)
+            assertEqual(conc.unique_objects,{'aa','bb','cc'});
+            assertEqual(conc.n_duplicates,[4,2,2]) ;
+            assertEqual(conc.idx,[uoc.idx,uoc.idx]);
+        end
+        function test_concatenate_containers_not_implemented(~)
+            data = 'aabbccaa';
+
+            me = assertExceptionThrown(@()unique_objects_container.concatenate(data), ...
+                'HERBERT:unique_objects_container:invalid_argument');
+            assertEqual(me.message(1:83), ...
+                'Input for this method may be cellarray or array of unique_objects_container classes')
+        end
+        
+
+        function test_concatenate_cellarrays_only_fails(~)
+            data = {'aa','bb','cc','aa'};
+
+
+            me = assertExceptionThrown(@()unique_objects_container.concatenate({data,data}), ...
+                'HERBERT:unique_objects_container:invalid_argument');
+            assertEqual(me.message(1:65), ...
+                'Input cellarray may contain unique_objects_container members only')
+        end
+        
+        function test_concatenate_different_fails(~)
+            uoc = unique_objects_container('char');            
+            data = {'aa','bb','cc','aa'};
+            uoc = uoc.add(data);
+
+            me = assertExceptionThrown(@()uoc.concatenate({uoc,data}), ...
+                'HERBERT:unique_objects_container:invalid_argument');
+            assertEqual(me.message(1:65), ...
+                'Input cellarray may contain unique_objects_container members only')
+        end
+        %        
         %
         %------------------------------------------------------------------
         function test_find_in_container_object(obj)

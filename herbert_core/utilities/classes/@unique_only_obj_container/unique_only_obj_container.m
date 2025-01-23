@@ -2,8 +2,21 @@ classdef unique_only_obj_container < ObjContainersBase
     %UNQUE_ONLY_OBJ_CONTAINER contains only unique objects providing
     %permanent references (pointers) to these objects
     %
-    % Despite this is still serializable object, there are no situation
-    % when this object is expected to be serialized or saved to hdd.
+    % contrary to unique_objects_container, it also contains and
+    % exposed only unique addresses of the objects it holds.
+    %
+    % There are two types of addresses of this object: local indices (lidx)
+    % -- continuous array of numbers with size, equal to number of objects
+    % container holds and global indices (gidx, exposed as idx to adhere to
+    % common containers interface) -- the array of constant indices(numbers)
+    % used to address container's unique objects from out
+    % unique
+    % objects can be addressed from outside
+    %
+    %
+    % Despite this is still serializable object by inheritance, there are
+    % no situation when this object is expected to be serialized or saved
+    % to hdd, so searilizable features of this object are disabled.
     %
     properties (Access=protected)
         n_unique_       = 0;          % number of unique objects stored in
@@ -29,15 +42,15 @@ classdef unique_only_obj_container < ObjContainersBase
         lidx % access to internal local indices of the container,
         % controlling distribution of information within the container
     end
-    %properties(Constant,Access= protected)
     properties(Access=protected)
         % typical experiment may contain ~200 runs. The configuration is
         % usually unique, but in special cases may differ between runs.
-        % let's select number which minimize memory storage but from another,
-        % do not reallocate memory too often to accommodate all runs which
-        % may become unique. If these assumptions are insufficient, we may
-        % always introduce more complex algorithm (e.g. doubling each
-        % allocation size. see e.g. C++ stl algorithms for vector) in a future.
+        % let's select number which minimize memory storage but from other
+        % side, do not reallocate memory too often to accommodate all runs
+        % which may become unique. If these assumptions are insufficient,
+        % we may always introduce more complex algorithm (e.g. doubling each
+        % allocation size. see e.g. C++ stl algorithms for the vector)
+        % in a future.
         mem_expansion_chunk_ = 100;
     end
     methods(Access=protected)
@@ -228,11 +241,13 @@ classdef unique_only_obj_container < ObjContainersBase
                 'This funciton is pissible but does not make sence on unique_only_obj_container')
         end
         %
-        function val = hash(self,index)
+        function val = hash(self,lidx)
             % accessor for the stored hashes looping over container indices
             %
+            % Indices are accessed through their local indices in container
+            %
             % confusing test function.
-            val = self.stored_hashes_{ self.lidx_(index) };
+            val = self.stored_hashes_{ self.lidx_(lidx) };
         end
     end
     %----------------------------------------------------------------------
@@ -263,6 +278,8 @@ classdef unique_only_obj_container < ObjContainersBase
         function check_if_range_allowed(self,nuix,varargin)
             % Validates if input non-unique index is in the range of indices
             % allowed for current state of the container
+            %
+            %
             if nargin==3
                 upper_range = self.max_obj_idx_+1;
                 if any(nuix == upper_range)

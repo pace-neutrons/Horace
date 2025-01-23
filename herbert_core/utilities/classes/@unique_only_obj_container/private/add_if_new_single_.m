@@ -21,7 +21,7 @@ if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
 end
 
 % call find_in_container to get position and hash of the object
-[lidx,hash,obj] = self.find_in_container(obj);
+[lidx,hash,obj] = self.find_in_container(obj,false);
 
 % If the object is not in the container add it to the container.
 if isempty(lidx) % means obj not in container and should be added

@@ -175,7 +175,7 @@ classdef unique_references_container < ObjContainersBase
             %          unique objects container. if false, return index of
             %          the object used in this container
             % Output:
-            % - ix   : the index of the input object in list of local indices
+            % - idx  : the index of the input object in list of local indices
             %          self.idx_ if return_global is false, or 
             %          unique index of the object in the global storage
             %          If object is not stored, return emtpy []
@@ -199,7 +199,7 @@ classdef unique_references_container < ObjContainersBase
 
         function sset = get_subset(self, indices)
             % retrieve set of objects, defined by input indices
-            % and arrange then into appropriate unique references container
+            % and arrange then into appropriate unique objects container
             sset = unique_objects_container('baseclass', self.baseclass);
             for i=indices
                 item = self.get(i);

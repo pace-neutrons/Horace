@@ -84,7 +84,7 @@ classdef unique_objects_container < ObjContainersBase
     properties (Access=protected)
         stored_hashes_ = cell(1,0);  % their hashes are stored
         % (default respecified in constructor inputParser)
-        n_duplicates_   = zeros(1,0); % number of duplicated        
+        n_duplicates_   = zeros(1,0); % number of duplicated
     end
     properties(Dependent,Hidden)
         % property containing list of stored hashes for unique objects for
@@ -135,10 +135,10 @@ classdef unique_objects_container < ObjContainersBase
                 n_objects = 1;
             end
             if ~isnumeric(n_objects) || ~isscalar(n_objects)|| n_objects<=0
-                error('HERBERT:unique_objects_container:invalid_argument',[...                
+                error('HERBERT:unique_objects_container:invalid_argument',[...
                     'n_objects have to be numeric positive scalar.\n' ...
                     'It is: %s of class %s'],...
-                num2str(n_objects),class(n_objects));
+                    num2str(n_objects),class(n_objects));
             end
             if obj.n_unique ~= 1
                 error('HERBERT:unique_objects_container:invalid_argument',[...
@@ -162,7 +162,7 @@ classdef unique_objects_container < ObjContainersBase
             % - hash : the hash of the object from hashify
             %
             % - obj  : input object. If hashable, contains calculated hash
-            %          value, if this value have not been there initially            
+            %          value, if this value have not been there initially
             %
             [obj,hash] = build_hash(obj);
             if isempty(self.stored_hashes_)
@@ -391,7 +391,7 @@ classdef unique_objects_container < ObjContainersBase
             obj = loadobj@serializable(S,obj);
         end
 
-        function out = concatenate(objs, type)
+        function out = concatenate(objs, varargin)
             %CONCATENATE takes the unique_object and idx (index) arrays from
             % an array of one or more unique_object_containers and concatenates
             % separately the unique objects and the indices to single outputs
@@ -400,8 +400,6 @@ classdef unique_objects_container < ObjContainersBase
             % Input
             % -----
             % - objs - one cell or array of one or more unique_object_containers
-            % - type - '{}' if objs is a cell; anything else (but by
-            %          convention '()') if objs is an array
             %
             % Outputs
             % -------
@@ -409,42 +407,37 @@ classdef unique_objects_container < ObjContainersBase
             %         the elements of the input array objs
 
             if isempty(objs)
-                error('HERBERT:unique_objects_container:invalid_input', ...
+                error('HERBERT:unique_objects_container:invalid_argument', ...
                     'at least one object must be supplied to concatenate');
             end
-
-            concat_cells = strcmp(type,'{}');
-
-            if numel(objs)==1
-                if concat_cells
-                    out = objs{1};
-                else
-                    out = objs;
+            if iscell(objs)
+                is_uoc = cellfun(@(x)isa(x,'unique_objects_container'),objs);
+                is_cell = true;
+                if ~all(is_uoc)
+                    nuoc = sum(~is_uoc);
+                    error('HERBERT:unique_objects_container:invalid_argument',[ ...
+                        'Input cellarray may contain unique_objects_container members only.\n' ...
+                        'There are %d out of %d non-complying objects in input cellarray'],nuoc,numel(objs));
                 end
+            elseif ~isa(objs,'unique_objects_container')
+                error('HERBERT:unique_objects_container:invalid_argument', ...
+                    'Input for this method may be cellarray or array of unique_objects_container classes. It is: "%s"',...
+                    class(objs))
             else
-                if concat_cells
-                    out = objs{1};
-                    for ii=2:numel(objs)
-                        for jj=1:objs{ii}.n_runs
-                            out_obj = objs{ii}.get(jj);
-                            %out_hsh = build_hash(out_obj);
-                            %[~,index] = ismember(out_hsh, out.stored_hashes_);
-                            %if index==0, index = []; end
-                            %out = out.add_single_(out_obj,index); %( objs{ii}.get(jj) );
-                        end
-                    end
+                is_cell = false;
+            end
+            if is_cell
+                out = objs{1};
+            else
+                out = objs(1);
+            end
+            for i=2:numel(objs)
+                if is_cell
+                    add_obj = objs{i};
                 else
-                    out = objs(1);
-                    for ii=2:numel(objs)
-                        for jj=1:objs(ii).n_runs
-                            out_obj = objs(ii).get(jj);
-                            out_hsh = build_hash(out_obj);
-                            [~,index] = ismember(out_hsh, out.stored_hashes_);
-                            if index==0, index = []; end
-                            out = out.add_single_(out_obj,index); %( objs{ii}.get(jj) );
-                        end
-                    end
+                    add_obj = objs(i);
                 end
+                out = out.add(add_obj);
             end
         end
 
