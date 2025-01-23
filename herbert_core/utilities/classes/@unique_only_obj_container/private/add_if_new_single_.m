@@ -37,7 +37,7 @@ if isempty(lidx) % means obj not in container and should be added
     % current object location
     self.idx_(gidx_free)       = gidx_free;
     self.n_unique_             = self.n_unique_+1;
-    self.max_obj_idx_          = find(self.n_duplicates_>0,1,"last");
+    self.max_obj_idx_          = max(self.max_obj_idx_,gidx_free);
     %
     gidx     = gidx_free;
 else

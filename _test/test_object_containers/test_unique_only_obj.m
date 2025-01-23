@@ -37,35 +37,6 @@ classdef test_unique_only_obj < TestCase
             assertTrue(mi1.hash_defined);
             assertEqual(mi1.hash_value,hash);
         end
-        %
-        % function test_replace_unique_different_number_throw(~)
-        %     clWar = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');
-        %     uoc = unique_only_obj_container_tester();
-        %     uoc(1) = 'aaaaa';
-        %     uoc(2) = 'bbbb';
-        %     uoc(3) = 'bbbb';
-        %     function thrower()
-        %         uoc.unique_objects = 'bbbb';
-        %     end
-        %     assertExceptionThrown(@thrower, ...
-        %         'HERBERT:unique_only_obj_container_tester:invalid_argument');
-        %
-        % end
-        % function test_replace_with_nonunique_same_number_throw(~)
-        %     clWarn = set_temporary_warning('off','HERBERT:ObjContainerBase:incomplete_setup');
-        %     uoc = unique_only_obj_container_tester();
-        %     uoc(1) = 'aaaaa';
-        %     uoc(2) = 'bbbb';
-        %     uoc(3) = 'bbbb';
-        %     function thrower()
-        %         uoc.unique_objects = {'AA','AA'};
-        %     end
-        %     assertExceptionThrown(@thrower, ...
-        %         'HERBERT:unique_only_obj_container_tester:invalid_argument');
-        %
-        % end
-        %
-
         % %----------------------------------------------------------------
         function test_add_similar_non_unique_objects(obj)
             %disp('Test: test_add_similar_non_unique_objects');
@@ -209,17 +180,17 @@ classdef test_unique_only_obj < TestCase
             [oc,gidx] = oc.replace('1',5);
             assertEqual(gidx,1); % this 1 will go to idx(5)=1 of reference container
             assertEqual(oc.n_objects,4)
-            assertEqual(oc.idx,[1,2,3,4,0])
+            assertEqual(oc.idx,[1,2,3,4])
             assertEqual(oc.unique_objects,{'1','2','3','4'});
-            assertEqual(oc.get_at_direct_idx(1:5),{'1','2','3','4',[]});
-            assertEqual(oc.n_duplicates,[2,1,2,1,0]);
+            assertEqual(oc.get_at_direct_idx(1:4),'1234');
+            assertEqual(oc.n_duplicates,[2,1,2,1]);
 
             [oc,gidx] = oc.add('100');
             assertEqual(gidx,5);
             assertEqual(oc.n_objects,5)
             assertEqual(oc.idx,[1,2,3,4,5])
             assertEqual(oc.unique_objects,{'1','2','3','4','100'});
-            assertEqual(oc.get_at_direct_idx(1:5),'1234100');            
+            assertEqual(oc.get_at_direct_idx(1:5),'1234100');
             assertEqual(oc.n_duplicates,[2,1,2,1,1]);
         end
 
@@ -415,6 +386,16 @@ classdef test_unique_only_obj < TestCase
             assertTrue(isempty(oc.idx));
             assertTrue(isempty(oc.unique_objects));
             assertTrue(isempty(oc.n_duplicates));
+        end
+        %------------------------------------------------------------------
+        function test_memory_expansion(~)
+            oc = unique_only_obj_container_tester('double');
+            oc.mem_expansion_chunk = 5;
+            assertEqual(oc.total_allocated,0);
+            members = 1:12;
+            oc = oc.add(members);
+            assertEqual(oc.total_allocated,15);
+            assertEqual(oc.n_duplicates,ones(1,12));            
         end
     end
 end

@@ -65,7 +65,7 @@ if isempty(lidx_n) % means obj not in container and should be added
 
         self.n_unique_      = self.n_unique_+1;
     end
-    self.max_obj_idx_        = find(self.n_duplicates_>0,1,"last");    
+    self.max_obj_idx_       = max(self.max_obj_idx_,gidx);    %find(self.n_duplicates_>0,1,"last");
     % if it is in the container, then ix is the unique object index
     % in unique_objects_ and is put into idx_ as the unique index
     % for the new object
@@ -75,24 +75,27 @@ else
         % old object position defined by old_gidx.
         % number of used objects have decreased.
 
-        old_lidx_n     =  self.idx_(old_gidx);    %old_lidx = find(self.lidx_(1:self.n_unique_)==old_gidx);         
+        old_lidx_n     =  self.idx_(old_gidx);    %old_lidx = find(self.lidx_(1:self.n_unique_)==old_gidx);
         last_lidx_n    =  self.n_unique_;
         % swap points between pointers to free memory and occupied memory
         gi_tmp                  = self.lidx_(last_lidx_n);
         self.lidx_(last_lidx_n) = self.lidx_(old_lidx_n);
         self.lidx_(old_lidx_n)  = gi_tmp;
-        
+
         % swap pointers to free and ocupied cells
         self.idx_(old_gidx) = last_lidx_n;
-        self.idx_(gi_tmp)   = old_lidx_n; 
+        self.idx_(gi_tmp)   = old_lidx_n;
 
 
         self.n_unique_ = self.n_unique_-1; % move free pointer one step back
-        
+
         % clear empty idx to save memory and ensure no error occurs if
         % invalid hash appears in search
         self.unique_objects_{old_gidx} = [];
         self.stored_hashes_{old_gidx}  = '';
+        if old_gidx == self.max_obj_idx_
+            self.max_obj_idx_ = self.max_obj_idx_-1;   %find(self.n_duplicates_>0,1,"last")
+        end
     end
     % increase number of duplicates at target
     self.n_duplicates_(gidx) = self.n_duplicates_(gidx)+1;
