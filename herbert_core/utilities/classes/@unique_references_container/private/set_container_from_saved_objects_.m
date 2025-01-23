@@ -18,8 +18,7 @@ if ~strcmp(self.baseclass,val.baseclass)
     end
 end
 storage = unique_obj_store.instance().get_objects(self.baseclass);
-self.idx_ = zeros(1,val.n_objects);
-for i=1:val.n_objects
-    [storage,gidx] = storage.add(val(i));
-    self.idx_(i) = gidx;
-end
+[storage,gidx] = storage.add(val);
+self.idx_ = gidx;
+% this code is part of more general method, which sends changes in storage
+% to global store. No need to do it here. set_objecs will be done later.

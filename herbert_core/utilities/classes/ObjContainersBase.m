@@ -277,19 +277,20 @@ classdef ObjContainersBase < serializable
             [self,nuix] = self.add_single(obj);
         end % add()
         %
-        function obj = get(self,nuix)
+        function obj = get(self,nguix)
             % given the non-unique global index nuix that you know about
             % for your object (it was returned when you added it to the
             % container with add or replace) get the unique object
             % associated with this index.
             %
             % Input:
-            % - nuix : non-unique index that has been stored somewhere for
-            %          this object
+            % - nguix : non-unique index that has been stored somewhere for
+            %           this object and identifies the location of the
+            %           object in unique_obj_store.container.
             % Output:
-            % - obj : the unique object store for this index
+            % - obj  : the unique object located at this index
             %
-            obj = self.get_unique_objects(nuix);
+            obj = self.get_unique_objects(nguix);
         end
     end
     %  Setter/getters for common interface with class-specific

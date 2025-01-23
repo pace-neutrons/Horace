@@ -23,7 +23,7 @@ if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
         'not correct base class; object was not added');
 end
 
-% call find_in_container to get ix and hash 
+% call find_in_container to get ix and hash
 [ix,hash,obj] = self.find_in_container(obj);
 
 
@@ -32,7 +32,7 @@ end
 % store the object in the stored objects
 % take the index of the last stored object as the object index
 if isempty(ix) % means obj not in container and should be added
-    self.stored_hashes_ = [self.stored_hashes_(:);hash]';
+    self.stored_hashes_  = [self.stored_hashes_(:);hash]';
     self.unique_objects_ = [self.unique_objects_(:); {obj}]';
 
     ix = numel(self.unique_objects_);
