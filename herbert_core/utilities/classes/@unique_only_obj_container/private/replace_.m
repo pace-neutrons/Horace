@@ -94,7 +94,10 @@ else
         self.unique_objects_{old_gidx} = [];
         self.stored_hashes_{old_gidx}  = '';
         if old_gidx == self.max_obj_idx_
-            self.max_obj_idx_ = self.max_obj_idx_-1;   %find(self.n_duplicates_>0,1,"last")
+            % more accurate identification of occupied global indices spawn,
+            % as deleteon of the last object in store may open number of free spaces present
+            % before last object because of previous object deletions
+            self.max_obj_idx_ = find(self.n_duplicates_>0,1,"last");
         end
     end
     % increase number of duplicates at target
