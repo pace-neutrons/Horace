@@ -73,6 +73,10 @@ classdef kf_sphere_proj<sphere_proj
     properties(Dependent)
         Ei
     end
+    properties(Dependent,Hidden)
+        % return vector ki in A^-1. Used for debugging
+        ki;
+    end
     properties(Access=protected)
         Ei_ = [];
         % cache for ki -- incident beam wave vector
@@ -92,6 +96,9 @@ classdef kf_sphere_proj<sphere_proj
         %------------------------------------------------------------------
         function ei = get.Ei(obj)
             ei = obj.Ei_;
+        end
+        function ki = get.ki(obj)
+            ki=obj.ki_;
         end
         function obj = set.Ei(obj,val)
             if ~isnumeric(val)||~isscalar(val)
@@ -135,8 +142,8 @@ classdef kf_sphere_proj<sphere_proj
             else % if pix_input is 4-d, this will use 4-D matrix and shift
                 % if its 3-d -- matrix is 3-dimensional and energy is not shifted
                 % anyway
-                ndim         = size(pix_input,1);
-                pix_cc       = pix_input;
+                ndim         = size(pix_data,1);
+                pix_cc       = pix_data;
                 input_is_obj = false;
             end
             if ndim ==3
@@ -145,7 +152,7 @@ classdef kf_sphere_proj<sphere_proj
                 kf = obj.ki_-pix_cc(1:3,:);
             end
             pix_transformed = transform_pix_to_img@sphere_proj(obj,kf,varargin{:});
-            if ndim > 3
+            if ndim > 3 || input_is_obj
                 if input_is_obj
                     pix_transformed = [pix_transformed;pix_data.dE];
                 else
@@ -157,27 +164,32 @@ classdef kf_sphere_proj<sphere_proj
             % Transform pixels in image (spherical) coordinate system
             % into crystal Cartesian system of pixels
             kf = transform_img_to_pix@sphere_proj(obj,pix_transformed,varargin{:});
-            if size(kf,2) == 3
-                pix_cc = obj.ki_-kf;
-            else
-                pix_cc = obj.ki_-kf(1:3,:);
+            pix_cc = obj.ki_-kf;
+            if size(pix_transformed,1) > 3
                 pix_cc = [pix_cc;kf(4,:)];
             end
         end
     end
 
+    methods(Access = protected)
+        function name = get_axes_name(~)
+            % return the name of the axes class, which corresponds to this
+            % projection
+            name = 'sphere_axes';
+        end
+    end
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
     methods(Access=protected)
         function flds = init_order_fields(obj)
             % overloadeded field construction order to put incident energy
-            % first
+            % first using sphere_proj construction
             flds = init_order_fields@CurveProjBase(obj);
             flds = ['Ei';flds(:)];
         end
     end
-    
+
     methods
         function  flds = saveableFields(obj)
             flds = saveableFields@sphere_proj(obj);
@@ -204,8 +216,10 @@ classdef kf_sphere_proj<sphere_proj
             else
                 bm = eye(3);
             end
-            kf_mod=sqrt(obj.Ei_/neutron_constants('c_k_to_emev'));
-            obj.ki_ = bm*obj.u(:)*kf_mod;
+            kf_modulo=sqrt(obj.Ei_/neutron_constants('c_k_to_emev')); % incident
+            % neutron beam wavevector in A^-1
+            u_in_A = bm*obj.u(:); % direction in Crystal Cartesian
+            obj.ki_ = u_in_A/norm(u_in_A)*kf_modulo;
         end
 
     end
