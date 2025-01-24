@@ -176,7 +176,7 @@ classdef unique_references_container < ObjContainersBase
             %          the object used in this container
             % Output:
             % - idx  : the index of the input object in list of local indices
-            %          self.idx_ if return_global is false, or 
+            %          self.idx_ if return_global is false, or
             %          unique index of the object in the global storage
             %          If object is not stored, return emtpy []
             % - hash : the hash of the object from hashify
@@ -262,9 +262,9 @@ classdef unique_references_container < ObjContainersBase
             % - obj:  object to be inserted into the container
             % - nuix: (non-unique index) position at which it is to be
             %         inserted.
-            % Optional: 
+            % Optional:
             % '+'     if this argument is present, the replacement is
-            %         allowed not on existing objects/indices only but 
+            %         allowed not on existing objects/indices only but
             %         at position n_objects+1, where operation works like
             %         simple addition.
             % Result:
@@ -273,7 +273,7 @@ classdef unique_references_container < ObjContainersBase
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             %--------------------------------------------------------------
             % This is solution with reference counters which deletes
-            % objects not referenced any more.            
+            % objects not referenced any more.
             %gidx             = self.idx_(nuix);
             %[storage,gidx]   = storage.replace(obj,gidx,varargin{:});
             %--------------------------------------------------------------
@@ -302,19 +302,21 @@ classdef unique_references_container < ObjContainersBase
     %----------------------------------------------------------------------
     % satisfy ObjContainersBase protected interface
     methods(Access=protected)
-        function uoc = get_unique_objects(self,varargin)
-            %GET_UNIQUE_OBJECTS - unique_objects_container version of
-            %                     this container
+        function uoc = get_unique_objects(self,nuidx)
+            %GET_UNIQUE_OBJECTS - unique_reference_container version of
+            %                     this method. Returns container of unique
+            %                     objects
+            % Input:
+            % nuidx   -- list of non-unique local indices to retrieve
+            %            unique objects for.
+            %
+            % if missing -- returns all unique objects
+            %               referred by this container
+            %
             % Output:
             % -------
             % - uoc - the unique objects as a unique_objects_container
-            % To obtain this as a cell array, it is possible to repeat the .unique_objects
-            % property get on uoc but it is preferable to use the
-            % expose_unique_objects method which does this in an encapsulated fashion.
             %
-            % if provided with argument, return object, located at
-            % specified non-unique index
-            % TODO: reconsile with get
             if nargin == 1
                 storage = unique_obj_store.instance().get_objects(self.baseclass);
                 uoc     = unique_objects_container(self.baseclass);
@@ -324,40 +326,27 @@ classdef unique_references_container < ObjContainersBase
                     uoc   = uoc.add(obj);
                 end
             else
-                nuidx = varargin{1};
                 self.check_if_range_allowed(nuidx);
                 glindex = self.idx(nuidx);
                 uoc = unique_obj_store.instance().get_value(self.baseclass,glindex);
             end
         end
         function self = set_unique_objects(self,val)
-            %SET_UNIQUE_OBJECTS - copy a unique_objects_container into this
-            % container. Part of serializable interface
+            %SET_UNIQUE_OBJECTS - copy objects stored in uinput 
+            % into this container and set set up this container's indices
+            % to address these objects.
+
+            % Part of serializable interface
             %
             % Input
             % -----
             % - val: unique_objects_container with the objects to be restored
-            %        to this container or cellarray of the objects
+            %        to this container 
             %   Or
-            %       cell of unique objects to set unique objects for storage
+            %       cellarray of unique objects to add them to the container
+            %       set unique objects for storage
             %
-            if isa(val,'unique_objects_container')
-                [self,storage] = set_container_from_saved_objects_(self,val);
-            elseif iscell(val)
-                if isempty(self.baseclass)
-                    error('HERBERT:unique_references_container:runtime_error', ...
-                        'Incomplete setup. Can not setup unique unnamed unique_references_container by cellarray of objects');
-
-                end
-                storage = unique_obj_store.instance().get_objects(self.baseclass);
-                % all check should be performed in storage
-                storage.unique_objects = val;
-            else
-                error('HERBERT:unique_references_container:invalid_argument', ...
-                    'unique_objects must be a unique_objects_container');
-            end
-            unique_obj_store.instance().set_objects(storage);
-
+            self = set_container_from_saved_objects_(self,val);
         end
         function n = get_n_unique(self)
             % get number of unique objects in the container
