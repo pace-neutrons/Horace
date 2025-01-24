@@ -15,10 +15,12 @@ classdef unique_references_container < ObjContainersBase
     %
     %>> storage =  unique_obj_store.instance().get_objects('category');
     %
-    % Any changes to storage should be send back by inverse method:
+    % Any changes to storage can be send back by inverse method:
     % unique_obj_store.instance().set_objects(storage); 
     % but this method should be used within unique_references_container
-    % only.
+    % only, because invalid deleteon of objects from global storage may
+    % invalidate other unique_reference_container-s present in sqw objects
+    % allocated in memory and referring to this storage.
     %
     % The global container does not persist between sessions, and containers
     % written out to file are represented by separate
