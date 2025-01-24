@@ -24,6 +24,11 @@ classdef kf_sphere_proj<sphere_proj
     %        The axis to calculate theta angle from.
     % v  -- [1,3] vector of hkl direction of x-axis of the spherical
     %       coordinate system, the axis to calculate Phi angle from.
+    % NOTE:
+    %       the idea of this projection is that u and v should be set to
+    %       the values of u,v vectors, used to obtain sqw object i.e. u
+    %       should coicide with beam direction and v selected to define the
+    %       uv plane, where rotation occurs.
     %
     % type-- 3-letter character array, defining the spherical
     %        coordinate system units (see type property below)
@@ -89,7 +94,7 @@ classdef kf_sphere_proj<sphere_proj
             ei = obj.Ei_;
         end
         function obj = set.Ei(obj,val)
-            if ~isnumeric(val)||numel(val)
+            if ~isnumeric(val)||~isscalar(val)
                 error('HORACE:kf_sphere_proj:invalid_arguments', ...
                     'Incident beam must be poisitive. Got %d',val);
             end
@@ -164,6 +169,15 @@ classdef kf_sphere_proj<sphere_proj
     %=====================================================================
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
+    methods(Access=protected)
+        function flds = init_order_fields(obj)
+            % overloadeded field construction order to put incident energy
+            % first
+            flds = init_order_fields@CurveProjBase(obj);
+            flds = ['Ei';flds(:)];
+        end
+    end
+    
     methods
         function  flds = saveableFields(obj)
             flds = saveableFields@sphere_proj(obj);
