@@ -2,21 +2,23 @@ classdef unique_references_container < ObjContainersBase
     %UNIQUE_REFERENCES_CONTAINER
     % This container stores objects of a common baseclass so that if some
     % contained objects are duplicates, only one unique object is stored
-    % for all the duplicates.
+    % for all the duplicates in a global storage, common for all
+    % unique_reference_container instances.
     %
     % The following documentation on use is usefully supplemented by the
     % tests in the test_unqiue_objects_container suite.
     %
-    % The objects are assigned to a category (or global_name), and all containers with the
-    % same category have their unique objects stored in a singleton global
-    % container for all unique_reference_containers of a given category
-    % open in the current Matlab session. The static method
-    % global_container implements this global container. The class
-    % unique_objects_container is used to implement this storage.
+    % The objects are assigned to a category (or parent class name), and
+    % all containers with the same category have their unique objects 
+    % stored in a singleton unique_obj_store. Access to the global storage
+    % of the container be obtained by calling singleton's method:
     %
-    % The adaptation of the standard Matlab singleton pattern to the
-    % present code where several singletons, one per data type, are stored
-    % in the same class, is documented in SMG-22.
+    %>> storage =  unique_obj_store.instance().get_objects('category');
+    %
+    % Any changes to storage should be send back by inverse method:
+    % unique_obj_store.instance().set_objects(storage); 
+    % but this method should be used within unique_references_container
+    % only.
     %
     % The global container does not persist between sessions, and containers
     % written out to file are represented by separate
