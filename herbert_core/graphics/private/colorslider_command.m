@@ -44,21 +44,16 @@ switch cmd
 end
 
 % Set color limits (and changes the displayed limits on the colorbar)
-if ~isnumeric([i_min i_max])
-    disp('Deary me')
-end
 caxis(axes_handle, [i_min i_max]);
 
 % Set value and min/max values in slider and edit boxes
 range = abs(i_max-i_min);
 
 set(slider_min, 'Value', i_min, 'Min', i_min-range/2, 'Max', i_max-range*0.1);
-i_min_round = truncdig(i_min,3);
-set(slider_min_value,'String',num2str(i_min_round));
+set(slider_min_value,'String',num2str(i_min,'%10.3g'));
 
 set(slider_max, 'Value', i_max, 'Min', i_min+range*0.1, 'Max', i_max+range/2);
-i_max_round = truncdig(i_max,3);
-set(slider_max_value,'String',num2str(i_max_round));
+set(slider_max_value,'String',num2str(i_max,'%10.3g'));
 
 
 %-------------------------------------------------------------------------------
