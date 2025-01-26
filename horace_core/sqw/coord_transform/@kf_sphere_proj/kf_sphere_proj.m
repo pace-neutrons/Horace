@@ -72,9 +72,8 @@ classdef kf_sphere_proj<sphere_proj
     %
     properties(Dependent)
         Ei
-    end
-    properties(Dependent,Hidden)
-        % return vector ki in A^-1. Used for debugging
+        % return vector ki in A^-1. Used for debugging and easy cut range
+        % estimation
         ki;
     end
     properties(Access=protected)
@@ -88,6 +87,7 @@ classdef kf_sphere_proj<sphere_proj
             % See init for the list of input parameters
             %
             obj = obj@sphere_proj();
+            obj.type = 'add';
             obj.label = {'|kf|','\theta','\phi','En'};
             if nargin>0
                 obj = obj.init(varargin{:});
@@ -98,7 +98,7 @@ classdef kf_sphere_proj<sphere_proj
             ei = obj.Ei_;
         end
         function ki = get.ki(obj)
-            ki=obj.ki_;
+            ki=(obj.ki_(:))';
         end
         function obj = set.Ei(obj,val)
             if ~isnumeric(val)||~isscalar(val)
