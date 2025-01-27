@@ -141,6 +141,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
         %Evaluate a function at the plotting bin centres of sqw object
         wout = func_eval (win, func_handle, pars, varargin)
+        
+        % Apply operation or sequence of operations, defined by sqwfunc
+        obj = sqw_op(obj, sqwfunc, pars, varargin)
     end
     %======================================================================
     % Various sqw methods -- difficult to classify
