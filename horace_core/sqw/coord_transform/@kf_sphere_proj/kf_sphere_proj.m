@@ -107,7 +107,7 @@ classdef kf_sphere_proj<sphere_proj
             end
             if val<=0
                 error('HORACE:kf_sphere_proj:invalid_arguments', ...
-                    'Incident beam must be poisitive. Got %d',val);
+                    'Incident beam energy must be poisitive. Got %d',val);
             end
 
             obj.Ei_ = val;
@@ -184,7 +184,7 @@ classdef kf_sphere_proj<sphere_proj
     methods(Access=protected)
         function flds = init_order_fields(obj)
             % overloadeded field construction order to put incident energy
-            % first using sphere_proj construction
+            % first while using sphere_proj initialization procedure.
             flds = init_order_fields@CurveProjBase(obj);
             flds = ['Ei';flds(:)];
         end
