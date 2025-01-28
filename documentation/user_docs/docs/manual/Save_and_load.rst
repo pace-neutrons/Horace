@@ -61,7 +61,6 @@ Calling ``sqw`` constructor with the name of binary sqw file is equivalent to in
    output = sqw(sqw_filename);
 
 
-
 ##############################################################
 Saving sqw objects from memory and creating filebacked objects
 ##############################################################
@@ -93,7 +92,7 @@ The command for this is:
 This method saves single object into Horace binary file, but if you have filebacked ``sqw`` object, the method would correctly
 write this object so it will be possible to restore the object later. If your filebacked object is backed by temporary file, the object will not be saved as the major part of this object is already located in file. The file contents will be synchronized with the data in memory and temporary file will be renamed to the name, you have provided as input for the ``save`` command.
 
-You of course may use this command to create Horace binary ``.sqw`` files from objects in memory.
+You of course may use ``save`` command to create Horace binary ``.sqw`` files from objects in memory.
 
 See :ref:`manual/Cutting_data_of_interest_from_SQW_files_and_objects:File- and memory-backed cuts` to read a bit more about filebacked and memory based cuts and :ref:`manual/Changing_Horace_settings:Horace Config` for the information on how to configure size of memory based object.
 
