@@ -85,12 +85,12 @@ unexpected results, as main part of filebacked ``sqw`` object is not loaded in m
 .. warning::
    **Saving filebacked objects using MATLAB ``save`` command is dangerous!**
 
-   One can say that filebacked objects can exist in two forms. First form -- the result of various operations with filebacked sqw objects (e.g. large cuts which do not fit memory -- see :ref:`manual/Cutting_data_of_interest_from_SQW_files_and_objects:File- and memory-backed cuts` for more details about filebacked cuts). 
-   These objects are backed by temporary files and temporary files get deleted when such objects go out of scope and get deleted.
-   Second form -- filebacked objects build over existing sqw files or saved with permanent file name. (see below).
-   MATLAB ``save`` command saves part of filebacked object stored in memory. Instead of the pixel data the operation is saving the
-   reference to the file containing the pixels -- the file the filebacked object is backed by. As temporary ``sqw`` (``.tmp_XXXXXXX``)
-   file backing the object gets deleted, ``.mat`` file for first form of saved object will contain incorrect reference to the missing file. ``.mat`` file for the second form will contain reference to existing ``.sqw`` file, so can be restored back until the referred file exists and is not moved or renamed. Obvious that this way of saving filebacked ``sqw`` objects is also not very reliable.
+   One can say that filebacked objects can be created in two ways. First way -- "primary" filebacked objects build over existing sqw files or saved with permanent file name. (see below). These objects are backed by permanent ``.sqw`` files which stay on disk after objects are deleted from MATLAB session. Second way -- "secondary" filebacked objects obtained as the result of various operations with filebacked sqw objects, e.g. large cuts which do not fit memory -- (see :ref:`manual/Cutting_data_of_interest_from_SQW_files_and_objects:File- and memory-backed cuts` for more details about filebacked cuts), the result of unary or binary operations between "primary" filebacked ``sqw`` objects, results of filebacked ``PageOp`` algorithms, etc.. 
+   These objects are backed by temporary files with extension ``.tmp_XXXXXXX`` and temporary files get deleted when such objects go out of scope.
+   
+
+   MATLAB ``save`` command saves part of filebacked object stored in memory. The operation is saving the reference to the file containing the pixels -- the name and path to the file the object is backed by. As temporary ``sqw`` (``.tmp_XXXXXXX``)
+   file backing the object gets deleted, ``.mat`` file for stored "secondary" type of filebacked object will contain incorrect reference to the missing file. ``.mat`` file for the "primary" filebacked object will contain reference to existing ``.sqw`` file, so can be restored back until the referred file exists and is not moved or renamed. Obviously, this way of saving filebacked ``sqw`` objects is also not very reliable.
 
 The only reliable way of saving filebacked ``sqw`` object is to use Horace ``save`` command, which stores ``sqw`` object in binary Horace ``.sqw`` file format.
 The command for this is:
@@ -99,10 +99,10 @@ The command for this is:
 
    save(sqw_object, filename);
    
-This method saves single object into Horace binary file, so if you have filebacked ``sqw`` object, the method would correctly
-write this object. It will be possible to restore the object later by accessing appropriate ``.sqw`` file. If your filebacked object is backed by temporary file, the object will not be physically saved (long operation) as the major part of this object is already located in file. The file contents will be synchronized with the data in memory and temporary file will be renamed to the name, you have provided as second input for the ``save`` command.
+This method saves single object into Horace binary file with extension ``.sqw``, so if you have filebacked ``sqw`` object, the method would correctly
+write this object. It will be possible to restore the object later by accessing appropriate ``.sqw`` file. If your filebacked object is backed by temporary file, the object will not be physically saved (long operation) as the major part of this object is already located in file. The file contents will be synchronized with the data in memory and temporary file will be renamed to the name, you have provided as the second input for the ``save`` command.
 
-You, of course, may use Horace ``save`` command to create Horace binary ``.sqw`` files from objects in memory.
+You, of course, can also use Horace ``save`` command to create Horace binary ``.sqw`` files from ``sqw/dnd`` objects in memory.
 
 See :ref:`manual/Cutting_data_of_interest_from_SQW_files_and_objects:File- and memory-backed cuts` to read a bit more about filebacked and memory based cuts and :ref:`manual/Changing_Horace_settings:Horace Config` for the information on how to set up the size of memory based object.
 
