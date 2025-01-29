@@ -57,10 +57,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#read-horace">7.1. read_horace</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#read-sqw">7.2. read_sqw</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#read-dnd">7.3. read_dnd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constructing-sqw-object-from-filename">7.4. Constructing <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object from filename</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#save">8.1. save</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-filebacked-objects-from-data-on-disk">8.2. Create filebacked objects from data on disk</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
@@ -149,16 +151,61 @@ full sqw dataset, then only the binned data will be read.</p>
 </div>
 <p>The returned variable is an <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object.</p>
 </section>
+<section id="constructing-sqw-object-from-filename">
+<h2><span class="section-number">7.4. </span>Constructing <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object from filename<a class="headerlink" href="#constructing-sqw-object-from-filename" title="Permalink to this heading"></a></h2>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">sqw</span></code> constructor with the name of binary sqw file is equivalent to invoking <code class="docutils literal notranslate"><span class="pre">read_sqw</span></code> function.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">sqw_filename</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="saving-sqw-objects-from-memory-and-creating-filebacked-objects">
 <h1><span class="section-number">8. </span>Saving sqw objects from memory and creating filebacked objects<a class="headerlink" href="#saving-sqw-objects-from-memory-and-creating-filebacked-objects" title="Permalink to this heading"></a></h1>
 <section id="save">
 <h2><span class="section-number">8.1. </span>save<a class="headerlink" href="#save" title="Permalink to this heading"></a></h2>
-<p>Saves the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object from the MATLAB workspace to the file
-specified by <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span>
+<p>There are two ways of saving <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to files on disk.</p>
+<p>First – use MATLAB <code class="docutils literal notranslate"><span class="pre">save</span></code> command, which would
+save objects from memory into MATLAB <code class="docutils literal notranslate"><span class="pre">.mat</span></code> files:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span><span class="s">&#39;variable1_name&#39;</span><span class="p">,</span><span class="s">&#39;variable2_name&#39;</span><span class="p">,</span><span class="k">...</span><span class="c">);</span>
 </pre></div>
 </div>
+<p>The benefit of this way of storing data is the possibility of storing multiple objects in a single <code class="docutils literal notranslate"><span class="pre">.mat</span></code> file.</p>
+<p>Note that the method works for objects in memory so if you use it to save filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects you will probably obtain
+unexpected results, as main part of filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object is not loaded in memory.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Saving filebacked objects using MATLAB ``save`` command is dangerous!</strong></p>
+<p>One can say that filebacked objects can be created in two ways. First way – “primary” filebacked objects build over existing sqw files or saved with permanent file name. (see below). These objects are backed by permanent <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> files which stay on disk after objects are deleted from MATLAB session. Second way – “secondary” filebacked objects obtained as the result of various operations with filebacked sqw objects, e.g. large cuts which do not fit memory – (see <a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#file-and-memory-backed-cuts"><span class="std std-ref">File- and memory-backed cuts</span></a> for more details about filebacked cuts), the result of unary or binary operations between “primary” filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects, results of filebacked <code class="docutils literal notranslate"><span class="pre">PageOp</span></code> algorithms, etc..
+These objects are backed by temporary files with extension <code class="docutils literal notranslate"><span class="pre">.tmp_XXXXXXX</span></code> and temporary files get deleted when such objects go out of scope.</p>
+<p>MATLAB <code class="docutils literal notranslate"><span class="pre">save</span></code> command saves part of filebacked object stored in memory. The operation is saving the reference to the file containing the pixels – the name and path to the file the object is backed by. As temporary <code class="docutils literal notranslate"><span class="pre">sqw</span></code> (<code class="docutils literal notranslate"><span class="pre">.tmp_XXXXXXX</span></code>)
+file backing the object gets deleted, <code class="docutils literal notranslate"><span class="pre">.mat</span></code> file for stored “secondary” type of filebacked object will contain incorrect reference to the missing file. <code class="docutils literal notranslate"><span class="pre">.mat</span></code> file for the “primary” filebacked object will contain reference to existing <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file, so can be restored back until the referred file exists and is not moved or renamed. Obviously, this way of saving filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects is also not very reliable.</p>
+</div>
+<p>The only reliable way of saving filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object is to use Horace <code class="docutils literal notranslate"><span class="pre">save</span></code> command, which stores <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in binary Horace <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file format.
+The command for this is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="n">sqw_object</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This method saves single object into Horace binary file with extension <code class="docutils literal notranslate"><span class="pre">.sqw</span></code>, so if you have filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, the method would correctly
+write this object. It will be possible to restore the object later by accessing appropriate <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file. If your filebacked object is backed by temporary file, the object will not be physically saved (long operation) as the major part of this object is already located in file. The file contents will be synchronized with the data in memory and temporary file will be renamed to the name, you have provided as the second input for the <code class="docutils literal notranslate"><span class="pre">save</span></code> command.</p>
+<p>You, of course, can also use Horace <code class="docutils literal notranslate"><span class="pre">save</span></code> command to create Horace binary <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> files from <code class="docutils literal notranslate"><span class="pre">sqw/dnd</span></code> objects in memory.</p>
+<p>See <a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#file-and-memory-backed-cuts"><span class="std std-ref">File- and memory-backed cuts</span></a> to read a bit more about filebacked and memory based cuts and <a class="reference internal" href="Changing_Horace_settings.html#horace-config"><span class="std std-ref">Horace Config</span></a> for the information on how to set up the size of memory based object.</p>
+</section>
+<section id="create-filebacked-objects-from-data-on-disk">
+<h2><span class="section-number">8.2. </span>Create filebacked objects from data on disk<a class="headerlink" href="#create-filebacked-objects-from-data-on-disk" title="Permalink to this heading"></a></h2>
+<p>If your <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file is big enough (see <a class="reference internal" href="Changing_Horace_settings.html#horace-config"><span class="std std-ref">mem_chunk_size and fb_scale_factor from “hor_config” class</span></a> for numerical meaning of “big enough”, the command:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">fb_obj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>will create filebacked object <code class="docutils literal notranslate"><span class="pre">fb_obj</span></code>. You can operate with filebacked object exactly as with memory based object, but many operations which involve operations with pixels will be slower. Alternatively, you may create filebacked object regardless of its size using command:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">fb_obj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_sqw</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span><span class="s">&#39;-filebacked&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Note, that this command invoked without <cite>-filebacked</cite> is equivalent to <code class="docutils literal notranslate"><span class="pre">sqw('filename')</span></code> and</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">mb_obj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_sqw</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span><span class="s">&#39;-force_pix_location&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>will try to load <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in memory regardless of its size on disk, so will fail if the object is to big to fit the memory.</p>
+<p>The filebacked objects created this way, unlike filebacked objects created as the result of the operations with filebacked objects or large <code class="docutils literal notranslate"><span class="pre">cut</span></code> operations, are backed by permanent files which would not be deleted if the object in memory gets deleted.</p>
 </section>
 </section>
 
@@ -174,7 +221,7 @@ specified by <code class="docutils literal notranslate"><span class="pre">filena
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Jan 24, 2025, 10:31:24 AM.
+      <span class="lastupdated">Last updated on Jan 29, 2025, 3:41:07 PM.
       </span></p>
   </div>
 
