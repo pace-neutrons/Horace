@@ -110,6 +110,13 @@
              
   <section id="planning-a-horace-scan">
 <h1><span class="section-number">1. </span>Planning a Horace scan<a class="headerlink" href="#planning-a-horace-scan" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While Horace includes its own planner it is worth noting that the
+<a class="reference external" href="https://docs.mantidproject.org/v3.8.0/interfaces/DGSPlanner.html">MANTID DGS
+planner</a>
+exists <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+</div>
 <section id="horace-planner-a-simple-scan-planner">
 <h2><span class="section-number">1.1. </span>horace_planner: a simple scan planner<a class="headerlink" href="#horace-planner-a-simple-scan-planner" title="Link to this heading"></a></h2>
 <p>Horace has a useful little tool which allows you to work out the coverage of
@@ -120,10 +127,10 @@ energy and the sample angle range.</p>
 </pre></div>
 </div>
 <p>The graphical user interface shown below should open up</p>
-<figure class="align-center" id="id1">
+<figure class="align-center" id="id3">
 <a class="reference internal image-reference" href="../_images/Screenshot-Horace_Planner.png"><img alt="2d simulation" src="../_images/Screenshot-Horace_Planner.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Horace planner GUI</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Horace planner GUI</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <ul class="simple">
@@ -214,12 +221,47 @@ in exactly the same way as you would a real dataset. For example:</p>
 <span class="k">end</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id2">
+<figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="../_images/Scan_figure.png"><img alt="2d simulation" src="../_images/Scan_figure.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Sample plot of fake dataset</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Sample plot of fake dataset</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>The main feature differences at the time of writing are:</p>
+<ul class="simple">
+<li><p>The crystal orientation can be specified as a UB matrix instead
+of as the u and v vectors which define the horizontal scattering
+plane.</p></li>
+<li><p>It allows rotations about horizontal rotation axes (Horace only
+allows rotation about the vertical axis). Which is not supported
+by Horace.</p></li>
+</ul>
+<p>However, the GUI is significantly different:</p>
+<ul class="simple">
+<li><p>Plots</p>
+<ul>
+<li><p>The Mantid DGS has a single plot window with a single projection
+of the 3D q-space into 2D.</p></li>
+<li><p>Horace has 3 plots showing all three projections in to the
+possible combinations of axes.</p></li>
+</ul>
+</li>
+<li><p>Rescaling</p>
+<ul>
+<li><p>The Mantid DGS GUI is resizeable so is usable on small laptop
+screens.</p></li>
+<li><p>The Horace GUI is not resizeable so is very difficult to view in
+small laptop screens.</p></li>
+</ul>
+</li>
+</ul>
+<p>The result of this is that if you have a small screen it may be
+favourable to use the MANTID planner rather than Horace’s native one.</p>
+</aside>
+</aside>
 </section>
 </section>
 
@@ -234,8 +276,8 @@ in exactly the same way as you would a real dataset. For example:</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2006-2024, STFC RAL.
-      <span class="lastupdated">Last updated on Aug 15, 2024, 5:05:37 PM.
+    <p>&#169; Copyright 2006-2025, STFC RAL.
+      <span class="lastupdated">Last updated on Jan 28, 2025, 4:14:17 PM.
       </span></p>
   </div>
 
