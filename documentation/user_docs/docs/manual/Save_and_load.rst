@@ -86,8 +86,10 @@ unexpected results, as main part of filebacked ``sqw`` object is not loaded in m
    **Saving filebacked objects using MATLAB ``save`` command is dangerous!**
 
    One can say that filebacked objects can exist in two forms. First form -- the result of various operations with filebacked sqw objects (e.g. large cuts which do not fit memory -- see :ref:`manual/Cutting_data_of_interest_from_SQW_files_and_objects:File- and memory-backed cuts` for more details about filebacked cuts). 
-   These objects are backed by temporary files and temporary files get deleted when such objects go out of scope and get deleted. Second form -- filebacked objects build over existing sqw files or saved with permanent file name. (see below). When you save filebacked object using MATLAB ``save`` command,
-   you save part of filebacked object stored in memory, so the operation is saving the reference to the file, the object is backed by. As temporary ``sqw`` (``.tmp_XXXXXXX``)
+   These objects are backed by temporary files and temporary files get deleted when such objects go out of scope and get deleted.
+   Second form -- filebacked objects build over existing sqw files or saved with permanent file name. (see below).
+   MATLAB ``save`` command saves part of filebacked object stored in memory so instead of pixel data the operation is saving the
+   reference to the file containing the pixels -- the file the filebacked object is backed by. As temporary ``sqw`` (``.tmp_XXXXXXX``)
    file backing the object gets deleted, ``.mat`` file for first form of saved object will contain incorrect reference to the missing file. ``.mat`` file for the second form will contain reference to existing ``.sqw`` file, so can be restored back until the referred file exists and is not moved or renamed. Obvious that this way of saving filebacked ``sqw`` objects is also not very reliable.
 
 The only reliable way of saving filebacked ``sqw`` object is to use Horace ``save`` command, which stores ``sqw`` object in binary Horace ``.sqw`` file format.
