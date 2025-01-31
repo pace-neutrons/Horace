@@ -87,7 +87,7 @@ classdef kf_sphere_proj<sphere_proj
             % See init for the list of input parameters
             %
             obj = obj@sphere_proj();
-            obj.type = 'add';
+            obj.type_ = 'add';
             obj.label = {'|kf|','\theta','\phi','En'};
             if nargin>0
                 obj = obj.init(varargin{:});
