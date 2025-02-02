@@ -1,5 +1,5 @@
 function [ok, current] = is_genie_figure (fig_handle)
-% Determine if figure handle(s) xorrespond to genie_figure(s)
+% Determine if figure handle(s) correspond to genie_figure(s)
 %
 %   >> [ok, current] = is_genie_figure (fig_handle)
 %

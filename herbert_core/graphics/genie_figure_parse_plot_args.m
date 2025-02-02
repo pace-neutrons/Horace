@@ -1,84 +1,115 @@
-function [args,lims,fig_out]=genie_figure_parse_plot_args(opt,varargin)
-% Parse the input arguments for the various different plot functions
+function [xlims, ylims, zlims] = genie_figure_parse_plot_args...
+    (newplot, force_current_axes, lims_type, default_fig_name, varargin)
+% Parse the input arguments for plot functions and set target for plotting
 %
-%   >> [args,lims_type,fig_out] = genie_figure_parse_plot_args...
-%                                   (opt,p1,p2,...)
+%   >> [xlims, ylims, zlims] = genie_figure_parse_plot_args...
+%    (newplot, force_current_axes, lims_type, default_fig_name)
 %
+% Optional aarguments on the above:
+%   >> ... = genie_figure_plot_args (..., xlims)
+%   >> ... = genie_figure_plot_args (..., xlims, ylims)
+%   >> ... = genie_figure_plot_args (..., xlims, ylims, zlims)
+%
+% With any of the above:
+%   >> ... = genie_figure_plot_args (..., 'name', fig)
+%  or
+%   >> ... = genie_figure_plot_args (..., 'axes', axes_handle)
+%
+
 % Input:
 % ------
-%   opt         Structure with fields giving options
-%                   newplot     true or false
-%                   over_curr       true or false
-%                                   Only applies when newplot==false
-%                default_name   Default plot window name if none given
-%                                   Only applies if 'draw' or 'plot'
-%                                   If not given, set to []
-%                   lims_type   Limits type: 'xy' or 'xyz'
-%                                   Only applies if 'draw'
+%   newplot     True:  Draw the plot on new axes (replacing existing axes on the
+%                     target figure if necessary).
+%               False: Overplot on existing axes on the target figure, if they
+%                     are available.
 %
-%   p1,p2,...   Arguments: pairs of limits, or 'name',namestr
+%   force_current_axes
+%               True:  Plot on the current axes of the current figure.
+%               False: Plot on the current axes of the figure defined by the
+%                     'name' or 'axes' options, or the default plot name if
+%                      neither option is given.
+%
+%   lims_type   Limits type: 
+%               'xy'    accept up to x-axis and y-axis limits
+%               'xyz'   accept up to x-axis, y-axis and z-axis limits
+%
+%   default_fig_name
+%               Default figure name for a 
+%
+% Optional arguments:
+% 
+%   xlo, xhi    x-axis lower and upper limits.
+%
+%   ylo, yhi    y-axis lower and upper limits.
+%
+%   zlo, zhi    z-axis lower and upper limits.
+%
+%  'name', fig  Fig is a figure name, figure number or figure handle.
+%               
+%               figure name: - Name of a genie_figure (either already existing,
+%                              or to be created).
+%                            - If there is a plot with that name that isn't a
+%                              genie_figure, use it as the target for the plot.
+%
+%               figure number or handle:
+%                            - If a figure with that number or handle already
+%                              exists, use it as the target for the plot.
+%                              [If doesn't exist, throws an error]
+%                           
+%  'axes', axes_handle  
+%               Axes handle to be used as the target of the plot, if the axes
+%               exist.
+%               [If doesn't exist, throws an error]
 %
 % Output:
 % -------
-%   args        Cell array with arguments as row vector (cell(1,0) if not OK)
-%              suitable for passing down to another plot function e.g.
-%              sqw/dl  calls IX_dataset_1d/dl.
-%   lims        Cell array (row vector) of limits
-%   fig_out     Figure name or figure handle
+%   xlims       [xlo, xhi] if valid limits
+%               [] if not given or both were empty (indicating 'skip')
+%
+%   ylims       Same for ylo, yhi
+%
+%   zlims       Same for zlo, zhi
 
 
-newplot=opt.newplot;
-if ~newplot
-    if isfield(opt,'over_curr') && islognumscalar(opt.over_curr)
-        over_curr=logical(opt.over_curr);
-    else
-        over_curr=false;
-    end
+keyval = struct('name', [], 'axes', []);
+[args, opt, present, ~, ok, mess] = parse_arguments(varargin, keyval);
+
+% Check input format (failure e.g. mis-spelt keywrod-value options)
+if ~ok
+    error('HERBERT:graphics:invalid_argument', mess)
 end
 
-if newplot || ~over_curr
-    if isfield(opt,'default_name')
-        default_name=opt.default_name;
-    else
-        default_name=[];
+% Check only one of 'name' and 'axes' options are present, or neither
+if present.name && present.axes
+    error('HERBERT:graphics:invalid_argument', ...
+        'Cannot have both of the options ''name'' and ''axes'' present')
+end
+
+% Cannot have 'name' or 'axes' if forcing on current axes
+if force_current_axes && (present.name || present.axes)
+    error('HERBERT:graphics:invalid_argument', ...
+        ['Options ''name'' and ''axes'' are not allowed if forcing the ', ...
+        'plot on current axes'])
+end
+
+% Check the optional limits have correct format
+if newplot
+    [xlims, ylims, zlims, ok, mess] = check_plot_limits (lims_type, args{:});
+    if ~ok
+        error('HERBERT:graphics:invalid_argument', mess)
     end
+elseif ~isempty(args)
+    error('HERBERT:graphics:invalid_argument', ...
+        'Explicitly setting the plot limits if overplotting is not permitted')
+end
 
-    % Parse input
-    name_struct_default.name=default_name;
-    [lims,name_struct,present,filled,ok,mess]=parse_arguments(varargin,name_struct_default);
-    if ~ok, error('HERBERT:graphics:invalid_argument',mess); end
-
-    % Check name is valid
-    [fig_out,ok,mess]=genie_figure_target(name_struct.name,newplot,default_name);
-    if ~ok, error('HERBERT:graphics:invalid_argument',mess); end
-
-    % Check limits are valid (if any are permitted)
-    if newplot
-        lims_type=opt.lims_type;
-        [ok,mess] = plot_limits_valid (lims_type, lims{:});
-        if ~ok, error('HERBERT:graphics:invalid_argument',mess); end
-    else
-        % No limits can be given if overplotting
-        if numel(lims)~=0
-            if ~ok, error('HERBERT:graphics:invalid_argument', ...
-                    'No limits can be given if overplotting requested'); end
-        end
-    end
-    args=[lims,struct2namval(name_struct)];
+% Select/create the plot target from the presence of 'name', 'axes', or neither
+% (in which case use the default_fig_name as the target)
+if present.name
+    target = opt.name;
+elseif present.axes
+    target = opt.axes;
 else
-    % Check there is a current figure
-    if isempty(findobj(0,'Type','figure'))
-        error('HERBERT:graphics:invalid_argument', ...
-            'No current figure exists - cannot overplot');
-    end
-    fig_out=gcf;
-
-    % Check there are no parameters
-    if numel(varargin)>0
-        error('HERBERT:graphics:invalid_argument', ...
-            'Check the input parameters');
-    end
-
-    args=cell(1,0);
-    lims=cell(1,0);
+    target = default_fig_name;
 end
+genie_figure_set_target (target);

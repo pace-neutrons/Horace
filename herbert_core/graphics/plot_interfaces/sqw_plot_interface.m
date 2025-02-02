@@ -1,187 +1,144 @@
 classdef (Abstract=true) sqw_plot_interface < data_plot_interface
-    % Class defines all functions may be used for plotting various sqw
-    % objects
+    % Abstract class that defines the interface to all sqw plotting functions.
+    
+    %----------------------------------------------------------------------
+    % Plotting methods
+    %----------------------------------------------------------------------
     methods
         %------------------------------------------------------------------
         % 1d Plotting functions
         %------------------------------------------------------------------
         % PLOT
+        % ----
         function varargout = dd(w,varargin)
-            % Draws a plot of markers, error bars and lines of a 1D sqw
-            % or dnd object or array of objects
+            % Draws a plot of markers, error bars and lines of a 1D sqw object
+            % or array of objects.
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = dd(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dd(data, varargin{:});
         end
+        
         function varargout= de(w,varargin)
             % Draws a plot of error bars of a 1D sqw or dnd object or array of objects
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = de(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = de(data, varargin{:});
         end
+        
         function varargout = dh(w,varargin)
             % Draws a histogram plot of a 1D sqw or dnd object or array of objects
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = dh(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dh(data, varargin{:});
         end
+        
         function varargout = dl(w,varargin)
             % Draws a line plot of a 1D sqw or dnd object or array of objects
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = dl(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dl(data, varargin{:});
         end
+        
         function varargout = dm(w,varargin)
             % Draws a marker plot of a 1D sqw or dnd object or array of objects
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = dm(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dm(data, varargin{:});
         end
+        
         function varargout = dp(w,varargin)
             % Draws a plot of markers and error bars for a 1D sqw or dnd object or array of objects
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = dp(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dp(data, varargin{:});
         end
+        
         %------------------------------------------------------------------
         % OVERPLOT
+        % --------        
         function varargout = pd(w,varargin)
             % Overplot markers, error bars and lines for a 1D sqw or dnd object
             % or array of objects on an existing plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = pd(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pd(data, varargin{:});
         end
         function varargout = pdoc(w,varargin)
             % Overplot markers, error bars and lines for a 1D sqw or dnd object
             % or array of objects on the current plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = pdoc(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pdoc(data, varargin{:});
         end
         function varargout = pe(w,varargin)
             % Overplot error bars for a 1D sqw or dnd object or array of objects
             % on an existing plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = pe(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pe(data, varargin{:});
         end
         function varargout = peoc(w,varargin)
             % Overplot error bars for a 1D sqw or dnd object or array of objects
             % on the current plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = peoc(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = peoc(data, varargin{:});
         end
         function varargout = ph(w,varargin)
             % Overplot histogram for a 1D sqw or dnd object or array of objects
             % on an existing plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = ph(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = ph(data, varargin{:});
         end
         function varargout = phoc(w,varargin)
             % Overplot histogram for a 1D sqw or dnd object or array of objects
             % on the current plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = phoc(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = phoc(data, varargin{:});
         end
         function varargout = pl(w,varargin)
             % Overplot line for a 1D sqw or dnd object or array of objects
             % on an existing plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = pl(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pl(data, varargin{:});
         end
         function varargout = ploc(w,varargin)
             % Overplot line for a 1D sqw or dnd object or array of objects
             % on the current plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = ploc(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = ploc(data, varargin{:});
         end
         function varargout = pm(w,varargin)
             % Overplot markers for a 1D sqw or dnd object or array of objects on an existing plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = pm(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pm(data, varargin{:});
         end
         function varargout = pmoc(w,varargin)
             % Overplot markers for a 1D sqw or dnd object or array of objects
             % on the current plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = pmoc(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pmoc(data, varargin{:});
         end
         function varargout = pp(w,varargin)
             % Overplot markers and error bars for a 1D sqw or dnd object
             % or array of objects on an existing plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = pp(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pp(data, varargin{:});
         end
         function varargout = ppoc(w,varargin)
             % Overplot markers and error bars for a 1D sqw or dnd object or array of objects on the current plot
             data = sqw_plot_interface.convert_to_dnd(w);
-            [fig_,axes_,plot_] = ppoc(data,varargin{:});
-            % Output only if requested
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-            end
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = ppoc(data, varargin{:});
         end
-        %------------------------------------------------------------------
+        
         %------------------------------------------------------------------
         % 2d Plotting functions
         %------------------------------------------------------------------
@@ -274,7 +231,7 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                 varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
             end
         end
-        %------------------------------------------------------------------
+        
         %------------------------------------------------------------------
         % 3d Plotting functions
         %------------------------------------------------------------------
@@ -297,14 +254,25 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
             end
         end
     end
-    methods(Static,Access=protected)
+    
+    %----------------------------------------------------------------------
+    % Static utility methods
+    %----------------------------------------------------------------------
+    methods(Static, Access=protected)
         function data = convert_to_dnd(w)
-            % convert to dnd single sqw or array of sqw objects and check
-            % if array objects have the same image dimensionality
+            % Convert an sqw object or array of objects to a dnd object or array
+            % of objects.
+            % We cannot just rely on the sqw method to performs this conversion
+            % because we can only plot a set of objects which have the same
+            % image dimensionality.
+            % Use this function to convert and print an appropriate error
+            % message.
+            
             data = dnd(w);
             if iscell(data)
                 error('HORACE:plotting:invalid_argument', ...
-                    'Can not plot array of sqw objects with different images dimensionality')
+                    ['Cannot plot array of sqw objects with different ', ...
+                    'images dimensionality'])
             end
         end
     end

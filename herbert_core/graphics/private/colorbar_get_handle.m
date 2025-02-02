@@ -1,7 +1,7 @@
-function colorbar_h = get_colorbar_handle (axes_handle)
+function colorbar_h = colorbar_get_handle (axes_handle)
 % Retrieve the handle of colorbar(s), if any, associated with an axes handle
 %
-%   >> colorbar_h = get_colorbar_handle (axes_handle)
+%   >> colorbar_h = colorbar_get_handle (axes_handle)
 %
 % Uses the hidden property Axes of a colorbar that contains the axes handle
 % associated with that colorbar. This hidden property has been present since at

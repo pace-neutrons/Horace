@@ -1,11 +1,16 @@
 classdef (Abstract=true) dnd_plot_interface < data_plot_interface
-    % Class defines all functions may be used for plotting various sqw
-    % objects
+    % Abstract class that defines the interface to all dnd plotting functions.
+    % That is, to the Horace d1d, d2d, d3d... objects
+
+    %----------------------------------------------------------------------
+    % Plotting methods
+    %----------------------------------------------------------------------
     methods
         %------------------------------------------------------------------
         % 1d Plotting functions
         %------------------------------------------------------------------
         % PLOT
+        % ----
         function varargout = dd(w,varargin)
             % Draws a plot of markers, error bars and lines of a 1D sqw
             % or dnd object or array of objects
@@ -20,13 +25,14 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dd(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = dd(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dd(IX_dataset_1d(w), varargin{:});
         end
-        function varargout = de(w,varargin)
+        
+        function varargout = de(w, varargin)
             % Draws a plot of error bars of a 1D sqw or dnd object or array of objects
             %
             %   >> de(w)
@@ -39,15 +45,16 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = de(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = de(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = de(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = dh(w,varargin)
             % Draws a histogram plot of a 1D sqw or dnd object or array of objects
-
+            %
             %   >> dh(w)
             %   >> dh(w,xlo,xhi)
             %   >> dh(w,xlo,xhi,ylo,yhi)
@@ -58,12 +65,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dh(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = dh(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dh(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = dl(w,varargin)
             % Draws a line plot of a 1D sqw or dnd object or array of objects
             %   >> dl(w)
@@ -76,13 +84,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dl(w,...)
 
-
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = dl(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dl(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = dm(w,varargin)
             % Draws a marker plot of a 1D sqw or dnd object or array of objects
             %
@@ -96,12 +104,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dm(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = dm(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dm(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = dp(w,varargin)
             % Draws a plot of markers and error bars for a 1D sqw or dnd object or array of objects
             %
@@ -115,14 +124,16 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dp(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = dp(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = dp(IX_dataset_1d(w), varargin{:});
         end
+        
         %------------------------------------------------------------------
         % OVERPLOT
+        % --------        
         function varargout = pd(w,varargin)
             % Overplot markers, error bars and lines for a 1D sqw or dnd object
             % or array of objects on an existing plot
@@ -136,12 +147,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pd(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = pd(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pd(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = pdoc(w,varargin)
             % Overplot markers, error bars and lines for a 1D sqw or dnd object
             % or array of objects on the current plot
@@ -150,13 +162,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             %
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pdoc(w)
-            data = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = pdoc(data);
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
-
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pdoc(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = pe(w,varargin)
             % Overplot error bars for a 1D sqw or dnd object or array of objects
             % on an existing plot
@@ -170,13 +182,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pe(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = pe(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
-
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pe(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = peoc(w,varargin)
             % Overplot error bars for a 1D sqw or dnd object or array of objects
             % on the current plot
@@ -185,13 +197,14 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             %
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = peoc(w)
-
-            data = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = peoc(data);
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = peoc(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = ph(w,varargin)
             % Overplot histogram for a 1D sqw or dnd object or array of objects
             % on an existing plot
@@ -205,12 +218,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ph(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = ph(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = ph(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = phoc(w,varargin)
             % Overplot histogram for a 1D sqw or dnd object or array of objects
             % on the current plot
@@ -220,12 +234,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = phoc(w)
 
-            data = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = phoc(data);
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = phoc(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = pl(w,varargin)
             % Overplot line for a 1D sqw or dnd object or array of objects
             % on an existing plot
@@ -239,13 +254,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pl(w,...)
 
-
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = pl(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pl(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = ploc(w,varargin)
             % Overplot line for a 1D sqw or dnd object or array of objects
             % on the current plot
@@ -255,12 +270,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ploc(w)
 
-            data = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = ploc(data);
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = ploc(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = pm(w,varargin)
             % Overplot markers for a 1D sqw or dnd object or array of
             % objects on an existing plot
@@ -274,12 +290,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pm(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = pm(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pm(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = pmoc(w,varargin)
             % Overplot markers for a 1D sqw or dnd object or array of objects
             % on the current plot
@@ -289,12 +306,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pmoc(w)
 
-            data = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = pmoc(data);
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pmoc(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = pp(w,varargin)
             % Overplot markers and error bars for a 1D sqw or dnd object
             % or array of objects on an existing plot
@@ -308,12 +326,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pp(w,...)
 
-            [data,argi] = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = pp(data,argi{:});
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = pp(IX_dataset_1d(w), varargin{:});
         end
+        
         function varargout = ppoc(w,varargin)
             % Overplot markers and error bars for a 1D dnd object
             % or array of objects on the current plot
@@ -323,13 +342,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ppoc(w)
 
-            data = dnd_plot_interface.parse_partial_1D_arg(w,varargin{:});
-            [figureHandle, axesHandle, plotHandle] = ppoc(data);
-            if nargout>0
-                varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
-            end
+            data_plot_interface.default_name('Horace 1D plot');
+            cleanup = onCleanup(@()data_plot_interface.default_name());
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = ppoc(IX_dataset_1d(w), varargin{:});
         end
-        %------------------------------------------------------------------
+        
         %------------------------------------------------------------------
         % 2d Plotting functions
         %------------------------------------------------------------------
@@ -561,21 +580,25 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
                 varargout = data_plot_interface.set_argout(nargout,figureHandle,axesHandle,plotHandle);
             end
         end
-        %------------------------------------------------------------------
     end
-    methods(Static,Access=protected)
-        function [out,argi] = parse_partial_1D_arg(w,varargin)
-            % parse arguments of 1D plot and strip/add things, related to
-            % dnd_plot_interface leaving other arguments to process on
-            % IX_dataset level.
-            out = IX_dataset_1d(w);
-            is_name = cellfun(@(x)strcmp(char(x),'name'),varargin);
-            if any(is_name)
-                argi = varargin;
-            else
-                argi = [varargin(:);'name';'Horace 1D plot'];
-            end
-        end
+    
+    %----------------------------------------------------------------------
+    % Static utility methods
+    %----------------------------------------------------------------------
+    methods(Static, Access=protected)
+%         function [out,argi] = parse_partial_1D_arg(w,varargin)
+%             % parse arguments of 1D plot and strip/add things, related to
+%             % dnd_plot_interface leaving other arguments to process on
+%             % IX_dataset level.
+%             out = IX_dataset_1d(w);
+%             is_name = cellfun(@(x)strcmp(char(x),'name'),varargin);
+%             if any(is_name)
+%                 argi = varargin;
+%             else
+%                 argi = [varargin(:);'name';'Horace 1D plot'];
+%             end
+%         end
+
         function [out,adjust,argi] = parse_partial_2D_arg(w,varargin)
             % parse arguments of 2D plot and strip/add things, related to
             % dnd_plot_interface leaving other arguments to process on

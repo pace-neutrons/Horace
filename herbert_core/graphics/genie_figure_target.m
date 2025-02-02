@@ -6,8 +6,10 @@ function [fig_out,ok,mess]=genie_figure_target(fig,newplot,default_fig_name)
 % Input:
 % ------
 %   fig                 Figure name, number or handle for plotting
+%
 %   newplot             True if new plot figure to be created, false if use
 %                      existing axes if target figure window exists
+%
 %   default_fig_name    Default name of target genie_figure if fig is empty
 %
 %

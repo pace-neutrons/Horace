@@ -46,10 +46,6 @@ function new_figure = genie_figure_create (fig_name)
 % - Selecting one of the genie_figures to be have 'current' status (that is, to
 %  be the currently active one in the collection) automatically sets the others
 %  in the collection to 'keep' status.
-%
-%
-% See also:
-% genie_figure_
 
 
 % Technical details about genie_figures
@@ -65,7 +61,7 @@ function new_figure = genie_figure_create (fig_name)
 %
 % To detect if a figure is a genie_figure the defining quality to be tested for
 % is the presence of one of the tags '<name>$current$' and '<name>$keep$'. The
-% presence of the uimenus alone is not sufficient as the visulaisation
+% presence of the uimenus alone is not sufficient as the visualisation
 % application mslice also has those uimenus.
 
 
@@ -81,7 +77,7 @@ end
 tag_current = [fig_name,'$current$'];
 tag_keep = [fig_name,'$keep$'];
 
-fig_handle=findobj('Type', 'figure', 'Tag', tag_current);
+fig_handle = findobj('Type', 'figure', 'Tag', tag_current);
 if isempty(fig_handle)
     % No genie_figure with the requested name tag has 'current' status
     % Create a new genie_figure, with 'current' status

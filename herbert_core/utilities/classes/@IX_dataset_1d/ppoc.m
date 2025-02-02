@@ -6,9 +6,8 @@ function varargout = ppoc(w)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ppoc(w)
 
+newplot = false;
+force_current_axes = true;
 
-[fig_,axes_,plot_] = overplot_only_1d_nd_(w,'p');
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_oned(w, newplot, force_current_axes, 'p');

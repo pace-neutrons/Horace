@@ -19,7 +19,7 @@ tags = {'color_slider_min', 'color_slider_max', ...
     'color_slider_min_value', 'color_slider_max_value'};
 fig_handle = ancestor(axes_handle, 'figure');
 
-for colorbar_handle = make_row(get_colorbar_handle (axes_handle))
+for colorbar_handle = make_row(colorbar_get_handle (axes_handle))
     colorslider_delete_private (fig_handle, colorbar_handle, tags)
 end
 

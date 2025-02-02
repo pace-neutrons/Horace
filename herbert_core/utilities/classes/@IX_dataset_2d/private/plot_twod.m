@@ -1,144 +1,155 @@
-function [fig_, axes_, plot_] = plot_twod (w_in, newplot, plot_type, fig, varargin)
-% Draw a two-dimensional plot
+function [fig_h, axes_h, plot_h] = plot_twod (w, newplot, force_current_axes, ...
+    plot_type, varargin)
+% Make a plot of an IX_dataset_2d object or array of objects.
 %
-%   >> plot_twod (w_in, newplot, plot_type, fig)
-%   >> plot_twod (w_in, newplot, plot_type, fig, xlo, xhi)
-%   >> plot_twod (w_in, newplot, plot_type, fig, xlo, xhi, ylo, yhi)
-%   >> plot_twod (w_in, newplot, plot_type, fig, xlo, xhi, ylo, yhi, zlo, zhi)
+%   >> plot_twod (w_in, newplot, force_current_axes, plot_type)
+%   >> plot_twod (..., xlo, xhi)
+%   >> plot_twod (..., xlo, xhi, ylo, yhi)
+%   >> plot_twod (..., xlo, xhi, ylo, yhi, zlo, zhi)
+%
+% With any of the above:
+%   >> plot_twod (..., 'name', fig)
+%  or
+%   >> plot_twod (..., 'axes', axes_handle)
+%
+% Output the figure, axes and handles to plot objects:
+%   >> [fig_h, axes_h, plot_h] = plot_twod (...)
+%
+% The argument newplot and force_current_axes restrict which of the optional
+% arguments are possible:
+% - if newplot is false, then the plot ranges cannot be given
+% - if force_current_axes is true, then 'name' or 'axes' cannot be given
+%
 %
 % Input:
 % ------
-%   w_in        IX_dataset_2d object, or array of IX_dataset_2d objects.
-%               In the case of plot type 'surface2' it could be a cell array
-%              of either two IX_dataset_2d arrays or an IX_dataset_2d scalar
-%              and a numeric array.
+%   w           IX_dataset_1d object, or array of IX_dataset_1d objects
 %
-%   newplot     True if new figure frame to be drawn (could be in existing
-%              figure window however). False if should overplot on an
-%              existing plot, depending on the value of fig.
+%   newplot     True:  Draw the plot on new axes (replacing existing axes on the
+%                     target figure if necessary).
+%               False: Overplot on existing axes on the target figure, if they
+%                     are available.
 %
-%   plot_type   Type of plopt to be drawn:
-%                   'area'      area plot
-%                   'surface'   surface plot
-%                   'surface2'  surface plot where the first object sets
-%                              the z-scale, and the seconds sets the colour
-%                              scale.
+%   force_current_axes
+%               True:  Plot on the current axes of the current figure.
+%               False: Plot on the current axes of the figure defined by the
+%                     'name' or 'axes' options, or the default plot name if
+%                      neither option is given.
 %
-%   fig         Figure name, alternatively if newplot==false could be a
-%              figure number or figure handle
+%   plot_type   Type of plot to be drawn:
+%                   'e'     errors =  error bars
+%                   'h'     histogram =  histogram plot
+%                   'l'     line   =  line
+%                   'm'     markers = marker symbols
+%                   'd'     data   =  markers, error bars and lines
+%                   'p'     points =  markers and error bars
 %
-%   xlo, xhi    x-axis limits
+% Optional arguments:
+% 
+%   xlo, xhi    x-axis lower and upper limits.
 %
-%   ylo, yhi    y-axis limits
+%   ylo, yhi    y-axis lower and upper limits.
 %
-%   zlo, zhi    z-axis limits
+%   zlo, zhi    z-axis lower and upper limits.
+%
+%  'name', fig  Fig is a figure name, figure number or figure handle.
+%               
+%               figure name: - Name of a genie_figure (either already existing,
+%                              or to be created).
+%                            - If there is a plot with that name that isn't a
+%                              genie_figure, use it as the target for the plot.
+%
+%               figure number or handle:
+%                            - If a figure with that number or handle already
+%                              exists, use it as the target for the plot.
+%                           
+%  'axes', axes_handle  
+%               Axes handle to be used as the target of the plot, if the axes
+%               exist.
+%
+%   If neither 'name' nor 'axes' are given, then the user default figure name
+%   available through the static data_plot_interface method default_name is
+%   used, or if no default is given, the factory default hard-wired into this
+%   function is used.
 
 
-plot_types={'area','surface','surface2','contour'};
+lims_type = 'xyz';
+maxspec = 1000;     % maximum number of 1D datasets that can be plotted
+default_fig_name = data_plot_interface.default_name();
+
+plot_types={'area', 'surface', 'surface2', 'contour'};
 
 par=varargin;
 
 
 % Check input arguments
 % ---------------------
-% Check spectrum is not too long an array
-maxspec=get_global_var('genieplot','twod_maxspec');
-if ~iscell(w_in), nspec=numel(w_in); else nspec=numel(w_in{1}); end
-if nspec>maxspec
-    mess=['This function can only be used to plot ',num2str(maxspec),' 2D datasets - check input object'];
-    if nargout<=3, error(mess); end
+% Check the number of datasets in the array is not too large
+if ~iscell(w)
+    nspec = numel(w);
+else
+    % **************************************
+    % *** WHEN MIGHT w BE A CELL ARRAY ? ***
+    % **************************************
+    nspec = numel(w{1});
+end
+if nspec > maxspec
+    error('HERBERT:graphics:invalid_argument', ...
+        ['A maximum number of %s 2D datasets can be plotted at once. ', ...
+        'Check the size of the input object array'], num2str(maxspec))
 end
 
 % Get newplot argument
 if islognumscalar(newplot)
-    newplot=logical(newplot);   % in case numeric 0 or 1
+    newplot = logical(newplot);   % in case numeric 0 or 1
 else
-    mess='Keyword ''newplot'' must be logical true or false';
-    if nargout<=3, error(mess), end
+    error('HERBERT:graphics:invalid_argument', ...
+        'Input argument ''newplot'' must be logical true or false')
+end
+
+% Get force_current_axes argument
+if islognumscalar(force_current_axes)
+    force_current_axes = logical(force_current_axes);   % in case numeric 0 or 1
+else
+    error('HERBERT:graphics:invalid_argument', ...
+        'Input argument ''force_current_axes'' must be logical true or false')
 end
 
 % Get plot type
 if is_string(plot_type) && ~isempty(plot_type)
-    ind=stringmatchi(plot_type,plot_types);
+    ind = stringmatchi(plot_type, plot_types);
     if ~isempty(ind)
-        plot_type=plot_types{ind};
+        plot_type = plot_types{ind};
     else
-        mess='Plot type not recognised';
-        if nargout<=3, error(mess), end
+        error('HERBERT:graphics:invalid_argument', ...
+            'Plot type ''%s'' is not recognised',plot_type);
     end
 else
-    mess='Plot type must be a (non-empty) character string';
-    if nargout<=3, error(mess), end
+    error('HERBERT:graphics:invalid_argument', ...
+        'Plot type must be a non-empty character string. It is ''%s''', ...
+        disp2str(plot_type));
 end
 
-% Get figure name or figure handle - used to branch later on
-if strcmpi(plot_type,'area')        % area plot
-    default_fig_name=get_global_var('genieplot','name_area');
-elseif strcmpi(plot_type,'surface') % surface plot
-    default_fig_name=get_global_var('genieplot','name_surface');
-elseif strcmpi(plot_type,'surface2')% surface2 plot
-    default_fig_name=get_global_var('genieplot','name_surface');
-elseif strcmpi(plot_type,'contour') % contour plot
-    default_fig_name=get_global_var('genieplot','name_contour');
-else
-    error('Logic error: unrecognised plot_type')
+% Set the default figure name for the requested plot_type
+if ~is_string(default_fig_name)
+    switch plot_type
+        case 'area'
+            default_fig_name = 'Herbert area plot';
+        case 'surface'
+            default_fig_name = 'Herbert surface plot';
+        case 'surface2'
+            default_fig_name = 'Herbert surface plot';
+    end
 end
+
+% Parse the optional arguments
+[target, lims] = genie_figure_parse_plot_args (newplot, force_current_axes, ...
+    lims_type, varargin{:});
+
+% Get figure name or figure handle - used to branch later on
 [fig_out,ok,mess]=genie_figure_target(fig,newplot,default_fig_name);
 if ~ok
     error(mess);
-end
-
-% Check plot limits:
-if ~newplot
-    if ~isempty(par)
-        mess='Cannot specify plot limits when overplotting';
-        if nargout<=3, error(mess), end
-    end
-    % Need to specify xlims,ylims not give in case need to create a figure
-    xlims=false;
-    ylims=false;
-    zlims=false;
-else
-    if isempty(par)
-        xlims=false;
-        ylims=false;
-        zlims=false;
-    elseif numel(par)==2||numel(par)==4||numel(par)==6
-        bad=false;
-        xlims=true;
-        if isnumeric(par{1}) && isscalar(par{1}), xlo=par{1}; else bad=true; end
-        if isnumeric(par{2}) && isscalar(par{2}), xhi=par{2}; else bad=true; end
-        if numel(par)>=4
-            ylims=true;
-            if isnumeric(par{3}) && isscalar(par{3}), ylo=par{3}; else bad=true; end
-            if isnumeric(par{4}) && isscalar(par{4}), yhi=par{4}; else bad=true; end
-        else
-            ylims=false;
-        end
-        if numel(par)>=6
-            zlims=true;
-            if isnumeric(par{5}) && isscalar(par{5}), zlo=par{5}; else bad=true; end
-            if isnumeric(par{6}) && isscalar(par{6}), zhi=par{6}; else bad=true; end
-        else
-            zlims=false;
-        end
-        if bad
-            mess='Plot limits must be numeric scalars';
-            if nargout<=3, error(mess), end
-        elseif xlims && xlo>=xhi
-            mess='Plot limits along x axis must have xlo < xhi';
-            if nargout<=3, error(mess), end
-        elseif ylims && ylo>=yhi
-            mess='Plot limits along y-axis must have ylo < yhi';
-            if nargout<=3, error(mess), end
-        elseif zlims && zlo>=zhi
-            mess='Plot limits along signal axis must have zlo < zhi';
-            if nargout<=3, error(mess), end
-        end
-    else
-        mess='Check plot limits are numeric and the number of limits';
-        if nargout<=3, error(mess), end
-    end
 end
 
 
@@ -161,87 +172,112 @@ else
     hold on;        % hold plot for overplotting
 end
 
-% Make a copy of w_in for manipulations inside plot routines
-nsmooth=get_global_var('genieplot','twod_nsmooth');
-if nsmooth == 0
-    w = w_in;
-else
-    w = w_in; % *** UNTIL SORT OUT SMOOTHING
-end
 
 % Plot data (already checked that it is valid)
-if strcmpi(plot_type,'area')        % area plot
-    plot_area (w)
-    box on                          % put boundary box on plot
-    set(gca,'layer','top')          % puts axes layer on the top
-
-elseif strcmpi(plot_type,'surface') % surface plot
-    if newplot, view(3); end        % set viewpoint if newplot
-    plot_surface (w);
-    set(gca,'layer','top')          % puts axes layer on the top
-
-elseif strcmpi(plot_type,'surface2')% surface2 plot
-    if newplot, view(3); end        % set viewpoint if newplot
-    plot_surface2 (w);
-    set(gca,'layer','top')          % puts axes layer on the top
-
-elseif strcmpi(plot_type,'contour') % contour plot
-    plot_contour (w);
-
+switch plot_type
+    case 'area'
+        plot_area (w)
+        box on                      % put boundary box on plot
+        set(gca, 'layer', 'top')    % puts axes layer on the top
+        
+    case 'surface'
+        if newplot
+            view(3)                 % default line of sight for 3D if newplot
+        end        
+        plot_surface (w);
+        set(gca, 'layer', 'top')    % puts axes layer on the top
+        
+    case 'surface2'
+        if newplot
+            view(3)                 % default line of sight for 3D if newplot
+        end
+        plot_surface2 (w);
+        set(gca, 'layer', 'top')    % puts axes layer on the top
+        
+    otherwise
+        error('HERBERT:plot_twod:invalid_argument', ...
+            ['Logic error: unrecognised plot type ''%s''\n', ...
+            'Please contact developers'], plot_type)       
 end
-hold off    % release plot
+hold off    % release plot (could have been held for overplotting, for example)
 
 
-% Create/change title if a new plot
-if (newplot)
+if newplot
+    % Add axes annotations and title
     if ~iscell(w)
-        [tx,ty,tz]=make_label(w(1));    % Create axis annotations
-        tt=w(1).title(:);  % tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
-        xticks=w(1).x_axis.ticks;
-        yticks=w(1).y_axis.ticks;
-        zticks=w(1).s_axis.ticks;
+        [tx, ty, tz] = make_label(w(1));    % Create axis annotations
+        tt = w(1).title(:);
+        xticks = w(1).x_axis.ticks;
+        yticks = w(1).y_axis.ticks;
+        zticks = w(1).s_axis.ticks;
     else
-        [tx,ty,tz]=make_label(w{1}(1)); % Create axis annotations
-        tt=w{1}(1).title(:);  % tt=[w(1).title(:);['Plot smoothing = ',num2str(nsmooth)]];
-        xticks=w{1}(1).x_axis.ticks;
-        yticks=w{1}(1).y_axis.ticks;
-        zticks=w{1}(1).s_axis.ticks;
+        % **************************************
+        % *** WHEN MIGHT w BE A CELL ARRAY ? ***
+        % **************************************
+        [tx, ty, tz] = make_label(w{1}(1)); % Create axis annotations
+        tt = w{1}(1).title(:);
+        xticks = w{1}(1).x_axis.ticks;
+        yticks = w{1}(1).y_axis.ticks;
+        zticks = w{1}(1).s_axis.ticks;
     end
-    % Need in this may be MATLAB version specific:
+    % This may need to be MATLAB version specific:
     % tt = convertCharsToStrings(tt);
-    % Change titles:
     if any(contains(tt,'$'))
         inter= 'latex';
     else
         inter= 'tex';
     end
-    title(tt,'FontWeight','normal','interpreter',inter);
+    title(tt, 'FontWeight', 'normal', 'interpreter', inter);
     xlabel(tx);
     ylabel(ty);
+    % *******************************
+    %  Cleverer way counting axes
+    % *******************************    
     if ~strcmpi(plot_type,'area')   % don't try to plot along z axis if just an area plot
         zlabel(tz)
     end
+    
     % Change ticks
-    if ~isempty(xticks.positions), set(gca,'XTick',xticks.positions); end
-    if ~isempty(xticks.labels), set(gca,'XTickLabel',xticks.labels); end
-    if ~isempty(yticks.positions), set(gca,'YTick',yticks.positions); end
-    if ~isempty(yticks.labels), set(gca,'YTickLabel',yticks.labels); end
-    if ~isempty(zticks.positions), set(gca,'ZTick',zticks.positions); end
-    if ~isempty(zticks.labels), set(gca,'ZTickLabel',zticks.labels); end
-end
+    if ~isempty(xticks.positions)
+        set(gca, 'XTick', xticks.positions)
+    end
+    if ~isempty(xticks.labels)
+        set(gca, 'XTickLabel', xticks.labels)
+    end
+    
+    if ~isempty(yticks.positions)
+        set(gca, 'YTick', yticks.positions)
+    end
+    if ~isempty(yticks.labels)
+        set(gca, 'YTickLabel', yticks.labels)
+    end
+    
+    if ~isempty(zticks.positions)
+        set(gca, 'ZTick', zticks.positions)
+    end
+    if ~isempty(zticks.labels)
+        set(gca, 'ZTickLabel', zticks.labels)
+    end
 
-% Change limits if they are provided
-if newplot
-    axis tight
-    if xlims, lx(xlo,xhi), end
-    if ylims, ly(ylo,yhi), end
-    if zlims, lc(zlo,zhi), end
-end
-
-% Add colorslider if a new plot
-if newplot
+    % Change limits if they are provided
+    if isempty(lims)
+        axis tight  % might want to change the default for case of no limits?
+    else
+        axis tight
+        if numel(lims)>=2
+            lx(lims(1), lims(2))    % set x-axis limits
+        end
+        if numel(lims)>=4
+            ly(lims(3), lims(4))    % set y-axis limits
+        end
+        if numel(lims)>=6
+            lz(lims(5), lims(6))    % set z-axis limits
+        end
+    end
+    
+    % Add colorslider
     colorslider
 end
 
-% Get fig, axes and plot handles
-[fig_, axes_, plot_] = genie_figure_all_handles;
+% Get figure, axes and plot handles
+[fig_h, axes_h, plot_h] = genie_figure_all_handles;

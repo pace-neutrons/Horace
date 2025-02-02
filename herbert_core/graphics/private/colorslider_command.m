@@ -8,7 +8,7 @@ function colorslider_command (axes_handle, cmd)
 
 
 % Get the handles to colorslider widgets that correspond to this particular axis
-h = get_colorbar_handle (axes_handle);
+h = colorbar_get_handle (axes_handle);
 slider_min = colorslider_get_widget (h, 'color_slider_min');
 slider_min_value = colorslider_get_widget (h, 'color_slider_min_value');
 slider_max = colorslider_get_widget (h, 'color_slider_max');

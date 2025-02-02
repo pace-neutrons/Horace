@@ -1,4 +1,4 @@
-function [fig_handle, axes_h, plot_h, plot_type] = genie_figure_all_handles (fig)
+function [fig_h, axes_h, plot_h, plot_type] = genie_figure_all_handles (fig)
 % Get the figure, axes and plot handles for a figure
 %
 %   >> [fig_h, axes_h, plot_h] = genie_figure_all_handles       % current figure
@@ -41,13 +41,13 @@ function [fig_handle, axes_h, plot_h, plot_type] = genie_figure_all_handles (fig
 % Determine the figure handle - ensuring there is one and only one figure
 % indicated by input argument fig (throws an error if otherwise)
 if ~exist('fig', 'var')
-    fig_handle = get_figure_handle('-single');  % current figure, if it exists
+    fig_h = get_figure_handle('-single');  % current figure, if it exists
 else
-    fig_handle = get_figure_handle(fig, '-single');
+    fig_h = get_figure_handle(fig, '-single');
 end
 
 % Get axes handle to current axes, if there are any
-axes_h = get(fig_handle, 'CurrentAxes');
+axes_h = get(fig_h, 'CurrentAxes');
 if isempty(axes_h)
     plot_h = gobjects(0);   % empty graphics placeholder object
     plot_type = [];

@@ -98,7 +98,7 @@ switch option
         % colorslider present on the axes.
         axes_h = findobj(fig_handle, 'Type', 'Axes', '-depth', 1);
         for h = make_row(axes_h)    % index to for loop needs to be a row vector
-            if ~isempty(get_colorbar_handle(h))
+            if ~isempty(colorbar_get_handle(h))
                 colorslider_delete(h)
                 colorbar(h, 'off')  % delete colorbar(s) not part of a colorslider
                 colorslider_create(h)
