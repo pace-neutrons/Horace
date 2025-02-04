@@ -15,12 +15,12 @@ function detdcn = calc_detdcn(det,varargin)
 %
 % Output:
 % -------
-%  detdcn   [3 x ndet] array of unit vectors, poinitng to the detector's
+%  detdcn   [3 x ndet] array of unit vectors, pointing to the detector's
 %           positions in the spectrometer coordinate system (X-axis
 %           along the beam direction). ndet -- number of detectors
 %           Can be later assigned to the next rundata object
 %           property "detdcn_cache" to accelerate calculations. (not
-%           fully implemented and currently workis with Matlab code only)
+%           fully implemented and currently works with MATLAB code only)
 %           [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 
 ex = cosd(det.phi);
