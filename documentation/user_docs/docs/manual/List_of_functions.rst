@@ -24,7 +24,7 @@ Listed here are all the functions and commands that can be used in Horace. Each 
 
 :ref:`Data diagnostics <manual/Data_diagnostics:Data diagnostics>`
 
-- :ref:`run_inspector <manual/run_inspector:run inspector>`
+- :ref:`run_inspector <manual/Data_diagnostics:run_inspector>`
 
 
 :ref:`Plotting <manual/Plotting:Plotting>`
@@ -41,14 +41,14 @@ Listed here are all the functions and commands that can be used in Horace. Each 
 - :ref:`cut_sqw <manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>`
 - :ref:`cut_sqw <manual/Cutting_data_of_interest_from_SQW_files_and_objects:section>`
 
-:ref:`Special ``SQW`` information from sqw objects and files <manual/Special_sqw_information:Special ``SQW`` information from sqw objects and files>`
+:ref:`Special \`\`SQW\`\` information from sqw objects and files <manual/Special_sqw_information:Special \`\`SQW\`\` information from sqw objects and files>`
 
 - :ref:`head_sqw <manual/Special_sqw_information:head>`
 - :ref:`extract coordinates <manual/Special_sqw_information:xye>`
 - :ref:`save xye ascii file <manual/Special_sqw_information:save_xye>`
 
 
-:ref:`Loading ``sqw`` and ``dnd`` objects to memory <manual/Save_and_load:Loading ``sqw`` and ``dnd`` objects to memory>`
+:ref:`Loading \`\`sqw\`\` and \`\`dnd\`\` objects to memory <manual/Save_and_load:Loading \`\`sqw\`\` and \`\`dnd\`\` objects to memory>`
 
 - :ref:`read <manual/Save_and_load:read_horace>`
 - :ref:`read <manual/Save_and_load:read_sqw>`
@@ -100,25 +100,27 @@ Listed here are all the functions and commands that can be used in Horace. Each 
 - :ref:`Other mathematical functions <manual/Unary_operations:Other mathematical functions>`
 
 
-:ref:`Reshaping etc <manual/Reshaping_etc:Reshaping etc>`
+:ref:`Reshaping etc <manual/Reshaping_etc:Other shape functions>`
 
-- :ref:`replicate <manual/Reshaping_etc:replicate>`
-- :ref:`compact <manual/Reshaping_etc:compact>`
-- :ref:`permute <manual/Reshaping_etc:permute>`
-- :ref:`cut <manual/Reshaping_etc:cut>`
-- :ref:`smooth <manual/Reshaping_etc:smooth>`
-- :ref:`mask <manual/Reshaping_etc:mask>`
-- :ref:`mask_points <manual/Reshaping_etc:mask_points>`
-- :ref:`mask_runs <manual/Reshaping_etc:mask_runs>`
-- :ref:`section <manual/Reshaping_etc:section>`
+- :ref:`replicate <manual/Reshaping_etc:\`\`replicate\`\`>`
+- :ref:`compact <manual/Reshaping_etc:\`\`compact\`\`>`
+- :ref:`permute <manual/Reshaping_etc:\`\`permute\`\`>`
+- :ref:`cut <manual/Reshaping_etc:\`\`cut\`\`>`
+- :ref:`smooth <manual/Reshaping_etc:\`\`smooth\`\`>`
+- :ref:`mask <manual/Reshaping_etc:\`\`mask\`\`>`
+- :ref:`mask_points <manual/Reshaping_etc:\`\`mask_points\`\`>`
+- :ref:`mask_runs <manual/Reshaping_etc:\`\`mask_runs\`\`>`
+- :ref:`section <manual/Reshaping_etc:\`\`section\`\`>`
 
 
-:ref:`Read or write to disk <manual/Read_or_write_to_disk:Read or write to disk>`
+:ref:`Read or write to disk <manual/Save_and_load:Loading \`\`sqw\`\` and \`\`dnd\`\` objects to memory>`
 
-- :ref:`read <manual/Read_or_write_to_disk:read_horace, read_sqw, read_dnd>`
-- :ref:`save <manual/Read_or_write_to_disk:save>`
-- :ref:`save xye ascii file <manual/Read_or_write_to_disk:save_xye>`
-- :ref:`header <manual/Read_or_write_to_disk:head_horace, head_sqw, head_dnd>`
+- :ref:`read_horace <manual/Save_and_load:read_horace>`
+- :ref:`read_sqw <manual/Save_and_load:read_sqw>`
+- :ref:`read_dnd <manual/Save_and_load:read_dnd>`
+- :ref:`save <manual/Save_and_load:save>`
+- :ref:`save xye ascii file <manual/Special_sqw_information:save_xye>`
+- :ref:`header <manual/Special_sqw_information:head>`
 
 ..
    - :ref:`display <manual/Read_or_write_to_disk:display>`
@@ -135,17 +137,17 @@ Listed here are all the functions and commands that can be used in Horace. Each 
    and will presumably lack detail that will be present in a "real" sqw,
    worth at least a note saying how the construction is done
 
-- :ref:`d0d <manual/Changing_object_type:d0d>`
-- :ref:`d1d <manual/Changing_object_type:d1d>`
-- :ref:`d2d <manual/Changing_object_type:d2d>`
-- :ref:`d3d <manual/Changing_object_type:d3d>`
-- :ref:`d4d <manual/Changing_object_type:d4d>`
+- :ref:`d0d <manual/Changing_object_type:dnd>`
+- :ref:`d1d <manual/Changing_object_type:dnd>`
+- :ref:`d2d <manual/Changing_object_type:dnd>`
+- :ref:`d3d <manual/Changing_object_type:dnd>`
+- :ref:`d4d <manual/Changing_object_type:dnd>`
 - :ref:`sqw <manual/Changing_object_type:sqw>`
 
 .. Comment from Chris
    A brief description of what IX_dataset_nd is and why it is useful would be good
    Duc: I'm not sure users need to know - maybe just remove this?
 
-- :ref:`IX_dataset_1d <manual/Changing_object_type:IX_dataset_1d>`
-- :ref:`IX_dataset_2d <manual/Changing_object_type:IX_dataset_2d>`
-- :ref:`IX_dataset_3d <manual/Changing_object_type:IX_dataset_3d>`
+.. - :ref:`IX_dataset_1d <manual/Changing_object_type:IX_dataset_1d>`
+.. - :ref:`IX_dataset_2d <manual/Changing_object_type:IX_dataset_2d>`
+.. - :ref:`IX_dataset_3d <manual/Changing_object_type:IX_dataset_3d>`

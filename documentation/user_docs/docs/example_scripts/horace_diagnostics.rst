@@ -10,8 +10,8 @@ features in your data.
 This will take you through all the steps from generation, spurion
 spotting, and analysis.
 
-Generating data
-===============
+Generating the data
+===================
 
 ::
 
