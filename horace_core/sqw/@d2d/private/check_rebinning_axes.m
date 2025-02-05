@@ -8,19 +8,19 @@ ok=false; same_axes=false; mess='';
 %We decide to throw an error message if the sample is different (i.e. we
 %try to rebin the data on to a grid associated with different lattice
 %parameters).
-if ~isequal(w1.data_.alatt,w2.data_.alatt) || ~isequal(w1.data_.angdeg,w2.data_.angdeg)
+if ~isequal(w1.alatt,w2.alatt) || ~isequal(w1.angdeg,w2.angdeg)
     ok=false;
     mess='Horace error: rebinning impossible for 2 datasets where lattice parameters are different';
     return;
 end
 
-w1_plane=[w1.data_.u_to_rlu(:,w1.data_.pax(1)) w1.data_.u_to_rlu(:,w1.data_.pax(2))];
-w2_plane=[w2.data_.u_to_rlu(:,w2.data_.pax(1)) w2.data_.u_to_rlu(:,w2.data_.pax(2))];
+w1_plane=[w1.u_to_rlu(:,w1.pax(1)) w1.u_to_rlu(:,w1.pax(2))];
+w2_plane=[w2.u_to_rlu(:,w2.pax(1)) w2.u_to_rlu(:,w2.pax(2))];
 
 evec=[0;0;0;1];
 if isequal(w1_plane(4,:),[0,0]) && isequal(w2_plane(4,:),[0,0])
     %neither object is a slice with an energy axis
-    w1_plane=w1_plane([1:3],:); w2_plane=w2_plane([1:3],:);
+    w1_plane=w1_plane(1:3,:); w2_plane=w2_plane(1:3,:);
     perp1=cross(w1_plane(:,1),w1_plane(:,2));
     perp2=cross(w2_plane(:,1),w2_plane(:,2));
     %
@@ -53,7 +53,7 @@ if isequal(w1_plane(4,:),[0,0]) && isequal(w2_plane(4,:),[0,0])
     end
 elseif (sum(w1_plane(4,:))==sum(w2_plane(4,:))) && sum(w1_plane(4,:))==1
     %both objects have 1 axis as energy axis
-    w1_plane=w1_plane([1:3],:); w2_plane=w2_plane([1:3],:);
+    w1_plane=w1_plane(1:3,:); w2_plane=w2_plane(1:3,:);
     p11=cross(w1_plane(:,1),w2_plane(:,1));
     p12=cross(w1_plane(:,1),w2_plane(:,2));
     p21=cross(w1_plane(:,2),w2_plane(:,1));

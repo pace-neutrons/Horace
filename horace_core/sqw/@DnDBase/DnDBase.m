@@ -1,4 +1,4 @@
-classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
+classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
 
@@ -49,14 +49,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         creation_date;
     end
     properties(Dependent,Hidden)
-        % legacy operations, necessary for saving dnd object in the old sqw
-        % data format. May be removed if old sqw format saving is not used
-        % any more.
-        u_to_rlu % Matrix (4x4) of projection axes in hkle representation
-        %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        ulen;
-        u_to_rlu_legacy % old legacy u_to_rlu produced by Toby's code.
-        % used in tests and loading old format files
         %
         creation_date_defined; % True, if creation date is known and written with file
         %------------------------------------------------------------------
@@ -71,7 +63,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
-        uoffset % old interface to img_offset
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == line_axes.dims_as_ssize)
@@ -114,6 +105,27 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
                         'can not build dnd object with %d dimensions', ...
                         ndims);
             end
+        end
+        function obj = spinw_dnd_obj_constructor(lattice_const,varargin)
+            % build dnd object from list of input parameters usually
+            % defined by spinW
+            % Inputs:
+            % lattice_const -- 6-element array containing 3 components for
+            %                  lattice parameters and 3 components for
+            %                  lattice angles
+            % Optional:
+            % 0 to 4 pairs containing [axis direction, binning parameters]
+            % where
+            % axis_direction -- 4-element vector containing axis direction 
+            %                   in hklE coordinate system
+            % binning parameters
+            %                -- 3-element vector contaning min,step,max
+            %                   binning parameters for appropriate axis
+            %
+            % Number of pairs would define number of dimensions in DnD object
+            % The constructor build object containing line_proj.
+            %
+            obj = spinw_dnd_obj_constructor_(lattice_const,varargin{:});
         end
         function [form_fields,data_fields] = head_form(keep_data_arrays)
             % the method returns list of fields, which need to be filled by
@@ -179,7 +191,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         %                             % dispersion function on the dnd object
         wout = func_eval(win, func_handle, pars, varargin);  % calculate the
         %                             % function, provided as input on the
-        %                             % bin centers of the image axes
+        %                             % bin centres of the image axes
         %------------------------------------------------------------------
         %
         varargout = head(obj,vararin);
@@ -197,12 +209,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         % Change the crystal lattice and orientation of dnd object or
         % array of objects
         wout = change_crystal(win,al_info,varargin);
-        % modify crystal lattice and orientation matrix to remove legacy
-        % alignment.
-        [wout,al_info,alatt0,angdeg0] = remove_legacy_alignment(obj,varargin)
-        % remove legacy alignment and put modern alignment instead
-        [wout,al_info,no_alignment,alatt0,angdeg0] = upgrade_legacy_alignment(obj,varargin)
-        %------------------------------------------------------------------
+          %------------------------------------------------------------------
         %
         function varargout = IX_dataset_1d(obj)
             error('HORACE:DnDBase:not_implemented', ...
@@ -234,7 +241,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
 
         % calculate the range of the image to be produced by target
         % projection from the current object
-        range = targ_range(obj,targ_proj,varargin)
+        range = get_targ_range(obj,targ_proj,ranges_requested,varargin)
         %
         % add various noise to signal
         wout = noisify(w,varargin);
@@ -258,12 +265,12 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         end
         function npix = get_npix_block(obj,block_start,block_size)
             % return specified chunk of npix array which describes pixel
-            % destribution over block bins.
+            % distribution over block bins.
             % Inputs:
-            % obj         -- initalized DnDBase object.
+            % obj         -- initialized DnDBase object.
             % block_start -- initial location of the block within the npix
-            %                array. To be compartible with file interface, the
-            %                position starts from 0, unlike Matlab arrays,
+            %                array. To be compatible with file interface, the
+            %                position starts from 0, unlike MATLAB arrays,
             %                which start from 1.
             % block_size  -- number of npix elements to return.
             % Returns:
@@ -272,8 +279,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             %
             npix = obj.npix_((1+block_start):(block_start+block_size));
         end
-
-
     end
     %======================================================================
     % Redundant and convenience Accessors
@@ -305,20 +310,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
         %             obj.proj_.offset = val;
         %         end
 
-        function val = get.u_to_rlu(obj)
-            val = obj.proj.u_to_rlu;
-        end
-        function val = get.u_to_rlu_legacy(obj)
-            val = obj.proj.u_to_rlu_legacy;
-        end
-
-        %
-        function val = get.ulen(obj)
-            val = obj.axes.img_scales;
-        end
-        function obj = set.ulen(obj, ulen)
-            obj.axes.img_scales = ulen;
-        end
         %
         function val = get.label(obj)
             val = obj.axes_.label;
@@ -355,9 +346,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             offset_ = obj.proj.offset;
             val = obj.proj.transform_hkl_to_img(offset_(1:3)');
             val = [val;offset_(4)]';
-        end
-        function val = get.uoffset(obj)
-            val = obj.proj.offset;
         end
     end
     %======================================================================
@@ -397,7 +385,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             %           dimensionality and binning.
             % creation_data
             %        -- the date when this object should be recorded
-            %           created. The format is Matlab datetime class format
+            %           created. The format is MATLAB datetime class format
             %           If missing, the creation time will be set to the
             %           first time the object was stored on HDD.
             %
@@ -599,9 +587,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             error('HORACE:DnDBase:runtime_error', ...
                 'sqw_eval_pix can not be invoked on dnd object');
         end
-        function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
-            [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
-        end
         %
         function obj = set_senpix(obj,val,field)
             % set signal error or npix value to a class field
@@ -631,7 +616,46 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface
             %DnD objects never filebacked
             is = false;
         end
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of DnDBase objects
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
+        end        
 
+    end
+    %======================================================================
+    % HORACE3 dnd interrace
+    methods(Access=protected)
+        function val = get_u_to_rlu(obj)
+            val = obj.proj.u_to_rlu;
+        end
+        function val = get_u_to_rlu_legacy(obj)
+            val = obj.proj.u_to_rlu_legacy;
+        end
+        function val = get_ulen(obj)
+            val = obj.axes.img_scales;
+        end
+        function val = get_uoffset(obj)
+            val = obj.proj.offset;
+        end
+        %
+        function  obj = set_ulen(obj,ulen)
+            obj.axes.img_scales = ulen;
+        end
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

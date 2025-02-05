@@ -29,32 +29,11 @@ else
     scaler  = [];
 end
 
-n_plots = numel(w);
-fig_ = cell(n_plots,1);
-axes_ = cell(n_plots,1);
-plot_ = cell(n_plots,1);
+
 
 % perform plot
 if nw == 2
-    [fig_{1},axes_{1},plot_{1}]=plot_twod ({w(1),scaler},opt.newplot,type,fig,lims{:});
+    [fig_,axes_,plot_]=plot_twod ({w,scaler},opt.newplot,type,fig,lims{:});
 else
-    [fig_{1},axes_{1},plot_{1}]=plot_twod (w(1),opt.newplot,type,fig,lims{:});
-end
-opt.newplot = false;
-opt.over_curr=false;
-for i=2:n_plots
-    fig = figure;
-    % perform another plot
-    if nw == 2
-        [fig_{i},axes_{i},plot_{i}]=plot_twod ({w(i),scaler},opt.newplot,type,fig,lims{:});
-    else
-        [fig_{i},axes_{i},plot_{i}]=plot_twod (w(i),opt.newplot,type,fig,lims{:});
-    end
-end
-
-% if output requested, combine output in array of graphical objects
-if nout>0
-    fig_  = [fig_{:}];
-    axes_ = [axes_{:}];
-    plot_ = [plot_{:}];
+    [fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig,lims{:});
 end

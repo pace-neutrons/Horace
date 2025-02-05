@@ -33,7 +33,7 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %
 % Mode 2:
 %   b_matrix    The matrix used to transform vector in hkl coordinate system
-%              into Crystal Catresian coordinate system
+%              into Crystal Cartesian coordinate system
 %   u_matrix    Transforms vector in crystal Cartesian coords to orthonormal
 %              frame defined by vectors u, v.
 %   ''          Empty u-variable, used to distinguish between mode1 and
@@ -79,7 +79,7 @@ else % master mode, calculate whole transformation matrix
      % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
 end
 
-% Matrix to convert coords in orthormal frame defined by notional directions of u, v, to
+% Matrix to convert coords in orthonormal frame defined by notional directions of u, v, to
 % coords in orthonormal frame defined by true directions of u, v:
 rot_dpsi= [cos(dpsi),-sin(dpsi),0; sin(dpsi),cos(dpsi),0; 0,0,1];
 rot_gl  = [cos(gl),0,sin(gl); 0,1,0; -sin(gl),0,cos(gl)];
@@ -87,7 +87,7 @@ rot_gs  = [1,0,0; 0,cos(gs),-sin(gs); 0,sin(gs),cos(gs)];
 rot_om  = [cos(omega),-sin(omega),0; sin(omega),cos(omega),0; 0,0,1];
 corr = (rot_om * (rot_dpsi*rot_gl*rot_gs) * rot_om')';
 
-% Matrix to convert from spectrometer coords to orthormal frame defined by notional directions of u, v
+% Matrix to convert from spectrometer coords to orthonormal frame defined by notional directions of u, v
 cryst = [cos(psi),sin(psi),0; -sin(psi),cos(psi),0; 0,0,1];
 
 % Combine to get matrix to convert from spectrometer coordinates to crystal Cartesian coordinates

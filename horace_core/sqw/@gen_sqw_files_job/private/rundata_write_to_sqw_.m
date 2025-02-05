@@ -9,7 +9,7 @@ function [grid_size, data_range,update_runlabels] = rundata_write_to_sqw_(run_fi
 %   run_file        Cell array of initiated rundata objects
 %   sqw_file        Cell array of full file names of output sqw files
 %   grid_size_in    Scalar or row vector of grid dimensions.
-%   pix_db_range    Range of data image grid to rebin pixels on. If not given, 
+%   pix_db_range    Range of data image grid to rebin pixels on. If not given,
 %                   uses smallest hypercuboid that encloses the whole data range
 %                   for pixels in Crystal Cartesian coordinate system.
 %   instrument      Array of structures or objects containing instrument information
@@ -44,15 +44,54 @@ hor_log_level=get(hor_config,'log_level');
 mpi_obj= MPI_State.instance();
 running_mpi = mpi_obj.is_deployed;
 
+% convert NaN values of runid to sensible values
+% if all values are NaN, assign values by file number
+% if some values are NaN, assign values greater than the maximum non-NaN
+% one
+
+% (a) - find largest non-nan run id
+%     - flag existence of any nans
+maxrunid = NaN;
+hasnans = false;
+for ii=1:nfiles
+    runid = run_files{ii}.run_id;
+    if ~isnan(runid)
+        if isnan(maxrunid)
+            maxrunid = runid;
+        else
+            maxrunid = max(maxrunid, runid);
+        end
+        % as max(integer,NaN) is integer, the else would also work for the if
+        % but leaving this explicit to make the point
+    else
+        hasnans = true;
+    end
+end
+
+% (b) if there are any nans
+%     - number originally nan runids from 1+max value found above
+%     - if there were only nans, make the initial max value =0
+if hasnans
+    if isnan(maxrunid)
+        maxrunid = 0;
+    end
+    for ii=1:nfiles
+        runid = run_files{ii}.run_id;
+        if isnan(runid)
+            maxrunid = maxrunid+1;
+            run_files{ii}.run_id = maxrunid;
+        end
+    end
+end
+
 %
 % bin_range = arrayfun(@(x,y,z)get_cut_range(x,y,z),...
 %     pix_db_range(1,:),pix_db_range(2,:),grid_size_in,'UniformOutput',false);
 run_id = zeros(1,nfiles);
 for i=1:nfiles
     if hor_log_level>-1 && write_banner
-        disp('--------------------------------------------------------------------------------')
-        disp(['Processing spe file ',num2str(i),' of ',num2str(nfiles),':'])
-        disp(' ')
+        fprintf('--------------------------------------------------------------------------------\n');
+        fprintf('*** Processing input file N %d of %d:\n\n',i,nfiles);
     end
     %
     run_id(i) = run_files{i}.run_id;
@@ -68,12 +107,18 @@ for i=1:nfiles
             max([data_range_tmp(2,:);data_range(2,:)],[],1)];
     end
 
-
     % Write sqw object
     % ----------------
     bigtic
-    save(w,sqw_file{i});
-
+    %save(w,sqw_file{i});
+    ldw = sqw_formats_factory.instance().get_pref_access(w);
+    if hor_log_level > 0
+        fprintf('Writing to: %s...\n',sqw_file{i});
+    end
+    ldw = ldw.init(w,sqw_file{i});
+    ldw = ldw.put_sqw();
+    ldw.delete();
+    % -----------------
     if running_mpi
         mpi_obj.do_logging(i,nfiles,[],[]);
     end

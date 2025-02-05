@@ -2,7 +2,7 @@ function   obj = set_instrument(obj,instr_or_fun,varargin)
 % add or reset instrument, related to the given experiment class
 %
 if isa(instr_or_fun,'IX_inst')
-    if numel(instr_or_fun) == 1 %replace all instruments
+    if isscalar(instr_or_fun) %replace all instruments
         % in the container with single input instrument
         uoc = unique_objects_container('IX_inst');
         uoc = uoc.add(instr_or_fun);
@@ -35,7 +35,7 @@ elseif isa(instr_or_fun,'unique_objects_container') && strcmp(instr_or_fun.basec
     obj.instruments = instr_or_fun;
 
 elseif isa(instr_or_fun,"function_handle")
-    if numel(varargin)==1 && iscell(varargin{1})
+    if isscalar(instr_or_fun) && iscell(varargin{1})
         argi = varargin{1};
     else
         argi = varargin;

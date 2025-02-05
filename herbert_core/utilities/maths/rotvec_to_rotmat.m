@@ -1,4 +1,4 @@
-function rotmat = rotvec_to_rotmat (theta, algorithm)
+function rotmat = rotvec_to_rotmat (theta, varargin)
 % Convert rotation vectors to rotation matricies
 %
 % The rotation matrix relates the components of a vector expressed in a
@@ -20,7 +20,7 @@ function rotmat = rotvec_to_rotmat (theta, algorithm)
 %                 (THETA(1), THETA(2), THETA(3)) where THETA(i) = THETA*n(i).
 %
 %               In this function the units are degrees.
-%
+% Optional:
 %   algorithm   Method for algorithm
 %                 =0  Fast method due to T.G.Perring (default)
 %                 =1  Generic method based on matrix exponentiation
@@ -33,12 +33,8 @@ function rotmat = rotvec_to_rotmat (theta, algorithm)
 %                   v'(i) = R(i,j) v(j)
 %
 % Note:
-%   rotvec_to_rotmat    Rotation vector in degrees
-%   rotvec_to_rotmat2   Rotation vector in radians
+%   rotvec_to_rotmat      this function  -- input rotation vector in degrees
+%   rotvec_to_rotmat_rad  sister function-- input rotation vector in radians
 
 theta=deg2rad(theta);   % convert to radians
-if nargin==1
-    rotmat = rotvec_to_rotmat2 (theta);
-else
-    rotmat = rotvec_to_rotmat2 (theta, algorithm);
-end
+rotmat = rotvec_to_rotmat_rad(theta, varargin{:});

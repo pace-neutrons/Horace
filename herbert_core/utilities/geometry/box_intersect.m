@@ -10,20 +10,20 @@ function inter_points = box_intersect(box_minmax,cross_plane)
 %
 % cross_plane -- NDxND array of points defining plane in the appropriate
 %                dimensions. The coordinates defined along the first
-%                dimension and the second dimention correspont to number of
+%                dimension and the second dimension correspond to number of
 %                points, the plane is passing through (has to be ND). If
 %                there are ND-1 points, the missing point assumed to be
 %                equal to 0.
 % Outputs:
 % inter_points - NDxNp array of points, defining intersection between the
 %                edges of the box and the line/plane/hyperplane defined as
-%                the second argument. NP is the number of intesection
+%                the second argument. NP is the number of intersection
 %                points.
 %                If no intersections between box and plane occur,
 %                the inter_points array is empty.
 % Examples:
 %
-% Calculate intersection points between line passing trhough points 0.5,0.5
+% Calculate intersection points between line passing through points 0.5,0.5
 % and 0.5,1 and the box [0,0;1,1]':
 %>>cp = box_intersect([0,0;1,1]',[0.5,0.5;0.5,1]');
 %>>disp(cp)
@@ -33,7 +33,7 @@ function inter_points = box_intersect(box_minmax,cross_plane)
 %
 % Calculate intersection points between plane passing through the points
 % (1/2,0,0), (1/2,0,1) and (1,1/2,0) and unit 3D box in the centre of
-% coordinages:
+% coordinates:
 %
 %>>cp = box_intersect([0,0,0;1,1,1]',[1/2,0,0;1/2,0,1;1,1/2,0]');
 %>>disp(cp)

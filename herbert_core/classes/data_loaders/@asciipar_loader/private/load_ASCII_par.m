@@ -44,26 +44,8 @@ filename=strtrim(filename);
 %     error('LOAD_ASCII:load_ASCII_par',' file %s has to be an ascii file but it is hdf5 file\n',filename);
 % end
 
-use_mex = get(hor_config,'use_mex');
-if use_mex
-    try     %using C routine
-        par=get_ascii_file(filename,'par');
-    catch ME  %using matlab routine
-        force_mex = get(hor_config,'force_mex_if_use_mex');
-        if ~force_mex
-            warning('ASCIIPAR_LOADER:load_par','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
-            use_mex = false;
-        else
-            error('HERBERT:asciipar_loader:invalid_argument', ...
-                'Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s', ...
-                mexext(),filename,ME.message);
-        end
-    end
-end
+par=get_par_matlab(filename);
 
-if ~use_mex
-    par=get_par_matlab(filename);
-end
 
 par(3,:) = -par(3,:);
 % round-off parameters to 'accuracy' digits after dot for consistency

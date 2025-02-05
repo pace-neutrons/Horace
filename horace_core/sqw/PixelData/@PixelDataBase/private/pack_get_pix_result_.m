@@ -10,12 +10,12 @@ function pix_out = pack_get_pix_result_(obj,pix_data,ignore_range,raw_data,keep_
 % keep_precision
 %              -- if true, keep original pixel precision
 %                 intact. Do not make it double
-% align        -- if true and data are misaligned, apply
+% align        -- if true and data are corrected, apply
 %                 alignment matrix and dealign the data
 %
-misaligned = obj.is_misaligned;
+do_corrections = obj.is_corrected;
 
-if align && misaligned
+if align && do_corrections
     pix_data(1:3,:) = obj.alignment_matr*pix_data(1:3,:);
 end
 
@@ -33,6 +33,6 @@ if ignore_range
 else
     pix_out = PixelDataMemory(pix_data);
 end
-if ~align && misaligned
+if ~align && do_corrections
     pix_out.alignment_matr  = obj.alignment_matr;
 end

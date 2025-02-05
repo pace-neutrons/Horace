@@ -1,8 +1,6 @@
-#ifndef H_SQW_PIX_WRITER
-#define H_SQW_PIX_WRITER
-
+#pragma once
 //#include "pix_mem_map.h"
-#include "fileParameters.h"
+#include "../file_parameters/fileParameters.h"
 #include "exchange_buffer.h"
 
 //-----------------------------------------------------------------------------------------------------------------
@@ -37,7 +35,4 @@ private:
     //
     static const size_t PIX_BLOCK_SIZE_BYTES = 36; //9 * 4; // size of the pixel block in bytes
 
-
 };
-
-#endif

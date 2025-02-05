@@ -14,19 +14,18 @@ if any(size(val)~=[2,4])
 end
 
 undef = val == PixelDataBase.EMPTY_RANGE_;
-if isempty(val) || any(undef(:))
-    angular_undef = [inf,pi/2,pi;inf,0,-pi/2,-pi,-inf];
+if isempty(val) || any(undef(:))    
     if isempty(val)
-        val  = angular_undef;
+        val        = obj.default_img_range_;
     else
-        val(undef) = angular_undef(undef);
+        val(undef) = obj.default_img_range_(undef);
     end
     obj.img_range_ = val;
-    if ~obj.angles_in_rad_(1)
-        obj.img_range_(:,2) = rad2deg(obj.img_range_(:,2));
+    if obj.angles_in_rad_(1)
+        obj.img_range_(:,2) = deg2rad(obj.img_range_(:,2));
     end
-    if ~obj.angles_in_rad_(2)
-        obj.img_range_(:,3) = rad2deg(obj.img_range_(:,3));
+    if obj.angles_in_rad_(2)
+        obj.img_range_(:,3) = deg2rad(obj.img_range_(:,3));
     end
     obj.img_range_set_        = true;
     return;

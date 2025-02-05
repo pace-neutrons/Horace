@@ -22,6 +22,8 @@ classdef test_sqw_dnd_eval < TestCase
         end
 
         function test_tobyfit(obj)
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',0);
+
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
             sample.alatt = [2.8700 2.8700 2.8700];
             sample.angdeg = [90 90 90];
@@ -63,6 +65,7 @@ classdef test_sqw_dnd_eval < TestCase
         end
 
         function test_fit_sqw_sqw(obj)
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',0);
 
             kk = multifit_sqw_sqw(obj.sqw_4_test);
             kk = kk.set_fun (@obj.sqw_eval_tester);
@@ -81,6 +84,7 @@ classdef test_sqw_dnd_eval < TestCase
         end
 
         function test_fit_sqw(obj)
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',0);            
 
             kk = multifit_sqw(obj.sqw_4_test);
             kk = kk.set_fun (@obj.sqw_eval_tester);
@@ -99,6 +103,7 @@ classdef test_sqw_dnd_eval < TestCase
         end
 
         function test_fit_func(obj)
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',0);            
             kk = multifit (obj.sqw_4_test);
             kk = kk.set_fun (@obj.funceval_tester2D);
             kk = kk.set_pin(1);
@@ -112,6 +117,7 @@ classdef test_sqw_dnd_eval < TestCase
 
         end
         function test_func_eval_dnd(obj)
+            clOb = set_temporary_config_options('hpc_config','parallel_multifit',0);            
             ds = func_eval(obj.dnd_4_test, @obj.funceval_tester2D, []);
 
             sig = ds.s;

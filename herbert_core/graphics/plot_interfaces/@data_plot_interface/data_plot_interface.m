@@ -211,13 +211,16 @@ classdef (Abstract=true) data_plot_interface
                 w,'sliceomatic_overview',varargin{:});
         end
     end
-    methods(Static,Access=protected)
-        function out = set_argout(nout,fig_,axes_,plot_)
+    methods(Static)
+        function out = set_argout(nout,varargin)
             % set output arguments depending on number of output arguments
-            % requested
-            if nout >=1, out{1} =fig_; end
-            if nout >=2, out{2} =axes_; end
-            if nout >=3, out{3} =plot_; end
+            % requested. 
+            % 
+            % expected usage is to set varargout, and because of this, no 
+            % output cell array is allocated (is this reasonable?)
+            for i=1:nout
+                out{i} = varargin{i};
+            end
         end
     end
 

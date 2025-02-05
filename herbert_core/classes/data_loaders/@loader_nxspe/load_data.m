@@ -27,7 +27,7 @@ end
 
 %
 file_name  = this.file_name;
-root_folder= this.root_nexus_dir;
+root_folder= this.root_nexus_dir_;
 
 data=cell(1,3);
 

@@ -78,7 +78,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods(Sealed)
-
+        function [iseq,mess] = equal_to_tol(obj1,obj2,varargin)
+            % overload equal_to_tol as this method requested to be called
+            % on serializable interface
+            [iseq,mess] = equal_to_tol@serializable(obj1,obj2,varargin{:});
+        end
         function vec = transform_vec(obj, vec)
             % Transform a vector or list of vectors according to array of
             % Symops stored in `obj`.
@@ -115,7 +119,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function pix = transform_pix(obj, pix, proj)
+        function pix = transform_pix(obj, pix, proj, selected, trust)
             % Transform pixel coordinates into symmetry related coordinates
             %
             % The transformation converts the components of a vector which is
@@ -138,12 +142,22 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %
             %   pix         PixelData object
             %
+            %   selected    Pixels to transform
+            %
+            %   trust       Whether to trust that `selected` is valid
+            %               and bypass `in_irreducible` checks.
             % Output:
             % -------
             %   pix         Transformed PixelData object
 
             if ~exist('proj', 'var')
                 proj = {};
+            end
+            if ~exist('selected', 'var')
+                selected = 1:pix.num_pixels;
+            end
+            if ~exist('trust', 'var')
+                trust = false;
             end
 
             % Check input
@@ -154,9 +168,16 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
             % Get transformation
             if isa(pix, 'PixelDataMemory')
-                for i = numel(obj):-1:1
-                    sel = obj(i).in_irreducible(pix.q_coordinates, proj{:});
-                    pix.q_coordinates(:, ~sel) = obj(i).transform_vec(pix.q_coordinates(:, ~sel));
+                if ~trust
+                    for i = numel(obj):-1:1
+                        in_zone = obj(i).in_irreducible(pix.q_coordinates, proj{:});
+                        in_zone(~selected) = false;
+                        pix.q_coordinates(:, ~in_zone) = obj(i).transform_vec(pix.q_coordinates(:, ~in_zone));
+                    end
+                else
+                    for i = numel(obj):-1:1
+                        pix.q_coordinates(:, selected) = obj(i).transform_vec(pix.q_coordinates(:, selected));
+                    end
                 end
             else
                 error('HORACE:Symop:not_implemented', ...
@@ -211,12 +232,23 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     offset_new(1:3) = obj.transform_vec(offset_new(1:3));
                     if ~isempty(proj.w)
                         w_new = obj.R * proj.w(:);
-                        proj = proj.set_axes(u_new, v_new, [], offset_new);
+                        proj = proj.set_directions(u_new, v_new, [], offset_new);
                     else
-                        proj = proj.set_axes(u_new, v_new, [], offset_new);
+                        proj = proj.set_directions(u_new, v_new, [], offset_new);
                     end
+                case 'ubmat_proj'
+                    lp = proj.get_line_proj();
+                    u_new = obj.R * proj.u(:);
+                    v_new = obj.R * proj.v(:);
+                    offset_new = proj.offset(:);
+                    proj = lp.set_directions(u_new, v_new, [], offset_new);
 
-                case 'sphere_proj'
+                case {'sphere_proj','cylinder_proj'}
+                    if ~isa(obj,'SymopIdentity')
+                        error('HORACE:Symop:not_implemented', ...
+                            'Symmetry operation %s is not yet implemented for %s', ...
+                            class(obj),class(proj));
+                    end
 
                     %% TODO non-aligned ez/ey not supported
                     % ez_new = obj.R * proj.ez(:);
@@ -226,14 +258,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     %                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
                     %
                     %                 proj.offset = offset_new;
-                case 'spher_proj'
-                    warning('HORACE:deprecated_function',...
-                        'spher_proj is deprecated. Use sphere_proj instead')
                 otherwise
-
                     error('HORACE:Symop:not_implemented', ...
                         'Cannot transform projection class "%s"', class(proj));
-
             end
 
         end

@@ -34,8 +34,6 @@ default_fig_name=get_global_var('genieplot','name_oned');
 
 par=varargin;
 
-fig_=[]; axes_=[]; plot_=[];
-
 
 % Check input arguments
 % ---------------------
@@ -63,7 +61,6 @@ if is_string(plot_type) && ~isempty(plot_type)
     else
         error('HERBERT:graphics:invalid_argument', ...
             'Plot type %s is not recognised',plot_type);
-
     end
 else
     error('HERBERT:graphics:invalid_argument', ...

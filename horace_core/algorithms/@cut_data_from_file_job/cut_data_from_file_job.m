@@ -6,6 +6,7 @@ classdef cut_data_from_file_job < JobExecutor
     % fashion.
     %
     %
+    %
     properties
         s_accum;
         e_accum;
@@ -73,6 +74,31 @@ classdef cut_data_from_file_job < JobExecutor
         end
     end
     methods(Static)
+        function [npix,npix1] = calc_npix_distribution(pix_indx,npix)
+            % Calculate how many pixel indices belongs to each image bin
+            %
+            %
+            % Inputs:
+            % pix_idx  -- array containing bin numbers (pixel bin indices)
+            % npix     -- array containing initial numbers of indices in
+            %             bins (may be zeros) and defining size and shape
+            %             of the lattice to sort indices on.
+            %
+            % Returns:
+            % npix     -- array of bins with numbers modified by adding to
+            %             each bin number of indices belonging to this bin
+            % npix1    -- the array of bins accumulated at this iteration
+            %             (i.e. when all(npix == 0)== true).
+            %
+            n_bins = size(npix);
+            if size(pix_indx,2)==1 && numel(n_bins) == 2 && n_bins(1) == 1
+                npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), fliplr(n_bins));
+            else
+                npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
+            end
+            % do we need to do this or it is always a column array in 1D?
+            npix = npix+ reshape(npix1,n_bins);
+        end
         function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = ...
                 cut_data_from_file(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin)

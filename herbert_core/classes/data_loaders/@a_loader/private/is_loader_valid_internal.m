@@ -39,7 +39,9 @@ else  % check data in memory
     if isempty(this.S_) || en_empty
         % info not loaded
         if isempty(this.n_detindata_) || en_empty
-            [n_data_detectors,en]=this.get_data_info(this.file_name);
+            fi = this.get_data_info(this.file_name);
+            n_data_detectors = fi.ndet_in_data;
+            en   = fh.en;
         else         % info already loaded
             n_data_detectors = this.n_detindata_;
             en   = this.en_;

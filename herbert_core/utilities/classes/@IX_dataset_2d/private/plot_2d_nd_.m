@@ -20,24 +20,7 @@ function [fig_,axes_,plot_] = plot_2d_nd_(w,nout,type,opt,varargin)
 [~,lims,fig]=genie_figure_parse_plot_args(opt,varargin{:});
 
 
-n_plots = numel(w);
-fig_ = cell(n_plots,1);
-axes_ = cell(n_plots,1);
-plot_ = cell(n_plots,1);
 
 % perform plot
-[fig_{1},axes_{1},plot_{1}]=plot_twod (w(1),opt.newplot,type,fig,lims{:});
-opt.newplot = true;
-opt.over_curr=true;
-for i=2:n_plots
-    fig = figure;
-    % perform another plot
-    [fig_{i},axes_{i},plot_{i}]=plot_twod(w(i),opt.newplot,type,fig,lims{:});
-end
-
+[fig_,axes_,plot_]=plot_twod (w,opt.newplot,type,fig,lims{:});
 % if output requested, combine output in array of graphical objects
-if nout>0
-    fig_  = [fig_{:}];
-    axes_ = [axes_{:}];
-    plot_ = [plot_{:}];
-end

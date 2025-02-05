@@ -1,5 +1,5 @@
 function [s, e, npix, pix_out, unique_runid] = ...
-    cut_accumulate_data_(obj, targ_proj, targ_axes, keep_pixels, log_level)
+    cut_accumulate_data_(obj, targ_proj, targ_axes, keep_pixels, log_level, sym)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
@@ -74,7 +74,7 @@ pixel_contrib_name = report_cut_type(obj, log_level, filebacked_cut, keep_pixels
 
 if keep_pixels
     [npix, s, e, pix_out, unique_runid] = cut_with_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
-        targ_axes, npix, s, e, log_level,keep_precision, pixel_contrib_name);
+        targ_axes, npix, s, e, log_level,keep_precision, pixel_contrib_name, sym);
 else
     [npix, s, e, pix_out, unique_runid] = cut_no_pixels(obj.pix, block_starts, block_sizes, targ_proj, ...
         targ_axes, npix, s, e, log_level, pixel_contrib_name);
@@ -166,7 +166,7 @@ end
 
 function [npix, s, e, pix_out, unique_runid] = cut_with_pixels(pix, block_starts, block_sizes, ...
     targ_proj, targ_axes, npix, s, e, ll, ...
-    keep_precision, pixel_contrib_name)
+    keep_precision, pixel_contrib_name, sym)
 
 hc = hor_config;
 chunk_size = hc.mem_chunk_size;
@@ -195,6 +195,10 @@ if ll>=2
     t_proj_start = tic;
 end
 
+% multiple projections here can appear only from multiple symmetries, so
+% if only one projection is there, no symmetries will be used
+apply_symmetries = num_proj > 1;
+
 for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     chunk = block_chunks{iter};
@@ -216,12 +220,16 @@ for iter = 1:num_chunks
     end
 
     for i = 1:num_proj
-
         % Pix not sorted here
         [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
             targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
-        candidate_pix = candidate_pix.tag(selected);
+        % if there are symmetries, we need to transform pixels and tag used
+        % pixels to avoid multiple usage of the same pixels.
+        if apply_symmetries
+            candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected, true);
+            candidate_pix = candidate_pix.tag(selected);
+        end
 
         npix_step_retained = pix_ok.num_pixels; % just for logging the progress
         unique_runid = unique([unique_runid, unique_runid_l(:)']);
@@ -253,7 +261,7 @@ end  % loop over pixel blocks
 % were written or collect together data stored in memory.
 % return pix_out which is either pixfile_combine_info or PixelDataMemory
 % depending on how many pixels were extracted.
-pix_out = cut_data_from_file_job.accumulate_pix(pix_comb_info, true);
+pix_out = cut_data_from_file_job.accumulate_pix(pix_comb_info, true,[],[],npix);
 if ll>=2
     accum_time = toc;
     total_proj_time = toc(t_proj_start);

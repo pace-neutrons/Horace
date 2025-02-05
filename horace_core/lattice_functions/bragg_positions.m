@@ -1,4 +1,4 @@
-function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
+function [rlu_actual,width,wcut,wpeak]=bragg_positions(w, rlu_expected,...
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, varargin)
 % Get actual Bragg peak positions, given initial estimates of their positions
@@ -12,11 +12,12 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 % Input:
 % ------
 %   w                   Data source (sqw file name or sqw object)
-%   rlu                 Set of Bragg peak indices in (n x 3) matrix:
+%   rlu_expected        Set of Bragg peak indices in (n x 3) matrix:
 %                           h1, k1, l1
 %                           h2, k2, l2
 %                           :   :   :
-%                       These are the indices of the Bragg peaks whose
+%                       These are the expected (If crystal is perfectly aligned) indices
+%                       of the Bragg peaks whose
 %                       actual positions will be found by this function
 %                       e.g. [1,0,0; 0,1,0; 1,1,0]
 %
@@ -55,20 +56,20 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 %                  (radial cuts) and degrees (transverse cuts)
 %
 % Fitting:
-%   'outer'         Determine peak position from centre of peak half-height; find
+%   'outer'        Determine peak position from centre of peak half-height; find
 %                  peak width moving inwards from limits of data - useful if
 %                  there is known to be a single peak in the data as it is
 %                  more robust to too finely binned data.  [Default]
-%   'inner'         Determine peak position from centre of peak half height; find
+%   'inner'        Determine peak position from centre of peak half height; find
 %                  peak width moving outwards from peak maximum
-%   'gaussian'      Fit Gaussian on a linear background.
+%   'gaussian'     Fit Gaussian on a linear background.
 %
 %
 % Output:
 % -------
-%   rlu0            The actual peak positions as (n x 3) matrix of h,k,l as
+%   rlu_actual     The actual peak positions as (n x 3) matrix of h,k,l as
 %                  indexed with the current lattice parameters
-%   widths          Array (size (n x 3)) containing the FWHH in Ang^-1 of the
+%   widths         Array (size (n x 3)) containing the FWHH in Ang^-1 of the
 %                  peaks along each of the three projection axes
 %   wcut            Array of cuts, size (n x 3),  along three orthogonal
 %                  directions through each Bragg point from which the peak
@@ -111,7 +112,7 @@ else
     error('Object must be sqw type')
 end
 
-[opt,eint,absolute_binning,gau] = check_and_parse_inputs( rlu,...
+[opt,eint,absolute_binning,gau] = check_and_parse_inputs( rlu_expected,...
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, varargin{:});
 
@@ -119,26 +120,25 @@ end
 % Fit Peaks
 % ---------
 % Initialise output arguments
-szrlu  = size(rlu);
-rlu0   = zeros(szrlu );
+szrlu  = size(rlu_expected);
+rlu_actual   = zeros(szrlu );
 width  = zeros(szrlu);
 npeaks = szrlu(1);
 wcut=repmat(IX_dataset_1d,npeaks,3);
 wpeak=repmat(IX_dataset_1d,npeaks,3);
 
 % Get matrix to convert rlu to projection axes
-proj = img.proj;
-u1_rlu = proj.u;
-u2_rlu = proj.v;
+proj0 = img.proj;
+u1_rlu = proj0.u;
+u2_rlu = proj0.v;
 % Get the matrix to convert rlu to crystal Cartesian coordinates
 B = bmatrix (img.alatt, img.angdeg);
 
-peak_problem=false(size(rlu));
+peak_problem=false(size(rlu_expected));
 
-for i=1:size(rlu,1)
+for i=1:size(rlu_expected,1)
     % Extract Q point through which to get three orthogonal cuts
-    Qrlu = rlu(i,:);
-    modQ=norm(B*Qrlu(:));   % length of Q vector in Ang^-1
+    Qrlu = rlu_expected(i,:);
 
     % Create proj for taking three orthogonal cuts
     %   - proj.u along Q, to get maximum resolution in d-spacing
@@ -153,12 +153,6 @@ for i=1:size(rlu,1)
     else
         v=u2_rlu;
     end
-    type='aaa';        % force unit length of projection axes to be 1 Ang^-1
-    proj = line_proj('u',u,'v',v,'type',type,'offset',offset, ...
-        'alatt',img.alatt,'angdeg',img.angdeg);
-
-    % if old file has been already aligned, ignore this alignment
-    proj.ignore_legacy_alignment = true;
 
     % radial_cut_length, radial_bin_width, radial_thickness,...
     % trans_cut_length, trans_bin_width, trans_thickness, energy_window)
@@ -170,6 +164,7 @@ for i=1:size(rlu,1)
         bin_t=trans_bin_width;
         thick_t=trans_thickness;
     else
+        modQ=norm(proj0.transform_hkl_to_pix(Qrlu(:)));   % length of Q vector in Ang^-1        
         len_r=radial_cut_length*modQ;
         bin_r=radial_bin_width*modQ;
         thick_r=radial_thickness*modQ;
@@ -177,6 +172,14 @@ for i=1:size(rlu,1)
         bin_t=(pi/180)*trans_bin_width*modQ;
         thick_t=(pi/180)*trans_thickness*modQ;
     end
+    % Build projection for using in cuts done in A^-1 Units
+    type='aaa';        % force unit length of projection axes to be 1 Ang^-1
+    proj = line_proj('u',u,'v',v,'type',type,'offset',offset, ...
+        'alatt',img.alatt,'angdeg',img.angdeg);
+
+    % if old file has been already aligned, ignore this alignment
+    proj.ignore_legacy_alignment = true;
+    
 
     % Make three orthogonal cuts through nominal Bragg peak positions
     disp('--------------------------------------------------------------------------------')
@@ -214,23 +217,23 @@ for i=1:size(rlu,1)
 
     % Convert peak position into r.l.u.
     if all(isfinite(upos0))
-        rlu0(i,:)= proj.transform_img_to_hkl(upos0(:));
+        rlu_actual(i,:)= proj.transform_img_to_hkl(upos0(:));
     else
         peak_problem(i,:)=~isfinite(upos0);
-        rlu0(i,:)=NaN;
+        rlu_actual(i,:)=NaN;
     end
 end
 
 disp('--------------------------------------------------------------------------------')
 if any(peak_problem(:))
     disp('Problems determining peak position for:')
-    for i=1:size(rlu,1)
+    for i=1:size(rlu_expected,1)
         if any(peak_problem(i,:))
             disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan(s): ',num2str(find(peak_problem(i,:)))])
         end
     end
     disp(' ')
-    disp(['Total number of peaks = ',num2str(size(rlu,1))])
+    disp(['Total number of peaks = ',num2str(size(rlu_expected,1))])
     disp('--------------------------------------------------------------------------------')
 end
 

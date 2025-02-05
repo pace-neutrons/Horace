@@ -99,10 +99,10 @@ classdef rundata < serializable
             fields = rundata.min_field_set_;
         end
         %
-        function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
+        function [runfiles_list,file_exist,replicated_files]=gen_runfiles(spe_files,varargin)
             % Returns array of rundata objects created by the input arguments.
             %
-            %   >> [runfiles_list,file_exist] = gen_runfiles(spe_file,[par_file],arg1,arg2,...)
+            %   >> [runfiles_list,file_exist,replicated] = gen_runfiles(spe_file,[par_file],arg1,arg2,...)
             %
             % Input:
             % ------
@@ -133,36 +133,23 @@ classdef rundata < serializable
             % Output:
             % -------
             %   runfiles        Array of rundata objects
-            %   file_exist   boolean array  containing true for files which were found
+            %   file_exist      boolean array  containing true for files which were found
             %                   and false for which have been not. runfiles list
             %                   would then contain members, which do not have loader
             %                   defined. Missing files are allowed only if -allow_missing
             %                   option is present as input
+            % replicated_files
+            %               -- list of file names containing the names of files which
+            %                  have been replicated to provide each parallel worker
+            %                   with its own version of spe file.
+
             %
             % Notes:
             % ^1    This parameter is optional for some formats of spe files. If
             %       provided, overrides the information contained in the the "spe" file.
-            [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
+            [runfiles_list,file_exist,replicated_files]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
         %
-        function [id,filename] = extract_id_from_filename(file_name)
-            % Extract run id from a filename, if run-number is
-            % present in the filename, and is first number among all other
-            % numbers. Alternativelym it may be stored at the end of the filename after
-            % special character string, specifying this number.
-            % Inputs:
-            % file_name - string containing filename with runid or mangled string
-            %             containg special representation of runid in the form
-            %             fildname$id$string_representation_of_id;
-            % Output:
-            % id        - number (id) extracted from filename. NaN if routine has not
-            %              been able to identify any numbers in the filename
-            % filename  - unchanged filename if file_name did not contained $id$ or
-            %             unmabgled par of file_name if $id% was present
-            %
-
-            [id,filename] = extract_id_from_filename_(file_name);
-        end
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
@@ -173,10 +160,10 @@ classdef rundata < serializable
     end
 
     methods(Static,Access=protected)
-        function [runfiles_list,defined]= gen_runfiles_of_type(type_name,spe_files,varargin)
+        function [runfiles_list,defined,replicated_files]= gen_runfiles_of_type(type_name,spe_files,varargin)
             % protected function to access private rundata routine.
             % Generates files of the named type type_name, with rundata interface.
-            [runfiles_list,defined]=gen_runfiles_(type_name,spe_files,varargin{:});
+            [runfiles_list,defined,replicated_files]=gen_runfiles_(type_name,spe_files,varargin{:});
         end
     end
 
@@ -434,7 +421,7 @@ classdef rundata < serializable
             det = get_loader_field_(this,'det_par');
         end
         function det=get_det_par_rows(this)
-        %GET_DET_PAR_ROWS return detpar structure with fields in row order
+            %GET_DET_PAR_ROWS return detpar structure with fields in row order
             det = get_loader_field_(this,'det_par');
             det.group = det.group(:)';
             det.x2 = det.x2(:)';

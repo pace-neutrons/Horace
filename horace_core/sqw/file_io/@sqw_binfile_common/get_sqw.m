@@ -63,35 +63,6 @@ end
 % ------------------------------------------
 [exp_info,~]  = obj.get_exp_info('-all');
 
-% Get detector parameters
-% -----------------------
-if ~(opts.head||opts.his)
-    detpar = obj.get_detpar();
-    if ~isempty(detpar)
-        if  isstruct(detpar) && IX_detector_array.check_detpar_parms(detpar)
-	        detector = IX_detector_array(detpar);
-	        det_arrays = exp_info.detector_arrays;
-        	if exp_info.detector_arrays.n_runs == 0       
-                det_arrays = det_arrays.add_copies_(detector, exp_info.n_runs);
-                exp_info.detector_arrays = det_arrays;
-
-            elseif exp_info.detector_arrays.n_runs == exp_info.n_runs
-                exp_info.detector_arrays = exp_info.detector_arrays.replace_all(detector);
-            else
-	            error('HORACE:get_sqw:invalid_data', ...
-	                  ['the detector arrays input with exp_info are neither zero length',...
-	                   'nor as long as the number of runs in exp_info.\n', ...
-	                   'the formation of exp_info upstream may be faulty.']);
-        	end
-        else
-            error('HORACE:get_sqw:invalid_data', ...
-                  'detpar input is not a struct as per this file format');
-        end
-   else
-        ; % there was no detpar info in the file; currently do nothing, not an error state
-   end
-end
-
 % Get data
 % --------
 if opts.verbatim || opts.keep_original
@@ -104,11 +75,12 @@ if (opts.head || opts.his)
 else
     opt2 = {};
 end
-
-
 data_opt= [opt1, opt2];
 sqw_struc.data = obj.get_data(data_opt{:});
-
+%
+hav     = exp_info.header_average();
+al_info = dnd_data_alignment(sqw_struc.data,hav);
+%
 if ~opts.nopix && obj.npixels>0
     if opts.noupgrade || opts.norange
         argi = {'-norange'};
@@ -128,6 +100,10 @@ if ~opts.nopix && obj.npixels>0
         sqw_struc.pix = PixelDataBase.create(obj,argi{:});
     end
 end
+if ~isempty(al_info)
+    sqw_struc.pix.alignment_matr = al_info.rotmat;
+end
+
 
 sqw_struc.experiment_info = exp_info;
 old_file = ~sqw_struc.main_header.creation_date_defined;
@@ -137,17 +113,6 @@ old_file = ~sqw_struc.main_header.creation_date_defined;
 if ~opts.nopix && (sqw_struc.pix.num_pixels > 0) && old_file
     % try to update pixels run id-s
     sqw_struc = update_pixels_run_id(sqw_struc);
-end
-% needed to support  legacy alignment, where u_to_rlu matrix is multiplied
-% by alignment rotation matrix
-header_av = exp_info.header_average;
-if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
-    u_to_rlu  = header_av.u_to_rlu(1:3,1:3);
-    if any(abs(subdiag_elements(u_to_rlu))>4*eps('single')) % if all 0, its inverted B-matrix so certainly
-        proj = sqw_struc.data.proj;         % no alignment (lattice may have changed
-        % but this is reflected elsewhere), otherwise legacy alignment.
-        sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu);
-    end
 end
 %
 if opts.legacy
@@ -175,4 +140,3 @@ end
 if nargout>1
     varargout{1} = obj;
 end
-

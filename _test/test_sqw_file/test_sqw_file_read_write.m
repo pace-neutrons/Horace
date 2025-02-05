@@ -155,8 +155,9 @@ classdef test_sqw_file_read_write < TestCase
             sam.angdeg=[91 92 93];
             f1_2_i0s0=change_header_test(f1_2_i1s1,ins,sam);
         end
-        function test_change_instrument(obj)
-             % Use instrument function definition to change instrument
+
+        function test_change_2instruments_and_1sample_in_mem_vs_file(obj)
+            % Use instrument function definition to change instrument
             % -------------------------------------------------------
             % Create reference object, testing setting of array instrument on the way
             tmpsqwfile=fullfile(tmp_dir,'test_sqw_file_fileref_store.sqw');
@@ -165,19 +166,20 @@ classdef test_sqw_file_read_write < TestCase
             wref=obj.ds.f1_2;
             hdr = wref.experiment_info;
             hdr.expdata(1).efix=130;
-            hdr.expdata(1).efix=135; % betting this is {2} like the instrument change below
+            hdr.expdata(2).efix=135; %
             wref.experiment_info = hdr;
-            inst_arr=create_test_instrument(95,250,'s');
-            inst_arr(2)=create_test_instrument(105,300,'a');
+            inst_arr=create_test_instrument([95,105],[250,300],{'s','a'});
 
-            wref=change_header_test(wref,inst_arr,obj.sam1);
+            change_header_test(wref,inst_arr,obj.sam1);
 
-            save(wref,tmpsqwfile);
-            wref=sqw(tmpsqwfile);     % creates with same file name will be set with read_sqw
+        end
+        function test_change_instrument_in_mem_vs_function(obj)
+            wref=obj.ds.f1_2;
+            % save(wref,tmpsqwfile);
+            % wref=sqw(tmpsqwfile);     % creates with same file name will be set with read_sqw
 
             % Change the two instruments
-            inst_arr=create_test_instrument(400,500,'s');
-            inst_arr(2)=create_test_instrument(105,600,'a');
+            inst_arr=create_test_instrument([400,105],[500,600],{'s','a'});
             wtmp_ref=wref;
             hdr = wtmp_ref.experiment_info;
             hdr.instruments{1}=inst_arr(1);
@@ -185,19 +187,30 @@ classdef test_sqw_file_read_write < TestCase
             wtmp_ref.experiment_info = hdr;
 
             wtmp=set_instrument(wref,@create_test_instrument,[400;105],[500;600],{'s';'a'});
-            assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
+            assertEqualToTol(wtmp_ref,wtmp)
+        end
 
+        function test_change_instr_in_file_using_function_on_file(obj)
+            wref=obj.ds.f1_2;
+            % Create reference object, testing setting of array instrument on the way
             tmpsqwfile1=fullfile(tmp_dir,'test_sqw_file_fileref_store1.sqw');
             clob2 = onCleanup(@()delete(tmpsqwfile1));
-            save(wref,tmpsqwfile1);     % recreate reference file
-            % this fails but for different reason
-            % set_instrument_horace(tmpsqwfile,@()create_test_instrument([400;105],[500;600],{'s';'a'}));
-            % assertTrue(isequal(wtmp_ref,read_sqw(tmpsqwfile)),'Incorrectly set instrument for sqw file')
+            save(wref,tmpsqwfile1);    % create reference file
+
+            inst_arr = create_test_instrument([400;105],[500;600],{'s';'a'});
+            hdr = wref.experiment_info;
+            hdr.instruments{1}=inst_arr(1);
+            hdr.instruments{2}=inst_arr(2);
+            wref.experiment_info = hdr;
+
+            %
+            set_instrument_horace(tmpsqwfile1,inst_arr );
+            assertEqualToTol(wref,read_sqw(tmpsqwfile1),'-ignore_str','-ignore_date');
 
 
             % Both instruments set to the same
             inst_arr=create_test_instrument(400,500,'s');
-            inst_arr(2)=create_test_instrument(400,500,'s');
+            inst_arr = [inst_arr,inst_arr];
             wtmp_ref=wref;
             hdr = wtmp_ref.experiment_info;
             hdr.instruments{1}=inst_arr(1);
@@ -205,18 +218,15 @@ classdef test_sqw_file_read_write < TestCase
             wtmp_ref.experiment_info = hdr;
 
             wtmp=set_instrument(wref,@create_test_instrument,400,500,'s');
-            assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
+            assertEqualToTol(wtmp_ref,wtmp);
 
             tmpsqwfile2=fullfile(tmp_dir,'test_sqw_file_fileref_store2.sqw');
             clob3 = onCleanup(@()delete(tmpsqwfile2));
             save(wref,tmpsqwfile2);     % recreate reference file
-            % this fails buf for some other reason
-            % set_instrument_horace(tmpsqwfile,@create_test_instrument,400,500,'s');
-            % assertTrue(isequal(wtmp_ref,read_sqw(tmpsqwfile)),'Incorrectly set instrument for sqw file')
 
 
             % Set ei in chopper to whatever is in the spe files
-            inst_arr=create_test_instrument(135,500,'s');
+            inst_arr=create_test_instrument(50,500,'s');
             inst_arr(2)=create_test_instrument(50,500,'s');
             wtmp_ref=wref;
             hdr = wtmp_ref.experiment_info;
@@ -225,14 +235,21 @@ classdef test_sqw_file_read_write < TestCase
             wtmp_ref.experiment_info = hdr;
 
             wtmp=set_instrument(wref,@create_test_instrument,'-efix',500,'s');
-            assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
+            assertEqualToTol(wtmp_ref,wtmp)
+        end
 
+        function test_substitute_efix_on_file(obj)
+            wref=obj.ds.f1_2;
             tmpsqwfile3=fullfile(tmp_dir,'test_sqw_file_fileref_store3.sqw');
             clob4 = onCleanup(@()delete(tmpsqwfile3));
 
             save(wref,tmpsqwfile3);     % recreate reference file
-            %set_instrument_horace(tmpsqwfile,@create_test_instrument,'-efix',500,'s');
-            %assertTrue(isequal(wtmp_ref,read_sqw(tmpsqwfile)),'Incorrectly set instrument for sqw file')
+
+            inst=create_test_instrument(50,500,'s');
+            wref.experiment_info.instruments = inst;
+
+            set_instrument_horace(tmpsqwfile3,@create_test_instrument,'-efix',500,'s');
+            assertEqualToTol(wref,read_sqw(tmpsqwfile3),'-ignore_str','-ignore_date')
             %----------------------------------------------------------------------------------------
         end
     end

@@ -14,10 +14,34 @@ classdef test_line_proj_transf_nonorth<TestCase
             end
             this=this@TestCase(name);
         end
+        function w = hkl_bragg(~,h,k,l,e,p)
+            grid_h = round(h);
+            grid_k = round(k);
+            grid_l = round(l);
+            w = p(1)*exp(-((h-grid_h).^2+(k-grid_k).^2+(l-grid_l).^2)/p(2));
+        end
+        function test_nonortho_cut_image(obj)
+            proj = line_proj([1,0,0],[0,1,0],[],false,'rrr',[2,2,4],[90,90,70]);
+            ax   = line_axes('nbins_all_dims',[200,200,1,1],'img_range',[-4,-3,-0.1,-5;4,3,0.1,5]);
+            tsqw = sqw.generate_cube_sqw(ax,proj);
+            tsqw = sqw_eval(tsqw,@(h,k,l,e,p)(hkl_bragg(obj,h,k,l,e,p)),[1,0.01]);
+
+            % Ugly comparison of image
+            bp1 = [-3.3,-2.0]; % location of the first "bragg" peak not on the edge
+            ij_pos = round((bp1-[-4,-3]).*[200,200]./[8,6])+1;
+            assertTrue(tsqw.data.s(ij_pos(1),ij_pos(2))>0.5)
+
+            proj_n = line_proj([1,0,0],[0,1,0],[],true,'rrr',[2,2,4],[90,90,70]);
+            tso  = sqw.generate_cube_sqw(ax,proj_n);
+            tso = sqw_eval(tso,@(h,k,l,e,p)(hkl_bragg(obj,h,k,l,e,p)),[1,0.01]);
+
+            % Ugly comparison of image
+            bp1 = [-3.,-2.0]; % location of the first "bragg" peak not on the edge
+            ij_pos = round((bp1-[-4,-3]).*[200,200]./[8,6])+1;
+            assertTrue(tso.data.s(ij_pos(1),ij_pos(2))>0.5)
+        end
 
         function test_getset_nonortho_proj_ppp_100(~)
-            % this test does not work. Should it? With current
-            % nonorthogonal lattice definition, such recovery is impossible
 
             prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
@@ -43,14 +67,12 @@ classdef test_line_proj_transf_nonorth<TestCase
             % and the matrices are correct!
             assertTrue(prj_or.nonorthogonal);
             assertTrue(prj_rec.nonorthogonal);
-  
+
             assertEqualToTol(prj_or,prj_rec,1.e-9);
         end
 
 
         function test_getset_nonortho_proj_rrr_100(~)
-            % this test does not work. Should it? With current
-            % nonorthogonal lattice definition, such recovery is impossible
 
             prj_or = line_projTester('alatt',[3, 4 5], ...
                 'angdeg',[85 95 90],'nonorthogonal',true,...
@@ -78,7 +100,7 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertTrue(prj_rec.nonorthogonal);
 
 
-            assertEqualToTol(prj_or,prj_rec,1.e-9);            
+            assertEqualToTol(prj_or,prj_rec,1.e-9);
         end
         %
         function test_getset_nonortho_proj_ppp_110(~)
@@ -292,8 +314,6 @@ classdef test_line_proj_transf_nonorth<TestCase
         %
         %------------------------------------------------------------------
         function test_uv_to_rot_and_vv_complex_nonorth_with_rrr_nonortho(~)
-            % this test does not work. Should it? With current
-            % nonorthogonal lattice definition, such recovery is impossible
 
             u = [1,1,0];
             v = [0,-0.5,1];
@@ -302,20 +322,13 @@ classdef test_line_proj_transf_nonorth<TestCase
             pra = line_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
             %
-            %TODO: This option does not currently work.
-            %pra.nonorthogonal = true;
-            % Is it necessary to make it to work?
+            [~,u_to_rlu,ulen]= pra.projaxes_to_rlu_public;
             %
-            [u_to_img,~,ulen]= pra.get_pix_img_transformation(3);
-            %
-            [u_par,v_par,w,type] = pra.uv_from_data_rot_public(u_to_img,ulen);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            pra = line_projTester(u_par,v_par,w, ...
-                'alatt',alatt,'angdeg',angdeg,'type',type, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_img,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            pc = pra.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
 
         end
         %
@@ -329,14 +342,11 @@ classdef test_line_proj_transf_nonorth<TestCase
 
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu, ulen);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            pra = line_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',typ, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            pc = pra.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
 
         end
         %
@@ -351,19 +361,11 @@ classdef test_line_proj_transf_nonorth<TestCase
                 'nonortho',true);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,typ] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
-            %            assertElementsAlmostEqual(u',u_par);
-            %assertElementsAlmostEqual(w',[0,1,0]);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            % find part of the v vector, orthogonal to u
-
-            pra = line_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',typ, 'nonortho',true);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
-            assertElementsAlmostEqual(ulen,ulen_rec);
-
+            pc = pra.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
 
         end
         %
@@ -375,13 +377,13 @@ classdef test_line_proj_transf_nonorth<TestCase
             angdeg = [90,90,90];
             pro = line_projTester(u,v,'alatt',alatt,'angdeg',angdeg, ...
                 'nonortho',true);
-            [~, q_to_rlu, ulen] = pro.projaxes_to_rlu_public();
+            [~, u_to_rlu, ulen] = pro.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,type] = pro.uv_from_data_rot_public(q_to_rlu,ulen);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            prr = line_projTester(u_par,v_par,w,'alatt',alatt, ...
-                'angdeg',angdeg,'type',type, 'nonortho',true);
-            assertEqualToTol(pro,prr,1.e-12)
+            pc = pro.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
         end
         %
         function test_uv_to_rot_and_back_simple_ortho_lattice(~)
@@ -394,18 +396,11 @@ classdef test_line_proj_transf_nonorth<TestCase
                 'nonortho',true);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
 
-            [u_par,v_par,w,tpe] = pra.uv_from_data_rot_public(u_to_rlu,ulen);
+            pru = ubmat_proj(u_to_rlu,ulen,'alatt',alatt,'angdeg',angdeg);
 
-            prb = line_projTester(u_par,v_par,w,'alatt',alatt,'angdeg', ...
-                angdeg,'type',tpe,'nonortho',true);
-            [~, ~, ulen_rec] = pra.projaxes_to_rlu_public();
-
-            pix_cc = [eye(3),ones(3,1)];
-            img_or = pra.transform_pix_to_img(pix_cc);
-            img_rc = prb.transform_pix_to_img(pix_cc);
-
-            assertElementsAlmostEqual(img_or ,img_rc);
-            assertElementsAlmostEqual(ulen,ulen_rec);
+            pc = pra.transform_pix_to_img([eye(4),ones(4,1)]);
+            pcu = pru.transform_pix_to_img([eye(4),ones(4,1)]);
+            assertElementsAlmostEqual(pc,pcu);
         end
         %------------------------------------------------------------------
         %
@@ -456,8 +451,9 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',angdeg);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -481,8 +477,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',angdeg);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -506,8 +502,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',angdeg);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -531,8 +527,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -555,8 +551,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -579,8 +575,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -604,8 +600,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -628,8 +624,8 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);
@@ -652,8 +648,9 @@ classdef test_line_proj_transf_nonorth<TestCase
             assertElementsAlmostEqual(projn.u_to_rlu,projn.u_to_rlu_legacy)
 
             [q_to_img_n,shift_n,ulen_n,]=projn.get_pix_img_transformation(3);
-            projn.ub_inv_legacy = inv(projn.bmatrix());
-            [q_to_img_l,shift_l,ulen_l]=projn.get_pix_img_transformation(3);
+            proj_l = ubmat_proj(projn.u_to_rlu,ulen_n,'alatt',lat_par,'angdeg',90);
+
+            [q_to_img_l,shift_l,ulen_l]=proj_l.get_pix_img_transformation(3);
 
             assertElementsAlmostEqual(q_to_img_n,q_to_img_l);
             assertElementsAlmostEqual(shift_n,shift_l);

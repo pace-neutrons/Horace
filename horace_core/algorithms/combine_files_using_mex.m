@@ -1,27 +1,37 @@
-function  [mess,infiles] = combine_files_using_mex(fout_name,n_bin,pix_out_position,...
-    infiles,npixstart, pixstart,runlabel,change_fileno,relabel_with_fnum)
+function  [mess,infiles] = combine_files_using_mex(fout_name,pix_comb_info, ...
+    pix_out_position,runlabel,change_fileno,relabel_with_fnum)
 % prepare input data for mex-combining and attempt to combine input data
 % using mex.
 %
 % Inputs:
 % fout_name  -- name of the output file
-% n_bin      -- number of bins the images to combine contain
+% pix_comb_info 
+%            -- instance of pixfile_combine_info class, containing
+%               information about tmp files to assemble together, 
+%               Namely:
+%            n_bin     - number of bins the images to combine contain
+%            infiles   - cellarray of full names of the input files to combine
+%            npixstart - array (size of numel(infiles) defining physical positions
+%                        of npix data in each input file to combine.
+%            pixstart  - array (size of numel(infiles) defining physical positions
+%                         of pix data in each input file to combine.
+
 % pix_out_position
-%            -- the position to start writing pixels at
-% infiles    -- cellarray of full names of the input files to combine
-% npixstart  -- array (size of numel(infiles) defining physical postitions
-%               of npix data in each input file to combine.
-% pixstart   -- array (size of numel(infiles) defining physical postitions
-%               of pix data in each input file to combine.
+%             -- the position to start writing pixels at
 %
 % runlabel,change_fileno,relabel_with_fnum
 %            -- the variables controlling the processing of the run_indexes
 %               of combined pixels
 %
+% obj.pix_combine_info.nbins, ...
+%                     obj.pixout_start_pos_,obj.pix_combine_info.infiles, ...
+%                     obj.pix_combine_info.pos_npixstart,obj.pix_combine_info.pos_pixstart,
 
+infiles = pix_comb_info.infiles;
 nfiles = numel(infiles);
 
 close_files = isnumeric(infiles);
+filenum_provided = change_fileno && ~isempty(runlabel);
 
 in_params=cell(nfiles,1);
 for i=1:nfiles
@@ -41,13 +51,16 @@ for i=1:nfiles
     end
 
     in_params{i} = struct('file_name',filename,...
-                          'npix_start_pos',npixstart(i),...
-                          'pix_start_pos',pixstart(i),...
+                          'npix_start_pos',pix_comb_info.pos_npixstart(i),...
+                          'pix_start_pos',pix_comb_info.pos_pixstart(i),...
                           'file_id',file_id);
 end
 
-out_param = struct('file_name',fout_name ,...
-    'npix_start_pos',NaN,'pix_start_pos',pix_out_position,'file_id',NaN);
+out_param = struct( ...          % filepar description of the output file
+    'file_name',fout_name ,...   % output file name to write pixes
+    'npix_start_pos',0, ...      % not used. Has been recalculated and written before
+    'pix_start_pos',pix_out_position, ... % position where to write pixels 12 bytes before this position is the poistion of the pix metadata
+    'file_id',NaN);
 
 [out_buf_size,log_level] = get(hor_config,'mem_chunk_size','log_level');
 [buf_size,multithreaded_combining] = get(hpc_config,'mex_combine_buffer_size','mex_combine_thread_mode');
@@ -57,7 +70,7 @@ out_param = struct('file_name',fout_name ,...
 % 1            -- first bin to start copying pixels for
 % out_buf_size -- the size of output buffer to use for writing pixels
 % change_fileno-- if pixel run id should be changed
-% relabel_with_fnum -- if change_fileno is true, how to calculate the new pixel
+% filenum_provided -- if change_fileno is true, how to calculate the new pixel
 %                  id -- by providing new id equal to filenum or by
 %                  assigning the new number provided to it
 % num_ticks    -- approximate number of log messages to generate while
@@ -65,7 +78,7 @@ out_param = struct('file_name',fout_name ,...
 % buf size     -- buffer size -- the size of buffer used for each input file
 %                 read operations
 % multithreaded_combining - use multiple threads to read files
-program_param = [n_bin,1,out_buf_size,log_level,change_fileno,relabel_with_fnum,100,buf_size,multithreaded_combining];
+program_param = [pix_comb_info.nbins,1,out_buf_size,log_level,change_fileno,filenum_provided,100,buf_size,multithreaded_combining];
 
 if log_level > 0
     t_start=tic;

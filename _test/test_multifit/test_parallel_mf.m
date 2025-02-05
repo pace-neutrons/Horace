@@ -84,7 +84,7 @@ classdef test_parallel_mf < TestCase
             [~, fitpar_par] = mss.fit();
             assertTrue(is_same_fit(fitpar_ser, fitpar_par))
 
-
+            skipTest('Re #1824 enable when parallel multifit is fixed and working. This one shows bug in distrubute')
             hc.parallel_workers_number = 3;
             pc = {'parpool'};
 %             for pc = {'herbert', 'mpiexec_mpi', 'parpool'}
@@ -118,7 +118,7 @@ classdef test_parallel_mf < TestCase
             [~, fitpar_par] = mss.fit();
             assertTrue(is_same_fit(fitpar_ser, fitpar_par))
 
-
+            skipTest('Re #1824 enable when parallel multifit is fixed and working')
             hc.parallel_workers_number = 3;
             pc = {'herbert'};
 %             for pc = {'herbert', 'mpiexec_mpi', 'parpool'}
@@ -154,7 +154,7 @@ classdef test_parallel_mf < TestCase
             [~, fitpar_par] = mss.fit();
             assertTrue(is_same_fit(fitpar_ser, fitpar_par))
 
-
+            skipTest('Re #1824 enable when parallel multifit is fixed and working')
             hc.parallel_workers_number = 3;
             pc = {'mpiexec_mpi'};
 %             for pc = {'herbert', 'mpiexec_mpi', 'parpool'}

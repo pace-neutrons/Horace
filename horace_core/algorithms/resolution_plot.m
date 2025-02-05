@@ -210,12 +210,9 @@ if ~isa(sample,'IX_sample')
     error('HORACE:resolution_plot:invalid_argument',...
         'Sample must be a scalar IX_sample object')
 else
-    sample.alatt = lat.alatt;
+    sample.alatt  = lat.alatt;
     sample.angdeg = lat.angdeg;
 end
-exper = Experiment([],instrument,sample,expdata);
-
-wres.experiment_info = exper;
 
 
 % Check detector
@@ -231,7 +228,8 @@ if ~isfield(detpar,'filename'), detpar.filename = ''; end
 if ~isfield(detpar,'filepath'), detpar.filepath = ''; end
 if ~isfield(detpar,'group'), detpar.group = 1; end
 
-wres.detpar = detpar;
+detpar = IX_detector_array(detpar);
+wres.experiment_info = Experiment(detpar,instrument,sample,expdata);
 
 
 % Make data structure

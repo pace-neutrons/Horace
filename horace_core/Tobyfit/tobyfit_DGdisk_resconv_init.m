@@ -213,7 +213,7 @@ detector_table = object_lookup(detectors, 'repeat', sz_cell);
 
 % Get quantities and derived quantities from the header
 for iw=1:nw
-    % Get pointer to a specific sqw pobject
+    % Get pointer to a specific sqw object
     if iscell(win)
         wtmp = win{iw};
     else
@@ -221,7 +221,7 @@ for iw=1:nw
     end
 
     % Get the indices to the runs in the experiment information block, the
-    % detector indicies and the energy bin indices
+    % detector indices and the energy bin indices
     if all_pixels
         % For all pixels in the sqw object
         [irun, idet, ien] = parse_pixel_indices(wtmp);

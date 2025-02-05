@@ -92,8 +92,9 @@ end
 % ------------
 % Check consistency of spe files - do this on header, to save reading in vast amounts of data and then failing.
 for i=1:numel(spefiles)
-    [tmp,ok,mess]=get_spe_header(spefiles{i});
-    if ok
+
+        tmp = get_spe_header(spefiles{i});
+
         if i==1
             header=tmp;
         else
@@ -105,9 +106,6 @@ for i=1:numel(spefiles)
                 mess='Energy bin boundaries not all the same'; return
             end
         end
-    else
-        return
-    end
 end
 clear header tmp
 

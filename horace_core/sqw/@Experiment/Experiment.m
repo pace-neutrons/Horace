@@ -7,7 +7,7 @@ classdef Experiment < serializable
         instruments_ = 'initialised in constructor';
         detector_arrays_ = 'initialised in constructor';
         samples_ = 'initialised in constructor';
-        samples_set_ = false; % Two prperties used to harmonize lattice
+        samples_set_ = false; % Two properties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
         old_lattice_holder_ = [];
@@ -96,8 +96,6 @@ classdef Experiment < serializable
             %
             % Each argument can be a single object or array of objects.
 
-            obj = obj@serializable();
-
             % initialising the compressed component containers.
             % these may be overwritten if they are passed in as arguments
             % below
@@ -112,66 +110,17 @@ classdef Experiment < serializable
                 % so finish
                 return;
 
-            elseif nargin == 4
-                % arguments are the component arrays,
-                % initialise them
-                detector_arrays = varargin{1};
-                instruments     = varargin{2};
-                samples         = varargin{3};
-                expdata         = varargin{4};
-
-                % define expdata first, as the size of this determines the
-                % number of runs which obj will hold
-                if isa(expdata, 'IX_experiment')
-                    % add to default compressed container
-                    % this must be of the right size to define number of
-                    % runs for the experiment - the other fields can handle
-                    % adding duplicates once they know this numberval,
-                    obj.expdata_ = expdata;
-                elseif isempty(expdata)
-                    % do nothing, leave default array container empty
-                else
-                    error('HORACE:Experiment:invalid_argument', ...
-                        'input is not empty or IX_experiment');
-                end
-
-                obj = obj.add_input_with_checks(detector_arrays, 'IX_detector_array');
-
-                obj = obj.add_input_with_checks(instruments,     'IX_inst');
-
-                obj = obj.add_input_with_checks(samples,         'IX_samp');
-
-
-            elseif nargin == 1
-                arg = varargin{1};
-                if ~iscell(arg)
-                    % make arg a cell so that it is a cell array regardless
-                    % of whether it is a single header struct or a cell
-                    % array of header structs
-                    arg = { arg };
-                end
-                if ~obj.isoldheader(arg{1})
-                    error('HORACE:Experiment:invalid_argument', ...
-                        ['single argument is not an oldstyle header struct', ...
-                        ' or cell of such structs']);
-                end
-                % now have cell array of headers, init_ will process
-                varargin{1} = arg;
-
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    ['the other cases do not yet have examples ',...
-                    'so catching them here until we can do them ',...
-                    'properly']);
+                % all other nargin values are now processed in init_()
             end
             obj = init_(obj,varargin{:});
         end
-
         %
         function obj = init(obj,varargin)
             % initialize Experiment object using various possible forms of inputs,
             % provided to Experiment constructor.
-            error('Why are we here?');
+            %
+            % Called if empty Experiment (i.e. array of experiments produced by e.g. repmat)
+            % needs to be initialized.
             if nargin == 1
                 return;
             end
@@ -220,7 +169,6 @@ classdef Experiment < serializable
             if obj.do_check_combo_arg_
                 obj = check_combo_arg(obj);
             end
-
         end
         %
         function val=get.expdata(obj)
@@ -235,6 +183,12 @@ classdef Experiment < serializable
         end
         %
         function map = get.runid_map(obj)
+            map = obj.get_runid_map();
+        end
+        function map = get_runid_map(obj)
+            % Return run_id map, providing consistent interface with
+            % IX_experiment
+            %
             % deep copy handle class, to maintain consistent behaviour
             if isempty(obj.runid_map_)
                 map = [];
@@ -263,11 +217,13 @@ classdef Experiment < serializable
             % Inputs:
             % logical value, if true, says that run_id were recalculated by
             % external (test) procedure. Normally the property is modified
-            % during loading old files and set-up internaly in loadobj
+            % during loading old files and set-up internally in loadobj
             % from_old_struct.
             %
             obj.runid_recalculated_ = logical(val);
         end
+        % Alignment
+        obj = change_crystal(obj,alignment_info,varargin)
     end
     %----------------------------------------------------------------------
     % legacy instrument methods interface
@@ -380,6 +336,39 @@ classdef Experiment < serializable
             exp = get_experiments_(obj,ind);
         end
         %
+        function [exp,nspe,file_id_array] = combine_experiments(obj,exp_cellarray,allow_equal_headers,keep_runid)
+            %COMBINE_EXPRIMENTS
+            % Take cellarray of experiments (e.g., generated from each runfile build
+            % during gen_sqw generation)
+            % and combine then together into single Experiment info class
+            % Inputs:
+            % exp_cellarray -- cellarray of Experiment classes, related to
+            %                  different runs or combination of runs
+            % allow_equal_headers
+            %               -- if true, equal runs are allowed.
+            % At present, we insist that the contributing spe data are distinct
+            % in that:
+            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be
+            %     equal for two spe data input. If allow_equal_headers is
+            %     set to true, this check is disabled
+            %
+            % keep_runid    -- if true, the procedure keeps run_id-s
+            %                  defined for contributing experiments.
+            %                  if false, the run-ids are reset from 1 for
+            %                  first contributed run to n_runs for the
+            %                  last contributing run (nxspe file)
+            % Returns:
+            % exp           -- Experiment class containing combined input
+            %                  experiments
+            % nspe          -- number of unique runs, contributing into
+            %                  resulting Experiment
+            % file_id_array -- array of final run_id-s for all input nxspe.
+            %                  one id per input run
+
+            [exp,nspe,file_id_array] = combine_experiments_(obj,exp_cellarray,allow_equal_headers,keep_runid);
+        end
+
+        %
         function subexper = get_subobj(obj,runids_to_keep,varargin)
             % Return Experiment object containing subset of experiments,
             % requested by the method.
@@ -411,7 +400,7 @@ classdef Experiment < serializable
             end
             subexper = get_subobj_(obj,runids_to_keep,indexes_provided);
         end
-        
+
         function expt_idx = get_experiment_idx (obj, run_idx, varargin)
             % Get the experiment indices for an array of run indices in the pixel data
             %
@@ -439,7 +428,7 @@ classdef Experiment < serializable
             %                   The size of expt_idx is the same as that of run_idx.
             expt_idx = get_experiment_idx_ (obj, run_idx, varargin{:});
         end
-            
+
         %
         % GEN_SQW interface
         %------------------------------------------------------------------
@@ -646,29 +635,6 @@ classdef Experiment < serializable
             [args,npar] = check_and_expand_function_args_(varargin{:});
         end
 
-        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,keep_runid)
-            %COMBINE_EXPRIMENTS
-            % Take cellarray of experiments (e.g., generated from each runfile build
-            % during gen_sqw generation)
-            % and combine then together into single Experiment info class
-            % Inputs:
-            % exp_cellarray -- cellarray of Experiment classes, related to
-            %                  different runs or combination of runs
-            % allow_equal_headers
-            %               -- if true, equal runs are allowed.
-            % At present, we insist that the contributing spe data are distinct
-            % in that:
-            %   - filename, efix, psi, omega, dpsi, gl, gs cannot all be
-            %     equal for two spe data input. If allow_equal_headers is
-            %     set to true, this check is disabled
-            %
-            % keep_runid    -- if true, the procedure keeps run_id-s
-            %                  defined for contributing experiments.
-            %                  if false, the run-ids are reset from 1 for
-            %                  first contributed run to n_runs for the
-            %                  last contributing run (nxspe file)
-            [exp,nspe] = combine_experiments_(exp_cellarray,allow_equal_headers,keep_runid);
-        end
     end
     %======================================================================
     % SERIALIZABLE interface

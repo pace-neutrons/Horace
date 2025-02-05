@@ -270,6 +270,10 @@ classdef ClusterWrapper
                 existing_addpath = split(existing_addpath, pathsep);
                 there = ismember(existing_addpath,necessary_addpath);
                 existing_addpath = existing_addpath(~there);
+                % spinW will be initialized by horace_on so should not be
+                % provided in user path:
+                spinw_present = cellfun(@(fldr)(contains(fldr,'spinW')),existing_addpath);
+                existing_addpath = existing_addpath(~spinw_present);
                 if ~isempty(existing_addpath)
                     existing_addpath = strjoin(existing_addpath,pathsep);
                 end
@@ -278,12 +282,22 @@ classdef ClusterWrapper
             % Split path into cell of paths
             curr_path = split(path, pathsep);
             % Filter array for user-added paths
+            % 
             %
             % Horace path to remove:
             hor = fullfile(horace_root,'horace_core');
             her = fullfile(horace_root,'herbert_core');
             adm = fullfile(horace_root,'admin');
             to_remove = {matlabroot,hor,her,adm,necessary_addpath};
+            % remove spinW if present. Each worker will initiate it itself
+            % if necessary
+            spinw_path = which('spinw');
+            if ~isempty(spinw_path)
+                % hope spiW guys would not change this
+                spw = fileparts(fileparts(fileparts(spinw_path)));
+                to_remove = [to_remove(:);spw];
+            end
+            
             for i=1:numel(to_remove)
                 curr_path = curr_path(~startsWith(curr_path,to_remove{i}));
             end
@@ -481,7 +495,7 @@ classdef ClusterWrapper
             if paused
                 completed = false;
                 failed    = false;
-                mess = 'paused';
+                mess = 'pending';
             else
                 [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
             end
@@ -590,7 +604,7 @@ classdef ClusterWrapper
             % if the particular framework is not available.
             worker = config_store.instance.get_value('parallel_config','worker');
             assert(~isempty(which(worker)) || exist(worker, 'file'), ...
-                'HERBERT:ClusterWrapper:not_available',...
+                'HERBERT:ClusterWrapper:runtime_error',...
                 'Parallel worker %s is not on Matlab path. Parallel extensions are not available',...
                 worker);
         end

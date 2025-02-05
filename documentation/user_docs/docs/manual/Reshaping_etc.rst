@@ -14,7 +14,7 @@ that direction. Likewise, a ``d4d`` might be made up of "stacked" copies of a
 
 In Matlab syntax this means e.g.
 
-::
+.. code-block:: matlab
 
    oldmat = [1 2; 3 4];
    newmat(:,:,1) = oldmat;
@@ -24,14 +24,14 @@ The actual syntax for replicate does not construct the layers individually.
 Instead, a reference object of the required dimensionality (``wref_3d`` below)
 is supplied to act as a template.
 
-::
+.. code-block:: matlab
 
    w_3d = replicate(w_nd, wref_3d);
 
 
 or
 
-::
+.. code-block:: matlab
 
    w_4d = replicate(w_nd, wref_4d);
 
@@ -39,6 +39,10 @@ or
 .. note::
 
    ``wref`` can be either a ``dnd`` or an ``sqw`` type object.
+
+.. note::
+
+   ``w_nd`` may be of any dimensionality less than that of ``wref``
 
 .. warning::
 
@@ -58,7 +62,7 @@ Trim empty bins from around the border of a dnd.
 The resulting object has its ranges redefined such that all primary axis
 dimensions are the minimum required to contain all data without losses.
 
-::
+.. code-block:: matlab
 
    wout = compact(win);
 
@@ -77,7 +81,7 @@ dimensions are the minimum required to contain all data without losses.
 
 Function to permute the order of the display (binning) axes in an object.
 
-::
+.. code-block:: matlab
 
    wout = permute(win[, permutation]);
 
@@ -88,7 +92,7 @@ permute the axes by one (e.g. 1->2, 2->3, 3->4, 4->1).
 
 .. note::
 
-    ::
+    .. code-block:: matlab
 
        wout = permute(w_3d, [3 2 1]);
 
@@ -108,9 +112,9 @@ Produce a rebinned dataset from a starting dataset. See :ref:`cut
 <manual/Cutting_data_of_interest_from_SQW_files_and_objects:cut>` for
 more details.
 
-::
+.. code-block:: matlab
 
-   wout=cut(win, ax_1, ax_2, ...);
+   wout = cut(win, ax_1, ax_2, ...);
 
 
 where ``ax_1`` etc. take the form:
@@ -138,7 +142,7 @@ where ``ax_1`` etc. take the form:
 
    For example:
 
-   ::
+   .. code-block:: matlab
 
       wout = cut(w_3d, [-0.2, 0.2], [0.9, 1.1], []);
 
@@ -152,7 +156,7 @@ where ``ax_1`` etc. take the form:
 
 Takes a cut from an n-dimensional object without rebinning.
 
-::
+.. code-block:: matlab
 
    wout=section(win, [ax1_lo, ax1_hi], [ax2_lo, ax2_hi], ...)
 
@@ -176,7 +180,7 @@ specify the lower and upper limits on each axis to retain.
 
 .. note:: If just a zero is specified, e.g.
 
-   ::
+   .. code-block:: matlab
 
       wout = section(win, [1, 2], 0, [3, 4])
 
@@ -199,9 +203,16 @@ convolving it with a windowing function.
    little sense.
 
 
-::
+.. code-block:: matlab
 
    wout = smooth(win[, width_vector][, function])
+
+
+e.g.:
+
+.. code-block:: matlab
+
+   wout = smooth(win, 3, 'gaussian')
 
 
 .. note::
@@ -228,7 +239,7 @@ respective windowing function.
 
 Apply a mask to points in an n-dimensional dataset ``win``.
 
-::
+.. code-block:: matlab
 
    wout = mask(win, mask_array)
 
@@ -252,7 +263,7 @@ the plot axes of ``win``, consisting of booleans where data are to be retained
 A function to generate a suitable mask array (see above) for an n-dimensional
 dataset.
 
-::
+.. code-block:: matlab
 
    sel = mask_points(win[, 'keep', xkeep][, 'remove', xremove][, 'mask',
    mask_array])
@@ -260,26 +271,90 @@ dataset.
 
 The inputs are:
 
-- ``win`` is the input dataset
+- ``win`` is the input ``sqw`` dataset
 
 - ``xkeep`` is the range of display axes to keep, e.g. ``[x1_lo, x1_hi, x2_lo,
-  x2_hi, ..., xn_lo, xn_hi]``. Note also that more than one range can be
-  specified for each dimension by writing ``[range_1; range_2;...]``
+  x2_hi, ..., xn_lo, xn_hi]``, where ``n`` is the dimensionality of ``win``.
+
+  .. warning::
+
+     For a given dimensionality of ``sqw`` object, you must provide ranges for all the specified dimensions.
+
+  e.g.
+
+  .. code-block:: matlab
+
+     % Select the points between 50 and 70 in the first display dimension
+     sel = mask_points(win_1d, 'keep', [50,70]);
+     % select the points in the rectangle defined by the corners
+     % (1, 130), (2, 160)
+     sel = mask_points(win_2d, 'keep', [1,2,130,160]);
+
+  .. note::
+
+     More than one range can be specified for each dimension by writing
+     ``[range_1; range_2;...]``, where each ``range_n`` has the form of an
+     ``xkeep`` specification, e.g.
+
+     .. code-block:: matlab
+
+       % Select the points in the rectangles defined by the corners
+       % (1, 130), (2, 160) and (5, 110), (7, 130)
+       sel = mask_points(win_2d, 'keep', [1, 2, 130, 160; ...
+                                          5, 7, 110, 130]);
+
 
 - ``xremove`` is the range of display axes to remove. Follows the same format as
   ``xkeep``.
 
-- ``mask_array`` is an array of booleans with the same number of elements as the
-  data array, with corresponding ``true`` to keep and ``false`` to remove.
+.. warning::
+
+   It should be noted that masking through the ``xkeep`` and ``xremove``
+   arguments will mask data based on the bin-centres and not through any
+   intersection of any bin-edges. This means that for a 1-D case where:
+
+   .. code-block:: matlab
+
+      bins = [1 2 3 4] % <- Defines bin-centres at: [1.5, 2.5, 3.5]
+      mask_points(w, 'keep', [1.7, 3.51])
+
+   will remove the first bin because even though ``1.7`` lies within the first
+   bin, the range does not contain the bin-centre. ``3.51``, however, just
+   barely captures the last bin and so this will not be removed.
+
+- ``mask_array`` is an array of booleans with the same number of
+  elements as ``win``, with corresponding ``true`` to keep and
+  ``false`` to remove.
+
+  .. note::
+
+     The shape of ``mask_array`` should match the complete stored pixel data, not
+     the bins as presented on the plotting axes.
 
 .. note::
 
-   This should match the internal stored data, not as presented on the plotting
-   axes.
+   Should more than one of ``'keep'``, ``'remove'`` or ``'mask'`` be specified,
+   for any given point, all options agree to keep the point for that point to be
+   kept.
+
+   That is:
+
+   .. code-block:: matlab
+
+      % Here, keep and remove are arrays of logicals
+      % of the same shape as `win`'s data constructed
+      % from the ranges specified in `xkeep` and `xremove`
+
+      sel = keep & ~remove & mask;
+
+.. note::
+
+   Any unspecified keywords (``'keep'``, ``'remove'`` or ``'mask'``) are
+   considered to be ``keep`` for all points
 
 The outputs are:
 
-- ``sel`` mask array the required size, accounting for all of the input
+- ``sel`` mask array of the required size, accounting for all of the input
   requirements.
 
 ``mask_runs``
@@ -289,7 +364,7 @@ Remove all pixels from one or more runs from an sqw object. Useful, for example
 if one run from many in an sqw file is deemed to be spurious (e.g. detector
 noise, unknown sample orientation, etc.)
 
-::
+.. code-block:: matlab
 
     wout = mask_runs (win, runno)
 
@@ -303,9 +378,9 @@ The inputs are:
 
 .. note::
 
-  Convention is that run number is the position of the file in the list when the
-  ``.sqw`` file was generated. This value can be determined by inspecting
-  ``win.header``
+  The run number ``runno`` here is not the experimental run number, but is the
+  position of the file in the list when the ``.sqw`` file was generated. This
+  value can be determined by inspecting ``win.header``
 
 The output is:
 

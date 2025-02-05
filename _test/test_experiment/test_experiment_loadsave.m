@@ -40,13 +40,13 @@ classdef test_experiment_loadsave < TestCase
             % tmp_sqw is checked that it now does not have the marker field
             assertTrue( isa(ld1.tmp_sqw.experiment_info, 'Experiment') );
             assertEqual( ld1.tmp_sqw.experiment_info.detector_arrays, ...
-                             tmp_sqw.experiment_info.detector_arrays );
+                tmp_sqw.experiment_info.detector_arrays );
             assertEqual( ld1.tmp_sqw.experiment_info.instruments, ...
-                             tmp_sqw.experiment_info.instruments );
+                tmp_sqw.experiment_info.instruments );
             assertEqual( ld1.tmp_sqw.experiment_info.samples, ...
-                             tmp_sqw.experiment_info.samples );
+                tmp_sqw.experiment_info.samples );
             assertEqual( ld1.tmp_sqw.experiment_info.expdata, ...
-                             tmp_sqw.experiment_info.expdata );
+                tmp_sqw.experiment_info.expdata );
             assertEqualToTol( ld1.tmp_sqw, ld.test_rundata_sqw.sq4,1.e-7,'-ignore_date');
         end
 
@@ -93,30 +93,30 @@ classdef test_experiment_loadsave < TestCase
             assertTrue( isa(ld1.sq3(1).experiment_info, 'Experiment') );
             assertTrue( isa(ld1.sq3(2).experiment_info, 'Experiment') );
             assertEqual( ld1.sq3(1).experiment_info.detector_arrays, ...
-                             sq3(1).experiment_info.detector_arrays );
+                sq3(1).experiment_info.detector_arrays );
             assertEqual( ld1.sq3(1).experiment_info.instruments, ...
-                             sq3(1).experiment_info.instruments );
+                sq3(1).experiment_info.instruments );
             assertEqual( ld1.sq3(1).experiment_info.samples, ...
-                             sq3(1).experiment_info.samples );
+                sq3(1).experiment_info.samples );
             assertEqual( ld1.sq3(1).experiment_info.expdata, ...
-                             sq3(1).experiment_info.expdata );
+                sq3(1).experiment_info.expdata );
             assertEqual( ld1.sq3(2).experiment_info.detector_arrays, ...
-                             sq3(2).experiment_info.detector_arrays );
+                sq3(2).experiment_info.detector_arrays );
             assertEqual( ld1.sq3(2).experiment_info.instruments, ...
-                             sq3(2).experiment_info.instruments );
+                sq3(2).experiment_info.instruments );
             assertEqual( ld1.sq3(2).experiment_info.samples, ...
-                             sq3(2).experiment_info.samples );
+                sq3(2).experiment_info.samples );
             assertEqual( ld1.sq3(2).experiment_info.expdata, ...
-                             sq3(2).experiment_info.expdata );
-            
+                sq3(2).experiment_info.expdata );
+
             assertEqual( numel(ld1.sq3), 2);
             assertEqualToTol(sq3,ld1.sq3,1.e-12,'-ignore_date','ignore_str',true);
         end % test_loadsave_multiple_run_and_sqw
-        
+
         function test_loadsave_detectors(~)
             % partial setup of an sqw for the purposes of testing the
-            % saving and reloading of detector arrays 
-            
+            % saving and reloading of detector arrays
+
             % empty sqw
             mysqw = sqw();
             % add IX_experiment, instrument, sample for 2 runs
@@ -128,41 +128,42 @@ classdef test_experiment_loadsave < TestCase
             samp = repmat({samp},2,1);
             % create a detpar structure with dummy data
             detpar = struct('filename','fake',  ...
-                            'filepath', '/fake',...
-                            'group',    [1; 2; 3; 4], ...
-                            'x2',       [5; 5; 5; 5], ...
-                            'phi',      [1; 1; 1; 1], ...
-                            'azim',     [2; 2; 2; 2], ...
-                            'width',    [3; 3; 3; 3], ...
-                            'height',   [4; 4; 4; 4]  ...
-                            );
-             % clone it and alter x2 to distingiush the 2 detpars
-             detpar2 = detpar;
-             detpar2.x2 = [6; 6; 6; 6];
-             % make detector arrays from the detpars and combine in a cell
-             det = IX_detector_array(detpar);
-             det2 = IX_detector_array(detpar2);
-             dets = {det,det2};
-             % store all the above in an experiment and initialise
-             % experiment_info for the sqw
-             expinf = Experiment(dets,inst,samp,expdata);
-             mysqw.experiment_info = expinf;
-             assertEqual(mysqw.experiment_info.detector_arrays.n_runs,2);
-             
-             % save, load and compare the experiment info and detpar struct
-             % into a .mat file
-             save('a.mat','mysqw');
-             zzz = load('a.mat');
-             % compare the experiment_info and detpar (equivalent to the detector_arrays in experiment_info) for the
-             % original and reloaded sqws
-             assertEqualToTol(zzz.mysqw.experiment_info, mysqw.experiment_info,0.0,'ignore_str',true);
-             assertEqualToTol(zzz.mysqw.detpar, mysqw.detpar,0.0,'ignore_str',true);
-             % repeat the save and load to a file and repeat the comparison
-             mysqw.save('mysqw.sqw');
-             nusqw = read_sqw('mysqw.sqw','-nopix');
-             assertEqualToTol(nusqw.experiment_info, mysqw.experiment_info,0.0,'ignore_str',true);
-             assertEqualToTol(nusqw.experiment_info.detector_arrays, ...
-                 mysqw.experiment_info.detector_arrays,0.0,'ignore_str',true);
+                'filepath', '/fake',...
+                'group',    [1; 2; 3; 4], ...
+                'x2',       [5; 5; 5; 5], ...
+                'phi',      [1; 1; 1; 1], ...
+                'azim',     [2; 2; 2; 2], ...
+                'width',    [3; 3; 3; 3], ...
+                'height',   [4; 4; 4; 4]  ...
+                );
+            % clone it and alter x2 to distingiush the 2 detpars
+            detpar2 = detpar;
+            detpar2.x2 = [6; 6; 6; 6];
+            % make detector arrays from the detpars and combine in a cell
+            det = IX_detector_array(detpar);
+            det2 = IX_detector_array(detpar2);
+            dets = {det,det2};
+            % store all the above in an experiment and initialise
+            % experiment_info for the sqw
+            expinf = Experiment(dets,inst,samp,expdata);
+            mysqw.experiment_info = expinf;
+            assertEqual(mysqw.experiment_info.detector_arrays.n_runs,2);
+
+            % save, load and compare the experiment info and detpar struct
+            % into a .mat file
+            cl0b_file = onCleanup(@()delete('a.mat','mysqw.sqw'));
+            save('a.mat','mysqw');
+            zzz = load('a.mat');
+            % compare the experiment_info and detpar (equivalent to the detector_arrays in experiment_info) for the
+            % original and reloaded sqws
+            assertEqualToTol(zzz.mysqw.experiment_info, mysqw.experiment_info,0.0,'ignore_str',true);
+            assertEqualToTol(zzz.mysqw.detpar, mysqw.detpar,0.0,'ignore_str',true);
+            % repeat the save and load to a file and repeat the comparison
+            mysqw.save('mysqw.sqw');
+            nusqw = read_sqw('mysqw.sqw','-nopix');
+            assertEqualToTol(nusqw.experiment_info, mysqw.experiment_info,0.0,'ignore_str',true);
+            assertEqualToTol(nusqw.experiment_info.detector_arrays, ...
+                mysqw.experiment_info.detector_arrays,0.0,'ignore_str',true);
         end
     end
 end

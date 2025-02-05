@@ -8,8 +8,8 @@ else()
 endif()
 
 set(MEX_FUNCTIONS
+    "GetMD5"
     "cpp_communicator"
-    "get_ascii_file"
     "serialiser"
     "accumulate_cut_c"
     "bin_pixels_c"
@@ -18,6 +18,8 @@ set(MEX_FUNCTIONS
     "compute_pix_sums"
     "mtimesx_horace"
     "sort_pixels_by_bins"
+    "mex_bin_plugin"
+    "file_parameters"
      ${HDF_READER}
 )
 foreach(_mex_func ${MEX_FUNCTIONS})

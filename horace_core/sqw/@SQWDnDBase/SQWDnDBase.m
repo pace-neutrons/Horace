@@ -33,6 +33,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     % i.e. affect all pixels and recalculate image according to changes
     %  in pixels or vise versa.
     methods(Abstract)
+        % calculate function defined on image and return sqw/dnd object
+        % with signal set to values of this function
         wout = func_eval(win, func_handle, pars, varargin);
         %
         [wout,mask_array] = mask(win, mask_array); % mask image data and
@@ -52,6 +54,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     %----------------------------------------------------------------------
     % PageOp methods implemented on this level
     methods
+        % calculate function defined on hkle values of sqw obect and return
+        % object with image and pixels containing values of this function.
         wout = sqw_eval(win, sqwfunc, pars, varargin);
     end
     %----------------------------------------------------------------------
@@ -92,7 +96,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
         % the maximal range of the image may be produced by target projection applied to the current image.
-        range = targ_range(obj,targ_proj,varargin)
+        range = get_targ_range(obj,targ_proj,varargin)
         % if the plotting operation should adjust aspect ratio when plotting sqw objects
         status = adjust_aspect(obj)
         % build target axes for cut
@@ -140,7 +144,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         end
         %
     end
-
     methods  % Public
         [sel,ok,mess] = mask_points(win, varargin);
         cl = save(w, varargin);
@@ -169,8 +172,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
             % Process arguments of func_eval function
             [func_handle, pars, opts] = parse_funceval_args_(win, func_handle, pars, varargin{:});
         end
-
-        [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
         % on an image stored in an sqw object

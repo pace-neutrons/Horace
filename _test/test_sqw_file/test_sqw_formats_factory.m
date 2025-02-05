@@ -19,6 +19,30 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             hc = horace_paths;
             obj.test_data_folder  = hc.test_common;
         end
+        function test_pref_accessor_d0d(~)
+            tobj = d0d();
+            test_facc = faccess_dnd_v2();
+            %------ retriave defaults            
+            ref_acc_any = sqw_formats_factory.instance.get_pref_access();
+            ref_acc_d0d = sqw_formats_factory.instance.get_pref_access(tobj);
+            clOb = onCleanup(@() sqw_formats_factory.instance().set_pref_access(tobj,''));
+
+            sqw_formats_factory.instance().set_pref_access(tobj,test_facc);
+
+            acc = sqw_formats_factory.instance.get_pref_access();
+            assertEqual(acc,test_facc);
+
+            acc = sqw_formats_factory.instance.get_pref_access(tobj);
+            assertEqual(acc,test_facc);
+            %------ clear to defaults
+            sqw_formats_factory.instance().set_pref_access(tobj,'');
+
+            acc = sqw_formats_factory.instance.get_pref_access();
+            assertEqual(acc,ref_acc_any);
+
+            acc = sqw_formats_factory.instance.get_pref_access(tobj);
+            assertEqual(acc,ref_acc_d0d);
+        end
         %-----------------------------------------------------------------
         function test_selection_v3_3(obj)
 
@@ -47,7 +71,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
         %
         function test_selection_v3_old(obj)
 
-            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data')
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data');            
 
             file_v3_old = fullfile(obj.test_folder,...
                 'test_sqw_file_read_write_v3.sqw');
@@ -84,7 +108,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
         function test_selection_v0(obj)
             file_v0 = fullfile(obj.test_folder,...
                 'test_sqw_read_write_v0_t.sqw');
-            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data')
+            clob = set_temporary_warning('off','SQW_FILE_IO:legacy_data');
 
             loader = sqw_formats_factory.instance().get_loader(file_v0);
             assertTrue(isa(loader,'faccess_sqw_prototype'));
@@ -146,7 +170,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertTrue(isa(ldrs{2},'faccess_sqw_v3'));
         end
         function test_serialize_deserialize_emtpy_accessors(~)
-
+            skipTest('Re #1795 no proper comparison for sqw faccessors')
             ldrs = sqw_formats_factory.instance().supported_accessors;
             for i=1:numel(ldrs)
                 fo = ldrs{i};

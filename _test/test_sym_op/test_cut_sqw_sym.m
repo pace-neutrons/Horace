@@ -92,13 +92,13 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             % Range of data2's first axis which contains pixels
             ubin = [-0.5 0.05 0];
             w1sym = cut(obj.data2, obj.proj2, ubin, ...
-                obj.vbin2, obj.wbin2, obj.ebin2);
+                obj.vbin2, obj.wbin2, obj.ebin2, '-nopix');
 
             w2sym = cut(obj.data2, obj.proj2, ubin, ...
                 obj.vbin2, obj.wbin2, obj.ebin2, ...
-                {SymopIdentity(), id});
+                {SymopIdentity(), id}, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data, 'ignore_str', 1);
+            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1);
         end
 
         function test_cut_sym_reflect_half_to_whole_cut(obj)
@@ -110,18 +110,42 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             wtmp.pix = PixelDataMemory(wtmp.pix);
 
             w1sym = cut(wtmp, obj.proj, ubin_half, ...
-                obj.width, obj.width, obj.ebins);
+                obj.width, obj.width, obj.ebins, '-nopix');
 
             w2sym = cut(obj.data, obj.proj, ubin_half, ...
                 obj.width, obj.width, obj.ebins, ...
-                {SymopIdentity(), op});
+                {SymopIdentity(), op}, '-nopix');
 
-            assertEqualToTol(w1sym.data, w2sym.data, 'ignore_str', 1);
+            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1);
 
         end
 
+        function test_cut_sym_from_file(obj)
+            op = SymopReflection([-1 1 0], [0 0 1], [0 0 0]);
+
+            ubin_half = [-0.25 0.05 0];
+
+            wtmp = symmetrise_sqw(obj.data, op);
+            wtmp.pix = PixelDataMemory(wtmp.pix);
+
+            w1sym = cut(wtmp, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, '-nopix');
+
+            w2sym = cut(obj.data_source, obj.proj, ubin_half, ...
+                obj.width, obj.width, obj.ebins, ...
+                {SymopIdentity(), op}, '-nopix');
+
+            w3sym = cut_sqw(obj.data_source, obj.proj, ubin_half, ...
+                            obj.width, obj.width, obj.ebins, ...
+                            {SymopIdentity(), op}, '-nopix');
+
+            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1, 'tol', 1e-6);
+            assertEqualToTol(w1sym, w3sym, 'ignore_str', 1, 'tol', 1e-6);
+        end
+
+
         function test_cut_sym_with_pix(obj)
-            % Test symmetrisation, keeping pixels
+        % Test symmetrisation, keeping pixels
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
             w2sym = cut(obj.data, obj.proj, obj.bin,...
                 obj.width, obj.width, obj.ebins, obj.sym);
@@ -145,9 +169,12 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
             c = cut(obj.data2, obj.proj2, ...
                 obj.ubin2, obj.vbin2, obj.wbin2, obj.ebin2, ...
-                obj.sym2);
+                obj.sym2, '-nopix');
 
-            obj.assertEqualToTolWithSave(c.data, obj.tol_sp,'ignore_str',1);
+            ref = obj.getReferenceDataset('test_cut_sqw_sym_P2__1_3', ...
+                                          'test_cut_sqw_sym_P2__1_3_1');
+
+            assertEqualToTol(c, ref, obj.tol_sp,'ignore_str',1);
         end
 
         %------------------------------------------------------------------------
@@ -157,5 +184,4 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         % - handcraft a symmetrised cut, using the private combine
         %------------------------------------------------------------------------
     end
-
 end

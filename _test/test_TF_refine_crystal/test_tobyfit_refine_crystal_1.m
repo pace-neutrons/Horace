@@ -124,7 +124,7 @@ if save_data
         disp(['Creating file for orientation ',num2str(i),' of ',num2str(numel(psi))])
 
         wtmp = dummy_sqw (en, par_file,'', efix, emode, alatt, angdeg,...
-            u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], pix_range);
+            u, v, psi(i), omega, dpsi, gl, gs, [10,10,10,10], pix_range,2000+i);
 
         % Tobyfit simulation to account for resolution
         wtmp{1}=set_sample_and_inst(wtmp{1},sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
@@ -203,7 +203,7 @@ if test_output
 end
 
 % Test that the rotation vector is good, and the lattice parameters too:
-rotvec_fit=rotmat_to_rotvec2(rotmat_fit);
+rotvec_fit=rotmat_to_rotvec_rad(rotmat_fit);
 if ~equal_to_relerr(alatt_fit,alatt_true,0.001) || ~equal_to_relerr(rotvec_fit,rotvec,0.10)
     error('Problem in refinement of crystal orientation and lattice parameters')
 end

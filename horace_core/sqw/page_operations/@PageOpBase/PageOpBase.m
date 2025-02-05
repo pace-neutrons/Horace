@@ -253,12 +253,12 @@ classdef PageOpBase
             % Returns:
             % obj   -- modified PageOp class, containing:
             %      a)  updated pix_data_range_ field, containing pixel data
-            %          range (min/max values ) caclulated accounting for
+            %          range (min/max values ) calculated accounting for
             %          recent page data
             %      b)  if exp_modified property of PageOp is true,
-            %          modified unique_run_id_ field, updated with uniqie
+            %          modified unique_run_id_ field, updated with unique
             %          run-id-s contained in current data page
-            %      c)  modified pix_ fileld modified with considering
+            %      c)  modified pix_ field modified with considering
             %          changes, done by apply_op method.
             %          Depending on pix_ location, it can be source pixel
             %          data, moved to new
@@ -287,7 +287,7 @@ classdef PageOpBase
             % s          -- modified pixels signal
             % variance   -- modified pixels variance
             % Returns:
-            % obj        -- page_op object containg updated accumulators.
+            % obj        -- page_op object containing updated accumulators.
             %
             % Some operations overload update_img_accumulators method
 

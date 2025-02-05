@@ -36,8 +36,9 @@ if ~isfield(S,'version') || S.version<4
         if isfield(ss,'experiment_info') && isstruct(ss.experiment_info)
             ss.experiment_info = Experiment.loadobj(ss.experiment_info);
         end
+
         % the detpar value will be put in further down in from_bare_struct.
-        % NB reminder that this will require experiment_info having an empty 
+        % NB reminder that this will require experiment_info having an empty
         % detector_arrays rather than being preconstructed
         if isfield(ss,'data_')
             ss.data = ss.data_;
@@ -52,7 +53,6 @@ if ~isfield(S,'version') || S.version<4
                 ss.data = data_sqw_dnd.loadobj(ss.data);
             end
             if isa(ss.data,'data_sqw_dnd')
-                hav = header_average(ss.experiment_info);
                 if ss.experiment_info.samples.n_runs == 0
                     sam = IX_samp('alatt',ss.data.alatt,'angdeg',ss.data.angdeg);
                     ss.experiment_info.samples{1} = sam;
@@ -77,26 +77,20 @@ if ~isfield(S,'version') || S.version<4
                     ss.main_header.nfiles = 1;
                 end
                 ax   = ss.data.axes;
-                if isa(ss.data.pix,'PixelData')
-                    ss.data.pix = PixelDataMemory(ss.data.pix.data);
+                if isa(ss.data.pix,'PixelDataBase')
+                    ss.pix = PixelDataMemory(ss.data.pix.data);
                 end
-                ss.pix = ss.data.pix;
                 ss.data = DnDBase.dnd(ax,proj,ss.data.s,ss.data.e,ss.data.npix);
-            end
-        else
+            end % data_sqw_dnd present
+        else % data field absent
             error('HORACE:sqw:invalid_argument', ...
                 'Can not load old sqw object which does not contain "data" field')
         end
-        % we need compatibility matrix as can not distinguish between
-        % old=style aligned and non-aligned data
-        proj = ss.data.proj;
-        header_av = ss.experiment_info.header_average();
-        if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
-            u_to_rlu = header_av.u_to_rlu(1:3,1:3);
-            if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
-                % no alignment, otherwise, be cautions
-                ss.data.proj = proj.set_ub_inv_compat(u_to_rlu);
-            end
+        % check legacy alignment and convert it into modern alignment
+        hav= ss.experiment_info.header_average();
+        al_info = dnd_data_alignment(ss.data,hav);
+        if ~isempty(al_info) && isfield(ss,'pix')
+            ss.pix.alignment_matr = al_info.rotmat;
         end
 
         % guard against old data formats, which may or may not contain
@@ -108,6 +102,11 @@ if ~isfield(S,'version') || S.version<4
                 ss = update_pixels_run_id(ss);
             end
         end
+        if isfield(ss,'detpar')
+            ss.experiment_info.detector_arrays =  ...
+                horace_binfile_interface.convert_old_det_forms( ...
+                ss.detpar,ss.experiment_info.n_runs);
+        end
 
         obj(i) = obj(i).from_bare_struct(ss);
     end
@@ -118,16 +117,24 @@ if isfield(S,'array_dat')
 else
     obj = obj.from_bare_struct(S);
 end
+
+if ~isfield(S,'version')
+    S.version = 0;
+end
+%
 if S.version == 4
     % may contain legacy alignment not stored in projection. Deal with this here
-    proj = obj.data.proj;
-    header_av = obj.experiment_info.header_average();
-    if isfield(header_av,'u_to_rlu') && ~isempty(header_av.u_to_rlu)
-        u_to_rlu = header_av.u_to_rlu(1:3,1:3);
-        if any(abs(subdiag_elements(u_to_rlu))>1.e-7) % if all 0, its B-matrix so certainly
-            % no alignment, otherwise, be cautions
-            obj.data.proj = proj.set_ub_inv_compat(u_to_rlu);
-        end
+    hav  = obj.experiment_info.header_average();
+    al_info = dnd_data_alignment(obj.data,hav);
+    if ~isempty(al_info)
+        obj.pix.alignment_matr = al_info.rotmat;
     end
 end
-
+if S.version < 6
+    % may contain detpar stored in their own field and not present within
+    % the experiment_info
+    if obj.experiment_info.detector_arrays.n_objects == 0
+        obj.detpar = S.detpar; % use setter to deal with possible presence
+        % of old array format. Setter checks for that and converts appropriately
+    end
+end

@@ -7,9 +7,10 @@ if n_files ==0
     smpl_data_size = 0;
     return;
 end
-filelist = cell(n_files,1);
+
 if obj.build_sqw_file_directly
     file_name_form = [obj.template_name_form_,'.tmp'];
+    filelist = obj.generate_source_file_names(file_name_form);
     if is_file(obj.sqw_file)
         hh = head_sqw(obj.sqw_file);
         smpl_data_size = hh.npixels;
@@ -23,10 +24,7 @@ if obj.build_sqw_file_directly
         end
     end
 else
-    file_name_form = [obj.template_name_form_,'.nxspe'];
-end
-for i=1:n_files
-    filelist{i} = sprintf(file_name_form,i);
+    filelist = obj.generate_source_file_names();
 end
 
 [psi,efix,alatt,angdeg,u,v,omega,dpsi,gl,gs,...
@@ -43,11 +41,11 @@ for i=1:n_files
         continue;
     end
     wtmp=dummy_sqw (en, par_file, '', efix, 1, alatt, angdeg,...
-        u, v, psi(i), omega, dpsi, gl, gs, [50,50,50,50], pix_range);
+        u, v, psi(i), omega, dpsi, gl, gs, [50,50,50,50], pix_range,i+1000);
     % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
     wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[1,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec,1});
-    
-    
+
+
     if obj.build_sqw_file_directly
         save(wtmp,filelist{i});
     else

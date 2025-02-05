@@ -20,7 +20,10 @@ function wout=symmetrise_sqw(win,varargin)
 %          ** N.B. ** 360/theta_deg MUST be integral
 %
 % proj
-%    Projection axis for rotational reduction
+%    Projection used for rotational reduction
+%
+%    Symmetrisation affects pixels in HKL and should take place in
+%    orthogonal basis even if the projection is not.
 %
 % v1 and v2 are two vectors which lie in the plane of the reflection plane.
 % v3 is a vector connecting the plane to the origin (i.e. specifies an
@@ -57,21 +60,22 @@ if ~has_pixels(win)
 end
 
 if isa(varargin{end}, 'aProjectionBase')
-    proj = varargin(end);
+    % Projection under which transformation takes place (HKL).
+    transf_proj = varargin(end);
     varargin = varargin(1:end-1);
 
-    if proj{1}.nonorthogonal
+    if transf_proj{1}.nonorthogonal
         error('HORACE:symmetrise_sqw:invalid_argument', ...
               'Cannot symmetrise to non-orthogonal projection');
     end
 
 else
-    proj = {line_proj([1 0 0], [0 1 0], ...
-                      'alatt', win.data.proj.alatt, ...
-                      'angdeg', win.data.proj.angdeg)};
+    % Also projection under which transformation takes place (HKL [orthogonal, so 90, 90, 90]).
+    % alatt, however, is retained as the symmetrisation should not rescale.
+    transf_proj = {line_proj([1 0 0], [0 1 0], ...
+                             'alatt', win.data.proj.alatt, ...
+                             'angdeg', [90, 90, 90])};
 end
-
-
 
 
 if numel(varargin) == 1 && isa(varargin{1}, 'Symop') || ...
@@ -79,7 +83,8 @@ if numel(varargin) == 1 && isa(varargin{1}, 'Symop') || ...
 
     sym = varargin{1};
 elseif numel(varargin) == 3
-
+    warning('HORACE:symmetrise_sqw:deprecated', ...
+            'Passing vectors to symmetrise_sqw is deprecated, please use "Symop"');
     sym = SymopReflection(varargin{:});
 else
     error('HORACE:symmetrise_sqw:invalid_argument', ...
@@ -97,7 +102,7 @@ transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
 % for each symmetry operation we're applying, since the first cell array
 % may be unwrapped as an argument if 1 arg (as in this case), need
 % double wrapped cellarray
-wout = wout.apply(transforms, {{proj(:)}}, false);
+wout = wout.apply(transforms, {{transf_proj(:)}}, false);
 
 %=========================================================================
 % Transform Ranges:
@@ -133,8 +138,8 @@ else
     cc_exist_range = cc_ranges; % Keep old range
 end
 
-img_box_points = proj.transform_pix_to_img(cc_exist_range);
-img_db_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
+img_box_points      = proj.transform_pix_to_img(cc_exist_range);
+img_db_range_minmax = min_max(img_box_points)';
 
 % add fourth dimension to the range
 all_sym_range = [img_db_range_minmax,existing_range(:,4)];
@@ -264,7 +269,7 @@ function [sym, fold] = validate_sym(sym)
 
         elseif all(cellfun(@(x) isa(x, 'SymopReflection') || ...
                                 isa(x, 'SymopIdentity'), sym))
-            sym = cell2mat(sym);
+            sym = cat(1, sym{:});
             fold = numel(sym);
         else
             error('HORACE:symmetrise_sqw:not_implemented', ...

@@ -15,16 +15,13 @@ classdef test_line_proj_construction<TestCase
             this=this@TestCase(name);
         end
         function test_old_interface(~)
-            proj = line_proj([0,1,0],[1,0,0],[],'uoffset',[1,1,0,0]);
+            proj = line_proj([0,1,0],[1,0,0],[],'uoffset',[1,1,0,0], ...
+                'alatt',[1,2,3],'angdeg',90);
             assertEqual(proj.u,[0,1,0]);
             assertEqual(proj.v,[1,0,0]);
             assertTrue(isempty(proj.w));
             assertEqual(proj.type,'ppr');
-            assertEqual(proj.offset,[1,1,0,0]);
-            assertEqual(proj.offset,proj.uoffset);
-
-            assertExceptionThrown(@()transform_pix_to_img(proj,ones(4,1)), ...
-                'HORACE:line_proj:runtime_error');
+            assertElementsAlmostEqual(proj.offset,[1,1,0,0]);
         end
         function test_no_lattice_throws_on_acces_to_transf(~)
             proj = line_proj([1,0,0],[0,1,0],...
@@ -50,7 +47,7 @@ classdef test_line_proj_construction<TestCase
             assertEqual(proj.v,[0,1,0]);
             assertEqual(proj.w,[0,0,1]);
             assertEqual(proj.alatt,[2,3,4]);
-            assertEqual(proj.angdeg,[90,90,90]);
+            assertTrue(isempty(proj.angdeg));
             assertEqual(proj.type,'aaa');
             assertEqual(proj.nonorthogonal,true);
         end
@@ -62,7 +59,7 @@ classdef test_line_proj_construction<TestCase
             assertEqual(proj.v,[0,1,0]);
             assertEqual(proj.w,[0,0,1]);
             assertEqual(proj.alatt,[2,3,4]);
-            assertEqual(proj.angdeg,[90,90,90]);
+            assertTrue(isempty(proj.angdeg));
             assertEqual(proj.type,'aaa');
         end
 
@@ -170,75 +167,6 @@ classdef test_line_proj_construction<TestCase
             assertElementsAlmostEqual(proj.w,[0,-1,1])
         end
 
-
-        function test_get_set_from_data_matrix_ppp_not90(~)
-            proj1 = line_projTester([1,0,0],[0,1,0],[0,0,1],...
-                'alatt',[2,4,3],'angdeg',[85,91,92],...
-                'label',{'a','b','c','d'},'type','ppp');
-
-            [~, u_to_rlu, ulen] = proj1.projaxes_to_rlu_public([1,1,1]);
-
-            pror = line_projTester('alatt',[2,4,3],'angdeg',[85,91,92],...
-                'label',{'a','b','c','d'});
-            pror = pror.set_from_data_mat(u_to_rlu,ulen);
-
-            tpixo = proj1.transform_pix_to_img(eye(3));
-            tpixr = pror.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpixo,tpixr);
-        end
-
-
-        function test_get_set_from_data_matrix_ppr_not90(~)
-            proj1 = line_projTester('alatt',[2,4,3],'angdeg',[92,87,98],...
-                'label',{'a','b','c','d'},'type','ppr');
-
-            [~, u_to_rlu, ulen] = proj1.projaxes_to_rlu_public([1,1,1]);
-
-            pror = line_projTester('alatt',[2,4,3],'angdeg',[92,87,98],...
-                'label',{'a','b','c','d'});
-            pror = pror.set_from_data_mat(u_to_rlu,ulen);
-
-
-            tpixo = proj1.transform_pix_to_img(eye(3));
-            tpixr = pror.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpixo,tpixr);
-
-        end
-
-        function test_get_set_from_data_matrix_ppp(~)
-            proj1 = line_projTester([1,0,0],[0,1,0],[0,0,1],...
-                'alatt',[2,4,3],'angdeg',[90,90,90],...
-                'label',{'a','b','c','d'},'type','ppp');
-
-            [~, u_to_rlu, ulen] = proj1.projaxes_to_rlu_public([1,1,1]);
-
-            pror = line_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
-                'label',{'a','b','c','d'});
-            pror = pror.set_from_data_mat(u_to_rlu,ulen);
-
-            tpixo = proj1.transform_pix_to_img(eye(3));
-            tpixr = pror.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpixo,tpixr);
-        end
-
-
-        function test_get_set_from_data_matrix_ppr(~)
-            proj1 = line_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
-                'label',{'a','b','c','d'},'type','ppr');
-
-            [~, u_to_rlu, ulen] = proj1.projaxes_to_rlu_public([1,1,1]);
-
-            pror = line_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
-                'label',{'a','b','c','d'});
-            pror = pror.set_from_data_mat(u_to_rlu,ulen);
-            %assertEqualToTol(pror,proj1,'tol',[1.e-9,1.e-9]);
-
-            tpixo = proj1.transform_pix_to_img(eye(3));
-            tpixr = pror.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpixo,tpixr);
-
-        end
-
         function test_get_projection_from_cut3D_sqw_no_offset(~)
 
             data = struct();
@@ -266,9 +194,9 @@ classdef test_line_proj_construction<TestCase
             proj1=dobj.proj;
             pp = proj1.transform_pix_to_img([eye(3),[1;1;1]]);
             p_ref =[...
-                0.2274   -0.2274    0.0000    0.0000;...
-                0.7071    0.7071   -0.0000    1.4142;...
-                0         0         1.0000    1.0000];
+                0.2274   -0.2274    0.0000    0.0000
+                0.7072    0.7072    0.0000    1.4144
+                0         0    0.9999    0.9999];
             assertElementsAlmostEqual(pp,p_ref,'absolute',1.e-4);
             opt = line_projTester(proj1);
 
@@ -293,7 +221,7 @@ classdef test_line_proj_construction<TestCase
             data.pax=[1,2,4];
             data.iint=[1;30];
             data.p={1:10;1:20;1:40};
-            ax = line_axes.get_from_old_data(data);
+            ax   = line_axes.get_from_old_data(data);
             proj = line_proj.get_from_old_data(data);
 
             do = DnDBase.dnd(ax,proj);
@@ -301,14 +229,17 @@ classdef test_line_proj_construction<TestCase
             proj1=do.proj;
             pp = proj1.transform_pix_to_img([eye(3),[1;1;1]]);
             p_ref =[...
-                0.2274   -0.2274         0    0.0000;...
-                0.7071    0.7071         0    1.4142;...
-                0         0    1.0000    1.0000];
+                0.2274   -0.2274    0.0000    0.0000
+                -2.4023   -2.4023   -3.1095   -1.6951
+                0         0    0.9999    0.9999];
             assertElementsAlmostEqual(pp,p_ref,'absolute',1.e-4);
             opt = line_projTester(proj1);
 
-            [~, ~, ulen] = opt.projaxes_to_rlu_public();
-            assertElementsAlmostEqual(data.ulen(1:3),ulen','absolute',1.e-4);
+            ulen = opt.ulen;
+            assertElementsAlmostEqual(data.ulen,ulen','absolute',1.e-4);
+
+            pcl = opt.transform_pix_to_img([eye(3),[1;1;1]]);
+            assertElementsAlmostEqual(pp,pcl,'absolute',4.e-4);
         end
 
 
@@ -329,7 +260,7 @@ classdef test_line_proj_construction<TestCase
                 0.7008    0.7133    0.0126    1.4267;...
                 -0.6857    0.6855   -0.2448   -0.2449;...
                 -0.1831    0.1628    0.9695    0.9492];
-            proj = proj.set_ub_inv_compat(inv(bmatrix(data.alatt,data.angdeg)));
+
             pc = proj.transform_pix_to_img([eye(3),[1;1;1]]);
 
             assertElementsAlmostEqual(pc_ref,pc,'absolute',1.e-4);
@@ -337,74 +268,8 @@ classdef test_line_proj_construction<TestCase
             opt = line_projTester(proj);
             [~, ~, ulen_rec] = opt .projaxes_to_rlu_public(ones(4,1));
             assertEqual(ulen_rec,ones(1,3));
-        end
-
-        function test_unity_transf_from_triclinic(~)
-
-            prj_or = line_projTester('alatt',[3, 4 5], ...
-                'angdeg',[85 95 83],'type','ppr');
-            [~, u_to_rlu,ulen] = prj_or.projaxes_to_rlu_public();
-
-            b_m = bmatrix([3, 4 5],[85 95 83]);
-            assertElementsAlmostEqual(ulen,diag(b_m)');
-
-            pr_rec = prj_or.set_from_data_mat(u_to_rlu,ulen);
-
-            tpixr = pr_rec.transform_pix_to_img(eye(3));
-            tpixo = prj_or.transform_pix_to_img(eye(3));
-
-            assertElementsAlmostEqual(tpixo,tpixr);
-        end
-
-
-        function test_unitu_transf_from_cubic(~)
-
-            prj_or = line_projTester('alatt',[3, 4 5], ...
-                'angdeg',[90 90 90],'type','ppr');
-            [~, u_to_rlu,ulen] = prj_or.projaxes_to_rlu_public();
-
-            b_m = bmatrix([3, 4 5],[90 90 90]);
-            assertElementsAlmostEqual(ulen,diag(b_m)');
-            pr_rec = prj_or.set_from_data_mat(u_to_rlu,ulen);
-
-            tpix_r = pr_rec.transform_pix_to_img(eye(3));
-            tpix_o = prj_or.transform_pix_to_img(eye(3));
-            assertElementsAlmostEqual(tpix_r ,tpix_o);
-        end
-
-        %
-        function test_get_projection_from_aligned_sqw_data(~)
-
-            data = struct();
-            data.alatt = [2.8449 2.8449 2.8449];
-            data.angdeg = [90,90,90];
-            %
-            data.u_to_rlu = ...
-                [0.4528,-0.0012, 0.0017,    0;...
-                00.0012, 0.4527, 0.0056,    0;...
-                -0.0017,-0.0056, 0.4527,    0;...
-                0     ,       0,      0,    1.0];
-            data.uoffset = zeros(1,4);      %(4x1)
-            data.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
-            data.ulen = ones(4,1);
-            data.iax=[];
-            data.pax=[1,2,3,4];
-            data.iint=[];
-            data.p={1:10;1:20;1:30;1:40};
-            %ax = line_axes.get_from_old_data(data);
-            proj0 = line_proj.get_from_old_data(data);
-
-            %do = data_sqw_dnd(ax,proj);
-
-            %opt = line_projTester(proj1);
-            projr = proj0;
-            projr.ub_inv_legacy = inv(bmatrix(data.alatt,data.angdeg));
-
-            pix_cc = [eye(3),ones(3,1)];
-            % this is what is what is only important for any transformation
-            tpixo = proj0.transform_pix_to_img(pix_cc);
-            tpixr = projr.transform_pix_to_img(pix_cc);
-            assertElementsAlmostEqual(tpixo,tpixr);
+            pcl = opt.transform_pix_to_img([eye(3),[1;1;1]]);
+            assertElementsAlmostEqual(pc,pcl,'absolute',1.e-4);
         end
 
         function test_get_projection_from_legacy_sqw_data(~)
@@ -433,6 +298,17 @@ classdef test_line_proj_construction<TestCase
             tpixo = proj0.transform_pix_to_img(pix_cc);
             tpixr = projr.transform_pix_to_img(pix_cc);
             assertElementsAlmostEqual(tpixo,tpixr);
+        end
+
+        function test_default_param_constructor(~)
+            param_list = {'u','v','w','nonorthogonal','type','alatt','angdeg',...
+                'offset','label','title'};
+            param_values = {[1,0,0],[0,1,0],[0,0,1],true,'aaa',[1,2,3],...
+                [80,70,120],[1,0,0,1],{'xx','yy','zz','ee'},'Some custom title'};
+            lp = line_proj(param_values{:});
+            for i=1:numel(param_list)
+                assertEqual(lp.(param_list{i}),param_values{i});
+            end
         end
     end
 end

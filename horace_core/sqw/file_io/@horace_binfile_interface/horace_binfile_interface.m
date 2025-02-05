@@ -138,17 +138,6 @@ classdef horace_binfile_interface < serializable
         [header,fid] = get_file_header(file,varargin)
         %
     end
-    methods(Static,Hidden) % defined by this class
-        function sqw_data = update_projection(sqw_data)
-            % Check if the projection attached to dnd class is related to
-            % the cut (the cut image range is in hkl) or to the initial
-            % generated sqw file (image range equal to the pixel range)
-            % and modify dnd projection accordingly
-            %
-            % Used in upgrade_file_format, and does nothing for the same
-            % file formats
-        end
-    end
 
     % Main class methods & constructor
     methods
@@ -165,8 +154,8 @@ classdef horace_binfile_interface < serializable
         % applications and adds some information about stored sqw/dnd
         % object and binary file version
         % The binary header should be readable by all Horace versions
-        % including binary versions, so its implemenataion is moved to top
-        % faccessors level
+        % including binary versions, so its implementation is moved to top
+        % f-accessors level
         app_header = build_app_header(obj,varargin)
         % store application header which describes the sqw binary file
         obj = put_app_header(obj,varargin);
@@ -261,7 +250,6 @@ classdef horace_binfile_interface < serializable
 
         % the function returns standard head information about sqw/dnd file
         hd = head(obj,varargin)
-
     end
     methods(Abstract,Access=protected)
         % init file accessors from sqw object in memory
@@ -400,6 +388,35 @@ classdef horace_binfile_interface < serializable
                     '%s -- Reason: %s',pos_mess,mess);
             end
         end
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of faccess objects
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            %TODO: this is fudge implementation. Re #1795 should provide a
+            %proper one.
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            mess = '';
+            iseq = isequal(obj,other_obj);
+            if ~iseq
+                clOb =  set_temporary_warning('off','MATLAB:structOnObject');
+                s1 = struct(obj);
+                s2 = struct(other_obj);
+                [iseq,mess] = equal_to_tol(s1,s2,opt,varargin{:});
+            end
+        end
     end
     methods(Static,Access=protected)
         function  opts = parse_get_sqw_args(varargin)
@@ -455,6 +472,27 @@ classdef horace_binfile_interface < serializable
             end
             check_io_error_(fid,'reading',add_info);
         end
+
+        function det = convert_old_det_forms(detpar,n_instances)
+            % Method used to convert old detector formats into horace 4.01
+            % form.
+            %
+            % Input:
+            % detpar      -- an old or new format detector information.
+            %                Normally obtained from binary sqw file.
+            % n_instances -- number of run, this
+            %
+            % Returns:
+            % det         -- detector information packed in
+            %                unique_object_container container and
+            %                distributed over approriate number of input
+            %                runs.
+            if nargin == 1
+                n_instances = [];
+            end
+            det = convert_old_det_forms_(detpar,n_instances);
+        end
+
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

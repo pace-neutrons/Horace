@@ -1,4 +1,4 @@
-function wout = cut_single_(w, targ_proj, targ_axes, opt, log_level)
+function wout = cut_single_(w, targ_proj, targ_axes, opt, log_level, sym)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
@@ -27,7 +27,7 @@ outfile_specified = isfield(opt, 'outfile') && ~isempty(opt.outfile);
 
 % Accumulate image and pixel data for cut
 [s, e, npix, pix_out,runid_contributed] = cut_accumulate_data_( ...
-    w, targ_proj, targ_axes, opt.keep_pix, log_level);
+    w, targ_proj, targ_axes, opt.keep_pix, log_level, sym);
 
 
 if isa(pix_out, 'MultipixBase')
@@ -51,7 +51,7 @@ data_out = compile_sqw_data(...
 if opt.keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
-    % NB detpar is no longer copied as detpar just exposes the detector_arrays 
+    % NB detpar is no longer copied as detpar just exposes the detector_arrays
     % already in experiment_info
     wout.data   = data_out.data;
     wout.pix  = data_out.pix;

@@ -16,7 +16,7 @@ if nargin<2
 end
 targ_obj = copy(obj);
 %
-if ~targ_obj.pix.is_misaligned
+if ~targ_obj.pix.is_corrected && targ_obj.pix.is_range_valid
     if ~isempty(outfile)
         fp = fileparts(outfile);
         if isempty(fp)
@@ -54,7 +54,7 @@ if ~targ_obj.pix.is_misaligned
     return;
 end
 rotmat  = targ_obj.pix.alignment_matr;
-rotvec  = rotmat_to_rotvec2(rotmat');
+rotvec  = rotmat_to_rotvec_rad(rotmat');
 alatt   = targ_obj.data.proj.alatt;
 angdeg  = targ_obj.data.proj.angdeg;
 al_info = crystal_alignment_info(alatt,angdeg,rotvec);

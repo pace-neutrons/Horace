@@ -1,9 +1,9 @@
 classdef test_experiment_cnstrct_and_properties < TestCase
 
     methods
-        
+
         function obj = test_experiment_cnstrct_and_properties(varargin)
-        % CONSTRUCTOR - could be defaulted, inserted for ease of upgrade
+            % CONSTRUCTOR - could be defaulted, inserted for ease of upgrade
             if nargin == 0
                 name = 'test_experiment_cnstrct_and_properties';
             else
@@ -11,12 +11,12 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             end
             obj = obj@TestCase(name);
         end
-        
+
         function test_default_constructor_creates_appropriate_objects(~)
-        % DEFAULT CONSTRUCTOR TEST - should construct its instrument, samples
-        % and detector_arrays containers and the experiment data array,
-        % which, being empty, will define a zero number of runs.
-        
+            % DEFAULT CONSTRUCTOR TEST - should construct its instrument, samples
+            % and detector_arrays containers and the experiment data array,
+            % which, being empty, will define a zero number of runs.
+
             expt = Experiment();
             assertEqual(expt.n_runs,0);
 
@@ -46,10 +46,10 @@ classdef test_experiment_cnstrct_and_properties < TestCase
 
             assertTrue(isempty(expt.expdata));
         end
-        
+
         function test_nontrivial_runid_map(~)
-        % CONSTRUCTOR WITH 4 ARGS TEST - where the arguments are
-        % cells/arrays. The calculated runid is also tested
+            % CONSTRUCTOR WITH 4 ARGS TEST - where the arguments are
+            % cells/arrays. The calculated runid is also tested
             instruments = {IX_inst_DGfermi(), IX_inst_DGdisk(),IX_inst_DGdisk()};
             sample1 = IX_sample;
             sample1.name = 'sample1';
@@ -67,6 +67,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             exp(3).filename = 'a3';
             detectors = repmat(IX_detector_array(),1,numel(exp));
 
+            lastwarn('');
             exper= Experiment(detectors,instruments,samples,exp);
             % at this point the samples have not been given lattice
             % definitions so a warning will be issued
@@ -75,23 +76,24 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 'Samples in experiment are defined but their lattice is undefined');
             assertEqual(b, ...
                 'HORACE:Experiment:lattice_undefined');
-            
+            lastwarn('');
+
             % now add lattice definitions and clear the last warning
-            lastwarn('nothing warned','HORACE:Experiment:set_no_previous_warnings');            
+            lastwarn('nothing warned','HORACE:Experiment:set_no_previous_warnings');
             sample1.alatt = [6,6,6];
             sample2.alatt = [6,6,6];
             sample3.alatt = [6,6,6];
             sample1.angdeg = [90,90,90];
             sample2.angdeg = [90,90,90];
             sample3.angdeg = [90,90,90];
-            
+
             samples2 = {sample1,sample2,sample3};
-            
+
             % now the lattice definitions should be dealt with so no
             % additional warning should be issued
             exper= Experiment(detectors,instruments,samples2,exp);
             assertEqual(lastwarn, 'nothing warned');
-  
+
             assertEqual(exper.n_runs,3)
 
             assertFalse(exper.runid_recalculated)
@@ -125,7 +127,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             assertEqual(expt.detector_arrays.n_runs,0);
             assertTrue(isempty(expt.expdata));
         end
-        
+
         function test_constructor_raises_error_with_invalid_single_input(~)
             assertExceptionThrown(@()Experiment('something incorrect'),...
                 'HORACE:Experiment:invalid_argument');
@@ -259,11 +261,11 @@ classdef test_experiment_cnstrct_and_properties < TestCase
                 expt.instruments = instruments;
             end
             assertExceptionThrown(@throw1, ...
-                      'HORACE:Experiment:invalid_argument');
+                'HORACE:Experiment:invalid_argument');
 
-            % cannot add instruments if there are no runs defined      
+            % cannot add instruments if there are no runs defined
             assertEqual(expt.instruments.n_runs, 0);
-            
+
             % create new experiment with consistent contents
             % can only create experiment this way, not by adding items
             % individually (although you can modify them afterwards
@@ -294,7 +296,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             % as only 1 run, set it here and then the final comparison will
             % work (otherwise it's 1 vs. NaN)
             expdata.run_id = 1;
-            
+
             expt = Experiment(detectors, instruments, samples,expdata);
             % expt.samples = {samples};
 
@@ -312,7 +314,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             urc = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
             urc = urc.add(detectors);
             assertEqual(expt.detector_arrays,  urc);
-            
+
             assertEqual(expt.expdata, expdata);
         end
 
@@ -326,7 +328,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             % as only 1 run, set it here and then the final comparison will
             % work (otherwise it's 1 vs. NaN)
             expdata.run_id = 1;
-            
+
             expt = Experiment(detectors, instruments, samples,expdata);
 
             tmpfile = fullfile(tmp_dir(), 'loadsave_constructed.mat');
@@ -335,7 +337,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             save(tmpfile, 'expt');
             clear('expt');
 
-            load(tmpfile, 'expt');            
+            load(tmpfile, 'expt');
             assertEqual(expt.samples{1}, samples);
             urc = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
             urc = urc.add(samples);
@@ -350,7 +352,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             urc = unique_references_container('GLOBAL_NAME_DETECTORS_CONTAINER','IX_detector_array');
             urc = urc.add(detectors);
             assertEqual(expt.detector_arrays,  urc);
-            
+
             assertEqual(expt.expdata, expdata);
         end
 
@@ -371,7 +373,7 @@ classdef test_experiment_cnstrct_and_properties < TestCase
         function test_detector_arrays_setter_updates_value_for_valid_value(~)
             detector_arrays = IX_detector_array;
             expt = Experiment();
-            
+
             % attempt to set detector arrays should fail because there are
             % no runs in the empty Experiment
             function throw1()
@@ -379,11 +381,11 @@ classdef test_experiment_cnstrct_and_properties < TestCase
             end
             assertExceptionThrown(@throw1, ...
                 'HORACE:Experiment:invalid_argument');
-            
+
             % attempt to get a detector array out of experiment should fail
             % because there are none; the previous attempt to define them
             % failed.
-            function throw2()   
+            function throw2()
                 assertEqual(expt.detector_arrays{1}, detector_arrays);
             end
             assertExceptionThrown(@throw2, ...

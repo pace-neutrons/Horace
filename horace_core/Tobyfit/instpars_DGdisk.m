@@ -62,13 +62,13 @@ if ~use_unique_objects
     
 else % use_unique_objects
     
-    mod_shape_mono = instruments.get_unique_field('mod_shape_mono');
-    horiz_div      = instruments.get_unique_field('horiz_div');
-    vert_div       = instruments.get_unique_field('vert_div');
+    mod_shape_mono = instruments.get_unique_field('mod_shape_mono').unique_objects;
+    horiz_div      = instruments.get_unique_field('horiz_div').unique_objects;
+    vert_div       = instruments.get_unique_field('vert_div').unique_objects;
     
-    mono_chopper    = instruments.get_unique_field('mono_chopper');
-    moderator       = instruments.get_unique_field('moderator');
-    shaping_chopper = instruments.get_unique_field('shaping_chopper');
+    mono_chopper    = instruments.get_unique_field('mono_chopper').unique_objects;
+    moderator       = instruments.get_unique_field('moderator').unique_objects;
+    shaping_chopper = instruments.get_unique_field('shaping_chopper').unique_objects;
 
     for i=1:nrun
         x1(i)=abs(mono_chopper{i}.distance);

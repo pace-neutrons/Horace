@@ -184,7 +184,7 @@ for i=1:npax
             % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
             p{i}=make_const_bin_boundaries(pbin_tmp,old_img_db_range(:,ipax));
         else
-            % Only reaches here if energy axis and requested energy bin width is explicity or implicitly zero
+            % Only reaches here if energy axis and requested energy bin width is explicitly or implicitly zero
             % Handle this case differently to above, because we ensure bin boundaries synchronised to boundaries in array en
             p{i}=make_const_bin_boundaries(pbin_tmp,old_img_db_range(:,ipax),en,true);
         end

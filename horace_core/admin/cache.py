@@ -1,166 +1,117 @@
 #!/usr/bin/env python3
-import multiprocessing
-import time
-import sys
-import os
+"""
+Read file using multiple threads to place file into CEPH cache.
+"""
 import argparse
-#Read file using multiple threads to place file into CEPH cache.
+import functools
+import multiprocessing
+import os
+import sys
+import time
 
-class progress_rep:
-    """ report progress of the chunk-reading job"""
+from typing import Tuple
 
-    def __init__(self,all_size,n_threads=None):
-        """ Constructor, initiating progress reporting
-            Usage:
-            prog = progress_rep(total_size, n_threads)
-            where:
-            total_size -- the data size to be read
-            n_threads  -- number of threads will be used
-                          to read the file.
-        """
-        self._all_size = all_size
-        self._tick_size = all_size/100
-        if n_threads is None:
-            self._n_threads = 1
-        else:
-            self._n_threads = n_threads
+__version__ = "0.1"
 
-        self._tick_cnt = 0
-        self._tick_barrier = self._tick_size
-        self._prev_size = 0
-        self._start_time = time.time()
-        self._prev_time = self._start_time
-        self._run_time  = self._start_time
-    #
-    def check_progress(self,cur_size):
-        """ check current progress and report if achieved the limit for reporting.
+if sys.version_info < (3, 6):
+    raise SystemError("%s requires at least Python 3.6" % sys.argv[0])
 
-            Adjust the reporting limit to the next position if current limit was achieved.
-            Usage:
-            prog.check_progress(size)
-            where:
-            size -- the amount of data read by current thread.
-        """
 
-        self._tick_cnt += 1
-        if cur_size >=self._tick_barrier:
-            self._report_progress(cur_size)
-            self._tick_barrier += self._tick_size
-    #
-    def _report_progress(self,cur_size):
-        """ Internal method used to check time and print progress message"""
+def report_progress(bytes_read: int, prev_time: float, prev_mbytes: int,
+                    start_time: float, total_size: int,
+                    thread_id: int, nthreads: int) -> Tuple[float, int]:
+    """ Local function to report timings """
+    curr_time = time.time()
+    tot_time = curr_time - start_time
+    block_time = curr_time - prev_time
 
-        pers = 100*float(cur_size)/float(self._all_size);
-        self._prev_time  = self._run_time
-        self._run_time   = time.time()
-        tot_size = float(cur_size*self._n_threads)/(1024*1024)
-        block_size = float(cur_size - self._prev_size)*self._n_threads/(1024*1024)
-        tot_time = self._run_time-self._start_time
-        block_time = self._run_time-self._prev_time
-        Av_speed = tot_size / tot_time
-        Loc_speed = block_size / block_time
-        sys.stdout.write(\
-           "Read: {0:.1f}MB Completed: {1:3.1f}% Av Speed: {2:3.2f}MB/s: Loc speed: {3:3.2f}MB/s\r"\
-           .format(tot_size,pers,Av_speed,Loc_speed))
-        sys.stdout.flush()
-        self._prev_size = cur_size
+    mbytes_read = bytes_read // 1024**2
 
-def read_chunk(filename,start,size,buf_size,progress,n_workers):
+    # Estimate based on local read rate
+    av_speed = (mbytes_read*nthreads) / tot_time
+    loc_speed = (mbytes_read - prev_mbytes) / block_time
+
+    print(f"{thread_id}: "
+          f"Read: {mbytes_read:.1f} MB "
+          f"Completed: {bytes_read/total_size:3.1%} "
+          f"Av Speed: {av_speed:3.2f} MB/s "
+          f"Loc speed: {loc_speed:3.2f} MB/s", flush=True)
+    return curr_time, mbytes_read
+
+
+def read_chunk(start: int, size: int, thread_id: int,
+               filename: os.PathLike, buffer_size: int, nthreads: int):
     """ read (and discard) chunk of binary data.
 
         Used for read data in a single thread.
         Inputs:
-        filename -- name of the binary file to read
         start    -- initial position to read data from
         size     -- the number of bytes to read from the file
-        buf_size -- the size of the buffer to use while reading the data
-        progress -- True if progress messages should be printed and False if not
-        n_workers -- number of threads to read file. Used to estimate the progress
+        thread_id -- Index of local thread
+        filename -- name of the binary file to read
+        buffer_size -- the size of the buffer to use while reading the data
+        nthreads -- number of threads to read file. Used to estimate the progress
                     of multithreaded job.
     """
-    success=False
-    if progress:
-        prog_rep = progress_rep(size,n_workers)
-        
-    fh = open(filename,'rb',buffering=0)
-    fh.seek(start,0)
-    block = buf_size
-    got   = 0
-    with fh as f:
-        while got < size:
-            bl = f.read(block)
-            got += block
-            if got+block> size:
-                block = size-got
-            if progress:
-                prog_rep.check_progress(got)
-    if progress:
-       print("")
-    success=True
-    return success
+
+    # Set up for multi-threaded logging, would need extra CLI arg
+    log = thread_id == 0
+
+    if log:
+        prev_time = time.time()
+        prev_mbytes = 0
+        report = functools.partial(report_progress,
+                                   start_time=prev_time, nthreads=nthreads,
+                                   total_size=size, thread_id=thread_id)
+
+    with open(filename, 'rb', buffering=0) as file:
+        file.seek(start)
+
+        for bytes_read in range(0, size, buffer_size):
+            block = min(buffer_size, size - bytes_read)
+            file.read(block)
+            if log and time.time() - prev_time > 0.2:
+                prev_time, prev_mbytes = report(bytes_read, prev_time, prev_mbytes)
+
+        if log:
+            report(size, prev_time, prev_mbytes)
 
 
-def process_file(argi):
-    """ Read binary file using multiple threads
-
-        Input:
-        dictionary, generated by ArgumentParser, containing the
-        name of the file to read and some auxiliary information
-        about reading job parameters.
-    """
-    # expand inputs
-    filename = argi['filename']
-    n_threads = argi['nthreads']
-    buf_size = argi['buffer']
+def process_file(filename: os.PathLike, nthreads: int, buffer_size: int):
+    """ Read binary file using multiple threads """
 
     # Estimate the file size
     file_size = os.path.getsize(filename)
-    print ('File size={0:.0f}GB'.format(file_size/(1024*1024*1024)))
-
+    print(f'File size={file_size//(1024**3):.0f}GB')
 
     # Evaluate the parameters of the file reading jobs.
-    block_size = int(file_size/n_threads)+1
-    chunk_size = []
-    chunk_beg = []
-    start_ch = 0
-    end_ch   = block_size
-    if buf_size == 0:
-        buf_size = block_size
-    if buf_size > sys.maxsize//1024:
-        buf_size = sys.maxsize//1024
+    block_size, remainder = divmod(file_size, nthreads)
 
-    for i in range(0,n_threads):
-        if end_ch > file_size:
-            block_size = file_size-start_ch
-        chunk_size.append(block_size)
-        chunk_beg.append(start_ch)
-        start_ch = end_ch;
-        end_ch   = end_ch+block_size;
-    #---------------------------------------------------------------------------------------------
-    # Start parallel jobs:
-    job_list = [];
-    #read_chunk(filename,chunk_beg[0],chunk_size[0],buf_size,True,n_threads)
-    for nthr in range(n_threads):
-        if nthr == 0:
-            log=True
-        else:
-            log=False
-        p = multiprocessing.Process(target=read_chunk, args=(filename,chunk_beg[nthr],chunk_size[nthr],buf_size,log,n_threads,))
-        p.start()
-        job_list.append(p)
-    # Wait for jobs to finish.
-    for p in job_list:
-        p.join();
+    chunk_size = [block_size] * (nthreads-1)
+    chunk_size.append(remainder if remainder else block_size)
+
+    chunk_beg = [block_size*i for i in range(nthreads)]
+
+    if buffer_size <= 0:
+        buffer_size = block_size
+    buffer_size = min(buffer_size, sys.maxsize // 1024)
+
+    # Assign constants to function
+    map_chunk = functools.partial(read_chunk, filename=filename,
+                                  buffer_size=buffer_size, nthreads=nthreads)
+
+    with multiprocessing.Pool(nthreads) as pool:
+        pool.starmap(map_chunk, zip(chunk_beg, chunk_size, range(nthreads)))
 
 
 if __name__ == '__main__':
-    """Read file using multiple threads to place file into CEPH cache"""
+    parser = argparse.ArgumentParser(add_help=True,
+                                     description='Read file using multiple threads to place file into CEPH cache',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('filename', type=str, help='file to read for caching in CEPHS')
+    parser.add_argument('--nthreads', '-n', type=int, default=16, help='number of threads to process file.')
+    parser.add_argument('--buffer', '-b', dest='buffer_size', type=int, default=4096, help='Buffer size to read each chunk of data.')
+    parser.add_argument('--version', '-V', action='version', version=__version__)
 
-    parser = argparse.ArgumentParser(add_help=True,description='Read file using multiple threads to place file into CEPH cache')
-    parser.add_argument('filename',action='store', type=str,default="",help='file to read for caching in CEPHS')
-    parser.add_argument('--nthreads','-n',action='store', dest='nthreads',type=int,default=16,help='number of threads to process file. Default is 16 threads')
-    parser.add_argument('--buffer','-b',action='store', dest='buffer',type=int,default=4096,help='Buffer size to read each chunk of data. Default is 4096 bytes.')
-    parser.add_argument('-version',action = 'version',version = '0.1')
-
-    args = vars(parser.parse_args())
-    process_file(args)
+    args = parser.parse_args()
+    process_file(**vars(args))

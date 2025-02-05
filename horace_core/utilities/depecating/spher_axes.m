@@ -14,7 +14,7 @@ classdef spher_axes < sphere_axes
                 return;
             end
 
-            warning('HORACE:deprecated:invalid_argument',...
+            warning('HORACE:spher_axes:deprecated',...
                 '"spher_axes" class is deprecated. Use "sphere_axes" class instead')
 
         end

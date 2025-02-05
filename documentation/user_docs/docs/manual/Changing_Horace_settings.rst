@@ -27,7 +27,7 @@ All configurations have the following settings:
    class_name: 'parallel_config'
    saveable: 1
    returns_defaults: 0
-   config_folder: '/home/jacob/.matlab/mprogs_config'
+   config_folder: '/home/UserName/.matlab/mprogs_config_v4'
 
 - ``class_name``: is the name of the current configuration.
 - ``saveable``: Sets whether any changes to the config will be written to file
@@ -44,32 +44,39 @@ The Horace config (``hor_config``) manages configuration features of the Horace
 library functions, such as how functions handle ``NaN`` and ``inf``, the
 verbosity of the code and whether to use compiled C++ accelerator codes. It also
 contains references to the ``hpc_config`` to manage high-performance
-functionality.
+functionality and ``parallel_config`` to control the parameters of parallel jobs.
 
 ::
 
-    hor_config with properties:
+   hor_config with properties:
 
-             mem_chunk_size: 10000000
-            fb_scale_factor: 3
-                 ignore_nan: 1
-                 ignore_inf: 0
-                  log_level: 1
-                    use_mex: 1
-                 delete_tmp: 1
-          working_directory: '/tmp/'
-       force_mex_if_use_mex: 0
-      high_perf_config_info: [1x1 hpc_config]
-                 class_name: 'hor_config'
-                   saveable: 1
-           returns_defaults: 0
-              config_folder: '/home/jacob/.matlab/mprogs_config'
+           mem_chunk_size: 10000000
+          fb_scale_factor: 10
+               ignore_nan: 1
+               ignore_inf: 0
+                log_level: 10
+                  use_mex: 1
+               delete_tmp: 1
+        working_directory: '/temp/Horace_4.0.0.f2f508726'
+     force_mex_if_use_mex: 0
+               hpc_config: [1×1 hpc_config]
+          parallel_config: [1×1 parallel_config]
+               -----------
+               init_tests: 0
+         unit_test_folder: ''
+               class_name: 'hor_config'
+                 saveable: 1
+         returns_defaults: 0
+            config_folder: '/home/UserName/.matlab/mprogs_config_v4'
+
 
 
 - ``mem_chunk_size`` : (Advanced) The volume (in pixels) that are read into
   memory at a time during cuts.
 - ``fb_scale_factor`` : (Advanced) Number of "pages" (of ``mem_chunk_size``) in
-  an ``sqw`` to memory-back before falling back to file-backed.
+  an ``sqw`` to memory-back before falling back to file-backed ``sqw`` object.
+  See more information about filebacked and memory based objects in 
+  :ref:`manual/Cutting_data_of_interest_from_SQW_files_and_objects:File- and memory-backed cuts`
 - ``ignore_nan`` : Whether binning treats ``NaN`` as a value or simply filters
   the values before computing the new bins.
 - ``ignore_inf`` : Whether binning treats ``inf`` as a value or simply filters
@@ -77,22 +84,23 @@ functionality.
 - ``log_level`` : How verbose the code should be:
 
   - -1 : No output is produced.
-
-  - 0 : Major notifications are printed.
-
-  - 1 : Minor notifications are printed.
-
-  - 2 : Runs are timed and this information is printed too.
+  -  0 : Major notifications are printed.
+  -  1 : Minor notifications are printed.
+  -  2 : Runs are timed and this information is printed too.
 
 - ``use_mex`` : Whether to use compiled C++ accelerator MEX code to speed up key
   Horace operations.
 - ``force_mex_if_use_mex`` : (Advanced) If MEX fails for whatever reason, fail
-  the calculation instead of falling back to Matlab code.
+  the calculation instead of falling back to MATLAB code.
 - ``delete_tmp`` : Whether to automatically delete temporary files after
   generating SQW files.
 - ``working_directory`` : The directory to which temporary files are written
-- ``high_perf_config_info`` : Reference to the HPC configuration (see below)
+- ``hpc_config`` : Reference to the HPC configuration (:ref:`see below <HPC config>`:)
+- ``parallel_config`` : Reference to the settings to run parallel jobs (:ref:`see below <Parallel Config>`:)
 
+The information which follows ``parallel_config`` option is a service information described :ref:`below <Service info>`.
+
+.. _HPC Config:
 
 HPC Config
 ==========
@@ -115,10 +123,11 @@ the ``parallel_config`` as well as a direct reference to the config itself.
              parallel_cluster: 'herbert'
        parallel_configuration: [1x1 parallel_config]
                   hpc_options: {1x5 cell}
+                  ------------
                    class_name: 'hpc_config'
                      saveable: 1
              returns_defaults: 0
-                config_folder: '/home/jacob/.matlab/mprogs_config'
+                config_folder: '/home/UserName/.matlab/mprogs_config'
 
 
 
@@ -126,7 +135,7 @@ the ``parallel_config`` as well as a direct reference to the config itself.
   combine SQW objects
 - ``combine_sqw_using`` : Determines the algorithm to use for SQW combination
 
-  - ``matlab`` : this mode uses Matlab code to combine files. Slowest but most
+  - ``matlab`` : this mode uses MATLAB code to combine files. Slowest but most
     reliable method.
 
   - ``mex_code`` : Uses multi-threaded compiled C++ MEX code to combine
@@ -157,6 +166,9 @@ more info.
 - ``parallel_cluster``
 - ``parallel_configuration``
 
+The information which follows ``hpc_options`` option is a service information described :ref:`below <Service info>`.
+
+.. _Parallel Config:
 
 Parallel Config
 ===============
@@ -185,10 +197,11 @@ cluster is set up along with threading.
              external_mpiexec: ''
                slurm_commands: [0x1 containers.Map]
                       n_cores: 8
+                      --------
                    class_name: 'parallel_config'
                      saveable: 1
              returns_defaults: 0
-                config_folder: '/home/jacob/.matlab/mprogs_config'
+                config_folder: '/home/UserName/.matlab/mprogs_config_v4'
 
 - ``worker``: (Advanced) Parallel worker script to run on instantiating parallel
   jobs.
@@ -233,3 +246,23 @@ cluster is set up along with threading.
   submission jobs (if ``parallel_cluster `` is ``slurm_mpi``)
 - ``n_cores`` : Quick readout of Matlab's estimate of number of cores on local
   machine.
+  
+The information which follows ``n_cores`` option is a service information described :ref:`below <Service info>`.
+
+.. _Service info:
+
+Developers and service information present in configuration(s)
+--------------------------------------------------------------
+
+- ``init_tests`` : By default false. If set to true tries to identify and set to MATLAB search path
+  location of Horace unit tests and Horace unit test framework. Unit tests are present in Horace distributions,
+  cloned from repository only. If unit tests absent, attempt to set this property to true is ignored. Horace 
+  unit tests framework shadows MATLAB-s native unit test framework, so you need to set this property on/off if want to use both.   
+- ``unit_test_folder`` : the folder where Horace unit tests are located. Applicable only for Horace versions, 
+  downloaded from repository and became available when ``init_tests`` property is set to true.
+- 
+- ``class_name`` : helper read-only property which repeat the name of the configuration class.
+- ``saveable`` : if true, changes applied to configuration are saved to disk and will be restored in next MATLAB session. 
+  if false, values remain in memory and will be lost after MATLAB session is closed.
+- ``return_defaults`` : by default, its false. Setting this property to true would allow one to retrieve default configuration values.
+- ``config_folder`` : the place where the configuration data are stored to be able to restore it in the next MATLAB session.

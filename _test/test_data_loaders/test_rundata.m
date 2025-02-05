@@ -55,7 +55,7 @@ classdef test_rundata < TestCase
         function test_custom_save_loadobj_all(obj)
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
-            rd=rundata(f_name(obj,'MAP11014v2.nxspe'),ds);
+            rd=rundata(f_name(obj,'MAP11014v3.nxspe'),ds);
             assertTrue(rd.isvalid);
 
             rd = get_rundata (rd,'-this');
@@ -67,13 +67,13 @@ classdef test_rundata < TestCase
             ld = load(tf);
             assertTrue(ld.rd.isvalid);
 
-            assertEqual(ld.rd,rd);
+            assertEqual(ld.rd,rd,'-nan_equal');
         end
 
         function test_custom_save_loadobj_ei_fixed(obj)
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
-            rd=rundata(f_name(obj,'MAP11014v2.nxspe'),ds);
+            rd=rundata(f_name(obj,'MAP11014v3.nxspe'),ds);
             assertEqual(rd.efix,800);
             rd.efix = 801;
 
@@ -85,7 +85,7 @@ classdef test_rundata < TestCase
             save(tf,'rd');
             ld = load(tf);
 
-            assertEqual(ld.rd,rd);
+            assertEqual(ld.rd,rd,'-nan_equal');
         end
 
         function test_wrong_first_argument_has_to_be_fileName(~)
@@ -118,14 +118,14 @@ classdef test_rundata < TestCase
         function test_wrong_file_extension(obj)
             f = @()rundata(f_name(obj,'file.unspported_extension'));
             ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
-            assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
+            assertExceptionThrown(f,'HERBERT:loaders_factory:invalid_argument');
             warning(ws);
         end
 
         function test_file_not_found(obj)
             f = @()rundata(f_name(obj,'not_existing_file.spe'));
             ws=warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
-            assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
+            assertExceptionThrown(f,'HERBERT:loaders_factory:invalid_argument');
             warning(ws);
         end
 
@@ -292,39 +292,55 @@ classdef test_rundata < TestCase
             S=run.S;
             assertFalse(isempty(S));
             run_str = struct(run);
-            assertEqual(S,run_str.S);
+            assertEqual(S,run_str.S,'-nan_equal');
             warning(wr);
         end
 
-        function test_save_rundata_nxspe(obj)
+        function test_invalid_spe(obj)
+            spe_spource = fullfile(obj.test_data_path,'spe_info_inconsistent2demo_par.spe');
+
+            assertExceptionThrown(@()rundata(spe_spource),...
+                'HERBERT:loaders_factory:invalid_argument');
+        end
+
+        function test_save_rundata_nxspe(obj)   
             test_file = fullfile(tmp_dir,'test_save_rundata_nxspe.nxspe');
             if is_file(test_file)
                 delete(test_file);
             end
-            spe_spource = fullfile(obj.test_data_path,'spe_info_inconsistent2demo_par.spe');
+            clWarn = set_temporary_warning('off','HERBERT:saveNXSPE:invalid_argument','TESTS:clear_warnings');
+
+            run = rundata();
+            run.saveNXSPE(test_file);
+            [mess,wid] = lastwarn;
+            assertEqual(mess,'nothing to save');
+            assertEqual(wid,'HERBERT:saveNXSPE:invalid_argument');            
+
+            
             lat = oriented_lattice();
             lat.psi = 10;
-
-            run=rundata(spe_spource);
             run.lattice = lat;
+            warning('TESTS:clear_warnings','clear previous warning state')
+            run.saveNXSPE(test_file);
+            [mess,wid] = lastwarn;
+            assertEqual(mess,'nothing to save');
+            assertEqual(wid,'HERBERT:saveNXSPE:invalid_argument');            
+            
+            run.par_file_name = f_name(obj,'demo_par.PAR');            
+            
             f=@()run.saveNXSPE(test_file);
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
-
-            run.par_file_name = f_name(obj,'demo_par.PAR');
-            assertEqual(run.lattice,lat);
-            f=@()run.saveNXSPE(test_file);
-            % efix has to be defined
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
+            assertExceptionThrown(f,'HERBERT:load_nxspe:invalid_argument');
 
             run.efix = 1;
             f=@()run.saveNXSPE(test_file);
             % efix has to be defined
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
+            assertExceptionThrown(f,'HERBERT:load_nxspe:invalid_argument');
 
             run.efix = 150;
             f=@()run.saveNXSPE(test_file);
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
-
+            assertExceptionThrown(f,'HERBERT:load_nxspe:invalid_argument');
+            
+            
             run.data_file_name = fullfile(obj.test_data_path,'MAP10001.spe');
 
             f=@()run.saveNXSPE(test_file);
@@ -337,7 +353,7 @@ classdef test_rundata < TestCase
             ld=ld.load();
 
             assertEqual(ld.efix,run.efix);
-            assertEqual(ld.S,run.S);
+            assertEqual(ld.S,run.S,'-nan_equal');
             assertEqual(ld.psi,10);
             det1=ld.det_par;
             det2=run.det_par;
@@ -421,7 +437,7 @@ classdef test_rundata < TestCase
             run  = run.load();
             db   = run.serialize();
             runr = rundata.deserialize(db);
-            assertEqual(run,runr);
+            assertEqual(run,runr,'-nan_equal');
         end
 
         function test_load_metadata(obj)
@@ -522,30 +538,6 @@ classdef test_rundata < TestCase
             rd = rundata();
             id =  rd.run_id;
             assertTrue(isempty(id));
-        end
-
-        function test_extract_runid_long_complex(~)
-            fname =fullfile('cycle20201','MAR1044one2oneEi4.5.nxs');
-            id = rundata.extract_id_from_filename(fname);
-            assertEqual(1044,id);
-        end
-
-        function test_extract_runid_complex(~)
-            fname = 'MAR1044one2oneEi4.5.nxs';
-            id = rundata.extract_id_from_filename(fname);
-            assertEqual(1044,id);
-        end
-
-        function test_extract_runid_simple(~)
-            fname = 'MAR1044.nxs';
-            id = rundata.extract_id_from_filename(fname);
-            assertEqual(1044,id);
-        end
-
-        function test_extract_runid_empty(~)
-            fname = 'nlalflalel';
-            id = rundata.extract_id_from_filename(fname);
-            assertTrue(isnan(id));
         end
 
         function test_saveNXSPE_unbound(~)

@@ -48,12 +48,12 @@ classdef test_change_crystal_file_eq_memory < TestCase
             % let's assume that only reciprocal lattice vector length and
             % orientation have changed here. It is not true, but the
             % purpose of the test is to verify if the transformation works
-            % on file and in memory, not if it is physiclly valid.
-            % So it has to be just notinally valid
+            % on file and in memory, not if it is physically valid.
+            % So it has to be just notionally valid
             b0_inf = inv(wref_.data.proj.bmatrix());
             scale = norm(obj.rlu_corr);
             rotmat = obj.rlu_corr/scale;
-            rotvec = rotmat_to_rotvec2(rotmat);
+            rotvec = rotmat_to_rotvec_rad(rotmat);
             bm_modified = inv(b0_inf(1:3,1:3))/scale;
             lat_mod = 2*pi/bm_modified(1,1);
             obj.alignmnent_info = crystal_alignment_info( ...

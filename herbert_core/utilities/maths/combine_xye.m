@@ -31,7 +31,7 @@ nw=numel(w);
 dn=numel(w(1).x)-numel(w(1).y);
 bad=false;
 for i=1:nw
-    if numel(w(i).x)-numel(w(i).y)~=dn;
+    if numel(w(i).x)-numel(w(i).y)~=dn
         bad=true;
         break
     end
@@ -116,7 +116,7 @@ we=zeros(size(xrange));
 all_ycol=true;
 all_ecol=true;
 for i=1:nw
-    if i==1,
+    if i==1
         cent = xrange(1);
         width = 2*(xjoin(1)-xrange(1));
     elseif i==nw
@@ -158,10 +158,10 @@ function y= hat2(w1, h1, w2, h2, x)
 
 % Joost van Duijn: 29-08-03
 
-if nargin<5,
+if nargin<5
     error('Insuficient number of paramters given');
 end
-if (w1<0)||(w2<0),
+if (w1<0)||(w2<0)
     error('Width of the 2 hat functions need to be positive');
 end
 
@@ -176,12 +176,12 @@ end
 % _________/______|____|_\___________ x
 %                 0    |  w/2+delta/2
 %                      w/2-delta/2
-if w1>w2,
+if w1>w2
     w= w1;
     p= h1;
     delta= w2;
     q= h2;
-elseif w1<w2,
+elseif w1<w2
     w= w2;
     p= h2;
     delta= w1;

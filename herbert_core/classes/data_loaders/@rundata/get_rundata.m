@@ -260,5 +260,4 @@ else % return cell array of output variables, defined by the list of
     for i=1:min_num
         varargout{i}=get_field(this,fields_requested{i});
     end
-
 end

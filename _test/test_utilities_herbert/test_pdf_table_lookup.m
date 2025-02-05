@@ -188,7 +188,7 @@ classdef test_pdf_table_lookup < TestCaseWithSave
 
             lookup = pdf_table_lookup({arr1,arr2,arr3});
             % check current version
-            assertEqualWithSave(obj,lookup)
+            assertEqualWithSave(obj,lookup,'',1.e-9)
 
             lookup_files_location = obj.home_folder;
             if obj.save_output

@@ -1,5 +1,5 @@
 function obj = init_(obj,varargin)
-% INIT_ construcnt non-empty instance of this class
+% INIT_ construct non-empty instance of this class
 % Usage:
 %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,...
 %               omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,...
@@ -25,9 +25,9 @@ if nargin == 2
 elseif nargin > 2
     %
     flds = obj.constructionFields();
-    % select possible costruction using goniometer itself and goniometer
+    % select possible construction using goniometer itself and goniometer
     % parameters
-    is_gon = cellfun(@(x)isa(x,'goniometer'),varargin);
+    is_gon = cellfun(@(x)isa(x,'Goniometer'),varargin);
     if any(is_gon) % then goniometer parameters should not be provided independently
         gon_num = find(is_gon);
         % if goniometer parameter is provided as a key
@@ -36,8 +36,8 @@ elseif nargin > 2
             gon_key_num = find(is_gon_key);
             if numel(gon_num)>1 || gon_key_num+1 ~=gon_num
                 error('HERBERT:IX_experiment:invalid_argument',...
-                    ['Goniometer key (input N:%d) and Goniometer value (input N:%d) are inconsistent\n' ...
-                    'goniometer key inconsistent with goniometer value or two goniometers provided'],...
+                    ['goniometer key (input N:%d) and Goniometer value (input N:%d) are inconsistent\n' ...
+                    'goniometer key inconsistent with Goniometer value or two Goniometers provided'],...
                     gon_key_num,gon_num);
             end
             flds = [flds(:);'goniometer'];

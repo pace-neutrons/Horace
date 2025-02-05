@@ -458,16 +458,32 @@ else
 
         [~,s,v]=svd(jac,0);
         % constrain possible conditionality number and nullify small
-        % elements to inprove resulting fit comparison in case of
-        % poorly defined matrix
-        max_sv = max(abs(s));
+        % elements to inprove resulting fit comparison in tests in
+        % case of poorly defined matrix
+        max_sv = max(abs(s(:)));
         degraded = abs(s/max_sv)<eps('single');
+        % see Re #1798 for discussion about meaning of this piece of code.
+        if any(diag(degraded))
+            nrm=zeros(npfree,1);
+            for k=1:npfree
+                nrm(k)=jac(:,k)'*jac(:,k);
+                if nrm(k)>0
+                    nrm(k)=1/sqrt(nrm(k));
+                end
+                jac(:,k)=nrm(k)*jac(:,k);
+            end
+            [~,s,v]=svd(jac,0);
+            max_sv = max(abs(s(:)));
+            degraded = abs(s/max_sv)<eps('single');
+        else
+            nrm = ones(npfree,1);
+        end
         s(degraded) = 0;
         %
         s=repmat((1./diag(s))',[npfree,1]);
         v=v.*s;
         cov=chisqr_red*(v*v');  % true covariance matrix;
-        sig=sqrt(diag(cov));
+        sig=sqrt(diag(cov)).*nrm; % Re #1798 Justification!
         tmp=repmat(1./sqrt(diag(cov)),[1,npfree]);
         cor=tmp.*cov.*tmp';
 
@@ -476,7 +492,8 @@ else
         end
     else
         chisqr_red = c_best/nnorm;
-        warning('WARNING: Convergence not achieved')
+        warning('HORACE:tobyfit', ...
+            'WARNING: Convergence not achieved')
     end
 
 end

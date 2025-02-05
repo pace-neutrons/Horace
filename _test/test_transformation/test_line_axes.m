@@ -669,7 +669,7 @@ classdef test_line_axes < TestCase
             mult = ones(3,1);
             ex = assertExceptionThrown(@()get_bin_nodes(ab,'-bin_centre',mult),...
                 'HORACE:AxesBlockBase:invalid_argument');
-            assertTrue(strncmp(ex.message,'nnodes multipler should',23));
+            assertTrue(strncmp(ex.message,'axis binning should be 1x4 vector or single value',23));
         end
         %
         function test_wrong_keyword_throw(~)
@@ -687,7 +687,7 @@ classdef test_line_axes < TestCase
 
             ex = assertExceptionThrown(@()get_bin_nodes(ab,'-wrong',mult),...
                 'HORACE:AxesBlockBase:invalid_argument');
-            assertTrue(strncmp(ex.message,'nodes_multiplier, if present, should',36));
+            assertTrue(strncmp(ex.message,'axis binning, if present, should be single numeric value',36));
         end
         %
         function test_get_bin_nodes_2D_2d(~)
@@ -733,10 +733,10 @@ classdef test_line_axes < TestCase
             ab = line_axes(bin0{:});
 
 
-            [nodes,en,nbins] = ab.get_bin_nodes(2);
+            [nodes,en,nbins] = ab.get_bin_nodes(ab.nbins_all_dims*2);
             assertEqual(numel(en),nbins(4));
             assertEqual(size(nodes,1),4);
-            node_range = [min(nodes,[],2)';max(nodes,[],2)'];
+            node_range = min_max(nodes)';
             assertEqual(ab.img_range,node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
@@ -752,15 +752,15 @@ classdef test_line_axes < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = line_axes(bin0{:});
 
-            nnodes_mult = [2,40,40,10];
-            [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(nnodes_mult,'-3D');
+            nnodes_size = [2,40,40,10];
+            [nodes3D,dEgrid,npoints_in_axes] = ab.get_bin_nodes(nnodes_size,'-3D');
             assertEqual(size(nodes3D,1),3);
-            node_range = [min(nodes3D,[],2)';max(nodes3D,[],2)'];
+            node_range = min_max(nodes3D)';
             assertEqual(ab.img_range(:,1:3),node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
 
-            nns = [43,41,41,111];
+            nns = nnodes_size+1;
             assertEqual(npoints_in_axes,nns);
             q_size = prod(nns(1:3));
             assertEqual(numel(dEgrid),nns(4))
@@ -791,7 +791,7 @@ classdef test_line_axes < TestCase
             ab = line_axes(bin0{:});
 
             tob = DnDBase.dnd(ab,line_proj('alatt',2.7,'angdeg',90));
-            range  = tob.targ_range([],'-binning');
+            range  = tob.get_targ_range([],'-binning');
 
             assertEqual(bin0,range);
         end
@@ -806,7 +806,7 @@ classdef test_line_axes < TestCase
             proj2 = line_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
 
             tob = DnDBase.dnd(ab,proj1);
-            bin = tob.targ_range(proj2,'-binning');
+            bin = tob.get_targ_range(proj2,'-binning');
 
             % characteristic size of the block, transformed into proj2
             % coordinate system. This is absolutely unclear why does this
@@ -833,7 +833,7 @@ classdef test_line_axes < TestCase
             proj2 = line_proj([1,1,0],[1,-1,0],'alatt',1,'angdeg',90);
 
             tob = DnDBase.dnd(ab,proj1);
-            bin = tob.targ_range(proj2,'-binning');
+            bin = tob.get_targ_range(proj2,'-binning');
 
             assertEqualToTol([-1,0.1,1],bin{1},'abstol',1.e-12);
             assertEqualToTol([-1,0.1,1],bin{2},'abstol',1.e-12);
@@ -851,7 +851,7 @@ classdef test_line_axes < TestCase
             tob = DnDBase.dnd(ab,proj1);
             proj2 = line_proj([1,0,0],[0,0,1],'alatt',1,'angdeg',90);
 
-            bin = tob.targ_range(proj2,'-binning');
+            bin = tob.get_targ_range(proj2,'-binning');
 
             assertEqualToTol(bin0{1},bin{1},'abstol',1.e-12);
             assertEqualToTol(bin0{2},bin{3},'abstol',1.e-12);
@@ -873,7 +873,7 @@ classdef test_line_axes < TestCase
             proj1 = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             tob = DnDBase.dnd(ab,proj1);
 
-            bin = tob.targ_range(proj1,'-binning');
+            bin = tob.get_targ_range(proj1,'-binning');
 
             assertEqualToTol(bin0,bin,'abstol',1.e-12);
         end
@@ -1004,7 +1004,7 @@ end
             ab = line_axes([0 1 10], [-10 1 0], [-1 1 1], [-1 1 1]);
 
             idx = ab.bin_points([12 12 12 12]);
-            assertEqual(idx, [NaN NaN NaN NaN])
+            assertEqual(idx, [NaN NaN NaN NaN],'-nan_equal')
         end
 
         function test_line_axes_bin_points_wrong_dims(~)

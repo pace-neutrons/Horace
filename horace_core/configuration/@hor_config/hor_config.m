@@ -21,6 +21,11 @@ classdef hor_config < config_base
     % -----------
     %   mem_chunk_size    - Maximum length of buffer array to accumulate pixels
     %                       from an input file.
+    %   fb_scale_factor   - the product of fb_scale_factor and
+    %                       mem_chunk_size defines maximal number of pixels
+    %                       to put in memory. If number of pixels in sqw
+    %                       object exceeds this product sqw object by default
+    %                       becomes filebacked.
     %   ignore_nan        - Ignore NaN data when making cuts
     %   ignore_inf        - Ignore Inf data when making cuts.
     %   log_level         - Set verbosity of informational output.
@@ -28,16 +33,19 @@ classdef hor_config < config_base
     %   delete_tmp        - Automatically delete temporary files after generating sqw files
     %   working_directory - The folder to write tmp files.
     %   --
-    %   high_perf_config_info - helper/compatibility property to access high performance
-    %                       computing settings. Use hpc_config to modify hpc
-    %                       settings itself.
+    %   hpc_config        - helper/compatibility property to access high
+    %                       performance computing settings. Use "hpc_config"
+    %                       to modify hpc settings themself.
+    %   parallel_config   - helper/compartibulity property to access
+    %                       parallel computing settings. Use
+    %                       "parallel_config" to modify parallel computing
+    %                       settings themselves.
     %
     %   force_mex_if_use_mex - Fail if mex can not be used. Used in mex files debugging
     %--
-    %   hpc_config       - an interface, displaying high performance computing settings.
-    %                       Use hpc_config class directly to modify these
-    %                       settings.
-    %   init_tests       -  Enable the unit test functions
+    %   init_tests       -  Enable Horace specific unit test functions and
+    %                       access to Horace unit tests folders. Works for
+    %                       Horace downloaded as github repository only.
     %
     %
     properties(Dependent)
@@ -97,8 +105,14 @@ classdef hor_config < config_base
         % Here it provided for information only while changes to this
         % property should be made through hpc_config class setters directly.
         hpc_config;
-
-        % add unit test folders to search path (option for testing)
+        % the property exposes access to Horace parallel computing
+        % settings. Here it provided for information only while changes to
+        % this property should be made through parallel_config class
+        % setters directly.
+        parallel_config;
+        % Enable Horace unit test framework and add unit test folders to
+        % search path (option for Horace testing). Works for Horace
+        % retrieved from repository only.
         init_tests;
     end
 
@@ -141,6 +155,7 @@ classdef hor_config < config_base
         force_mex_if_use_mex_ = false;
         log_level_ = 1;
         init_tests_ = false;
+        spe_file_en_transf_field_width_ = 10;
     end
 
     properties(Constant, Access=private)
@@ -165,7 +180,6 @@ classdef hor_config < config_base
 
         %-----------------------------------------------------------------
         % overloaded getters
-
         function mcs = get.mem_chunk_size(obj)
             mcs = get_or_restore_field(obj,'mem_chunk_size');
         end
@@ -232,8 +246,12 @@ classdef hor_config < config_base
         end
 
         function hpcc = get.hpc_config(~)
-            hpcc = hpc_config;
+            hpcc = hpc_config();
         end
+        function parcc = get.parallel_config(~)
+            parcc = parallel_config();
+        end
+        
 
         %-----------------------------------------------------------------
         % overloaded setters
@@ -296,14 +314,20 @@ classdef hor_config < config_base
             if use
                 % Configure mex usage
                 % --------------------
-                [~, n_errors, can_combine_with_mex] = check_horace_mex();
+                [~, n_errors, can_combine_with_mex,can_use_custom_mpi] = check_horace_mex();
                 if n_errors>0
                     use = false;
                     warning('HOR_CONFIG:set_use_mex',...
                         ' mex files can not be initiated, Use mex set to false');
                 end
                 if ~can_combine_with_mex
-                    config_store.instance().store_config(obj,'combine_sqw_using','matlab');
+                    config_store.instance().store_config('hpc_config','combine_sqw_using','matlab');
+                end
+                if ~can_use_custom_mpi
+                    pc = parallel_config;
+                    if ismember(pc.parallel_cluster,{'mpiexec_mpi','slurm_mpi'})
+                        pc.parallel_cluster = 'herbert';
+                    end
                 end
 
             end

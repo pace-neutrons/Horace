@@ -74,6 +74,7 @@ end
 if ~isempty(loaders)
     inputs(all_fnames) = loaders;
 end
+faccess_versions = cellfun(@sqw_file_version,inputs);
 
 info = cell(1,n_inputs);
 for i=1:n_inputs
@@ -82,12 +83,17 @@ for i=1:n_inputs
     else
         data = inputs{i}.get_dnd_metadata();
     end
+
     if n_outputs == 0
+        in_file = faccess_versions(i)>0;
         if inputs{i}.sqw_type
             sqw_display_single(data, ...
-                inputs{i}.npixels,inputs{i}.num_contrib_files,'a');
+                inputs{i}.npixels,inputs{i}.num_contrib_files,in_file);
         else
-            sqw_display_single(data,1,1,'b+');
+            sqw_display_single(data,1,1,in_file);
+        end
+        if in_file
+            fprintf(' Object is stored in Horace-%.2g format file\n\n',faccess_versions(i));
         end
     else
         info{i} = data;
@@ -111,10 +117,13 @@ end
 
 for i=1:nfi
     vout{i} = info{i}.head(varargin{:});
-    if inputs{i}.sqw_type    
+    if inputs{i}.sqw_type
         vout{i}.npixels = inputs{i}.npixels;
         vout{i}.num_contrib_files = inputs{i}.num_contrib_files;
         vout{i}.data_range = inputs{i}.get_data_range();
+    end
+    if faccess_versions(i) > 0
+        vout{i}.faccess_version = faccess_versions(i);
     end
 end
 
@@ -124,4 +133,11 @@ else
     for i=1:nargout
         varargout{i} = vout{i};
     end
+end
+
+function ver = sqw_file_version(loader)
+if isa(loader,'horace_binfile_interface')
+    ver = loader.faccess_version;
+else
+    ver = -1;
 end

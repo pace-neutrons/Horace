@@ -16,14 +16,14 @@ classdef test_loaders_factory< TestCase
 
 
             f = @()loaders_factory.instance().get_loader(not_a_file);
-            assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
+            assertExceptionThrown(f,'HERBERT:loaders_factory:invalid_argument');
             f = @()loaders_factory.instance().get_loader(not_a_data);
-            assertExceptionThrown(f,'LOADERS_FACTORY:get_loader');
+            assertExceptionThrown(f,'HERBERT:loaders_factory:invalid_argument');
         end
 
         function test_select_loader(this)
             ascii_spe  = fullfile(this.test_data_path,'MAP10001.spe');
-            nxspe_f    = fullfile(this.test_data_path,'MAP11014v2.nxspe');
+            nxspe_f    = fullfile(this.test_data_path,'MAP11014v3.nxspe');
 
 
             asc_loader=loaders_factory.instance().get_loader(ascii_spe);

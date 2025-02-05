@@ -113,24 +113,21 @@ end
 % ------------
 % Check consistency of spe files - do this on header, to save reading in vast amounts of data and then failing.
 for i=1:numel(spefiles)
-    [tmp,ok,mess]=get_spe_header(spefiles{i});
-    if ok
-        if i==1
-            header=tmp;
-        else
-            if header.ndet~=tmp.ndet
-                mess='Number of detectors not all the same';
-                return
-            elseif numel(header.en)~=numel(tmp.en)
-                mess='Number of energy bins not all the same';
-                return
-            elseif header.en~=tmp.en    % might generalise to accept a certain tolerance
-                mess='Energy bin boundaries not all the same';
-                return
-            end
-        end
+    tmp=get_spe_header(spefiles{i});
+
+    if i==1
+        header=tmp;
     else
-        return
+        if header.ndet~=tmp.ndet
+            mess='Number of detectors not all the same';
+            return
+        elseif numel(header.en)~=numel(tmp.en)
+            mess='Number of energy bins not all the same';
+            return
+        elseif header.en~=tmp.en    % might generalise to accept a certain tolerance
+            mess='Energy bin boundaries not all the same';
+            return
+        end
     end
 end
 clear header tmp
@@ -140,11 +137,8 @@ clear header tmp
 % ------------------------------
 % Accumulate signal
 for i=1:numel(weight)
-    [data,ok,mess]=get_spe(spefiles{i});    % get_spe puts signal=NaN for null data (August 2009)
-    if ~ok
-        mess=['Could not read .spe file ',spefiles{i}];
-        return
-    end
+    data = get_spe(spefiles{i});    % get_spe puts signal=NaN for null data (August 2009)
+
     ok_pix=~isnan(data.S);	% true where pixel has data and false where detector has 'nulldata' in current data set
     data.S(~ok_pix)=0;      % need to set to zero so that we can multiply by ok_pix and accumulate zeros at the bad pixels
     data.ERR(~ok_pix)=0;    % should be zero anyway, but just in case
@@ -162,15 +156,15 @@ for i=1:numel(weight)
         cumm_S = cumm_S + weight(i)*(ok_pix.*data.S);
         cumm_ERR2 = cumm_ERR2 + (weight(i).^2)*(ok_pix.*(data.ERR).^2);
     end
-% Information about unmasked detectors and bad pixels
-% ----------------------------------------------------
-% For the current file
+    % Information about unmasked detectors and bad pixels
+    % ----------------------------------------------------
+    % For the current file
     masked_detector=all(~ok_pix,1);     % detector is masked if all pixels are null
     ndet_ok=sum(~masked_detector);      % number of unmasked detectors
     npix_bad=sum(reshape(~ok_pix(:,~masked_detector),[ne*ndet_ok,1]));   % number of bad pixels in unmasked detectors
     fprintf('Current file masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad);
 
-% For accumulated file
+    % For accumulated file
     masked_detector=all(~cumm_ok_pix,1);% detector is masked if all pixels are null
     ndet_ok=sum(~masked_detector);      % number of unmasked detectors
     npix_bad=sum(reshape(~cumm_ok_pix(:,~masked_detector),[ne*ndet_ok,1]));   % number of bad pixels in unmasked detectors

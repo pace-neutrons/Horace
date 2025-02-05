@@ -29,12 +29,12 @@ n_chunks = numel(npix_chunks);
 % check if warning about data range is necessary.
 issue_range_warning = page_op.do_missing_range_warning;
 if issue_range_warning
-    was_misaligned = false;
+    was_corrected = false;
     is_range_valid = page_op.is_range_valid;
     if ~is_range_valid
         if isempty(page_op.outfile) && n_chunks>fbs && ll>0
             original_file  = obj_in.full_filename;
-            was_misaligned = obj_in.pix.is_misaligned;
+            was_corrected = obj_in.pix.is_corrected;
             issue_range_warning = true;
         else
             issue_range_warning = false;
@@ -65,14 +65,14 @@ obj_out = page_op.finish_op(obj_in);
 if ll > 0
     [~,te] = lc.adapt_logging(n_chunks);
     if lc.dot_printed; fprintf('\n'); lc.dot_printed = false; end
-    fprintf('*** Completed %s using %d pages in %4.1d sec.\n', ...
+    fprintf('*** Completed %s using %d pages in %6.5g sec.\n', ...
         op_name,n_chunks,te);
     if page_op.inform_about_target_file
         page_op.report_on_target_files(obj_out);
     end
 end
 if issue_range_warning
-    old_file_format = ~was_misaligned;
+    old_file_format = ~was_corrected;
     page_op.print_range_warning(original_file,old_file_format);
 end
 
@@ -96,16 +96,28 @@ function [log_control,page_op] = print_progress_log(page_op,n_step,nsteps_total,
 %                  number_of_steps_passed)
 
 log_split = page_op.split_log_ratio;
-if mod(n_step, log_split) < eps('single')
+if mod(n_step, log_split) < eps('single') || (n_step == 1 && nsteps_total>1)
     if n_step>1
         fprintf('.\n');
     end
     [log_control,run_time]   = log_control.adapt_logging(n_step);
     page_op.split_log_ratio  = log_control.info_log_split_ratio;
-    fprintf('*** Finished %dof#%d chunks in %d sec performing %s\n', ...
-        n_step,nsteps_total,run_time,op_name);
+    if run_time < 999
+        unit = 'sec';        
+    else
+        unit = 'min';
+        run_time = run_time/60;
+        if run_time > 999
+             unit = 'hrs';
+             run_time = run_time/60;
+        end
+    end
+    fprintf('*** Finished %dof#%d chunks in %6.5g %s performing %s\n', ...
+           n_step,nsteps_total,run_time,unit,op_name);    
     log_control.dot_printed = false;
 else
-    fprintf('.');
-    log_control.dot_printed = true;
+    if nsteps_total > 1
+        fprintf('.');
+        log_control.dot_printed = true;
+    end
 end

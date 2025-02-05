@@ -31,7 +31,7 @@ classdef test_unique_objects < TestCase
 
             assertEqual(uoc.n_objects,4)
 
-            [is,ind] = uoc.contains(obj.mi1);
+            [is,ind,obj.mi1] = uoc.contains(obj.mi1);
             assertTrue(is);
             assertEqual(ind,1);
             % different branch of the code
@@ -110,7 +110,7 @@ classdef test_unique_objects < TestCase
                 uoc.unique_objects = 'bbbb';
             end
             assertExceptionThrown(@thrower, ...
-                'HERBERT:unique_objects_container:invalid_set');
+                'HERBERT:unique_objects_container:invalid_argument');
             uoc.do_check_combo_arg = false;
             thrower();
             uoc.do_check_combo_arg = true;
@@ -126,7 +126,7 @@ classdef test_unique_objects < TestCase
                 uoc.unique_objects = {'AA','AA'};
             end
             assertExceptionThrown(@thrower, ...
-                'HERBERT:unique_objects_container:invalid_set');
+                'HERBERT:unique_objects_container:invalid_argument');
 
         end
 
@@ -136,6 +136,7 @@ classdef test_unique_objects < TestCase
             uoc(2) = 'bbbb';
             uoc(3) = 'bbbb';
             assertTrue(uoc.do_check_combo_arg);
+            cl0b_file = onCleanup(@()delete('unique_objects_container_test_save_load_1.mat'));
             save('unique_objects_container_test_save_load_1.mat','uoc');
             zzz = load('unique_objects_container_test_save_load_1.mat');
             assertEqual(zzz.uoc{3},'bbbb');
@@ -147,13 +148,8 @@ classdef test_unique_objects < TestCase
             uoc(1) = 'aaaaa';
             uoc(2) = 'bbbb';
             uoc(3) = 'bbbb';
-            function maythrow()
-                uoc.unique_objects = {'dd','cc'};
-            end
-            assertExceptionThrown(@maythrow,'HERBERT:unique_objects_container:invalid_set');
-            uoc.do_check_combo_arg = false;
-            uoc.unique_objects = {'dd','cc'};
-            uoc.do_check_combo_arg = false;
+            % just replaced unique objects. Why to prohibit it
+            uoc.unique_objects = {'dd','cc'};            
 
             assertEqual(uoc(1),'dd')
             assertEqual(uoc(2),'cc')
@@ -267,25 +263,6 @@ classdef test_unique_objects < TestCase
             assertEqual( numel(voc.idx), 1);
         end
         %----------------------------------------------------------------
-        function test_change_serializer(obj)
-            % Test different serializers
-            mi2 = merlin_instrument(190, 700, 'g');
-            uoc = unique_objects_container();
-            uoc = uoc.add(obj.mi1);
-            uoc = uoc.add(mi2);
-            voc = unique_objects_container('convert_to_stream_f',@hlp_serialize);
-            voc = voc.add(obj.mi1);
-            voc = voc.add(mi2);
-            ie = isequal( voc.stored_hashes(1,:), uoc.stored_hashes(1,:) );
-            assertFalse(ie);
-            %{
-            Turns out that hashes are not portable between all Matlab
-            versions and platforms, so suppressing this bit.
-            assertEqual( u1, uoc.stored_hashes(1,:) );
-            assertEqual( v1, voc.stored_hashes(1,:) );
-            %}
-        end
-        %----------------------------------------------------------------
         function test_constructor_arguments_no_type(obj)
 
             uoc = unique_objects_container();
@@ -371,7 +348,7 @@ classdef test_unique_objects < TestCase
             % additional tests for other subscript functions
             % NB horrible syntax but way to put assignments in anonymous
             % functions is worse! Replacements for assertExceptionThrown
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
+            uoc = unique_objects_container('baseclass','IX_inst');
             function set_uoc()
                 uoc{2} = obj.mi1;
             end
@@ -379,7 +356,7 @@ classdef test_unique_objects < TestCase
             assertEqual(ex.message,'index outside legal range')
         end
         function test_subscripting_type_hlp_ser_wrong_subscript_minus(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
+            uoc = unique_objects_container('baseclass','IX_inst');
             function set_uoc()
                 uoc{-1} = obj.mi1;
             end
@@ -400,7 +377,7 @@ classdef test_unique_objects < TestCase
 
         end
         function test_instr_replacement_with_duplicates_round(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
+            uoc = unique_objects_container('baseclass','IX_inst');
             uoc(1) = obj.mi1;
             uoc(2) = IX_null_inst();
             assertEqual( uoc.n_duplicates,[1,1]);
@@ -422,7 +399,7 @@ classdef test_unique_objects < TestCase
         end
 
         function test_instr_replacement_with_duplicates_curly(obj)
-            uoc = unique_objects_container('convert_to_stream_f',@hlp_serialize,'baseclass','IX_inst');
+            uoc = unique_objects_container('baseclass','IX_inst');
             uoc{1} = obj.mi1;
             uoc{2} = IX_null_inst();
             assertEqual( uoc.n_duplicates,[1,1]);
@@ -475,7 +452,7 @@ classdef test_unique_objects < TestCase
             'when adding to the end of a container, additionally setting properties is not permitted'));
         end
         %-----------------------------------------------------------------
-        function test_arrays_of_containers(obj)
+        function test_arrays_of_containers(~)
             urc1 = unique_objects_container('double');
             urc1 = urc1.add([6 7]);
             urc2 = unique_objects_container('double');
@@ -491,6 +468,18 @@ classdef test_unique_objects < TestCase
             % the next lines test the same thing for cells
             arr = {urc1 urc2};
             assertTrue(isa(arr{2},'unique_objects_container'));
+        end
+        
+        function test_hashing_preserved_over_save_and_load(obj)
+            uoc = unique_objects_container('baseclass','IX_inst');
+            uoc{1} = obj.mi1;
+            uoc{2} = IX_null_inst();
+            test_data = 'store2020_1.mat';
+            clOb = onCleanup(@()delete(test_data));
+            save(test_data,'uoc');
+            zzz = load('store2020_1.mat');
+            assertEqual(uoc.stored_hashes, zzz.uoc.stored_hashes);
+            
         end
         
     end

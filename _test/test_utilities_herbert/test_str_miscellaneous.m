@@ -56,7 +56,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = str_is_cellstr({'hello', 45, 'sunshine'});
             
             assertEqual (ok, false);
-            assertEqual (n, [5, NaN, 8]);
+            assertEqual (n, [5, NaN, 8],'-nan_equal');
         end
         
         %--------------------------------------------------------------------------
@@ -65,7 +65,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = str_is_cellstr(45);
             
             assertEqual (ok, false);
-            assertEqual (n, NaN);
+            assertEqual (n, NaN,'-nan_equal');
         end
         
         %--------------------------------------------------------------------------
@@ -74,7 +74,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = str_is_cellstr('45');
             
             assertEqual (ok, false);
-            assertEqual (n, NaN);
+            assertEqual (n, NaN,'-nan_equal');
         end
         
         %--------------------------------------------------------------------------
@@ -83,7 +83,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = str_is_cellstr({45});
             
             assertEqual (ok, false);
-            assertEqual (n, NaN);
+            assertEqual (n, NaN,'-nan_equal');
         end
         
         %--------------------------------------------------------------------------
@@ -92,7 +92,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = str_is_cellstr({{'45'}});
             
             assertEqual (ok, false);
-            assertEqual (n, NaN);
+            assertEqual (n, NaN,'-nan_equal');
         end
         
         %--------------------------------------------------------------------------
@@ -101,7 +101,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = str_is_cellstr({['bad';'man']});
             
             assertEqual (ok, false);
-            assertEqual (n, NaN);
+            assertEqual (n, NaN,'-nan_equal');
         end
         
         %==========================================================================
@@ -139,7 +139,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = is_charVector(['Hello ';'Mister']);
             
             assertEqual (ok, false);
-            assertEqual (n, NaN);
+            assertEqual (n, NaN,'-nan_equal');
         end
         
         %--------------------------------------------------------------------------
@@ -148,7 +148,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = is_charVector("Peanuts");
             
             assertEqual (ok, false);
-            assertEqual (n, NaN);
+            assertEqual (n, NaN,'-nan_equal');
         end
         
         %--------------------------------------------------------------------------
@@ -158,7 +158,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = is_charVector({'Peanuts'});
             
             assertEqual (ok, false);
-            assertEqual (n, NaN);
+            assertEqual (n, NaN,'-nan_equal');
         end
         
         %--------------------------------------------------------------------------
@@ -168,7 +168,7 @@ classdef test_str_miscellaneous < TestCase
             [ok, n] = is_charVector('Peanuts', 35, '', "kernel", ['Hello ';'Mister']);
             
             assertEqual (ok, [true, false, true, false, false]);
-            assertEqual (n, [7, NaN, 0, NaN, NaN]);
+            assertEqual (n, [7, NaN, 0, NaN, NaN],'-nan_equal');
         end
         
         %==========================================================================
