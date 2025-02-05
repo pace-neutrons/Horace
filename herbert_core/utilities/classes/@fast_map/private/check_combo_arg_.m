@@ -9,5 +9,9 @@ if numel(obj.keys_) ~= numel(obj.values_)
 end
 
 obj.min_max_key_val_ = min_max(obj.keys_);
+% always optimiza if key spread is bigger then specified number
+if obj.min_max_key_val_(2)-obj.min_max_key_val_(1) <= obj.empty_space_optimization_limit * obj.n_members
+    obj.optimized = true;
+end
 
 end

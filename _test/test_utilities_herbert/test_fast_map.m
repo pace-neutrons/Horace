@@ -11,6 +11,26 @@ classdef test_fast_map < TestCase
             obj = obj@TestCase(name);
         end
         %------------------------------------------------------------------
+        function test_insertion_in_optimized(~)
+            n_keys = 100;
+            base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
+            base_key = unique(base_key);
+            n_keys = numel(base_key);
+            val = 1:n_keys;
+
+            fm = fast_map(base_key,val);
+            fm.optimized = true;
+
+            fm = fm.add(base_key(1),n_keys+1);
+            assertEqual(fm.get(base_key(1)),n_keys+1);
+            assertTrue(fm.optimized);
+
+            new_key = 10+10*n_keys;
+            fm = fm.add(new_key,n_keys+2);
+            assertEqual(fm.get(new_key ),n_keys+2);
+            assertFalse(fm.optimized);
+        end
+
         function test_optimization(~)
             n_keys = 100;
             base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
@@ -24,7 +44,6 @@ classdef test_fast_map < TestCase
             for i=1:n_keys
                 assertEqual(fm.get(base_key(i)),fmop.get(base_key(i)));
             end
-
         end
         %------------------------------------------------------------------
         function test_fast_map_accepts_addition(~)

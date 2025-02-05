@@ -1,19 +1,28 @@
 classdef fast_map < serializable
     %FAST_MAP class provides map functionality for small subset of
-    %key-value pairs.
+    %key-value pairs, where keys are unit32 numbers and values are double.
     %
-    % Initial purpose -- use it as the map for connecting run_id-s with
-    % IX_experiment number so that correspondence between
+    % Initial purpose -- use it as the fast map for connecting run_id-s with
+    % IX_experiment number to maintan correspondence between IX_experiment
+    % number and pixel ID.
     %
     % The class is necessary because MATLAB containers.Map class is
     % incredibly slow.
     %
     % Class optimized for key access rather then key insertion.
     % Further development and acceleration may be possible, including
-    % mexing and building container for
+    % mexing and building wrapper around C++ map class.
     %
     % WARNING: intentianally disabled multiple reliability checks and
     % convenience properties in favour of access speed.
+
+    properties
+        % map optimization for doing fast access limit
+        %
+        % The map optimization works by allocating large array with places
+        empty_space_optimization_limit = 5;
+    end
+
     properties(Dependent)
         n_members; % number of elements in key-value map
         keys       % arrays of keys used to retrieve the values
@@ -73,6 +82,9 @@ classdef fast_map < serializable
             present =  self.keys_ == key;
             if any(present)
                 self.values_(present) = value;
+                if self.optimized_
+                    self.keyval_optimized_(key-self.key_shif_) = value;
+                end
             else
                 self.keys_(end+1) = key;
                 self.values_(end+1) = value;
@@ -136,7 +148,7 @@ classdef fast_map < serializable
             else
                 obj.optimized_ = false;
                 obj.min_max_key_val_ = [];
-                obj.keyval_optimized_= {};
+                obj.keyval_optimized_= [];
             end
         end
         %
