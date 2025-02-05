@@ -15,7 +15,10 @@ classdef fast_map < serializable
     %
     % WARNING: intentianally disabled multiple reliability checks and
     % convenience properties in favour of access speed.
-
+    %
+    % See fast_map_vs_map_performance in test_herbert_utilities
+    % to compare speed and optimize fast_map operations.
+    %
     properties
         % map optimization for doing fast access limit
         %
@@ -184,20 +187,17 @@ classdef fast_map < serializable
         end
         %
         function obj = optimize(obj)
-            % place values into expanded cellrarray, containing
-            % empty where keys are missing and values where
-            obj.min_max_key_val_ = min_max(obj.keys_);
-            obj.key_shif_ = obj.min_max_key_val_(1)-1;
-            n_places = obj.min_max_key_val_(2)-obj.min_max_key_val_(1)+1;
-            obj.keyval_optimized_ = nan(1,n_places);
-            keys_shifted = obj.keys_-obj.min_max_key_val_(1)+1;
-            obj.keyval_optimized_(keys_shifted) = obj.values_(:);
-            obj.optimized_ = true;
+            % place values into expanded array or cellarray, containing
+            % NaN or empty where keys are missing and values where
+            % keys are present. This array/cellarray is optimal for fast
+            % access to the values as function of keys.
+            %
+            obj = optimize_(obj);
         end
     end
     %----------------------------------------------------------------------
-    % Overloaded indexers. DESPITE NICE, adding them makes fast_map 40-60
-    % times slower even without using indexes itself. Disabled for this
+    % Overloaded indexers. DESPITE LOOKING NICE, adding them makes fast_map
+    % 40-60 times slower even without using indexes itself. Disabled for this
     % reason, until, may be mex is written which would deal with fast part
     % of indices.
     methods

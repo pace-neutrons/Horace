@@ -11,6 +11,7 @@ classdef test_fast_map < TestCase
             obj = obj@TestCase(name);
         end
         %------------------------------------------------------------------
+        %------------------------------------------------------------------
         function test_insertion_in_optimized(~)
             n_keys = 100;
             base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
@@ -46,6 +47,18 @@ classdef test_fast_map < TestCase
             end
         end
         %------------------------------------------------------------------
+        function test_map_loadobj(~)
+            keys = uint32(1:10);
+            keys = num2cell(keys);
+            val = num2cell(10:-1:1);
+            fm = fast_map(keys,val );
+
+            struc = fm.to_struct();
+            rec = serializable.loadobj(struc);
+
+            assertEqual(fm,rec);
+        end
+
         function test_fast_map_accepts_addition(~)
             keys = 10:-1:1;
 
