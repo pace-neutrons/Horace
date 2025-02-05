@@ -57,6 +57,20 @@ classdef test_fast_map < TestCase
             assertEqual(fm.values,1:10);
         end
         %
+        %
+        function test_map_constrcutrion_from_cellarray(~)
+            keys = uint32(1:10);
+            keys = num2cell(keys);
+            val = num2cell(10:-1:1);
+            fm = fast_map(keys,val );
+            assertEqual(fm.keys,uint32(1:10));
+            assertEqual(fm.values,[val{:}]);
+
+            for i=1:numel(val)
+                assertEqual(fm.get(i),val{i});
+            end
+
+        end
         function test_fast_map_construction(~)
             val = 10:-1:1;
             fm = fast_map(1:10,val );
