@@ -1,7 +1,7 @@
-function [sz_root, ok, mess] = size_array_split (sz_full, sz_stack)
+function sz_root = size_array_split (sz_full, sz_stack)
 % Return the size of the root array in a stack of those arrays
 %
-%   >> [sz_root, ok, mess] = size_array_split (sz_full, sz_stack)
+%   >> sz_root = size_array_split (sz_full, sz_stack)
 %
 % Input:
 % ------
@@ -54,69 +54,75 @@ function [sz_root, ok, mess] = size_array_split (sz_full, sz_stack)
 
 % Elementary check that inputs are valid
 if ~is_a_size (sz_full)
-    error('full array size has invalid form')
+    error('HERBERT:size_array_split:invalid_argument', 'full array size has invalid form')
 end
 
 if ~is_a_size (sz_stack)
-    error('stack array size has invalid form')
+    error('HERBERT:size_array_split:invalid_argument', 'stack array size has invalid form')
 end
 
 % Algorithm proper
-ok = true;
-mess = '';
 
 % Remove trailing singletons from sz_full and sz_stack
 sz_full = true_size(sz_full);
 sz_stack = true_size(sz_stack);
 
-if numel(sz_full) >= numel(sz_stack)
-    % Get number of dimensions in sz_stack following leading singletons
-    ind = find(sz_stack~=1,1);      % first non-singleton dimension
-    if ~isempty(ind)
-        % The stack array has at least one non-singleton dimension
-        n = numel(sz_stack) - ind + 1;  % number of dimensions after leading singletons
-        
-        % The dimensions trailing leading singletons of the stack array must
-        % match the trailing dimensions of the full array
-        if all(sz_full(end-n+1:end)==sz_stack(end-n+1:end))           
-            % Strip away the stack dimensions
-            sz_root = sz_full(1:end-n);
-            if numel(sz_stack)==numel(sz_full)
-                sz_root = true_size(sz_root);   % remove trailing singletons
-            elseif ~isempty(sz_root) && sz_root(end)==1
-                mess = 'The full array cannot be resolved into a stack of arrays with the given stack size';
-                sz_root = []; ok = false; if nargout<2, error(mess), end
-            end
-        else
-            mess = 'The full array cannot be resolved into a stack of arrays with the given stack size';
-            sz_root = []; ok = false; if nargout<2, error(mess), end
-        end
-        
-    else
-        % sz_stack is empty i.e. was originally [1,1] i.e. a scalar
-        sz_root = sz_full;
+if numel(sz_full) < numel(sz_stack)
+    error('HERBERT:size_array_split:invalid_argument', ...
+          'The number of dimensions of the stacking array is larger than that of the full array');
+end
+
+% Get number of dimensions in sz_stack following leading singletons
+ind = find(sz_stack~=1,1);      % first non-singleton dimension
+
+if ~isempty(ind)
+    % The stack array has at least one non-singleton dimension
+    n = numel(sz_stack) - ind + 1;  % number of dimensions after leading singletons
+
+    % The dimensions trailing leading singletons of the stack array must
+    % match the trailing dimensions of the full array
+    if any(sz_full(end-n+1:end) ~= sz_stack(end-n+1:end))
+        error('HERBERT:size_array_split:invalid_argument', ...
+              'The full array cannot be resolved into a stack of arrays with the given stack size');
     end
-    
-    % Add trailing singletons to the root array to give Matlab size of at least two
-    if numel(sz_root)<2
-        sz_root = [sz_root,ones(1,2-numel(sz_root))];
+
+    % Strip away the stack dimensions
+    sz_root = sz_full(1:end-n);
+
+    if numel(sz_stack) == numel(sz_full)
+        sz_root = true_size(sz_root);   % remove trailing singletons
+
+    elseif ~isempty(sz_root) && sz_root(end) == 1
+        error('HERBERT:size_array_split:invalid_argument', ...
+              'The full array cannot be resolved into a stack of arrays with the given stack size');
     end
-    
+
 else
-    mess = 'The number of dimensions of the stacking array is larger than that of the full array';
-    sz_root = []; ok = false; if nargout<2, error(mess), end
+    % sz_stack is empty i.e. was originally [1,1] i.e. a scalar
+    sz_root = sz_full;
+end
+
+% Add trailing singletons to the root array to give Matlab size of at least two
+if numel(sz_root)<2
+    sz_root = [sz_root,ones(1,2-numel(sz_root))];
+end
+
 end
 
 % -------------------------------------------------------------------------
+
 function ok = is_a_size (sz)
 ok = isrow(sz) && numel(sz)>=2 && all(sz>=0) && all(rem(sz,1)==0);
 
-% -------------------------------------------------------------------------
+end
+
 function sz_true = true_size (sz)
 % Return true size once irrelevant trailing singletons have been stripped
-ind = find(fliplr(sz)~=1,1);   % first non-singleton counting backwards
+ind = find(sz ~= 1, 1, 'last');   % first non-singleton counting backwards
 if ~isempty(ind)
     sz_true = sz(1:end-ind+1);
 else
     sz_true = zeros(1,0);
+end
+
 end
