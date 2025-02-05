@@ -33,7 +33,7 @@ det = wtmp.experiment_info.detector_arrays;
 if isempty(det) || det.n_runs == 0
     % no detector info was available when the sqw was populated; as detpar
     % is no longer available this is an error
-    error('HORACE:tobyfit-detector_array:invalid_argument', ...
+    error('HORACE:detector_array:invalid_argument', ...
           'trying to make detectors from a detpar but it doesnt exist any more');
 else
     % make a new detector object based on value of use_tubes and insert

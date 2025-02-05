@@ -13,6 +13,7 @@ classdef test_join < TestCase
             hc = horace_paths;
             obj.test_dir = hc.test_common;
             obj.sample_obj = read_sqw(fullfile(obj.test_dir,'sqw_2d_1.sqw'));
+
             obj.sqw_to_join = obj.sample_obj.split();
             n_parts = numel(obj.sqw_to_join);
             obj.files_to_join = cell(n_parts,1);
@@ -85,12 +86,9 @@ classdef test_join < TestCase
             outfile = fullfile(tmp_dir,'write_nsqw_to_sqw_test_join.sqw');
             clObj = onCleanup(@()delete(outfile));
             [~,~,reformed_obj] = write_nsqw_to_sqw(obj.files_to_join,outfile,'-keep');
-
-            % This is bug Re #1432
-            reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true,'-ignore_date')
             clear reformed_obj % clear it first to allow delete
-            skipTest("Re #1432 detpar is not wired properly to detector_arrays")
+
         end
         function test_join_changes_runid_on_files_mex(obj)
             [~, ~, can_combine_with_mex] = check_horace_mex();
@@ -132,12 +130,9 @@ classdef test_join < TestCase
             reformed_obj = sqw.join(obj.files_to_join);
             %
             assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
-            % This is bug Re #1432
-            reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
             % clear configuration to avoid memory warnings
             clear clConf;
-            skipTest("Re #1432 detpar is not wired properly to detector_arrays")
         end
 
         function test_join_works_with_file_list_with_nomex_pages(obj)
@@ -149,12 +144,11 @@ classdef test_join < TestCase
             reformed_obj = sqw.join(obj.files_to_join);
             %
             assertEqual(obj.sample_obj.detpar,reformed_obj.detpar)
-            reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
-            % This is the issue Re #1147 should arrdess
+            %reformed_obj.experiment_info.detector_arrays = obj.sample_obj.experiment_info.detector_arrays;
+            % This is the issue Re #1147 should address this
             clear clConf;
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
 
-            skipTest("Re #1432 detpar is not wired properly to detector_arrays")
             skipTest("Re #1147 Equal_to_toll does not work correctly with arbitrary pages")
         end
 
@@ -201,7 +195,9 @@ classdef test_join < TestCase
             % to compare filebacked and memory backed object properly, here
             % we need to have compatible page sizes. The comparison will
             % fail otherwise. Re #1147 -- should fix that.
-            clear clConf;
+            clear clConf; % this removes restriction on filebacked 
+            % page size and makes page sizes for membased and filebased
+            % compatible. Proper solution should work with any page size.
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
 
             clear reformed_obj

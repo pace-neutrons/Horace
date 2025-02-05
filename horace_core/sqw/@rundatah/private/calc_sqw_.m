@@ -47,7 +47,7 @@ axes_bl = instproj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 [data.s, data.e] = normalize_signal(data.s, data.e, data.npix);
 data.axes.img_range = axes_bl.img_range; % the range the data are binned on
 
-exp_info.expdata(1).run_id = run_id;
+exp_info.expdata(1).run_id = run_id(1);
 
 data_range = pix.data_range; % the range pixels have
 

@@ -190,8 +190,8 @@ Each can independently have one of four different forms below.
   
 .. note::
 
-	 A value of ``[0]`` is equivalent to ``[]`` using the bin size
-	 of the corresponding axis in the source image.
+  A value of ``[0]`` is equivalent to ``[]`` using the bin size
+  of the corresponding axis in the source image.
       
 
 - ``[lo,hi]`` Integration axis in binning direction. 
@@ -259,6 +259,7 @@ Each can independently have one of four different forms below.
    integration ranges for three cuts, the first cut integrates the axis over
    ``105-107``, the second over ``109-111`` and the third ``113-115``.
 
+.. _File_and_memory-backed_cuts:
 
 File- and memory-backed cuts
 ----------------------------

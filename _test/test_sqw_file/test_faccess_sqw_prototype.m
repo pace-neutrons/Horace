@@ -79,9 +79,12 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(expdata.filename,'map11014.spe')
 
             det = to.get_detpar();
-            assertEqual(det.filename,'demo_par.PAR')
-            assertEqual(det.filepath,'d:\users\abuts\SVN\ISIS\HoraceV1.0final\documentation\')
-            assertEqual(numel(det.group),28160)
+            assertTrue(isa(det,'unique_objects_container'))
+            assertEqual(det.n_objects,1);
+            udi = det.unique_objects;
+            assertEqual(udi{1}.filename,'demo_par.PAR')
+            assertEqual(udi{1}.filepath,'d:\users\abuts\SVN\ISIS\HoraceV1.0final\documentation\')
+            assertEqual(numel(udi{1}.group),28160)
 
             data = to.get_data();
             assertEqual(size(data.s,1),numel(data.p{1})-1)

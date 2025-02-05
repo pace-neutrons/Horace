@@ -30,8 +30,7 @@ classdef test_head < TestCaseWithSave
 
             obj.dnd_file_1d_name = fullfile(horp.test_common, obj.dnd_file_1d_name);
             obj.sqw_file_1d_name = fullfile(horp.test_common, obj.sqw_file_1d_name);
-            obj.sqw_file_v4_name = fullfile(horp.test, ...
-                'test_sqw_file',obj.sqw_file_v4_name);
+            obj.sqw_file_v4_name = fullfile(horp.test_common, obj.sqw_file_v4_name);
 
             obj.sq1d_obj = read_sqw(obj.sqw_file_1d_name);
             obj.save();
@@ -137,6 +136,10 @@ classdef test_head < TestCaseWithSave
 
             % no creation date in old files
             hdd.creation_date = hd.creation_date;
+            % loader returns inf ranges stored in old files, but correct 
+            % dnd loader tries to regularize this:
+            hd.img_range = replace_inf_range(hd.img_range);
+            hd.iint = hd.img_range(:,hd.iax);
             assertEqualToTol(hd,hdd,1.e-7)
         end
 

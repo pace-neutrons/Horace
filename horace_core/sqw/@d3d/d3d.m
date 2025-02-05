@@ -22,7 +22,6 @@ classdef d3d < DnDBase
 
     methods
         dat = IX_dataset_3d(obj);
-        wout = cut (varargin);
 
         function obj = d3d(varargin)
             obj = obj@DnDBase(varargin{:});
@@ -46,8 +45,10 @@ classdef d3d < DnDBase
         % actual plotting interface:
         %------------------------------------------------------------------
         % PLOT:
-        [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
-        [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin);
+        %[figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
+        varargout = sliceomatic(w, varargin);
+        %[figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin);
+        varargout = sliceomatic_overview(w,varargin);
 
     end
 end

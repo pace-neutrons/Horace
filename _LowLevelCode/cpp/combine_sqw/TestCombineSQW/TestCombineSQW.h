@@ -103,7 +103,7 @@ public:
             sqw_reader reader;
             fileParameters file_par;
             file_par.fileName = test_file_name;
-            file_par.file_id = 0;
+            file_par.run_id = 0;
             file_par.nbin_start_pos = bin_pos_in_file;
             file_par.pix_start_pos = pix_pos_in_file;
             file_par.total_NfileBins = num_bin_in_file;

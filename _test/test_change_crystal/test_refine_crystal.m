@@ -3,14 +3,14 @@ classdef test_refine_crystal < TestCase
     %
     % Author: T.G.Perring
     properties
-        % The expected accurate positons of the Bragg peaks to align crystal
+        % The expected accurate positions of the Bragg peaks to align crystal
         %
         bragg_peak_expected=[1,0,0; 0,1,0; 0,0,1];
         %
         alatt_base=[5,5,5];
         angdeg_base=[90,90,90];
 
-        bragg_peak_measured;  % simulated postions of the Bragg peaks, identified from
+        bragg_peak_measured;  % simulated positions of the Bragg peaks, identified from
         %     % test "experiment"
         ref_data
         bragg_peak_mnoise;  % rlu with noise
@@ -174,22 +174,22 @@ classdef test_refine_crystal < TestCase
             %                  reference lattice to that for true lattice (radians)
             %   ang_dev     Maximum deviation of random components of rotation vector
             %                  use to give random transverse errors to output rlu (radians)
-            %                  Each rlu vector is given diffrerent random error
+            %                  Each rlu vector is given different random error
             %   rad_dev     Maximum random fractional error in radial length of output rlu
-            %                  Each rlu vector is given diffrerent random error
+            %                  Each rlu vector is given different random error
             %
             % Author: T.G.Perring
 
             b0 = bmatrix(lattice0(1:3),lattice0(4:6));
             b = bmatrix(lattice(1:3),lattice(4:6));
 
-            rotmat=rotvec_to_rotmat2(rotvec);
+            rotmat=rotvec_to_rotmat_rad(rotvec);
             vcryst=rotmat*b0*rlu0';
 
             nv=size(rlu0,1);
             for iv=1:nv
                 drotvec=2*(rand(3,1)-0.5)*ang_dev;
-                drotmat=rotvec_to_rotmat2(drotvec);
+                drotmat=rotvec_to_rotmat_rad(drotvec);
                 vcryst_tmp=drotmat*vcryst(:,iv);  % random rotation
                 vcryst_tmp=vcryst_tmp*(1+rad_dev*2*(rand(1)-0.5));
                 vcryst(:,iv)=vcryst_tmp;

@@ -136,7 +136,7 @@ classdef test_accumulate_array_to_buffer < TestCase
         
         function test_create_Buffer (~)
             [buffer, nel] = accumulate_array_to_buffer ([3,2]);
-            assertEqual(buffer, NaN(3,2));
+            assertEqual(buffer, NaN(3,2),'-nan_equal');
             assertEqual(nel, 0);
         end
         

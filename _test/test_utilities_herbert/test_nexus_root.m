@@ -19,7 +19,7 @@ classdef test_nexus_root< TestCase
             [root_nx_path,data_version,data_struc] = find_root_nexus_dir(test_file);
 
             assertEqual(root_nx_path,'/11014.spe');
-            assertEqual(data_version,'1.1');
+            assertEqual(data_version,1.1);
 
             [dsi_struc,data_path] = find_dataset_info(test_file,'11014.spe');
             assertEqual(data_path,'/11014.spe');
@@ -34,7 +34,7 @@ classdef test_nexus_root< TestCase
             [root_nx_path,data_version,data_struc] = find_root_nexus_dir(test_file);
 
             assertEqual(root_nx_path,'/11014.spe');
-            assertEqual(data_version,'1.1');
+            assertEqual(data_version,1.1);
 
             [dataset_structure,ds_grouppath] = find_dataset_info(data_struc,'11014.spe');
             assertEqual(ds_grouppath,'/11014.spe');
@@ -49,7 +49,7 @@ classdef test_nexus_root< TestCase
             [root_nx_path,data_version,data_struc] = find_root_nexus_dir(test_file);
 
             assertEqual(root_nx_path,'/11014.spe');
-            assertEqual(data_version,'1.1');
+            assertEqual(data_version,1.1);
 
             [dataset_structure,ds_grouppath] = find_dataset_info(data_struc,'11014.spe');
             assertEqual(ds_grouppath,'/11014.spe');
@@ -85,7 +85,7 @@ classdef test_nexus_root< TestCase
             [root_nx_path,data_version] = find_root_nexus_dir(test_file);
 
             assertEqual(root_nx_path,'/11014.spe');
-            assertEqual(data_version,'1.1');
+            assertEqual(data_version,1.1);
         end
         %
         function test_two_groups_fails(obj)
@@ -104,10 +104,10 @@ classdef test_nexus_root< TestCase
             assertEqual(numel(root_nx_path),2);
             assertEqual(numel(data_version),2);
             assertEqual(root_nx_path{1},'/11014.spe');
-            assertEqual(data_version{1},'1.1');
+            assertEqual(data_version{1},1.1);
 
             assertEqual(root_nx_path{2},'/testNXSPEgroup');
-            assertEqual(data_version{2},'1.');
+            assertEqual(data_version{2},1.);
 
         end
         %

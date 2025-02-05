@@ -211,7 +211,7 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         %% SQW and dimensions checks
         function test_d2d_sqw_constuctor_raises_error_from_1d_sqw_object(obj)
-            clWr = set_temporary_warning('off','HORACE:old_file_format');            
+            clWr = set_temporary_warning('off','HORACE:old_file_format');
             sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             f = @() d2d(sqw_obj);
 
@@ -219,7 +219,7 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d1d_sqw_constuctor_creates_d1d_from_1d_sqw_object(obj)
-            clWr = set_temporary_warning('off','HORACE:old_file_format');            
+            clWr = set_temporary_warning('off','HORACE:old_file_format');
             sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             d1d_obj = d1d(sqw_obj);
 
@@ -240,7 +240,7 @@ classdef test_dnd_constructor < TestCaseWithSave
 
 
         function test_d2d_sqw_constuctor_creates_d2d_from_2d_sqw_object(obj)
-            clWr = set_temporary_warning('off','HORACE:old_file_format');            
+            clWr = set_temporary_warning('off','HORACE:old_file_format');
             sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
             d2d_obj = d2d(sqw_obj);
 
@@ -248,7 +248,7 @@ classdef test_dnd_constructor < TestCaseWithSave
         end
 
         function test_d4d_sqw_constuctor_creates_d4d_from_4d_sqw_object(obj)
-            clWr = set_temporary_warning('off','HORACE:old_file_format');            
+            clWr = set_temporary_warning('off','HORACE:old_file_format');
             sqw_obj = read_sqw(obj.test_sqw_4d_fullpath);
             d4d_obj = d4d(sqw_obj);
 
@@ -554,7 +554,147 @@ classdef test_dnd_constructor < TestCaseWithSave
             dnd_obj.npix = 0;
             assertEqual(dnd_obj.npix,0);
         end
+        %------------------------------------------------------------------
+        % Test legacy spinW constructor
+        function test_spinW_construction_invalid_size_throws(~)
 
+            assertExceptionThrown(@()d2d([1,2,3,90,90,90], ...
+                [0,0,0,1],[-10,1,10],[1,0,0,0],[-1,1,10],[0,1,0,0],[-1,1,10]),...
+            'HORACE:DnDBase:invalid_argument');
+        end
+
+        function test_spinW_construction_works_3D(~)
+            res = DnDBase.spinw_dnd_obj_constructor([1,2,3,90,90,90],[0,0,0,1],[-10,1,10],[1,0,0,0],[-1,1,10],[0,1,0,0],[-1,1,10]);
+            samp = d3d([1,2,3,90,90,90],[0,0,0,1],[-10,1,10],[1,0,0,0],[-1,1,10],[0,1,0,0],[-1,1,10]);
+
+            assertEqual(res,samp);
+        end
+
+
+        function test_3D_dE_legacy_construction(~)
+            res = DnDBase.spinw_dnd_obj_constructor([1,2,3,90,90,90],[0,0,0,1],[-10,1,10],[1,0,0,0],[-1,1,10],[0,1,0,0],[-1,1,10]);
+            assertTrue(isa(res,'d3d'));
+            assertEqual(res.npix,zeros(12,12,21));
+            assertEqual(res.s,zeros(12,12,21));
+            assertEqual(res.e,zeros(12,12,21));
+            assertTrue(isa(res.proj,'line_proj'));
+            assertEqual(res.proj.u,[1, 0, 0]);
+            assertEqual(res.proj.v,[0, 1, 0]);
+            assertTrue(isa(res.axes,'line_axes'));
+            img_range = zeros(2,4);
+            img_range(:,4) = [-10.5;10.5];
+            img_range(:,1) = [-1.5;10.5];
+            img_range(:,2) = [-1.5;10.5];
+            assertEqual(res.axes.img_range,img_range);
+            nbins_all_dims = ones(1,4);
+            nbins_all_dims(1) = 12;
+            nbins_all_dims(2) = 12;
+            nbins_all_dims(4) = 21;
+            assertEqual(res.axes.nbins_all_dims,nbins_all_dims);
+        end
+
+        function test_2D_dE_legacy_construction(~)
+            res = DnDBase.spinw_dnd_obj_constructor([1,2,3,90,90,90],[0,0,0,1],[-10,1,10],[1,-1,0,0],[-1,1,10]);
+            assertTrue(isa(res,'d2d'));
+            assertEqual(res.npix,zeros(12,21));
+            assertEqual(res.s,zeros(12,21));
+            assertEqual(res.e,zeros(12,21));
+            assertTrue(isa(res.proj,'line_proj'));
+            assertEqual(res.proj.u,[1,-1,0]);
+            assertEqual(res.proj.v,[0, 1,-1]);
+            assertTrue(isa(res.axes,'line_axes'));
+            img_range = zeros(2,4);
+            img_range(:,4) = [-10.5;10.5];
+            img_range(:,1) = [-1.5;10.5];
+            assertEqual(res.axes.img_range,img_range);
+            nbins_all_dims = ones(1,4);
+            nbins_all_dims(4) = 21;
+            nbins_all_dims(1) = 12;
+            assertEqual(res.axes.nbins_all_dims,nbins_all_dims);
+        end
+        function test_2D_legacy_construction(~)
+            res = DnDBase.spinw_dnd_obj_constructor([1,2,3,90,90,90],[1,1,0,0],[-10,1,10],[1,-1,0,0],[-1,0.1,10]);
+            assertTrue(isa(res,'d2d'));
+            assertEqual(res.npix,zeros(21,111));
+            assertEqual(res.s,zeros(21,111));
+            assertEqual(res.e,zeros(21,111));
+            assertTrue(isa(res.proj,'line_proj'));
+            assertEqual(res.proj.u,[1,1,0]);
+            assertEqual(res.proj.v,[1,-1,0]);
+            assertTrue(isa(res.axes,'line_axes'));
+            img_range = zeros(2,4);
+            img_range(:,1) = [-10.5;10.5];
+            img_range(:,2) = [-1.05;10.05];
+            assertEqual(res.axes.img_range,img_range);
+            nbins_all_dims = ones(1,4);
+            nbins_all_dims(1) = 21;
+            nbins_all_dims(2) = 111;
+            assertEqual(res.axes.nbins_all_dims,nbins_all_dims);
+        end
+
+        function test_1_dim_dE_legacy_construction(~)
+            res = DnDBase.spinw_dnd_obj_constructor([1,2,3,90,90,90],[0,0,0,1],[-10,1,10]);
+            assertTrue(isa(res,'d1d'));
+            assertEqual(res.npix,zeros(21,1));
+            assertEqual(res.s,zeros(21,1));
+            assertEqual(res.e,zeros(21,1));
+            assertTrue(isa(res.proj,'line_proj'));
+            assertEqual(res.proj.u,[1,0,0]);
+            assertEqual(res.proj.v,[0,1,0]);
+            assertTrue(isa(res.axes,'line_axes'));
+            img_range = zeros(2,4);
+            img_range(:,4) = [-10.5;10.5];
+            assertEqual(res.axes.img_range,img_range);
+            nbins_all_dims = ones(1,4);
+            nbins_all_dims(4) = 21;
+            assertEqual(res.axes.nbins_all_dims,nbins_all_dims);
+        end
+        function test_1_dim_legacy_construction(~)
+            res = DnDBase.spinw_dnd_obj_constructor([1,2,3,90,90,90],[0,1,0,0],[-10,1,10]);
+            assertTrue(isa(res,'d1d'));
+            % Looks like should be rows here. But columns are in many other
+            % places.
+            assertEqual(res.npix,zeros(21,1));
+            assertEqual(res.s,zeros(21,1));
+            assertEqual(res.e,zeros(21,1));
+            assertTrue(isa(res.proj,'line_proj'));
+            assertEqual(res.proj.u,[0,1,0]);
+            assertEqual(res.proj.v,[0,0,1]);
+            assertTrue(isa(res.axes,'line_axes'));
+            img_range = zeros(2,4);
+            img_range(:,1) = [-10.5;10.5];
+            assertEqual(res.axes.img_range,img_range);
+            nbins_all_dims = ones(1,4);
+            nbins_all_dims(1) = 21;
+            assertEqual(res.axes.nbins_all_dims,nbins_all_dims);
+        end
+        function test_0_dim_legacy_construction(~)
+            res = DnDBase.spinw_dnd_obj_constructor([1,2,3,80,110,95]);
+            assertTrue(isa(res,'d0d'));
+            assertEqual(res.npix,0);
+            assertEqual(res.s,0);
+            assertEqual(res.e,0);
+            assertTrue(isa(res.proj,'line_proj'));
+            assertEqual(res.proj.u,[1,0,0]);
+            assertEqual(res.proj.v,[0,1,0]);
+            assertEqual(res.proj.alatt,[1,2,3]);
+            assertEqual(res.proj.angdeg,[80,110,95]);
+            assertTrue(isa(res.axes,'line_axes'));
+            assertEqual(res.axes.img_range,zeros(2,4));
+            assertEqual(res.axes.nbins_all_dims,ones(1,4));
+        end
+
+        function test_invalid_inputs_throw(~)
+            assertExceptionThrown(@()DnDBase.spinw_dnd_obj_constructor( ...
+                [1,2,3,90,90,90],[-10,1,10]), ...
+                'HORACE:DnDBase:invalid_argument');
+
+            assertExceptionThrown(@()DnDBase.spinw_dnd_obj_constructor( ...
+                [1,2,3,90,90,90],[0,1,0,1],[-10,1,10]), ...
+                'HORACE:DnDBase:invalid_argument');
+
+        end
+        %------------------------------------------------------------------
         function assert_dnd_contains_expected_properties(~, dnd_obj)
             expected_props = { ...
                 'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
@@ -589,7 +729,5 @@ classdef test_dnd_constructor < TestCaseWithSave
             ld = load(rec_file);
             assertEqualToTol(d2d_obj,ld.d2d_obj,'ignore_str',true)
         end
-
-
     end
 end

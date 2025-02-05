@@ -1,7 +1,7 @@
 function [sqw_obj,al_info] = finalize_alignment(filename,varargin)
 %FINALIZE_ALIGNMEMT Utility takes aligned file and apply alignment information
 %stored in it to pixels and image so the object becomes realigned as from
-% the beginning and the aligment information is not necessary any more.
+% the beginning and the alignment information is not necessary any more.
 %
 % Input:
 % filename -- name of sqw file to apply alignment on or loader for this
@@ -32,7 +32,7 @@ if ~ld.sqw_type % can not realign dnd object
     return;
 end
 pmd = ld.get_pix_metadata();
-if ~pmd.is_misaligned && pmd.is_range_valid % nothing to do
+if ~pmd.is_corrected && pmd.is_range_valid % nothing to do
     al_info = [];
     ld.delete();
     return;

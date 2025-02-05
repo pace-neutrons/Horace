@@ -34,22 +34,23 @@ end
 if no_isamp_inst
     if ~isinf(samp_inst_number)
         exp_data = exp_data(samp_inst_number);
-    end    
+    end
     % leave detector arrays to be filled in from detpar
     exper = Experiment([],IX_null_inst(),IX_null_sample,exp_data);
     return;
 end
+
 [obj,Inst] = obj.get_sqw_block('bl_experiment_info_instruments');
 [obj,samp] = obj.get_sqw_block('bl_experiment_info_samples');
+[obj,detpar]=obj.get_sqw_block('bl__detpar');
 
+n_instances = numel(exp_data);
+detpar = obj.convert_old_det_forms(detpar,n_instances);
 if ~isinf(samp_inst_number)
     exp_data = exp_data(samp_inst_number);
     Inst =     Inst(samp_inst_number);
     samp =     samp(samp_inst_number);
+    detpar =   detpar(samp_inst_number);
 end
-if isa(exp_data,'sqw') % data set to the sqw object
-    exper    = exp_data.experiment_info;
-else
-    % leave detector arrays to be filled in from detpar
-    exper    = Experiment([],Inst,samp,exp_data); 
-end
+exper    = Experiment(detpar,Inst,samp,exp_data);
+

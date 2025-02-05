@@ -225,7 +225,7 @@ classdef test_ubmat_proj_construction<TestCase
 
             lpr = ubp.get_line_proj();
 
-            assertEqual(lp,lpr);
+            assertEqual(lp,lpr,'',1.e-9);
         end
 
 
@@ -239,7 +239,7 @@ classdef test_ubmat_proj_construction<TestCase
 
             lpr = ubp.get_line_proj();
 
-            assertEqual(lp,lpr);
+            assertEqual(lp,lpr,'',1.e-9);
         end
 
         function test_transform_get_from_nonorth_proj_cmpl_ortho_lat_ortho_proj(~)
@@ -252,7 +252,7 @@ classdef test_ubmat_proj_construction<TestCase
 
             lpr = ubp.get_line_proj();
 
-            assertEqual(lp,lpr);
+            assertEqual(lp,lpr,'',1.e-9);
         end
 
         function test_transform_get_from_nonorth_proj_ortho_lat_ortho_proj(~)
@@ -265,7 +265,7 @@ classdef test_ubmat_proj_construction<TestCase
 
             lpr = ubp.get_line_proj();
 
-            assertEqual(lp,lpr);
+            assertEqual(lp,lpr,'',1.e-9);
         end
 
         %------------------------------------------------------------------
@@ -279,7 +279,7 @@ classdef test_ubmat_proj_construction<TestCase
 
             lpr = ubp.get_line_proj();
 
-            assertEqual(lp,lpr);
+            assertEqual(lp,lpr,'',1.e-9);
         end
 
 
@@ -293,7 +293,7 @@ classdef test_ubmat_proj_construction<TestCase
 
             lpr = ubp.get_line_proj();
 
-            assertEqual(lp,lpr);
+            assertEqual(lp,lpr,'',1.e-9);
         end
 
         function test_transform_get_from_line_proj_cmpl_ortho_lat_ortho_proj(~)
@@ -306,7 +306,7 @@ classdef test_ubmat_proj_construction<TestCase
 
             lpr = ubp.get_line_proj();
 
-            assertEqual(lp,lpr);
+            assertEqual(lp,lpr,'',1.e-9);
         end
 
         function test_transform_get_from_line_proj_ortho_lat_ortho_proj(~)
@@ -319,7 +319,7 @@ classdef test_ubmat_proj_construction<TestCase
 
             lpr = ubp.get_line_proj();
 
-            assertEqual(lp,lpr);
+            assertEqual(lp,lpr,'',1.e-9);
         end
         %------------------------------------------------------------------
         function test_default_param_constructor(~)

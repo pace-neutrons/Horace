@@ -29,12 +29,12 @@ n_chunks = numel(npix_chunks);
 % check if warning about data range is necessary.
 issue_range_warning = page_op.do_missing_range_warning;
 if issue_range_warning
-    was_misaligned = false;
+    was_corrected = false;
     is_range_valid = page_op.is_range_valid;
     if ~is_range_valid
         if isempty(page_op.outfile) && n_chunks>fbs && ll>0
             original_file  = obj_in.full_filename;
-            was_misaligned = obj_in.pix.is_misaligned;
+            was_corrected = obj_in.pix.is_corrected;
             issue_range_warning = true;
         else
             issue_range_warning = false;
@@ -72,7 +72,7 @@ if ll > 0
     end
 end
 if issue_range_warning
-    old_file_format = ~was_misaligned;
+    old_file_format = ~was_corrected;
     page_op.print_range_warning(original_file,old_file_format);
 end
 

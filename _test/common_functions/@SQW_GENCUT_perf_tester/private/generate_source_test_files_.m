@@ -41,7 +41,7 @@ for i=1:n_files
         continue;
     end
     wtmp=dummy_sqw (en, par_file, '', efix, 1, alatt, angdeg,...
-        u, v, psi(i), omega, dpsi, gl, gs, [50,50,50,50], pix_range);
+        u, v, psi(i), omega, dpsi, gl, gs, [50,50,50,50], pix_range,i+1000);
     % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
     wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[1,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec,1});
 

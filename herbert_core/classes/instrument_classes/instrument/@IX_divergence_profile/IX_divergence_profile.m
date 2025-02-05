@@ -1,4 +1,4 @@
-classdef IX_divergence_profile < serializable
+classdef IX_divergence_profile < hashable
     % Divergence profile class definition
 
     properties (Access=private)
@@ -117,6 +117,7 @@ classdef IX_divergence_profile < serializable
                     'IX_divergence_profile: The profile values must all be finite and greater or equal to zero')
             end
             obj.name_ = val;
+            obj = obj.clear_hash();
         end
 
         % Currently do not permit any - it only makes sense to change the
@@ -185,6 +186,7 @@ classdef IX_divergence_profile < serializable
                 % Compute the pdf
                 obj.pdf_ = pdf_table (obj.angles_, obj.profile_);
             end
+            obj = obj.clear_hash();
         end
     end
     methods(Access=protected)

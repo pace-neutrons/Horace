@@ -163,7 +163,7 @@ if is_refine_crystal
     alatt=pxtal(1:3);
     angdeg=pxtal(4:6);
     rotvec=pxtal(7:9);
-    rotmat=rotvec_to_rotmat2(rotvec);
+    rotmat=rotvec_to_rotmat_rad(rotvec);
     ub=ubmatrix(xtal.urot,xtal.vrot,bmatrix(alatt,angdeg));
     rlu_corr=ub\rotmat*xtal.ub0;
     % Pack output arguments

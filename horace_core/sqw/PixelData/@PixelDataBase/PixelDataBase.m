@@ -55,7 +55,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     properties (Dependent)
         full_filename; % full name of the file this pixels are based on or
         %                were loaded from
-        num_pixels;         % The number of pixels class contains
+        num_pixels;    % The number of pixels class contains
         %------------------------------------------------------------------
         u1; % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u2; % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
@@ -91,7 +91,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         page_size;  % The number of pixels that can fit in one page of data
         read_only   % Specify if you can modify the data of your pixels
         %
-        is_misaligned % true if pixel data are not in Crystal Cartesian and
+        is_corrected % true if pixel coordinates are not in Crystal Cartesian
         %              and true Crystal Cartesian is obtained by
         %              multiplying data by the alignment matrix
         alignment_matr % matrix used for multiplying misaligned pixel data
@@ -121,7 +121,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         PIXEL_BLOCK_COLS_ = PixelDataBase.DEFAULT_NUM_PIX_FIELDS;
         data_range_ = PixelDataBase.EMPTY_RANGE; % range of all other variables (signal, error, indexes)
         full_filename_ = '';
-        is_misaligned_ = false;
+        is_corrected_ = false;
         alignment_matr_ = eye(3);
         old_file_format_ = false;
         unique_run_id_ = [];
@@ -418,7 +418,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
 
-        [ok, mess] = equal_to_tol(obj, other_pix, varargin);
+
 
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
@@ -465,6 +465,31 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
                     'data_range should be [2x9] array of data ranges');
             end
             obj.data_range_ = data_range;
+        end
+        function [is,mess] = eq_to_tol_type_equal(obj1,obj2,name_a,name_b)
+            % Helper function used by equal_to_tol to validate if types of 
+            % two objects is equal for purposes of equal_to_tol comparison
+            % procedure.
+            %
+            % Overload used in equal_to_tols to check types allowed for compariosn
+            % pixes allow comparison of two classes PixelDataMemory and PixelDataFile
+            %
+            % Inputs:
+            % obj1    -- PixelDatBase object 1 to compare
+            % obj2    -- presumably PixelDatBase object 2 to compare.
+            %
+            % Optional:
+            % name_a  -- the name of first object in comparison
+            % name_b  -- the name of second object in comparison
+            %            These names become part of information message in
+            %            case if objects types are different.
+            %
+            % Returns:
+            % is      -- true if objects types are equal and false if not.
+            % mess    -- the message providing additinal information about
+            %            object types it the types are different
+            %
+            [is,mess] = eq_to_tol_type_equal_(obj1,obj2,name_a,name_b);
         end
     end
     %======================================================================
@@ -578,8 +603,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             obj=obj.set_prop('all_experiment', val);
         end
         %------------------------------------------------------------------
-        function is = get.is_misaligned(obj)
-            is = obj.is_misaligned_;
+        function is = get.is_corrected(obj)
+            is = obj.is_corrected_;
         end
         function obj = clear_alignment(obj)
             % Clears alignment.
@@ -587,7 +612,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             % If alignment changes, invalidates object integrity,
             % (data_ranges need recalculation)
             % so should be used as part of algorithms only.
-            obj.is_misaligned_ = false;
+            obj.is_corrected_ = false;
             obj.alignment_matr_ = eye(3);
         end
         function matr = get.alignment_matr(obj)
@@ -771,6 +796,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     % Overloadable protected getters/setters for properties
     methods(Access=protected)        %
+        % check equivalence between two pixel objects
+        [ok, mess] = equal_to_tol_single(obj, other_pix, opt,varargin);
         function val = check_set_prop(obj,fld,val)
             % check input parameters of set_property function
             if ~isnumeric(val)
@@ -808,9 +835,9 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
 
             obj.full_filename_   = val.full_filename;
             obj.data_range_      = val.data_range;
-            if val.is_misaligned
+            if val.is_corrected
                 obj.alignment_matr_ = val.alignment_matr;
-                obj.is_misaligned_  = true;
+                obj.is_corrected_   = true;
             end
             if obj.do_check_combo_arg
                 obj = obj.check_combo_arg();

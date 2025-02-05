@@ -53,7 +53,7 @@ classdef test_combine_cyl < TestCaseWithSave
 
             if ~is_file(obj.spe_file_1)
                 simulate_spe_testfunc (en, obj.par_file, obj.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
-                    obj.efix, emode, obj.alatt, angdeg, u, v, obj.psi_1, omega, dpsi, gl, gs)
+                    obj.efix, emode, obj.alatt, angdeg, u, v, obj.psi_1, omega, dpsi, gl, gs,1000)
             end
             % Simulate second file, with reproducible random looking noise
             % -------------------------------------------------------------
@@ -61,7 +61,7 @@ classdef test_combine_cyl < TestCaseWithSave
             obj.psi_2=30;
             if ~is_file(obj.spe_file_2)
                 simulate_spe_testfunc (en, obj.par_file, obj.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
-                    obj.efix, emode, obj.alatt, angdeg, u, v, obj.psi_2, omega, dpsi, gl, gs)
+                    obj.efix, emode, obj.alatt, angdeg, u, v, obj.psi_2, omega, dpsi, gl, gs,1001)
             end
 
             obj.save();

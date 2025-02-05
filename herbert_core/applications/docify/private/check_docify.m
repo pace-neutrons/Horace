@@ -1,12 +1,24 @@
 function out = check_docify(topic)
+    persistent isR2023
+    if isempty(isR2023)
+        try
+            matlab.internal.language.introspective.resolveName('');
+            isR2023 = true;
+        catch
+            isR2023 = false;
+        end
+    end
+    if isR2023
+        resolveName = @(topic) matlab.internal.language.introspective.resolveName(topic, '', false, [], false);
+    else
+        resolveName = @matlab.lang.internal.introspective.resolveName;
+    end
     % Checks if a topic contains docify directives and returns mfile name
     out = [];
     % Uses internal Matlab functions to resolve the topic to a file
-    resolver = matlab.internal.language.introspective.resolveName( ...
-        topic, '', false, [], false);
+    resolver = resolveName(topic);
     if isempty(resolver.nameLocation)
-        resolver = matlab.internal.language.introspective.resolveName( ...
-            regexprep(topic, '\.', '/'), '', false, [], false);
+        resolver = resolveName(regexprep(topic, '\.', '/'));
         if isempty(resolver.nameLocation) || ~exist(resolver.nameLocation, 'file')
             return
         end

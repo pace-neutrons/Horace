@@ -45,7 +45,8 @@ end
 if ~isequal(obj.offset_(1:3),zeros(1,3))
     obj.offset_(1:3) = (rlu_corr*obj.offset_(1:3)')';
 end
-
+% this is repeated in aProjectionBase, but as we check arguments here, 
+% no harm of duplicating it here too.
 obj.alatt_  = alignment_info.alatt;
 obj.angdeg_ = alignment_info.angdeg;
 obj = obj.check_combo_arg();

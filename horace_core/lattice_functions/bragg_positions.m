@@ -56,13 +56,13 @@ function [rlu_actual,width,wcut,wpeak]=bragg_positions(w, rlu_expected,...
 %                  (radial cuts) and degrees (transverse cuts)
 %
 % Fitting:
-%   'outer'         Determine peak position from centre of peak half-height; find
+%   'outer'        Determine peak position from centre of peak half-height; find
 %                  peak width moving inwards from limits of data - useful if
 %                  there is known to be a single peak in the data as it is
 %                  more robust to too finely binned data.  [Default]
-%   'inner'         Determine peak position from centre of peak half height; find
+%   'inner'        Determine peak position from centre of peak half height; find
 %                  peak width moving outwards from peak maximum
-%   'gaussian'      Fit Gaussian on a linear background.
+%   'gaussian'     Fit Gaussian on a linear background.
 %
 %
 % Output:
@@ -128,9 +128,9 @@ wcut=repmat(IX_dataset_1d,npeaks,3);
 wpeak=repmat(IX_dataset_1d,npeaks,3);
 
 % Get matrix to convert rlu to projection axes
-proj = img.proj;
-u1_rlu = proj.u;
-u2_rlu = proj.v;
+proj0 = img.proj;
+u1_rlu = proj0.u;
+u2_rlu = proj0.v;
 % Get the matrix to convert rlu to crystal Cartesian coordinates
 B = bmatrix (img.alatt, img.angdeg);
 
@@ -139,7 +139,6 @@ peak_problem=false(size(rlu_expected));
 for i=1:size(rlu_expected,1)
     % Extract Q point through which to get three orthogonal cuts
     Qrlu = rlu_expected(i,:);
-    modQ=norm(B*Qrlu(:));   % length of Q vector in Ang^-1
 
     % Create proj for taking three orthogonal cuts
     %   - proj.u along Q, to get maximum resolution in d-spacing
@@ -154,12 +153,6 @@ for i=1:size(rlu_expected,1)
     else
         v=u2_rlu;
     end
-    type='aaa';        % force unit length of projection axes to be 1 Ang^-1
-    proj = line_proj('u',u,'v',v,'type',type,'offset',offset, ...
-        'alatt',img.alatt,'angdeg',img.angdeg);
-
-    % if old file has been already aligned, ignore this alignment
-    proj.ignore_legacy_alignment = true;
 
     % radial_cut_length, radial_bin_width, radial_thickness,...
     % trans_cut_length, trans_bin_width, trans_thickness, energy_window)
@@ -171,6 +164,7 @@ for i=1:size(rlu_expected,1)
         bin_t=trans_bin_width;
         thick_t=trans_thickness;
     else
+        modQ=norm(proj0.transform_hkl_to_pix(Qrlu(:)));   % length of Q vector in Ang^-1        
         len_r=radial_cut_length*modQ;
         bin_r=radial_bin_width*modQ;
         thick_r=radial_thickness*modQ;
@@ -178,6 +172,14 @@ for i=1:size(rlu_expected,1)
         bin_t=(pi/180)*trans_bin_width*modQ;
         thick_t=(pi/180)*trans_thickness*modQ;
     end
+    % Build projection for using in cuts done in A^-1 Units
+    type='aaa';        % force unit length of projection axes to be 1 Ang^-1
+    proj = line_proj('u',u,'v',v,'type',type,'offset',offset, ...
+        'alatt',img.alatt,'angdeg',img.angdeg);
+
+    % if old file has been already aligned, ignore this alignment
+    proj.ignore_legacy_alignment = true;
+    
 
     % Make three orthogonal cuts through nominal Bragg peak positions
     disp('--------------------------------------------------------------------------------')

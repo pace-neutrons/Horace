@@ -107,7 +107,7 @@ end
 % duplicates as required; an empty file name is expanded to duplicates of
 % the empty string
 n_par_files = numel(spe_file_out); % get nr par files from nr spe files
-if isempty(par_file)
+if isempty(par_file) || (isstring(par_file)&&par_file.strlength()==0)
     % det_par_file indicates if the relevant element represents a filename
     % here it is false as the contents are empty
     % the single value is converted to a cell of empty chars, one per spe
@@ -221,6 +221,8 @@ end
 if ~isempty(sqw_file) % we may not want to write a file and return an object instead
     [ok,sqw_exist,sqw_file_out,mess] = check_file_writable(sqw_file,require_sqw_exist);
     if ~ok
+        % replace possible issues with \ in filepath
+        mess = replace(mess,'\','/');
         error('HORACE:algorithms:runtime_error',...
             mess);
     end

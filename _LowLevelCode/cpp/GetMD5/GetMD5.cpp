@@ -722,7 +722,7 @@ void ProcessBin(uchar_T *array, mwSize inputLen, uchar_T digest[16])
 {
   // Only the contents of the array is considered. Therefore double(0) and
   // single([0,0]) reply the same hash. This works for numeric, char and logical
-  // arrays only, neitehr cells nor structs.
+  // arrays only, neither cells nor structs.
   MD5_CTX context;
   
   MD5_Init(&context);

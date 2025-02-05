@@ -23,19 +23,28 @@ classdef test_instrument_save_load < TestCaseWithSave
 
             obj.save()
         end
+        %------------------------------------------------------------------
+        function test_hashable_prop_MAPS(self)
+            frm_inst_ref = self.inst_DGfermi;
+            hashable_obj_tester(frm_inst_ref );
+        end        
+        function test_hashable_prop_LET(self)
+            disk_inst_ref = self.inst_DGdisk;
+            hashable_obj_tester(disk_inst_ref );
+        end
 
         %--------------------------------------------------------------------------
         function test_DGdisk_mat (self)
             disk_inst_ref = self.inst_DGdisk;
 
-            assertEqualWithSave(self,disk_inst_ref)
+            assertEqualWithSave(self,disk_inst_ref,'',1.e-11)
         end
 
         %--------------------------------------------------------------------------
         function test_DGfermi_mat (self)
             fermi_inst_ref = self.inst_DGfermi;
 
-            assertEqualWithSave(self,fermi_inst_ref)
+            assertEqualWithSave(self,fermi_inst_ref,'',1.e-11)
         end
 
         %--------------------------------------------------------------------------
@@ -44,7 +53,7 @@ classdef test_instrument_save_load < TestCaseWithSave
             bytes = hlp_serialize(inst_ref);
             inst = hlp_deserialize(bytes);
 
-            assertEqual(inst_ref,inst)
+            assertEqual(inst_ref,inst,'',1.e-11)
         end
 
         %--------------------------------------------------------------------------
@@ -53,7 +62,7 @@ classdef test_instrument_save_load < TestCaseWithSave
             bytes = hlp_serialize(inst_ref);
             inst = hlp_deserialize(bytes);
 
-            assertEqual(inst_ref,inst)
+            assertEqual(inst_ref,inst,'',1.e-11)
         end
 
         %--------------------------------------------------------------------------

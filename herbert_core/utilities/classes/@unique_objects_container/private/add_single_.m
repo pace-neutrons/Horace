@@ -30,7 +30,7 @@ end
 
 % if ix and hash are not specified, call find_in_container to get them
 if nargin<=2
-    [ix,hash] = self.find_in_container(obj);
+    [ix,hash,obj] = self.find_in_container(obj);
 end
 
 % If the object is not in the container.

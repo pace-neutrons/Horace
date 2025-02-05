@@ -1,8 +1,8 @@
 function prp = get_prop_(obj, fld)
-%GET_PROP_ main part of the mem-based property accessor
+%GET_PROP_ main part of the memory-based property accessor
 %
 % Inputs:
-% obj -- initialized instance of mem-based PixelData class
+% obj -- initialized instance of memory-based PixelData class
 % fld -- string which describes the names of Pixel fields to retrieve
 %
 % Returns:
@@ -11,7 +11,7 @@ function prp = get_prop_(obj, fld)
 %         of pixels stored in PixelData memory-based class.
 % 
 idx = obj.FIELD_INDEX_MAP_(fld);
-if obj.is_misaligned_ && any(idx<4)
+if obj.is_corrected_ && any(idx<4)
     data = obj.data_;
     pix_coord = obj.alignment_matr_*data(1:3,:);
     % modify only indexes, which were aligned (e.g. in range 1:3)

@@ -78,7 +78,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods(Sealed)
-
+        function [iseq,mess] = equal_to_tol(obj1,obj2,varargin)
+            % overload equal_to_tol as this method requested to be called
+            % on serializable interface
+            [iseq,mess] = equal_to_tol@serializable(obj1,obj2,varargin{:});
+        end
         function vec = transform_vec(obj, vec)
             % Transform a vector or list of vectors according to array of
             % Symops stored in `obj`.
@@ -115,7 +119,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function pix = transform_pix(obj, pix, proj, selected)
+        function pix = transform_pix(obj, pix, proj, selected, trust)
             % Transform pixel coordinates into symmetry related coordinates
             %
             % The transformation converts the components of a vector which is
@@ -139,6 +143,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %   pix         PixelData object
             %
             %   selected    Pixels to transform
+            %
+            %   trust       Whether to trust that `selected` is valid
+            %               and bypass `in_irreducible` checks.
             % Output:
             % -------
             %   pix         Transformed PixelData object
@@ -149,6 +156,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             if ~exist('selected', 'var')
                 selected = 1:pix.num_pixels;
             end
+            if ~exist('trust', 'var')
+                trust = false;
+            end
 
             % Check input
             if ~isa(pix, 'PixelDataBase')
@@ -158,10 +168,16 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
             % Get transformation
             if isa(pix, 'PixelDataMemory')
-                for i = numel(obj):-1:1
-                    sel = obj(i).in_irreducible(pix.q_coordinates, proj{:});
-                    sel(~selected) = false;
-                    pix.q_coordinates(:, ~sel) = obj(i).transform_vec(pix.q_coordinates(:, ~sel));
+                if ~trust
+                    for i = numel(obj):-1:1
+                        in_zone = obj(i).in_irreducible(pix.q_coordinates, proj{:});
+                        in_zone(~selected) = false;
+                        pix.q_coordinates(:, ~in_zone) = obj(i).transform_vec(pix.q_coordinates(:, ~in_zone));
+                    end
+                else
+                    for i = numel(obj):-1:1
+                        pix.q_coordinates(:, selected) = obj(i).transform_vec(pix.q_coordinates(:, selected));
+                    end
                 end
             else
                 error('HORACE:Symop:not_implemented', ...

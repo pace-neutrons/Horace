@@ -30,7 +30,6 @@ if any(prop_keys)
     argi = varargin(~prop_keys);
 end
 
-
 %
 if ischar(obj.num_contrib_files)
     error('HORACE:sqw_binfile_common:runtime_error',...
@@ -45,7 +44,6 @@ else
         error('HORACE:sqw_binfile_common:invalid_argument',...
             'get_exp_info do not understand input argument: %s',n_header);
     end
-
 end
 
 if n_header<1 || (n_header>obj.num_contrib_files)
@@ -62,9 +60,12 @@ if get_all && obj.num_contrib_files > 1
 else
     [header,pos] = get_single_header(obj,n_header);
 end
-%
 exp_info = Experiment.build_from_binfile_headers(header);
-
+% Get detector parameters
+% -----------------------
+detpar  = obj.get_detpar();
+detpar  = detpar.replicate_runs(exp_info.n_runs);
+exp_info.detector_arrays = detpar;
 
 
 function [head,pos] = get_single_header(obj,n_header)
@@ -79,7 +80,7 @@ try
     do_fseek(obj.file_id_,obj.header_pos_(n_header),'bof');
 catch ME
     exc = MException('HORACE:sqw_binfile_common:runtime_error',...
-                     'get_single_header: can not move at the start of header N%d',n_header);
+        'get_single_header: can not move at the start of header N%d',n_header);
     throw(exc.addCause(ME))
 end
 

@@ -195,6 +195,10 @@ if ll>=2
     t_proj_start = tic;
 end
 
+% multiple projections here can appear only from multiple symmetries, so
+% if only one projection is there, no symmetries will be used
+apply_symmetries = num_proj > 1;
+
 for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     chunk = block_chunks{iter};
@@ -216,13 +220,16 @@ for iter = 1:num_chunks
     end
 
     for i = 1:num_proj
-
         % Pix not sorted here
         [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
             targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
-        candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected);
-        candidate_pix = candidate_pix.tag(selected);
+        % if there are symmetries, we need to transform pixels and tag used
+        % pixels to avoid multiple usage of the same pixels.
+        if apply_symmetries
+            candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected, true);
+            candidate_pix = candidate_pix.tag(selected);
+        end
 
         npix_step_retained = pix_ok.num_pixels; % just for logging the progress
         unique_runid = unique([unique_runid, unique_runid_l(:)']);

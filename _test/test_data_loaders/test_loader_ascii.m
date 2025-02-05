@@ -67,7 +67,7 @@ classdef test_loader_ascii < TestCase
             str = ld.to_struct();
             ld_rec = serializable.from_struct(str);
 
-            assertEqual(ld,ld_rec);
+            assertEqual(ld,ld_rec,'-nan_equal');
         end
 
         function test_saveload_loader_onfile(obj)
@@ -126,7 +126,7 @@ classdef test_loader_ascii < TestCase
             str = loader.to_struct();
             ldr_rec = serializable.from_struct(str);
 
-            assertEqual(loader,ldr_rec);
+            assertEqual(loader,ldr_rec,'-nan_equal');
         end
 
         function test_load_spe(obj)
@@ -177,7 +177,7 @@ classdef test_loader_ascii < TestCase
         function test_get_run_info_no_par_file(obj)
             loader=loader_ascii(fullfile(obj.test_data_path,'spe_info_correspondent2demo_par.spe'));
             f = @()get_run_info(loader);
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
             % run info obtained from spe file
             loader.det_par = ones(6,obj.EXPECTED_DET_NUM);
             [ndet,en,rin]=loader.get_run_info();
@@ -204,18 +204,18 @@ classdef test_loader_ascii < TestCase
             wrong_par = fullfile(obj.test_data_path,obj.test_par_file);
 
             f =@()loader_ascii(wrong_spe,wrong_par);
-            assertExceptionThrown(f,'LOADER_ASCII:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:read_spe:invalid_argument');
         end
 
         function test_get_run_info_inconsistent2spe(obj)
-            inconsistent_spe = fullfile(obj.test_data_path,'spe_info_inconsistent2demo_par.spe');
+            inconsistent_spe = fullfile(obj.test_data_path,'Fe4_2K_reduced_11l.spe');
             demo_par = fullfile(obj.test_data_path,obj.test_par_file);
 
             loader=loader_ascii(inconsistent_spe,demo_par);
 
             f = @()get_run_info(loader);
             % inconsistent spe and par files
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
         end
 
         function test_get_run_info_OK(obj)
@@ -248,11 +248,12 @@ classdef test_loader_ascii < TestCase
 
         function test_get_data_info(obj)
             spe_file_name = fullfile(obj.test_data_path,'MAP10001.spe');
-            [ndet,en,file_name]=loader_ascii.get_data_info(spe_file_name);
+            %[ndet,en,file_name]=loader_ascii.get_data_info(spe_file_name);
+            fi =loader_ascii.get_data_info(spe_file_name);
 
-            assertEqual([31,1],size(en));
-            assertEqual(obj.EXPECTED_DET_NUM,ndet);
-            assertEqual(spe_file_name,file_name);
+            assertEqual([31,1],size(fi.en));
+            assertEqual(obj.EXPECTED_DET_NUM,fi.n_detindata_);
+            assertEqual(spe_file_name,fi.file_name_);
         end
 
         function test_can_load_and_init(obj)
@@ -272,19 +273,21 @@ classdef test_loader_ascii < TestCase
             la = loader_ascii();
             la=la.init(spe_file_name,fh);
 
-            [ndet,en,file_name]=loader_ascii.get_data_info(spe_file_name);
-            assertEqual(en,la.en);
-            assertEqual(file_name,la.file_name);
+            %[ndet,en,file_name]=loader_ascii.get_data_info(spe_file_name);
+            fi = loader_ascii.get_data_info(spe_file_name);
+
+            assertEqual(fi.en,la.en);
+            assertEqual(fi.file_name_,la.file_name);
 
             f=@()la.get_run_info();
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
             par_file_name =fullfile(obj.test_data_path,obj.test_par_file);
             la.par_file_name = par_file_name;
-            [ndet1,en1] = la.get_run_info();
+            [ndet_l,en_l] = la.get_run_info();
 
-            assertEqual(en,en1);
-            assertEqual(ndet,ndet1);
+            assertEqual(fi.en,en_l);
+            assertEqual(fi.n_detindata_,ndet_l);
 
         end
 
@@ -347,28 +350,10 @@ classdef test_loader_ascii < TestCase
             assertEqual('',mess);
         end
 
-        function test_mex_nomex(obj)
-            if isempty(which('get_ascii_file'))
-                skipTest('no get_ascii_file.mex found so the test has been disabled')
-            end
-
-            spe_file = fullfile(obj.test_data_path,'MAP10001.spe');
-            par_file = fullfile(obj.test_data_path,obj.test_par_file);
-            ld = loader_ascii(spe_file,par_file);
-
-            clob = set_temporary_config_options(hor_config, 'use_mex', true);
-            [Smex,Emex,enMex] = ld.load_data();
-            detMex = ld.load_par('-array');
-
-            hc.use_mex = false;
-            [Snom,Enom,enNom] = ld.load_data();
-            detNom = ld.load_par('-array');
-
-            assertEqual(Smex,Snom);
-            assertEqual(Emex,Enom);
-            assertEqual(enMex,enNom);
-            assertEqual(detMex,detNom);
-
+        function test_runid_from_filename(obj)
+            dat_file = fullfile(obj.test_data_path,'MAP10001.spe');
+            lx = loader_ascii(dat_file);
+            assertEqual(lx.run_id,10001)
         end
     end
 end

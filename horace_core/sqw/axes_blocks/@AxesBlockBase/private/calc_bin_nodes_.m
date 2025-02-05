@@ -35,18 +35,11 @@ function [nodes,en_axis,npoints_in_axes,bin_volume] = ...
 %              If halo is also true, return edge nodes and halo nodes.
 %
 % Optional:
-% char_cube -- if present, the cube, describing the scale of the grid,
-%              to construct the lattice on. The cube here is 3x4(4x2) or
-%              3x8 (4x16) array of 3-D or 4-D vectors arranged in
-%              columns and describing min/max points or all vertices of
-%              cube or hypercube, representing single cell of the grid,
-%              defined by the AxesBlockBase, or the all points of the whole
-%              cube in 3D or 4D space.
-% grid_nnodes_multiplier
-%           -- if present, used instead of char_cube to produce grid, which
-%             is bigger then the original grid by multiplying the original
-%             grid
-%
+% nbins_all_dims
+%           -- (4-element vector) or single number representing
+%               4-element vector of the same values, describing
+%               the binning along each axis for the lattice to
+%               build instead of existing axis binning
 %
 % Output:
 % nodes  -- [3 x nnodes] or [4 x nnodes] aray of grid nodes depending
@@ -80,20 +73,11 @@ grid_nnodes = parse_inputs(n_pos_arg,nargin,varargin{:});
 binning_requested_explicitly = ~isempty(grid_nnodes );
 axes = cell(4,1);
 %
-if ~binning_requested_explicitly
-    axes(obj.pax) = obj.p(:);
-    iint_ax = num2cell(obj.iint',2);
-    axes(obj.iax) = iint_ax(:);
-    npoints_in_axes = obj.nbins_all_dims+1;
-    if halo
-        for i=1:4
-            axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),axes{i});
-            npoints_in_axes(i)= numel(axes{i});
-        end
-    end
-else
+if binning_requested_explicitly
     range = obj.img_range;
-    npoints_in_axes = zeros(1,4);
+    % make initial binning equal to the requested binning
+    % (minus one -- binning is number of bins and n_edges = n_bins + 1)
+    npoints_in_axes = grid_nnodes;
     for i=1:4 % this mode is used for data interpolation, so we need to
         % keep bin centers, where the base interpolating function is
         % defined unchanged
@@ -105,6 +89,18 @@ else
         end
         npoints_in_axes(i) = numel(axes{i});
     end
+else % binning requested implicitly
+    axes(obj.pax) = obj.p(:);
+    iint_ax = num2cell(obj.iint',2);
+    axes(obj.iax) = iint_ax(:);
+    npoints_in_axes = obj.nbins_all_dims+1;
+    if halo
+        for i=1:4
+            axes{i} = build_ax_with_halo(obj.max_img_range_(:,i),axes{i});
+            npoints_in_axes(i)= numel(axes{i});
+        end
+    end
+
 end
 if call_nargout > 3
     bin_volume = obj.get_bin_volume(axes);
@@ -127,7 +123,7 @@ if bin_centre || dens_interp || plot_edges
                 axes{i} = 0.5*(axes{i}(1:end-1)+axes{i}(2:end));
             end
         else % integration axis
-            if dens_interp   % may be necessary if cell size is provided, not for
+            if dens_interp  % may be necessary if cell size is provided, not for
                 %  default range which is already defined by this formula
                 axes{i} = [obj.img_range(1,i),obj.img_range(2,i)];
             else
@@ -249,13 +245,13 @@ if ninputs > noptions
         nnodes_in_dim(nnodes_in_dim<1) = 1;
         if numel(nnodes_in_dim)~=4
             error('HORACE:AxesBlockBase:invalid_argument',...
-                ['nnodes multipler should be 1x4 vector or single value.\n', ...
+                ['axis binning should be 1x4 vector or single value.\n', ...
                 ' Input size is: [%s]'],...
                 disp2str(size(varargin{1})));
         end
     else
         error('HORACE:AxesBlockBase:invalid_argument',...
-            ['nodes_multiplier, if present, should be single numeric value', ...
+            ['axis binning, if present, should be single numeric value', ...
             ' or 4x1 vector of numeric values.\n', ...
             ' Input has wrong type: "%s" and wrong value: "%s"'],...
             class(varargin{1}),disp2str(varargin{1}))

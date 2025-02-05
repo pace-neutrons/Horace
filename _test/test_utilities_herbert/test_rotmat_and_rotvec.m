@@ -30,13 +30,13 @@ ma_1=rotvec_to_rotmat(tha_d,1);
 mb_1=rotvec_to_rotmat(thb_d,1);
 mc_1=rotvec_to_rotmat(thc_d,1);
 
-ma2_0=rotvec_to_rotmat2(tha_r);
-mb2_0=rotvec_to_rotmat2(thb_r);
-mc2_0=rotvec_to_rotmat2(thc_r);
+ma2_0=rotvec_to_rotmat_rad(tha_r);
+mb2_0=rotvec_to_rotmat_rad(thb_r);
+mc2_0=rotvec_to_rotmat_rad(thc_r);
 
-ma2_1=rotvec_to_rotmat2(tha_r,1);
-mb2_1=rotvec_to_rotmat2(thb_r,1);
-mc2_1=rotvec_to_rotmat2(thc_r,1);
+ma2_1=rotvec_to_rotmat_rad(tha_r,1);
+mb2_1=rotvec_to_rotmat_rad(thb_r,1);
+mc2_1=rotvec_to_rotmat_rad(thc_r,1);
 
 if max(abs(ma_0(:)-ma_1(:)))>tol, assertTrue(false,'Bad code!'), end
 if max(abs(mb_0(:)-mb_1(:)))>tol, assertTrue(false,'Bad code!'), end
@@ -64,13 +64,13 @@ tha_1=rotmat_to_rotvec(ma,1)*d2r;
 thb_1=rotmat_to_rotvec(mb,1)*d2r;
 thc_1=rotmat_to_rotvec(mc,1)*d2r;
 
-tha2_0=rotmat_to_rotvec2(ma);
-thb2_0=rotmat_to_rotvec2(mb);
-thc2_0=rotmat_to_rotvec2(mc);
+tha2_0=rotmat_to_rotvec_rad(ma);
+thb2_0=rotmat_to_rotvec_rad(mb);
+thc2_0=rotmat_to_rotvec_rad(mc);
 
-tha2_1=rotmat_to_rotvec2(ma,1);
-thb2_1=rotmat_to_rotvec2(mb,1);
-thc2_1=rotmat_to_rotvec2(mc,1);
+tha2_1=rotmat_to_rotvec_rad(ma,1);
+thb2_1=rotmat_to_rotvec_rad(mb,1);
+thc2_1=rotmat_to_rotvec_rad(mc,1);
 
 if max(abs(tha_0(:)-tha_r(:)))>tol, assertTrue(false,'Bad code!'), end
 if max(abs(thb_0(:)-thb_r(:)))>tol, assertTrue(false,'Bad code!'), end
@@ -102,10 +102,10 @@ if nargin==1 && ischar(opt) && isequal(lower(opt),'speed')
     
     % Test rotvec_to_rotmat
     tic
-    mat0=rotvec_to_rotmat2(th0);
+    mat0=rotvec_to_rotmat_rad(th0);
     t0=toc;
     tic
-    mat1=rotvec_to_rotmat2(th1,1);
+    mat1=rotvec_to_rotmat_rad(th1,1);
     t1=toc;
 
     disp(' ')
@@ -116,10 +116,10 @@ if nargin==1 && ischar(opt) && isequal(lower(opt),'speed')
     
     % Test rotmat_to_rotvec
     tic
-    th0=rotmat_to_rotvec2(mat0);
+    th0=rotmat_to_rotvec_rad(mat0);
     t0=toc;
     tic
-    th1=rotmat_to_rotvec2(mat1,1);
+    th1=rotmat_to_rotvec_rad(mat1,1);
     t1=toc;
     
     disp(' ')

@@ -106,6 +106,27 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
                         ndims);
             end
         end
+        function obj = spinw_dnd_obj_constructor(lattice_const,varargin)
+            % build dnd object from list of input parameters usually
+            % defined by spinW
+            % Inputs:
+            % lattice_const -- 6-element array containing 3 components for
+            %                  lattice parameters and 3 components for
+            %                  lattice angles
+            % Optional:
+            % 0 to 4 pairs containing [axis direction, binning parameters]
+            % where
+            % axis_direction -- 4-element vector containing axis direction 
+            %                   in hklE coordinate system
+            % binning parameters
+            %                -- 3-element vector contaning min,step,max
+            %                   binning parameters for appropriate axis
+            %
+            % Number of pairs would define number of dimensions in DnD object
+            % The constructor build object containing line_proj.
+            %
+            obj = spinw_dnd_obj_constructor_(lattice_const,varargin{:});
+        end
         function [form_fields,data_fields] = head_form(keep_data_arrays)
             % the method returns list of fields, which need to be filled by
             % head function
@@ -566,9 +587,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             error('HORACE:DnDBase:runtime_error', ...
                 'sqw_eval_pix can not be invoked on dnd object');
         end
-        function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
-            [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
-        end
         %
         function obj = set_senpix(obj,val,field)
             % set signal error or npix value to a class field
@@ -598,6 +616,25 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             %DnD objects never filebacked
             is = false;
         end
+        function [iseq,mess]  = equal_to_tol_single(obj,other_obj,opt,varargin)
+            % internal procedure used by equal_to_toll method to compare
+            % single pair of DnDBase objects
+            % Input:
+            % obj       -- first object to compare
+            % other_obj -- second object to compare
+            % opt       -- the structure containing fieldnames and their
+            %              values as accepted by generic equal_to_tol
+            %              procedure or retruned by
+            %              process_inputs_for_eq_to_tol function
+            %
+            % Returns:
+            % iseq      -- logical containing true if objects are equal and
+            %              false otherwise.
+            % mess      -- char array empty if iseq == true or containing
+            %              more information on the reason behind the
+            %              difference if iseq == false
+            [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
+        end        
 
     end
     %======================================================================

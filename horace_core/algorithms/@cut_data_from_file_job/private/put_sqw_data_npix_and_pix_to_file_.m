@@ -49,6 +49,9 @@ end
 position.npix=ftell(fid);
 fwrite(fid,int64(npix),'int64');    % make int64 so that can deal with huge numbers of pixels
 
+pix_width = pix.DEFAULT_NUM_PIX_FIELDS*4;
+fwrite(fid,int32(pix_width),'int32');  % make it equal to int32
+
 npixtot = pix.num_pixels; % write total number of pixels to be consistent with combine_pix mex
 fwrite(fid,int64(npixtot),'int64');  % make int64 so that can deal with huge numbers of pixels
 position.pix=ftell(fid); % point directly to pix position

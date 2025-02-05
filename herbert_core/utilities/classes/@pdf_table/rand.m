@@ -51,7 +51,7 @@ if numel(obj.x_) > 1
 %         (ff(ix) + sqrt(ff(ix).^2 + 2*mm(ix).*(Asamp(:)-AA(ix))));
 %     X = reshape(X,size(Asamp));
     
-elseif numel(obj.x_) == 1
+elseif isscalar(obj.x_)
     % Special case of a single delta function
     X = (obj.x) * ones(varargin{:});
     

@@ -21,26 +21,14 @@ function assertEqualToTol(A, B, varargin)
 %
 
 
-in_name = cell(1,2);
-in_name{1} = inputname(1);
-in_name{2} = inputname(2);
 
-if nargin>2
-    opt = {'name_a','name_b'};
-    [keyval_list,other]=extract_keyvalues(varargin,opt);
-    if ~isempty(keyval_list)
-        ic = 1;
-        for i=1:2:numel(keyval_list)-1
-            in_name{ic} = keyval_list{i+1};
-            ic = ic+1;
-        end
-    end
-else
-    other = {};
-end
+% Get names of input variables, if can    
+name_a = variable_name(inputname(1), false, 1, 1, 'input_1');
+name_b = variable_name(inputname(2), false, 1, 1, 'input_2');
+
 % Perform comparison
 [ok, message] = equal_to_tol (A, B,...
-    'name_a', in_name{1}, 'name_b', in_name{2}, other{:});
+    'name_a', name_a, 'name_b', name_b, varargin{:});
 if ~ok
     throwAsCaller(MException('assertEqualToTol:tolExceeded', ...
         '%s', message));

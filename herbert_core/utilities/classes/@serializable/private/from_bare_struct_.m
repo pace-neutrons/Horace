@@ -79,6 +79,7 @@ for i=1:nobj
     obj(i).do_check_combo_arg_ = true;
     % Check interdependent properties. If the object is invalid, an
     % exception is thrown
+
     obj(i) = obj(i).check_combo_arg();
 end
 if nobj > 1
@@ -103,7 +104,7 @@ for i=1:numel(fields_names)
     if isstruct(val)
         if isfield(val,'serial_name')
             % Structure is one that has been created by to_struct
-            val = serializable.from_struct (val);
+            val = obj.from_struct (val);
         end
     end
     obj.(field_name) = val;

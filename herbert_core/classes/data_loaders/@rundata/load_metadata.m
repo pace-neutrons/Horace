@@ -87,5 +87,3 @@ if isempty(this.(fln))
 else
     is = false;
 end
-
-

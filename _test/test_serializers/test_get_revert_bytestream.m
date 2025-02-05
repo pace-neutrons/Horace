@@ -56,7 +56,7 @@ classdef test_get_revert_bytestream< TestCase
 
             bs = serialize(t);
             assertTrue(isa(bs,'uint8'));
-            assertEqual(numel(bs),375);
+            assertEqual(numel(bs),397);
 
             tc = deserialize(bs);
             tc = feval(tc.serial_name, tc);
@@ -78,9 +78,11 @@ classdef test_get_revert_bytestream< TestCase
             hc.use_mex = false;
             bsn = serialize(mod);
             assertTrue(isa(bs,'uint8'));
-            assertEqual(numel(bs),342);
 
-            assertEqual(bs,bsn);
+            assertEqual(bs,bsn);            
+            assertEqual(numel(bs),364);
+
+
 
             hc.use_mex = true;
             modc = deserialize(bs);

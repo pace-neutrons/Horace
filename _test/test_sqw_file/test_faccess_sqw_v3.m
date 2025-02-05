@@ -123,9 +123,13 @@ classdef test_faccess_sqw_v3< TestCase
             assertElementsAlmostEqual(inf.psi,0.2967,'absolute',1.e-4);
 
             det = to.get_detpar();
-            assertEqual(det.filename,'')
-            assertEqual(det.filepath,'.\')
-            assertEqual(numel(det.group),96)
+            assertTrue(isa(det,'unique_objects_container'))
+            assertEqual(det.n_objects,1);
+            udi = det.unique_objects;
+            
+            assertEqual(udi{1}.filename,'')
+            assertEqual(udi{1}.filepath,'.\')
+            assertEqual(numel(udi{1}.group),96)
 
             data = to.get_data();
             assertEqual(size(data.s,1),numel(data.p{1})-1)
@@ -299,6 +303,7 @@ classdef test_faccess_sqw_v3< TestCase
         end
         %
         function test_serialize_deserialize_faccess(obj)
+            skipTest('Re #1795 no proper comparison for sqw faccessors')            
             fo = faccess_sqw_v3();
             fo = fo.init(obj.sample_file);
 

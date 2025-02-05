@@ -77,10 +77,10 @@ if(n_nx_entries>1)
             ' found multiple nxspe folders in file %s but this function does not currently support multiple nxspe folders',hdf_fileName)
     end
     root_nx_path = nx_folders;
-    data_version    = nx_version;
+    data_version = nx_version;
 else
     root_nx_path = nx_folders{1};
-    data_version    = nx_version{1};
+    data_version = nx_version{1};
 end
 
 function ver=get_version(def_dataset,APP_NAME,filename)
@@ -93,6 +93,7 @@ for i=1:numel(def_dataset.Attributes)
         if iscell(ver)
             ver = regexprep(ver{1},'[\n\r\0]+','');
         end
+        ver = str2double(ver);
         return;
     end
 end

@@ -326,7 +326,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             s = sqw(obj.test_sqw_2d_fullpath);
             result = s.xye();
 
-            assertEqualWithSave(obj,result,'tol',[1.e-7,1.e-7]);
+            assertEqualWithSave(obj,result,'tol',[1.e-7,1.e-7],'-nan_equal');
         end
 
         function test_xye_sets_NaN_default_null_value(obj)
@@ -334,7 +334,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
 
             result = s.xye();
 
-            assertEqual(result.y(1,1), NaN);
+            assertEqual(result.y(1,1), NaN,'-nan_equal');
         end
 
         function test_xye_sets_user_specified_null_value(obj)

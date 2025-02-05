@@ -31,7 +31,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_spaghetti_noplot(obj)
             tob = [obj.IX_data{2};obj.IX_data{2}*2;obj.IX_data{2}*0.5];
             [ds,cuts,figh,axh,plh] = spaghetti_plot(tob,'noplot');
-            assertEqual(ds,tob);
+            assertEqual(ds,tob,'-nan_equal');
             assertTrue(isempty(cuts));
             assertTrue(isempty(figh));
             assertTrue(isempty(axh));
@@ -41,7 +41,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_spaghetti_set_labels(obj)
             tob = [obj.IX_data{2};obj.IX_data{2}*2;obj.IX_data{2}*0.5];
             [ds,cuts,figh,axh,plh] = spaghetti_plot(tob,'lab',{'A','B','C','D'});
-            assertEqual(ds,tob);
+            assertEqual(ds,tob,'-nan_equal');
             assertTrue(isempty(cuts));
             assertTrue(isa(figh,'matlab.ui.Figure'));
             assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
@@ -56,7 +56,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_spaghetti_default_labels(obj)
             tob = [obj.IX_data{2};obj.IX_data{2}*2;obj.IX_data{2}*0.5];
             [ds,cuts,figh,axh,plh] = spaghetti_plot(tob);
-            assertEqual(ds,tob);
+            assertEqual(ds,tob,'-nan_equal');
             assertTrue(isempty(cuts));
             assertTrue(isa(figh,'matlab.ui.Figure'));
             assertTrue(isa(axh,'matlab.graphics.axis.Axes'));

@@ -41,31 +41,9 @@ end
 
 filename=strtrim(filename);
 
-use_mex = get(hor_config,'use_mex');
-if use_mex
-    try     %using C routine
-        phx=get_ascii_file(filename,'phx');
-        [ncol,ndet]=size(phx);
-        if ncol <7
-            phx=[phx(1,:);phx(3:6,:);1:ndet];
-        else
-            phx=[phx(1,:);phx(3:7,:)];
-        end
-    catch   %using matlab routine
-        force_mex = get(hor_config,'force_mex_if_use_mex');
-        if ~force_mex
-            warning('A_LOADER:get_phx','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
-            use_mex = false;
-        else
-            error('A_LOADER:get_phx','Cannot invoke C++ procedure get_ascii_file.%s while loading from file: %s;\n Reason: %s',mexext(),filename,lasterr());
-        end
-    end
-end
+phx=get_phx_matlab(filename);
+[ncol,ndet]=size(phx);
 
-if ~use_mex
-    phx=get_phx_matlab(filename);
-    [ncol,ndet]=size(phx);
-end
 
 % round-off parameters to 'accuracy' digits after decimal point for consistency
 % as the real accuracy is even lower but different OS interpret

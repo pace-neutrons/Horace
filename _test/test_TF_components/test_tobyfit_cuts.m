@@ -17,6 +17,9 @@ classdef test_tobyfit_cuts < TestCaseWithSave
     methods
         function obj = test_tobyfit_cuts (name)
             % Initialise object properties and pre-load test cuts for faster tests
+            if nargin<1
+                name = 'test_tobyfit_cuts';
+            end
 
             % Note: in the (hopefully) extremely rare case of needing to
             % regenerate the data, use the static method generate_data (see
@@ -90,81 +93,7 @@ classdef test_tobyfit_cuts < TestCaseWithSave
             rng(obj.rng_state);
             warning('on', 'HERBERT:mask_data_for_fit:bad_points')
         end
-
-
-        %% --------------------------------------------------------------------------------------
-        % Fit single cut from Fe
-        % --------------------------------------------------------------------------------------
-        function obj = test_fit_fe_single_good_par(obj)
-            % Single cut, starting parameters close to a good fit
-
-            amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
-
-            kk = tobyfit(obj.fe_1);
-            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd, [amp,sj,fwhh,const,grad], [1,1,0,1,0]);
-            kk = kk.set_mc_points(obj.mc_fe);
-            kk = kk.set_options('listing', obj.nlist);
-            [~, fp] = kk.fit;
-
-            assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
-
-        end
-
-        function obj = test_fit_fe_single_good_par_chunked(obj)
-            % Single cut, starting parameters close to a good fit
-
-            amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
-            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
-
-            kk = tobyfit(obj.fe_1);
-            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd, [amp,sj,fwhh,const,grad], [1,1,0,1,0]);
-            kk = kk.set_mc_points(obj.mc_fe);
-            kk = kk.set_options('listing', obj.nlist);
-            [~, fp] = kk.fit;
-
-            assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
-
-        end
-
-        function obj = test_fit_fe_single_good_par_fb(obj)
-            % Single cut, starting parameters close to a good fit but file-backed
-
-            skipTest(['Preliminary test ready for #760 implementation of filebacked Tobyfit, ', ...
-                      'parallel to test_multifit_horace_1:test_fit_one_dataset_fb, but as yet untested'])
-
-            amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
-
-            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 100);
-
-            fe_1_fb = obj.fe_1;
-            fe_1_fb.pix = PixelDataFilebacked(obj.fe_1.pix);
-
-            kk = tobyfit(obj.fe_1);
-            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd, [amp,sj,fwhh,const,grad], [1,1,0,1,0]);
-            kk = kk.set_mc_points(obj.mc_fe);
-            kk = kk.set_options('listing', obj.nlist);
-            [~, fp] = kk.fit;
-
-            ref = getReferenceDataset(obj, 'test_fit_nb_multi_amplitude_global', 'fp')
-            assertTrue(is_same_fit(fp, ref, obj.tolerance))
-
-        end
-
-
-        function obj = test_fit_fe_single_bad_par(obj)
-            % Single cut, starting parameters well away from a good fit
-
-            amp=100;  sj=50;   fwhh=50;   const=0;  grad=0;
-
-            kk = tobyfit(obj.fe_1);
-            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,1,0,1,0]);
-            kk = kk.set_mc_points(obj.mc_fe);
-            kk = kk.set_options('listing',obj.nlist);
-            [~, fp] = kk.fit;
-
-            assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
-
-        end
+        %==================================================================
 
         function obj = test_fit_fe_single_fore_back_decoupled(obj)
             % Decouple foreground and background models - get same result, so good!
@@ -177,7 +106,7 @@ classdef test_tobyfit_cuts < TestCaseWithSave
             kk = kk.set_bfree([1,0]);
             kk = kk.set_mc_points(obj.mc_fe);
             kk = kk.set_options('listing',obj.nlist);
-            [~, fp] = kk.fit;
+            [ar, fp] = kk.fit;
 
             assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
 
@@ -193,7 +122,7 @@ classdef test_tobyfit_cuts < TestCaseWithSave
             kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
             kk = kk.set_mc_points(obj.mc_fe);
             kk = kk.set_options('listing',obj.nlist);
-            [~,fp]=kk.fit;
+            [ar,fp]=kk.fit;
 
             assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
 
@@ -232,7 +161,7 @@ classdef test_tobyfit_cuts < TestCaseWithSave
             kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
             kk = kk.set_mc_points(obj.mc_fe);
             kk = kk.set_options('listing',obj.nlist);
-            [~,fp] = kk.fit;
+            [ar,fp] = kk.fit;
 
             assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
 
@@ -253,10 +182,23 @@ classdef test_tobyfit_cuts < TestCaseWithSave
             kk = kk.set_bfun(@testfunc_bkgd,[const,grad]);
             kk = kk.set_mc_points(obj.mc_fe);
             kk = kk.set_options('listing',obj.nlist);
-            [~,fp] = kk.fit;
+            [ar,fp] = kk.fit;
 
             assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
 
+        end
+        function obj = test_fit_fe_single_bad_par(obj)
+            % Single cut, starting parameters well away from a good fit
+
+            amp=100;  sj=50;   fwhh=50;   const=0;  grad=0;
+
+            kk = tobyfit(obj.fe_1);
+            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd,[amp,sj,fwhh,const,grad],[1,1,0,1,0]);
+            kk = kk.set_mc_points(obj.mc_fe);
+            kk = kk.set_options('listing',obj.nlist);
+            [ar, fp] = kk.fit;
+
+            assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
         end
 
         %% --------------------------------------------------------------------------------------
@@ -275,13 +217,28 @@ classdef test_tobyfit_cuts < TestCaseWithSave
             kk = kk.set_bfun(@testfunc_bkgd,[const,grad],[1,0]);
             kk = kk.set_mc_points(obj.mc_rb);
             kk = kk.set_options('listing',obj.nlist);
-            [~,fp] = kk.fit;
+            %[ar,pp] = kk.simulate;
+            [ar,fp] = kk.fit;
 
             assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
 
         end
+        %
+        function obj = test_fit_fe_single_good_par_chunked(obj)
+            % Single cut, starting parameters close to a good fit
 
+            amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
 
+            kk = tobyfit(obj.fe_1);
+            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd, [amp,sj,fwhh,const,grad], [1,1,0,1,0]);
+            kk = kk.set_mc_points(obj.mc_fe);
+            kk = kk.set_options('listing', obj.nlist);
+            [ar, fp] = kk.fit;
+
+            assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
+
+        end
         %% --------------------------------------------------------------------------------------
         % Fit multiple datasets from Fe and RbMnF3
         % ---------------------------------------------------------------------------------------
@@ -320,7 +277,51 @@ classdef test_tobyfit_cuts < TestCaseWithSave
 
             kk = kk.set_mc_points(obj.mc_rb);
             kk = kk.set_options('listing',obj.nlist);
-            [~, fp] = kk.fit();
+            [ar, fp] = kk.fit();
+
+            assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
+
+        end
+
+        function obj = test_fit_fe_single_good_par_fb(obj)
+            % Single cut, starting parameters close to a good fit but file-backed
+
+
+             skipTest(['Preliminary test ready for #760 implementation of filebacked Tobyfit, ', ...
+                 'parallel to test_multifit_horace_1:test_fit_one_dataset_fb, but as yet untested'])
+
+            amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
+
+            clwa = set_temporary_warning('off','HOR_CONFIG:set_mem_chunk_size');
+            clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 100);
+
+            fe_1_fb = obj.fe_1;
+            fe_1_fb.pix = PixelDataFileBacked(obj.fe_1.pix);
+
+            kk = tobyfit(obj.fe_1);
+            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd, [amp,sj,fwhh,const,grad], [1,1,0,1,0]);
+            kk = kk.set_mc_points(obj.mc_fe);
+            kk = kk.set_options('listing', obj.nlist);
+            [ar, fp] = kk.fit;
+
+            ref = getReferenceDataset(obj, 'test_fit_fe_single_good_par', 'fp');
+            assertTrue(is_same_fit(fp, ref, obj.tolerance))
+
+        end
+
+        % --------------------------------------------------------------------------------------
+        % Fit single cut from Fe
+        % --------------------------------------------------------------------------------------
+        function obj = test_fit_fe_single_good_par(obj)
+            % Single cut, starting parameters close to a good fit
+
+            amp=50;  sj=40;   fwhh=50;   const=0.1;  grad=0;
+
+            kk = tobyfit(obj.fe_1);
+            kk = kk.set_fun(@testfunc_sqw_bcc_hfm_bkgd, [amp,sj,fwhh,const,grad], [1,1,0,1,0]);
+            kk = kk.set_mc_points(obj.mc_fe);
+            kk = kk.set_options('listing', obj.nlist);
+            [ar, fp] = kk.fit;
 
             assertTestWithSave(obj, fp, @is_same_fit, obj.tolerance)
 
