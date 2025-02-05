@@ -69,7 +69,7 @@ sz_stack = true_size(sz_stack);
 
 if numel(sz_full) < numel(sz_stack)
     error('HERBERT:size_array_split:invalid_argument', ...
-          'The number of dimensions of the stacking array is larger than that of the full array');
+        'The number of dimensions of the stacking array is larger than that of the full array');
 end
 
 % Get number of dimensions in sz_stack following leading singletons
@@ -83,7 +83,7 @@ if ~isempty(ind)
     % match the trailing dimensions of the full array
     if any(sz_full(end-n+1:end) ~= sz_stack(end-n+1:end))
         error('HERBERT:size_array_split:invalid_argument', ...
-              'The full array cannot be resolved into a stack of arrays with the given stack size');
+            'The full array cannot be resolved into a stack of arrays with the given stack size');
     end
 
     % Strip away the stack dimensions
@@ -94,7 +94,7 @@ if ~isempty(ind)
 
     elseif ~isempty(sz_root) && sz_root(end) == 1
         error('HERBERT:size_array_split:invalid_argument', ...
-              'The full array cannot be resolved into a stack of arrays with the given stack size');
+            'The full array cannot be resolved into a stack of arrays with the given stack size');
     end
 
 else
@@ -118,11 +118,10 @@ end
 
 function sz_true = true_size (sz)
 % Return true size once irrelevant trailing singletons have been stripped
-ind = find(sz ~= 1, 1, 'last');   % first non-singleton counting backwards
+ind = find(fliplr(sz)~=1,1);   % first non-singleton counting backwards
 if ~isempty(ind)
     sz_true = sz(1:end-ind+1);
 else
     sz_true = zeros(1,0);
 end
-
 end
