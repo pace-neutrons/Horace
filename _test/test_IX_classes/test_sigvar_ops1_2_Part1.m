@@ -312,10 +312,10 @@ classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
             flt = [4,5,6]';
 
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
+            assertExceptionThrown(testfun, 'HERBERT:size_array_split:invalid_argument');
 
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'HERBERT:data_op_interface:invalid_argument');
+            assertExceptionThrown(testfun, 'HERBERT:size_array_split:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
