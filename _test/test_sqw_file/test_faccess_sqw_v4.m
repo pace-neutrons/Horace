@@ -408,11 +408,11 @@ classdef test_faccess_sqw_v4< TestCase
             assertTrue(isa(exp_info.instruments,'unique_references_container'))
 
             assertEqual(numel(exp_info.expdata),exp_info.detector_arrays.n_objects);
-            assertEqual(exp_info.detector_arrays.n_unique_objects,1);
+            assertEqual(exp_info.detector_arrays.n_unique,1);
             assertEqual(numel(exp_info.expdata),exp_info.samples.n_objects);
-            assertEqual(exp_info.samples.n_unique_objects,1);
+            assertEqual(exp_info.samples.n_unique,1);
             assertEqual(numel(exp_info.expdata),exp_info.instruments.n_objects);
-            assertEqual(exp_info.instruments.n_unique_objects,1);
+            assertEqual(exp_info.instruments.n_unique,1);
 
         end
         %

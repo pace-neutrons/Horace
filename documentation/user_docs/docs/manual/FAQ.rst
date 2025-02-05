@@ -19,12 +19,10 @@ example below:
 
 ::
 
-   my_files={'file1','file2','file3',..,'fileN-1','fileN};
-   ...
-   psi=[1,2,3,..,1,2]
-   ...
+   my_files = {'file1', 'file2', 'file3', ..., 'fileN-1', 'fileN};
+   psi = [1, 2, 3, ..., 1, 2]
 
-   gen_sqw(..,my_files,..psi,..)
+   gen_sqw(..., my_files, ..., psi, ...)
 
 
 In the resulting ``.sqw`` file the data from ``file1`` and ``fileN-1``, and

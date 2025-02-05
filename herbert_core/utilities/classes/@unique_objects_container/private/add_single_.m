@@ -1,4 +1,4 @@
-function [self,nuix] = add_single_(self,obj,ix,hash)
+function [self,nuix] = add_single_(self,obj)
 %ADD_SINGLE_ Add single object to the unique objects container
 
 
@@ -11,10 +11,7 @@ function [self,nuix] = add_single_(self,obj,ix,hash)
 % -----
 % self - the unique_objects_container in question
 % obj  - the object to be added to the container
-% ix   - the unique index of the object if it is already in the container. 
-%        this will have been found from a previous call of find_in_container
-% hash - the hash for obj previously made by that call to find_in_container
-% 
+%
 % Output
 % ------
 % self - the modified container (modified by adding obj)
@@ -22,29 +19,23 @@ function [self,nuix] = add_single_(self,obj,ix,hash)
 
 % check that obj is of the appropriate base class
 if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)
-    warning('HERBERT:unique_objects_container:invalid_argument', ...
+    error('HERBERT:unique_objects_container:invalid_argument', ...
         'not correct base class; object was not added');
-    nuix = 0;
-    return;
 end
 
-% if ix and hash are not specified, call find_in_container to get them
-if nargin<=2
-    [ix,hash,obj] = self.find_in_container(obj);
-end
+% call find_in_container to get ix and hash
+[ix,hash,obj] = self.find_in_container(obj);
+
 
 % If the object is not in the container.
 % store the hash in the stored hashes
 % store the object in the stored objects
 % take the index of the last stored object as the object index
 if isempty(ix) % means obj not in container and should be added
-    self.stored_hashes_ = [self.stored_hashes_(:);hash]';
+    self.stored_hashes_  = [self.stored_hashes_(:);hash]';
     self.unique_objects_ = [self.unique_objects_(:); {obj}]';
 
     ix = numel(self.unique_objects_);
-    self.n_duplicates_ = [self.n_duplicates_(:); 1]';
-else
-    self.n_duplicates_(ix) = self.n_duplicates_(ix)+1;
 end
 
 % add index ix to the array of indices

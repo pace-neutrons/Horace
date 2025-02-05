@@ -34,13 +34,11 @@ for i=1:numel(args)
     % Turn argument into 2D array, first dimension has length equal to
     % the number of elements in the inner arrays, the second has length
     % equal to the number of elements in the stacking array
-    [sz_root, ok, mess] = size_array_split (size(args{i}), sz_stack);
+    sz_root = size_array_split (size(args{i}), sz_stack);
     nroot = prod(sz_root);
-    if ~ok
-        error ('HERBERT:split_args:invalid_argument', mess);
-    end
+
     tmp = reshape(args{i}, [nroot, nstack]);
-    
+
     % Split argument into a cell array of 2D arrays, re-ordered first if
     % requested
     if ~isempty(ix)
@@ -48,7 +46,7 @@ for i=1:numel(args)
     else
         args_split_tmp = mat2cell(tmp, nroot, nelmts);
     end
-    
+
     % Reshape so that the original inner dimensions are recovered but the
     % the outer dimensions are flattened
     sz_full = arrayfun(@(x)size_array_stack(sz_root,[x,1]), nelmts,...

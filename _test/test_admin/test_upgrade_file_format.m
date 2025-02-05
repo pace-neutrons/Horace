@@ -154,7 +154,7 @@ classdef test_upgrade_file_format< TestCase
         function check_container(~,uob_present,n_runs)
             assertTrue(isa(uob_present,'unique_references_container'));
             assertEqual(uob_present.n_objects,n_runs);
-            assertEqual(uob_present.n_unique_objects,1);
+            assertEqual(uob_present.n_unique,1);
             uob_here= uob_present.unique_objects.unique_objects{1};
             % hash has been calculated while putting into urc
             assertTrue(uob_here.hash_defined)

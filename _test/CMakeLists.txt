@@ -24,7 +24,7 @@ set(TEST_DIRECTORIES_HORACE
     "test_utilities_herbert"
     "test_serializers"
     "test_instrument_classes"
-    "test_unique_objects_container"
+    "test_object_containers"
     "test_docify"
     "test_xunit_framework"
     "test_mpi_wrappers"

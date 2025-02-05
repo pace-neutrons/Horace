@@ -139,11 +139,15 @@ The outputs are:
 
    These cuts are ``IX_dataset_1d`` objects and can be plotted using the plot functions.
 
+   These cuts can also be passed to ``bragg_positions_view`` together with ``wpeak`` to view the output.
+
 - ``wpeak`` - an n-by-3 array of spectra, that summarise the peak analysis.
 
 .. note::
 
-   These cuts are ``IX_dataset_1d`` objects and can be plotted using the plot functions.
+   These spectra are ``IX_dataset_1d`` objects and can be plotted using the plot functions.
+
+   These spectra can also be passed to ``bragg_positions_view`` together with ``wcut`` to view the output.
 
 .. note::
 
@@ -236,7 +240,7 @@ The keyword options are:
 
 The output is an ``crystal_alignment_info`` object which contains all the relevant data for crystal realignment, namely
 the rotation matrix which aligns Crystal Cartesian frame into correct position and modified lattice parameters, if
-``refine_crystal`` modified them. 
+``refine_crystal`` modified them.
 
 .. Warning::
 
@@ -258,7 +262,7 @@ which is opposite to the rotation, necessary for corrections you will be applyin
 Step 3 - apply the correction to the data
 ==========================================
 
-There are different ways to do this, to be preferred in different circumstances.
+There are different ways to do this, for different circumstances:
 
 1. Initially you want to be sure that you have selected correct Bragg peaks, 
 that adding new peaks would not improve accuracy of your alignment, and that the resulting alignment is satisfactory.
@@ -377,7 +381,7 @@ Where:
 
 
 .. note::
-
+   
    If you use ``'-keep_original'`` you may wish to ``save`` your resulting file-backed object as the temporary file will be cleared when the
    ``wout`` object goes out of scope. (see: file_backed_objects)
 
@@ -551,15 +555,14 @@ rlu_corr_to_lattice
 Extract lattice parameters and orientation matrix from r.l.u correction matrix and reference lattice parameters
 
 
-..
-   calc_proj_matrix
-   ================
+calc_proj_matrix
+================
 
-   ::
+::
 
-      [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+   [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix(alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 
 
-   Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by :math:`u1 \| a^*`,
-   :math:`u2` in plane of :math:`a^*` and :math:`b^*` i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) -
-   see Tobyfit for conventions
+Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by :math:`u1 \| a^*`,
+:math:`u2` in plane of :math:`a^*` and :math:`b^*` i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) -
+see Tobyfit for conventions
