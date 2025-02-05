@@ -146,15 +146,19 @@ classdef Goniometer < hashable
         %
         function obj = set.omega(obj,val)
             obj.omega_=check_angular_val(obj,val);
+            obj = obj.clear_hash();            
         end
         function obj  = set.dpsi(obj,val)
             obj.dpsi_=check_angular_val(obj,val);
+            obj = obj.clear_hash();            
         end
         function obj =set.gl(obj,val)
             obj.gl_=check_angular_val(obj,val);
+            obj = obj.clear_hash();            
         end
         function obj =set.gs(obj,val)
             obj.gs_=check_angular_val(obj,val);
+            obj = obj.clear_hash();            
         end
         %-----------------------------------------------------------------
         function u=get.u(obj)
@@ -245,10 +249,9 @@ classdef Goniometer < hashable
             % main over-loadable setter for u and v
             obj = check_and_set_uv_(obj,name,val);
         end
-        function [val,obj] = check_angular_val(obj,val)
+        function val = check_angular_val(obj,val)
             % main over-loadable setter function for goniometer angles
-            [val,obj] = check_angular_set_(obj,val);
-            obj = obj.clear_hash();
+            val = check_angular_set_(obj,val);
         end
         function uf = get_undef_fields(obj)
             % get list of undefined fields
@@ -280,13 +283,17 @@ classdef Goniometer < hashable
         function   ver  = classVersion(~)
             ver = 1;
         end
+        %------------------------------------------------------------------
+        function flds = hashableFields(obj)
+            flds = obj.constructionFields();
+        end
         function flds = saveableFields(~)
             flds = [Goniometer.gon_fields_(:);'angular_is_degree'];
         end
         function flds = constructionFields(~)
             flds = [Goniometer.gon_fields_(:);'angular_units'];
         end
-
+        %------------------------------------------------------------------
         function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained lattice object

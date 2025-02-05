@@ -142,18 +142,18 @@ classdef test_binfile_v2_common <  TestCase %WithSave
             tob = tob.delete();
             assertTrue(tob.sqw_type) % its still sqw reader, you know...
             assertEqual(tob.num_dim,'undefined')
-            
+
         end
         %
         function obj = test_set_missing_file_to_update_opens_in_wb_plus(obj)
-            tob = binfile_v2_common_tester();            
+            tob = binfile_v2_common_tester();
 
             test_f = fullfile(tmp_dir,'test_change_file_to_write.sqw');
             clob = onCleanup(@()delete(test_f));
 
             tob=tob.set_file_to_update(test_f);
             assertTrue(exist(test_f,'file')==2);
-            assertEqual(tob.get_faccess_mode(),'wb+')            
+            assertEqual(tob.get_faccess_mode(),'wb+')
 
             tob=tob.delete();
             assertFalse(tob.sqw_type) % its still sqw reader, you know...
@@ -288,7 +288,12 @@ classdef test_binfile_v2_common <  TestCase %WithSave
             % Get the permission of an open file from its path
             %   If the file is not open the permission will be empty
             permission = '';
-            file_ids = fopen('all');
+
+            if matlab_version_num() < 24.01
+                file_ids = fopen('all');
+            else
+                file_ids = openFiles();
+            end
             for i = 1:numel(file_ids)
                 [open_file_path, open_permission] = fopen(file_ids(i));
                 if strcmp(open_file_path, file_path)

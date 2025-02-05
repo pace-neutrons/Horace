@@ -9,7 +9,7 @@ function [ok,mess] = horace_mex_mpi(varargin)
 % we supply MPI libraries together with Herbert. They may not work with any
 % Matlab version and with any OS so may be cases when it is preferable to
 % use system libraries but:
-use_her_mpich = true; % if true, use MPI libraries, provided with Herbert.
+use_her_mpich = false; % if true, use MPI libraries, provided with Herbert.
 % if false, modify script below providing the location of the MPI libraries
 % present on the system.
 
@@ -44,8 +44,8 @@ elseif isunix()
         mpi_lib_2use = {'libmpi.so','libmpich.so','libmpicxx.so'};
     else
         %opt_file = fullfile(pths.admin, '_compiler_settings','Matlab2020a','mex_C++openmpi_glnxa64.xml');
-        mpi_folder = '/usr/lib64/mpich-3.2/';
-        mpi_hdrs_folder = '/usr/include/mpich-3.2-x86_64/';
+        mpi_folder = '/usr/lib64/mpich/';
+        mpi_hdrs_folder = '/usr/include/mpich-x86_64/';
         mpi_lib_2use = {'libmpicxx.so','libmpi.so'};
     end
     %mpi_folder = '/home/isis_direct_soft/mpich/';

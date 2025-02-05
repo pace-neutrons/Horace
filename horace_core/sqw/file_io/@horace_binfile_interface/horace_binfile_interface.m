@@ -472,6 +472,27 @@ classdef horace_binfile_interface < serializable
             end
             check_io_error_(fid,'reading',add_info);
         end
+
+        function det = convert_old_det_forms(detpar,n_instances)
+            % Method used to convert old detector formats into horace 4.01
+            % form.
+            %
+            % Input:
+            % detpar      -- an old or new format detector information.
+            %                Normally obtained from binary sqw file.
+            % n_instances -- number of run, this
+            %
+            % Returns:
+            % det         -- detector information packed in
+            %                unique_object_container container and
+            %                distributed over approriate number of input
+            %                runs.
+            if nargin == 1
+                n_instances = [];
+            end
+            det = convert_old_det_forms_(detpar,n_instances);
+        end
+
     end
     %======================================================================
     % SERIALIZABLE INTERFACE

@@ -38,7 +38,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             rec_dnd = read_dnd(test_file);
             assertTrue (isa(rec_dnd,'d2d'))
             assertEqual(size(rec_dnd.s),[16,11]);
-            assertEqual(rec_dnd.filename,test_filename);            
+            assertEqual(rec_dnd.filename,test_filename);
         end
 
 
@@ -102,7 +102,11 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
 
             function del_temp_file(tmp_file_path)
                 if is_file(tmp_file_path)
-                    open_fids = fopen('all');
+                    if matlab_version_num() < 24.01
+                        open_fids = fopen('all');
+                    else
+                        open_fids = openFiles();
+                    end
                     for i = 1:numel(open_fids)
                         fpath = fopen(open_fids(i));
                         if strcmp(fpath, tmp_file_path)

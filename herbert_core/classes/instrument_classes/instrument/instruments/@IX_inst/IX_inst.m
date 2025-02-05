@@ -1,4 +1,4 @@
-classdef IX_inst < serializable
+classdef IX_inst < hashable
     % Defines the base instrument class containing properties common to
     % all instruments.
     %
@@ -106,6 +106,7 @@ classdef IX_inst < serializable
                     'The source name must be a character string')
             end
             obj.name_ = char(val);
+            obj = obj.clear_hash();
         end
 
         function obj=set.source(obj,val)
@@ -118,6 +119,7 @@ classdef IX_inst < serializable
             else
                 error('The source name must be a character string or an IX_source object')
             end
+            obj = obj.clear_hash();
         end
         function obj = set.valid_from(obj,val)
             if ~isa(val,'datetime')
@@ -125,6 +127,7 @@ classdef IX_inst < serializable
             end
             obj.valid_from_ = val;
             obj.validity_date_set_(1) = true;
+            obj = obj.clear_hash();
         end
         function obj = set.valid_to(obj,val)
             if ~isa(val,'datetime')
@@ -132,6 +135,7 @@ classdef IX_inst < serializable
             end
             obj.valid_to_ = val;
             obj.validity_date_set_(2) = true;
+            obj = obj.clear_hash();
         end
         %------------------------------------------------------------------
         function obj = set_mod_pulse(obj,pulse_model,pm_par)
@@ -143,6 +147,7 @@ classdef IX_inst < serializable
             mod = get_moderator(obj);
             mod = mod.set_mod_pulse(pulse_model,pm_par);
             obj = obj.set_moderator(mod);
+            obj = obj.clear_hash();
         end
 
         %------------------------------------------------------------------
@@ -212,8 +217,6 @@ classdef IX_inst < serializable
             end
         end
     end
-
-
 
     %======================================================================
     % Custom loadobj

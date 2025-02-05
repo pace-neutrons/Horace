@@ -18,7 +18,16 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
 
             obj.save()
         end
+        %--------------------------------------------------------------------------
+        function test_hashable_prop(~)
+            clow = set_temporary_warning('off','HERBERT:IX_doubledisk_chopper:invalid_argument');
+            %flds = {'distance','frequency','radius','slot_width',...
+            %    'aperture_width','aperture_height','jitter','name'};
+            new_values = {12.1,620,0.045,1.2,0.02,0.9,0,'B_chopper'};
+            ap = IX_doubledisk_chopper(12,610,0.049,1.3,0.0228,1,0.001,'A_chopper');
 
+            hashable_obj_tester(ap,new_values);
+        end
         %--------------------------------------------------------------------------
         function test_aperture_undefined_slot_width_used(self)
             chop = IX_doubledisk_chopper (12,120,0.7,0.02);
@@ -71,6 +80,19 @@ classdef test_IX_doubledisk_chopper < TestCaseWithSave
             assertEqualWithSave (self,chop,'',[0,1.e-9]);
 
         end
+
+        function test_pdf_stable(obj)
+            disk_arr = [IX_doubledisk_chopper(12,120,0.5,0.01,0.02),...
+                IX_doubledisk_chopper(12,120,0.5,0.01,0.04,3);...
+                IX_doubledisk_chopper(15,120,0.5,0.01),...
+                IX_doubledisk_chopper(122,120,0.5,0.01,0.03)];
+
+            for i=1:numel(disk_arr)
+                assertFalse(isempty(disk_arr(i).pdf))
+                assertEqualToTolWithSave(obj,disk_arr(i).pdf,1.e-14);
+            end
+        end
+        
         %--------------------------------------------------------------------------
         function test_prev_versions_array(obj)
 

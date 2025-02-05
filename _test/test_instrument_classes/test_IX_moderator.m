@@ -30,6 +30,11 @@ classdef test_IX_moderator < TestCaseWithSave
 
             obj.save()
         end
+        %--------------------------------------------------------------------------
+        function test_hashable_prop(~)
+            ap = IX_moderator(15,30,'ikcarp',[5,25,0.13]);
+            hashable_obj_tester(ap);
+        end
 
         %--------------------------------------------------------------------------
         function test_pulse_shape_default (~)
@@ -134,7 +139,23 @@ classdef test_IX_moderator < TestCaseWithSave
             tsamp = self.mdelta.rand(1,10);
             assert(all(tsamp==0));
         end
-
+        %
+        function test_pdf_stable_mdelta(self)
+            assertFalse(isempty(self.mdelta.pdf))
+            assertEqualToTolWithSave(self,self.mdelta.pdf,1.e-14);
+        end
+        function test_pdf_stable_mtable(self)
+            assertFalse(isempty(self.mtable.pdf))
+            assertEqualToTolWithSave(self,self.mtable.pdf,1.e-14);
+        end
+        function test_pdf_stable_mikp(self)
+            assertFalse(isempty(self.mikp.pdf))
+            assertEqualToTolWithSave(self,self.mikp.pdf,1.e-14);
+        end
+        function test_pdf_stable_mik(self)
+            assertFalse(isempty(self.mik.pdf))
+            assertEqualToTolWithSave(self,self.mik.pdf,1.e-14);
+        end
         %--------------------------------------------------------------------------
         function test_pulse_width_mik (self)
             [dt, t_av, fwhh] = pulse_width (self.mik);

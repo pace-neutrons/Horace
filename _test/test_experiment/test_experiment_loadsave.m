@@ -51,6 +51,7 @@ classdef test_experiment_loadsave < TestCase
         end
 
         function test_loadsave_multiple_run_and_sqw(obj)
+            clWs = set_temporary_warning('off','HORACE:old_file_format');
             % 'multisqw.mat' is an existing .mat file in the
             % test_sqw suite which provides an array sq3 of 2 sqw objects with the old
             % header structure using one struct per run (two runs) for all data.
@@ -116,7 +117,7 @@ classdef test_experiment_loadsave < TestCase
         function test_loadsave_detectors(~)
             % partial setup of an sqw for the purposes of testing the
             % saving and reloading of detector arrays
-
+            clOw = set_temporary_warning('off','HORACE:Experiment:lattice_undefined');
             % empty sqw
             mysqw = sqw();
             % add IX_experiment, instrument, sample for 2 runs

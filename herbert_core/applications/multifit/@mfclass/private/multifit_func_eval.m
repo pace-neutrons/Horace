@@ -87,7 +87,7 @@ store_back=[];
 % Foreground function calculations
 if eval_fore
     wfore=cell(size(w));
-    if numel(func)==1
+    if isscalar(func)
         if ~isempty(func{1})
             pars=plist_update(plist(1),p{1});
             for i=1:numel(w)

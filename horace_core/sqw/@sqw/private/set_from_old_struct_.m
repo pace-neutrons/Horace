@@ -36,6 +36,7 @@ if ~isfield(S,'version') || S.version<4
         if isfield(ss,'experiment_info') && isstruct(ss.experiment_info)
             ss.experiment_info = Experiment.loadobj(ss.experiment_info);
         end
+
         % the detpar value will be put in further down in from_bare_struct.
         % NB reminder that this will require experiment_info having an empty
         % detector_arrays rather than being preconstructed
@@ -101,6 +102,11 @@ if ~isfield(S,'version') || S.version<4
                 ss = update_pixels_run_id(ss);
             end
         end
+        if isfield(ss,'detpar')
+            ss.experiment_info.detector_arrays =  ...
+                horace_binfile_interface.convert_old_det_forms( ...
+                ss.detpar,ss.experiment_info.n_runs);
+        end
 
         obj(i) = obj(i).from_bare_struct(ss);
     end
@@ -111,11 +117,24 @@ if isfield(S,'array_dat')
 else
     obj = obj.from_bare_struct(S);
 end
+
+if ~isfield(S,'version')
+    S.version = 0;
+end
+%
 if S.version == 4
     % may contain legacy alignment not stored in projection. Deal with this here
     hav  = obj.experiment_info.header_average();
     al_info = dnd_data_alignment(obj.data,hav);
     if ~isempty(al_info)
         obj.pix.alignment_matr = al_info.rotmat;
+    end
+end
+if S.version < 6
+    % may contain detpar stored in their own field and not present within
+    % the experiment_info
+    if obj.experiment_info.detector_arrays.n_objects == 0
+        obj.detpar = S.detpar; % use setter to deal with possible presence
+        % of old array format. Setter checks for that and converts appropriately
     end
 end

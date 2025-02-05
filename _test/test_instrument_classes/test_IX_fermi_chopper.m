@@ -41,7 +41,15 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
 
             obj.save()
         end
-
+        %--------------------------------------------------------------------------
+        function test_hashable_prop(~)
+            %flds = {'distance','frequency','radius','curvature','slit_width',...
+            %    'slit_spacing','width','height','energy',...
+            %    'phase','jitter','name'};
+            changed_prop = {13,620,0.04,1.2,0.01,0.02,3,11,320,false,0.02,'SS_Chopper'};
+            ap = IX_fermi_chopper(12,610,0.049,1.3,0.0228,0.03,2,10,300,true,0.01,'S_Chopper');
+            hashable_obj_tester(ap,changed_prop);
+        end
         %--------------------------------------------------------------------------
         function test_pulse_shape (self)
             t = -20:0.001:20;
@@ -106,6 +114,18 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
             T = partial_transmission (f, [-eps,0,eps]);
             assertEqual (T, [0,0,1])
         end
+        
+        function test_pdf_stable(obj)
+            fermi_arr = [IX_fermi_chopper(12,610,0.049,1.3,0.0228),...
+                IX_fermi_chopper(12,620,0.049,1.3,0.0228);...
+                IX_fermi_chopper(12,630,0.049,1.3,0.0228),...
+                IX_fermi_chopper(12,640,0.049,1.3,0.0228)];
+
+            for i=1:numel(fermi_arr)
+                assertFalse(isempty(fermi_arr(i).pdf))
+                assertEqualToTolWithSave(obj,fermi_arr(i).pdf,1.e-14);
+            end
+        end
 
         function test_prev_versions_array(obj)
 
@@ -134,9 +154,9 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
                 check_matfile_IO(verstr, save_variables, sample_files_location ,fermi_arr);
             end
 
-        end        
+        end
         function test_prev_versions(obj)
-           % Scalar example
+            % Scalar example
             fermi = IX_fermi_chopper(12,600,0.049,1.3,0.0228);
 
             sample_files_location = obj.home_folder;

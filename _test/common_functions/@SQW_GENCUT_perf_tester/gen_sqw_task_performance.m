@@ -1,6 +1,10 @@
 function [perf_res,perf_res1]=gen_sqw_task_performance(obj,field_names_map,combine_only)
 % test to check the performance of gen_sqw task
 
+if nargin<3
+    combine_only = false;
+end
+
 test_fld_names = field_names_map('gen_sqw');
 % delete existing tmp files as gen_sqw keeps existing in
 % 'tmp_only' mode
