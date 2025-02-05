@@ -1,8 +1,8 @@
-function [fig_h, axes_h, plot_h] = plot_oned (w, newplot, force_current_axes, ...
-    plot_type, varargin)
+function [fig_h, axes_h, plot_h] = plot_oned (w, newplot, ...
+    force_current_axes, plot_type, varargin)
 % Make a plot of an IX_dataset_1d object or array of objects.
 %
-%   >> plot_oned (w_in, newplot, force_current_axes, plot_type)
+%   >> plot_oned (w, newplot, force_current_axes, plot_type)
 %   >> plot_oned (..., xlo, xhi)
 %   >> plot_oned (..., xlo, xhi, ylo, yhi)
 %
@@ -76,8 +76,6 @@ default_fig_name = data_plot_interface.default_name();
 
 plot_types = {'errors', 'histogram', 'line', 'markers', 'data', 'points'};
 
-par=varargin;
-
 
 % Check input arguments
 % ---------------------
@@ -125,15 +123,17 @@ if ~is_string(default_fig_name)
 end
 
 % Parse the optional arguments and set the plot target
-[newplot_out, lims] = genie_figure_parse_plot_args (newplot, force_current_axes, ...
-    lims_type, default_fig_name, varargin{:});
+second_data_ok = false;
+[~, xlims, ylims] = genie_figure_parse_plot_args (newplot, ...
+    force_current_axes, lims_type, default_fig_name, [], second_data_ok, ...
+    varargin{:});
 
 
 % Perform plot
 % ------------
 % If newplot, delete any axes
 if newplot
-    delete(gca)     % not necessary if new_figure, but doesn't do any harm
+    delete(gca)     % not necessary if a new figure, but doesn't do any harm
 else
     hold on;        % hold the existing plot for overplotting
 end
@@ -147,12 +147,12 @@ switch plot_type
         plot_histogram(w)
         
     case 'line'
-        [frac, np] = w.calc_continuous_fraction();  % *** DOES THIS WORK FOR OBJECT ARRAYS?
+        [frac, np] = w.calc_continuous_fraction();
         if frac<0.8
             warning('HERBERT:graphics:invalid_argument',...
-                ['Your dataset contains NaN-s and you are plotting %3.1f%%',...
-                ' of your %d valid datapoints. Use pp/pm to see all your data points'],...
-                frac*100, np);
+                ['Your dataset contains NaNs and you are plotting %3.1f%% ',...
+                'of your %d valid datapoints.\n', ...
+                'Use pp/pm to see all your data points'], frac*100, np);
         end
         plot_line(w)
         
@@ -173,6 +173,7 @@ end
 hold off    % release plot (could have been held for overplotting, for example)
 
 
+% If a newplot, add axes annotations, title, tick marks, change limits etc.
 if newplot
     % Add axes annotations and title
     [tx, ty] = make_label(w(1));    % Create axis annotations
@@ -206,15 +207,15 @@ if newplot
     end
     
     % Change limits if they are provided
-    if isempty(lims)
+    if isempty(xlims) && isempty(ylims)
         axis tight  % might want to change the default for case of no limits?
     else
         axis tight
-        if numel(lims)>=2
-            lx(lims(1), lims(2))    % set x-axis limits
+        if ~isempty(xlims)
+            lx(xlims(1), xlims(2))
         end
-        if numel(lims)>=4
-            ly(lims(3), lims(4))    % set y-axis limits
+        if ~isempty(ylims)
+            lx(ylims(1), ylims(2))
         end
     end
 end

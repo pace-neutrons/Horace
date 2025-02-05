@@ -16,6 +16,5 @@ function varargout = mplot(w,varargin)
 % Synonym for:
 %   >> da(...)
 
-
 varargout = cell(1, nargout);   % output only if requested
 [varargout{:}] = da(w, varargin{:});

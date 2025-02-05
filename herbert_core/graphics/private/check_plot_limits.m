@@ -67,7 +67,7 @@ if strcmpi(lims_type, 'xy') || strcmpi(lims_type, 'xyz')
         end
     else
         ok = false;
-        mess = 'Check the number of plot limits.';
+        mess = 'Check the plot limits are all numeric and even in number.';
         return
     end
 else

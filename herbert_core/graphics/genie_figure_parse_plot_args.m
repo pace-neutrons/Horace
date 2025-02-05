@@ -1,9 +1,11 @@
-function [xlims, ylims, zlims] = genie_figure_parse_plot_args...
-    (newplot, force_current_axes, lims_type, default_fig_name, varargin)
+function [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
+    (newplot, force_current_axes, lims_type, default_fig_name, ...
+    w, second_data_ok, w1_data_name, w2_data_name, varargin)
 % Parse the input arguments for plot functions and set target for plotting
 %
-%   >> [xlims, ylims, zlims] = genie_figure_parse_plot_args...
-%    (newplot, force_current_axes, lims_type, default_fig_name)
+%   >> [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
+%    (newplot, force_current_axes, lims_type, default_fig_name, ...
+%     w, w1_data_name, w2_data_name, second_data_ok)
 %
 % Optional aarguments on the above:
 %   >> ... = genie_figure_plot_args (..., xlims)
@@ -15,7 +17,7 @@ function [xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %  or
 %   >> ... = genie_figure_plot_args (..., 'axes', axes_handle)
 %
-
+%
 % Input:
 % ------
 %   newplot     True:  Draw the plot on new axes (replacing existing axes on the
@@ -34,10 +36,26 @@ function [xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %               'xyz'   accept up to x-axis, y-axis and z-axis limits
 %
 %   default_fig_name
-%               Default figure name for a 
+%               Default figure name if 'name' and 'axes' option(s) not given.
 %
-% Optional arguments:
+%   w           Primary plot data. Can be [] if no secondary data is permitted,
+%               that is, second_data_ok = false.
+%
+%   second_data_ok
+%               True:  Secondary data is permitted as an optional argument, but
+%                      is not obligatory.
+%               False: Secondary data is not permitted.
+%
+%   w1_data_name  Name of primary data for error messages e.g. 'z-data'
+%
+%   w2_data_name  Name of secondary data for error messages e.g. 'color data'
+%
+%
+% Optional input arguments:
 % 
+%   w2          Optional secondary data (only permitted if second_data_ok is
+%               true).
+%
 %   xlo, xhi    x-axis lower and upper limits.
 %
 %   ylo, yhi    y-axis lower and upper limits.
@@ -63,6 +81,10 @@ function [xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %
 % Output:
 % -------
+%   w2_out      Secondry data
+%               - If none present: set to []
+%               - If some present: w2_out = w2
+%
 %   xlims       [xlo, xhi] if valid limits
 %               [] if not given or both were empty (indicating 'skip')
 %
@@ -74,7 +96,7 @@ function [xlims, ylims, zlims] = genie_figure_parse_plot_args...
 keyval = struct('name', [], 'axes', []);
 [args, opt, present, ~, ok, mess] = parse_arguments(varargin, keyval);
 
-% Check input format (failure e.g. mis-spelt keywrod-value options)
+% Check input format (failure e.g. mis-spelt keyword-value options)
 if ~ok
     error('HERBERT:graphics:invalid_argument', mess)
 end
@@ -92,13 +114,35 @@ if force_current_axes && (present.name || present.axes)
         'plot on current axes'])
 end
 
+% Check if secondary data is permitted, and if so, if it present.
+if second_data_ok
+    if rem(numel(args),2)==1
+        % An odd number of postional arguments is present, which is only
+        % possible if secondary data is provided
+        ioffset = 1;
+        w2 = check_data_size (w, args{1}, w1_data_name, w2_data_name);
+    else
+        ioffset = 0;
+        w2 = [];
+    end
+else
+    % No secondary data permitted
+    w2 = [];    % need to return a value
+    ioffset = 0;    
+end
+
 % Check the optional limits have correct format
 if newplot
-    [xlims, ylims, zlims, ok, mess] = check_plot_limits (lims_type, args{:});
+    [xlims, ylims, zlims, ok, mess] = check_plot_limits (lims_type, ...
+        args{1+ioffset:end});
     if ~ok
         error('HERBERT:graphics:invalid_argument', mess)
     end
-elseif ~isempty(args)
+elseif isempty(args)
+    xlims = [];
+    ylims = [];
+    zlims = [];
+else
     error('HERBERT:graphics:invalid_argument', ...
         'Explicitly setting the plot limits if overplotting is not permitted')
 end

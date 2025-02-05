@@ -60,8 +60,8 @@ is_genie_figure
 
 genie_figure_all_handles 	*** Makes assumptions about the type
 								of plot objects we recognise
-genie_figure_parse_pot_args
-genie_figure_parse_pot_args2
+genie_figure_parse_plot_args
+genie_figure_parse_plot_args2
 
 	
 	
@@ -76,15 +76,6 @@ Horace: 1D objects don't understand da,ds etc, and 2D don't know dl, dp...
 		into 2D sqw object (bins not matching), and splitting 2D sqw is not 
 		obviously a useful thing to do.
 
-plot_oned, plot_twod can be tidied as a lot of argument checking is
-now done in genie_figure_parse_pot_args.
-
-get rid of verLessThan? When was it introduced?
-
 No 2D contour plot at the moment (dc, pc, pcoc)
-
-Implement smoothing in 2D
-
-colorslider needs tidying; can we bury colorslider_copmmand in private?
 
 mycolormaps, viewcolormap, one_color: overhaul!

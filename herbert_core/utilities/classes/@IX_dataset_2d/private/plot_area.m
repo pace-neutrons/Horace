@@ -1,12 +1,17 @@
 function plot_area (w)
 % Make area plot
 
-% Plot series of patch commands
+% Plot a series of patch commands
 nw = numel(w);
+
+plotted=false;
 for i=1:nw
-    if i==2; hold on; end   % hold on for array input
+    if plotted
+        hold on     % hold on for array input
+    end
     [xv,yv,z]=prepare_for_patch(w(i).x,w(i).y,w(i).signal);
     patch(xv,yv,z,'facecolor','flat','cdatamapping','scaled','edgecolor','none');
+    plotted=true;
 end
 
 % Make linear or log axes as required

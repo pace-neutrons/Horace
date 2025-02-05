@@ -1,8 +1,11 @@
-function [fig_h, axes_h, plot_h] = plot_twod (w, newplot, force_current_axes, ...
-    plot_type, varargin)
+function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, newplot, ...
+    force_current_axes, plot_type, varargin)
 % Make a plot of an IX_dataset_2d object or array of objects.
 %
-%   >> plot_twod (w_in, newplot, force_current_axes, plot_type)
+%   >> plot_twod (w, alternate_cdata_ok, newplot, force_current_axes, plot_type)
+%   >> plot_twod (w, alternate_cdata_ok, newplot, force_current_axes, plot_type, wcol)
+%
+% With either of the above:
 %   >> plot_twod (..., xlo, xhi)
 %   >> plot_twod (..., xlo, xhi, ylo, yhi)
 %   >> plot_twod (..., xlo, xhi, ylo, yhi, zlo, zhi)
@@ -23,7 +26,18 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, newplot, force_current_axes, ..
 %
 % Input:
 % ------
-%   w           IX_dataset_1d object, or array of IX_dataset_1d objects
+%   w           IX_dataset_2d object, or array of IX_dataset_2d objects:
+%                   - The signal provides the z-data.
+%
+%   alternate_cdata_ok
+%               If the plot type requires independent color-data (such as
+%               plot type 'surface2'), then depending on the value of this flag:
+%                False: 
+%                   - The standard errors in w provide that color data
+%                True:  
+%                   - The standard errors in w provide that color data if there
+%                     is no second argument wcol or it is empty.
+%                   - The signal in wcol provides that data, if it is not empty.
 %
 %   newplot     True:  Draw the plot on new axes (replacing existing axes on the
 %                     target figure if necessary).
@@ -37,15 +51,26 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, newplot, force_current_axes, ..
 %                      neither option is given.
 %
 %   plot_type   Type of plot to be drawn:
-%                   'e'     errors =  error bars
-%                   'h'     histogram =  histogram plot
-%                   'l'     line   =  line
-%                   'm'     markers = marker symbols
-%                   'd'     data   =  markers, error bars and lines
-%                   'p'     points =  markers and error bars
+%                   'area'      area plot
+%                   'surface'   surface plot
+%                   'surface2'  surface plot where the first object sets
+%                              the z-scale, and the seconds sets the colour
+%                              scale.
 %
 % Optional arguments:
 % 
+%   wcol        If plotting z-axis and color scale independently:
+%                   - IX_dataset_2d object or array of IX_dataset_2d objects
+%                     the number of which and whose signal array size(s) match
+%                     those the input argument w.
+%                   - Any object or array of objects with a method sigvar that
+%                     returns a signal array, and which satisfies the above size
+%                     criteria.
+%                   - Numeric array or cell array of numeric arrays that give
+%                     the color data
+%               If not needed to provide a separate source of color data, omit
+%               wcol or set to [].
+%
 %   xlo, xhi    x-axis lower and upper limits.
 %
 %   ylo, yhi    y-axis lower and upper limits.
@@ -74,26 +99,16 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, newplot, force_current_axes, ..
 
 
 lims_type = 'xyz';
-maxspec = 1000;     % maximum number of 1D datasets that can be plotted
+maxspec = 1000;     % maximum number of 2D datasets that can be plotted
 default_fig_name = data_plot_interface.default_name();
 
-plot_types={'area', 'surface', 'surface2', 'contour'};
-
-par=varargin;
+plot_types={'area', 'surface', 'surface2'};
 
 
 % Check input arguments
 % ---------------------
 % Check the number of datasets in the array is not too large
-if ~iscell(w)
-    nspec = numel(w);
-else
-    % **************************************
-    % *** WHEN MIGHT w BE A CELL ARRAY ? ***
-    % **************************************
-    nspec = numel(w{1});
-end
-if nspec > maxspec
+if numel(w) > maxspec
     error('HERBERT:graphics:invalid_argument', ...
         ['A maximum number of %s 2D datasets can be plotted at once. ', ...
         'Check the size of the input object array'], num2str(maxspec))
@@ -130,48 +145,46 @@ else
         disp2str(plot_type));
 end
 
-% Set the default figure name for the requested plot_type
-if ~is_string(default_fig_name)
-    switch plot_type
-        case 'area'
+% Set the default figure name for the requested plot_type and configuration
+% parameters for argument parsing
+switch plot_type
+    case 'area'
+        if ~is_string(default_fig_name)
             default_fig_name = 'Herbert area plot';
-        case 'surface'
+        end
+        alternate_cdata_ok = false;
+        w1_data_name = '';
+        w2_data_name = '';
+    case 'surface'
+        if ~is_string(default_fig_name)
             default_fig_name = 'Herbert surface plot';
-        case 'surface2'
+        end
+        alternate_cdata_ok = false;
+        w1_data_name = '';
+        w2_data_name = '';
+    case 'surface2'
+        if ~is_string(default_fig_name)
             default_fig_name = 'Herbert surface plot';
-    end
+        end
+        alternate_cdata_ok = true;
+        w1_data_name = 'z-data';
+        w2_data_name = 'color data';
 end
 
-% Parse the optional arguments
-[target, lims] = genie_figure_parse_plot_args (newplot, force_current_axes, ...
-    lims_type, varargin{:});
-
-% Get figure name or figure handle - used to branch later on
-[fig_out,ok,mess]=genie_figure_target(fig,newplot,default_fig_name);
-if ~ok
-    error(mess);
-end
+% Parse the optional arguments and set the plot target
+[wcol, xlims, ylims, zlims] = genie_figure_parse_plot_args (newplot, ...
+    force_current_axes, lims_type, default_fig_name, ...
+    w, alternate_cdata_ok, w1_data_name, w2_data_name, varargin{:});
 
 
 % Perform plot
 % ------------
-% Create new graphics window if required
-if is_string(fig_out)
-    new_figure = genie_figure_create (fig_out);
-    if new_figure
-        newplot=true;   % if had to create a new figure window
-    end
-else
-    figure(fig_out); % overplotting on existing plot; make the current figure
-end
-
 % If newplot, delete any axes
 if newplot
-    delete(gca)     % not necessary if new_figure, but doesn't do any harm
+    delete(gca)     % not necessary if a new figure, but doesn't do any harm
 else
-    hold on;        % hold plot for overplotting
+    hold on;        % hold the existing plot for overplotting
 end
-
 
 % Plot data (already checked that it is valid)
 switch plot_type
@@ -191,53 +204,38 @@ switch plot_type
         if newplot
             view(3)                 % default line of sight for 3D if newplot
         end
-        plot_surface2 (w);
+        plot_surface2 (w, wcol);
         set(gca, 'layer', 'top')    % puts axes layer on the top
         
     otherwise
-        error('HERBERT:plot_twod:invalid_argument', ...
+        error('HERBERT:graphics:invalid_argument', ...
             ['Logic error: unrecognised plot type ''%s''\n', ...
-            'Please contact developers'], plot_type)       
+            'Please contact the developers.'], plot_type)     
 end
 hold off    % release plot (could have been held for overplotting, for example)
 
 
+% If a newplot, add axes annotations, title, tick marks, change limits etc.
 if newplot
     % Add axes annotations and title
-    if ~iscell(w)
-        [tx, ty, tz] = make_label(w(1));    % Create axis annotations
-        tt = w(1).title(:);
-        xticks = w(1).x_axis.ticks;
-        yticks = w(1).y_axis.ticks;
-        zticks = w(1).s_axis.ticks;
-    else
-        % **************************************
-        % *** WHEN MIGHT w BE A CELL ARRAY ? ***
-        % **************************************
-        [tx, ty, tz] = make_label(w{1}(1)); % Create axis annotations
-        tt = w{1}(1).title(:);
-        xticks = w{1}(1).x_axis.ticks;
-        yticks = w{1}(1).y_axis.ticks;
-        zticks = w{1}(1).s_axis.ticks;
-    end
+    [tx, ty, tz] = make_label(w(1));    % Create axis annotations
+    tt = w(1).title(:);
     % This may need to be MATLAB version specific:
     % tt = convertCharsToStrings(tt);
-    if any(contains(tt,'$'))
-        inter= 'latex';
+    if any(contains(tt, '$'))
+        inter = 'latex';
     else
-        inter= 'tex';
+        inter = 'tex';
     end
     title(tt, 'FontWeight', 'normal', 'interpreter', inter);
     xlabel(tx);
-    ylabel(ty);
-    % *******************************
-    %  Cleverer way counting axes
-    % *******************************    
-    if ~strcmpi(plot_type,'area')   % don't try to plot along z axis if just an area plot
+    ylabel(ty); 
+    if numel(axis()/2) > 3      % axis()/2 gives the number of axes of the plot
         zlabel(tz)
     end
     
     % Change ticks
+    xticks = w(1).x_axis.ticks;
     if ~isempty(xticks.positions)
         set(gca, 'XTick', xticks.positions)
     end
@@ -245,6 +243,7 @@ if newplot
         set(gca, 'XTickLabel', xticks.labels)
     end
     
+    yticks = w(1).y_axis.ticks;
     if ~isempty(yticks.positions)
         set(gca, 'YTick', yticks.positions)
     end
@@ -252,6 +251,7 @@ if newplot
         set(gca, 'YTickLabel', yticks.labels)
     end
     
+    zticks = w(1).s_axis.ticks;
     if ~isempty(zticks.positions)
         set(gca, 'ZTick', zticks.positions)
     end
@@ -260,18 +260,18 @@ if newplot
     end
 
     % Change limits if they are provided
-    if isempty(lims)
+    if isempty(xlims) && isempty(ylims) && isempty(zlims)
         axis tight  % might want to change the default for case of no limits?
     else
         axis tight
-        if numel(lims)>=2
-            lx(lims(1), lims(2))    % set x-axis limits
+        if ~isempty(xlims)
+            lx(xlims(1), xlims(2))
         end
-        if numel(lims)>=4
-            ly(lims(3), lims(4))    % set y-axis limits
+        if ~isempty(ylims)
+            lx(ylims(1), ylims(2))
         end
-        if numel(lims)>=6
-            lz(lims(5), lims(6))    % set z-axis limits
+        if ~isempty(zlims)
+            lx(zlims(1), zlims(2))
         end
     end
     

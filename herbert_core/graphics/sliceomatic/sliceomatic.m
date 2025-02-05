@@ -76,9 +76,13 @@ function varargout=sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis
 %
 % -------------------------------------------------------------------------
 % RAL modificications to work on ISIS data
-%   - Various modification by e-Science Team May 2003
+%   - Various modification by RAL e-Science Team May 2003
 %   - Addition modifications, T.G.Perring July 2005 - various quick fixes
 %     to solve apparent inconsistencies with isosurfaces and slicing.
+%   - Further mods by Ibon Bustinduy at RAL.
+%   - Changes to made all ancilliary functions private, multiple wondows open by
+%     Dean Whittaker while at RAL.
+% -------------------------------------------------------------------------
 %
 % Syntax:
 %   >> sliceomatic (U1, U2, U3, S, xlabel, ylabel, zlabel,...

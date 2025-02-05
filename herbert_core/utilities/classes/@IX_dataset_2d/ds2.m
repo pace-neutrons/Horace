@@ -1,4 +1,4 @@
-function varargout = ds2(w,varargin)
+function varargout = ds2(w, varargin)
 % Draw a surface plot of an IX_dataset_2d or array of IX_dataset_2d
 % with possibility of providing second dataset as the source of image
 % scales.
@@ -27,9 +27,10 @@ function varargout = ds2(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ds2(...)
 
-opt=struct('newplot',true,'lims_type','xyz');
-[fig_,axes_,plot_] = plot_2d_nd_oc_(w,nargout,'surface2',opt,varargin{:});
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+newplot = true;
+force_current_axes = false;
+alternate_cdata_ok = true;
+
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_twod(w, alternate_cdata_ok, newplot, ...
+    force_current_axes, 'surface2', varargin{:});

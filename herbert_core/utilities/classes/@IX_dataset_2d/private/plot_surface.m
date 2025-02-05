@@ -1,13 +1,15 @@
 function plot_surface (w)
 % Make surface plot
 
-% Plot series of patch commands
+% Plot a series of calls to the surface function
 nw = numel(w);
 
 warning_printed=false;
 plotted=false;
 for i=1:nw
-    if plotted; hold on; end   % hold on for array input
+    if plotted
+        hold on     % hold on for array input
+    end   
     if any(size(w(i).signal)<=1)
         if ~warning_printed
             disp('WARNING: One or more surfaces not plotted')
@@ -16,7 +18,8 @@ for i=1:nw
         end
     else
         [xv,yv,z]=prepare_for_surface(w(i).x,w(i).y,w(i).signal);
-        surface(xv,yv,z,'facecolor','interp','cdatamapping','scaled','edgecolor','none');
+        surface(xv,yv,z,'facecolor','interp','cdatamapping','scaled', ...
+            'edgecolor','none');
         plotted=true;
     end
 end
