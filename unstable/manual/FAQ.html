@@ -125,12 +125,10 @@ experimental conditions (<span class="math notranslate nohighlight">\(E_i\)</spa
 include them. For example, suppose you had the same values of <span class="math notranslate nohighlight">\(\psi\)</span> and
 <span class="math notranslate nohighlight">\(E_i\)</span> for <code class="docutils literal notranslate"><span class="pre">file1</span></code> and <code class="docutils literal notranslate"><span class="pre">fileN-1</span></code>, and <code class="docutils literal notranslate"><span class="pre">file2</span></code> and <code class="docutils literal notranslate"><span class="pre">fileN</span></code>, in the
 example below:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span>my_files={&#39;file1&#39;,&#39;file2&#39;,&#39;file3&#39;,..,&#39;fileN-1&#39;,&#39;fileN};
-...
-psi=[1,2,3,..,1,2]
-...
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_files</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;file1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;file2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;file3&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">, &#39;fileN-1&#39;, &#39;fileN};</span>
+<span class="nb">psi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">, 1, 2]</span>
 
-gen_sqw(..,my_files,..psi,..)
+<span class="n">gen_sqw</span><span class="p">(</span><span class="k">...</span><span class="c">, my_files, ..., psi, ...)</span>
 </pre></div>
 </div>
 <p>In the resulting <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file the data from <code class="docutils literal notranslate"><span class="pre">file1</span></code> and <code class="docutils literal notranslate"><span class="pre">fileN-1</span></code>, and
@@ -242,7 +240,7 @@ help you.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 5, 2025, 3:11:51 PM.
+      <span class="lastupdated">Last updated on Feb 5, 2025, 3:45:35 PM.
       </span></p>
   </div>
 

@@ -57,10 +57,10 @@
 <li class="toctree-l2"><a class="reference internal" href="dnd_vs_sqw.html">dnd vs sqw: the difference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gpo_fitting_spinw.html">GPO fitting SpinW</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Horace Diagnostics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#generating-data">Generating data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-the-data">Generating the data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-inspector">Run inspector</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#understanding-data-from-a-single-orientation">Understanding data from a single orientation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id1">Generating data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#generating-data">Generating data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#coordinates-calc"><code class="docutils literal notranslate"><span class="pre">coordinates_calc</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#hkle"><code class="docutils literal notranslate"><span class="pre">hkle</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#putting-it-all-together">Putting it all together</a></li>
@@ -118,8 +118,8 @@ features in your data.</p>
 <p><a class="reference internal" href="#whole-script">Whole script</a> available here.</p>
 <p>This will take you through all the steps from generation, spurion
 spotting, and analysis.</p>
-<section id="generating-data">
-<h2>Generating data<a class="headerlink" href="#generating-data" title="Permalink to this heading"></a></h2>
+<section id="generating-the-data">
+<h2>Generating the data<a class="headerlink" href="#generating-the-data" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Take a cut from an sqw file, to get a dispersion plot. Ensure we</span>
 <span class="c">% do not %select the -nopix option. While this means that the object</span>
 <span class="c">% &quot;cs&quot; will be larger in memory than with `-nopix`.</span>
@@ -210,8 +210,8 @@ measure with the sample in a single orientation. You can then
 integrate between +/- infinity on the axes where there is no
 dispersion.  This improves statistics without the need to count lots
 of different orientations and hence is much faster.</p>
-<section id="id1">
-<h3>Generating data<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<section id="generating-data">
+<h3>Generating data<a class="headerlink" href="#generating-data" title="Permalink to this heading"></a></h3>
 <p>Generate a suitable sqw file, from a single orientation (see Taylor et
 al for an explanation of the science of this particular material).</p>
 <div class="admonition note">
@@ -501,7 +501,7 @@ a problem, and then restrict the range of L to avoid this:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 5, 2025, 3:11:51 PM.
+      <span class="lastupdated">Last updated on Feb 5, 2025, 3:45:35 PM.
       </span></p>
   </div>
 

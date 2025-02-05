@@ -165,7 +165,9 @@ full sqw dataset, then only the binned data will be read.</p>
 <h2><span class="section-number">8.1. </span>save<a class="headerlink" href="#save" title="Permalink to this heading"></a></h2>
 <p>There are two ways of saving <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to files on disk.</p>
 <p>First – use MATLAB <code class="docutils literal notranslate"><span class="pre">save</span></code> command, which would
-save objects from memory into MATLAB <code class="docutils literal notranslate"><span class="pre">.mat</span></code> files:</p>
+save objects from memory into MATLAB <code class="docutils literal notranslate"><span class="pre">.mat</span></code> files, and second one – using
+Horace overload for <code class="docutils literal notranslate"><span class="pre">save</span></code> command in storing objects in <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file format.
+MATLAB command works the same as for any MATLAB variable:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span><span class="s">&#39;variable1_name&#39;</span><span class="p">,</span><span class="s">&#39;variable2_name&#39;</span><span class="p">,</span><span class="k">...</span><span class="c">);</span>
 </pre></div>
 </div>
@@ -221,7 +223,7 @@ write this object. It will be possible to restore the object later by accessing 
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 5, 2025, 3:11:51 PM.
+      <span class="lastupdated">Last updated on Feb 5, 2025, 3:45:35 PM.
       </span></p>
   </div>
 

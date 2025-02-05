@@ -128,7 +128,7 @@
 <p>as well as a generic way of interfacing with modelling codes you may want to use with Horace.</p>
 <p>We also note that the <a class="reference external" href="https://brille.github.io">Brille library</a> for <span class="math notranslate nohighlight">\(q\)</span>-space interpolation
 is also a PACE project and is used internally by Euphonic and SpinW to speed up calculations.
-Documentation for how to accomplish may be found in the relevant Euphonic and SpinW documentation.</p>
+Documentation for how to accomplish this may be found in the relevant Euphonic and SpinW documentation.</p>
 <nav class="contents local" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
@@ -232,19 +232,18 @@ then clicking “Add-Ons” and “Get Add-Ons”:</p>
 <p>Because <cite>Euphonic</cite> is a Python program, you need to have Python setup on your system,
 and to tell Matlab about this.
 Please see <a class="reference external" href="https://horace-euphonic-interface.readthedocs.io/en/latest/#set-up-python-in-matlab">here</a>
-for more detailed information.</p>
-<p>If you haven’t installed the <cite>Euphonic</cite> Python package then you can do this within Horace using:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">euphonic</span><span class="p">.</span><span class="n">install_python_modules</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>This may not work for all Python distributions, in which case you should install Euphonic manually.
-Euphonic can be installed with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">euphonic</span></code> in the Python command line,
-but there are also other ways of installing Euphonic, which are detailed in the
-<a class="reference external" href="https://euphonic.readthedocs.io/en/stable/installation.html">Euphonic installation instructions</a>.</p>
+for more detailed information.
+Also, please note that there are restrictions on the supported Python versions for a given
+Matlab version.
+Please see <a class="reference external" href="https://www.mathworks.com/support/requirements/python-compatibility.html">here</a>
+for a table.</p>
+<p>In addition, you should also have the <cite>Euphonic</cite> Python package installed in the Python
+environment you have set up in Matlab. Please see details in the
+<a class="reference external" href="https://euphonic.readthedocs.io/en/stable/installation.html">Euphonic installation instructions</a>.
+We recommend using the Conda installation.</p>
 <p>On the <a class="reference external" href="https://isis.analysis.stfc.ac.uk/">IDAaaS system</a>, you can access the pre-installed
 Euphonic Python environment using:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">pyenv</span><span class="p">(</span><span class="s">&#39;Version&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;/usr/local/virtualenvs/euphonicenv/bin/python3&#39;</span><span class="p">);</span>
-<span class="n">py</span><span class="p">.</span><span class="n">sys</span><span class="p">.</span><span class="n">setdlopenflags</span><span class="p">(</span><span class="nb">int32</span><span class="p">(</span><span class="mi">10</span><span class="p">));</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">pyenv</span><span class="p">(</span><span class="s">&#39;Version&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;/opt/euphonic/bin/python&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Note that this should be done at the start of a Matlab session.
@@ -308,14 +307,15 @@ in Horace to that used by the phonon model (i.e. that used in the <em>ab initio<
 This is needed if, for example, a primitive unit cell is used in the <em>ab initio</em> calculation
 but the Horace data is defined using a conventional unit cell.
 By default it is set to the identity matrix.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">debye_waller_grid</span></code> parameter is the size of the (Monhkhorst-Pack) <span class="math notranslate nohighlight">\(q\)</span>-space grid
+<li><p>The <code class="docutils literal notranslate"><span class="pre">debye_waller_grid</span></code> parameter is the size of the (Monkhorst-Pack) <span class="math notranslate nohighlight">\(q\)</span>-space grid
 to use for the Brillouin zone integration needed to calculate the Debye-Waller factor.
-Higher values will yield a more accurate calculation but the <span class="math notranslate nohighlight">\(6 \times 6 \times 6\)</span> is sufficient in most cases.</p></li>
+Higher values will yield a more accurate calculation but the <span class="math notranslate nohighlight">\(6 \times 6 \times 6\)</span> grid
+is sufficient in most cases.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">temperature</span></code> is in Kelvin.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">asr</span></code> parameter specifies whether and how the <em>acoustic sum rule</em> (ASR) correction should be applied:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">reciprocal</span></code> applies the ASR correction to the dynamical matrix at every <span class="math notranslate nohighlight">\(q\)</span>-point (recommended).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">realspace</span></code> applies the ASR correction is applied to the force constant matrix in real space.
+<li><p><code class="docutils literal notranslate"><span class="pre">realspace</span></code> applies the ASR correction to the force constant matrix in real space.
 This method is known to fail for polar systems.</p></li>
 </ul>
 <p>If this parameter is not specified, the ASR correction is not applied.
@@ -456,8 +456,9 @@ That was the case above where <code class="docutils literal notranslate"><span c
 <li><p>The first Horace-fittable parameter <code class="docutils literal notranslate"><span class="pre">p(1)</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">J_1</span></code> named matrix and that matrix should be set to <code class="docutils literal notranslate"><span class="pre">eye(3)*p(1)</span></code>.</p></li>
 <li><p>The second Horace-fittable parameter <code class="docutils literal notranslate"><span class="pre">p(2)</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">K</span></code> named matrix and that one the matrix element should be set as <code class="docutils literal notranslate"><span class="pre">K(3,3)=p(2)</span></code>.</p></li>
 </ul>
-<p>For example, if the user wants both an anisotropy along <span class="math notranslate nohighlight">\(z\)</span> and <span class="math notranslate nohighlight">\(x\)</span> which can vary independently,
-they can set <code class="docutils literal notranslate"><span class="pre">'mat',</span> <span class="pre">{'K(1,1)',</span> <span class="pre">'K(3,3)'}</span></code>.</p>
+<p>For example, if the user wants two independent axial anisotropies along the <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(z\)</span> directions,
+they can set <code class="docutils literal notranslate"><span class="pre">'mat',</span> <span class="pre">{'K(1,1)',</span> <span class="pre">'K(3,3)'}</span></code>, indicating that the first parameter <code class="docutils literal notranslate"><span class="pre">p(1)</span></code> is the <span class="math notranslate nohighlight">\(x\)</span> direction
+anisotropy and the second parameter <code class="docutils literal notranslate"><span class="pre">p(2)</span></code> is the <span class="math notranslate nohighlight">\(z\)</span> direction anisotropy.</p>
 <p>In more complex cases, for example for a DM interaction where multiple elements of a named matrix are dependent,
 the <code class="docutils literal notranslate"><span class="pre">selector</span></code> argument should be given:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">vec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1</span><span class="w"> </span><span class="mf">0.2</span><span class="w"> </span><span class="mf">0.3</span><span class="p">];</span>
@@ -479,12 +480,12 @@ in the Cartesian <span class="math notranslate nohighlight">\(x\)</span>, <span 
 In each case, two elements of the <code class="docutils literal notranslate"><span class="pre">DM</span></code> matrix should be varied together, which is indicated by the <code class="docutils literal notranslate"><span class="pre">sel</span></code> array.</p>
 <p>In addition to <code class="docutils literal notranslate"><span class="pre">mat</span></code> and <code class="docutils literal notranslate"><span class="pre">selector</span></code>, <code class="docutils literal notranslate"><span class="pre">horace_sqw</span></code> also takes some other arguments:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">'usefast'</span></code> - This tells <code class="docutils literal notranslate"><span class="pre">horace_sqw</span></code> to use a faster but slightly less accurate code than <code class="docutils literal notranslate"><span class="pre">spinwave</span></code>. In particular, this code achieves a speed gain by:</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">'usefast'</span></code> - This tells <code class="docutils literal notranslate"><span class="pre">horace_sqw</span></code> to use a faster, more memory efficient but slightly less accurate code than <code class="docutils literal notranslate"><span class="pre">spinwave</span></code>. In particular, this code achieves its speed gain and lower memory usage by:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Only calculating <code class="docutils literal notranslate"><span class="pre">Sperp</span></code> rather than the full <span class="math notranslate nohighlight">\(S^{\alpha\beta}\)</span> tensor</p></li>
+<li><p>Only calculating the perpendicular component <span class="math notranslate nohighlight">\(S_{\text{perp}}\)</span> rather than the full <span class="math notranslate nohighlight">\(S^{\alpha\beta}\)</span>
+spin-spin correlation tensor, as neutron scattering is only sensitive to <span class="math notranslate nohighlight">\(S_{\text{perp}}\)</span>.</p></li>
 <li><p>Only calculating magnon creation (positive energy / neutron energy loss) modes.</p></li>
-<li><p>Ignoring twins</p></li>
 </ul>
 </div></blockquote>
 </li>
@@ -506,12 +507,12 @@ which is a half-doped bilayer manganite with an intriguing magnetic ground state
 This was the subject of differing models of the exchange interactions deduced from diffraction data
 and was eventually resolved by inelastic neutron measurements.
 For details, please see <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.109.237202">G.E. Johnstone et al.</a>
-and <a class="reference external" href="https://doi.org/10.1103/PhysRevB.94.014405">Ewings et al.</a>.</p>
+and <a class="reference external" href="https://doi.org/10.1103/PhysRevB.94.014405">R. A. Ewings et al.</a>.</p>
 <p>The following code simulates a 2D slice with resolution convolution using the parameters found by <cite>Johnstone et al.</cite>
 The <cite>SpinW</cite> model can be downloaded <a class="reference external" href="https://spinw.org/RealWorldExample/matlab/prcasrmn2o7.m">here</a>
 and the data file is <a class="reference external" href="https://github.com/pace-neutrons/pace-python-demo/blob/main/datafiles/pcsmo_cut1.sqw">here</a>.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Create a cut of the data</span>
-<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ortho_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">)</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">)</span>
 <span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut_sqw</span><span class="p">(</span><span class="s">&#39;pcsmo_cut1.sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">])</span>
 
 <span class="c">% Defines the sample and instrument parameters</span>
@@ -584,10 +585,10 @@ We will use the example of spin waves in bcc-Iron, where the scattering function
 <p>where <span class="math notranslate nohighlight">\(I_0\)</span> is an amplitude (intensity scaling) parameter,
 <span class="math notranslate nohighlight">\(\Gamma\)</span> is an energy width parameter, <span class="math notranslate nohighlight">\(\Delta\)</span> is an energy gap parameter,
 and <span class="math notranslate nohighlight">\(J\)</span> is an exchange parameter to be fitted.
-Thus <span class="math notranslate nohighlight">\(E_0(E)\)</span> is the <em>dispersion relation</em>, <span class="math notranslate nohighlight">\(\mathcal{N}_(T)\)</span> is the thermal population (Bose) factor
+Thus <span class="math notranslate nohighlight">\(E_0(\mathbf{Q})\)</span> is the <em>dispersion relation</em>, <span class="math notranslate nohighlight">\(\mathcal{N}(E)\)</span> is the thermal population (Bose) factor
 where <span class="math notranslate nohighlight">\(k_B\)</span> is Boltzmann’s constant and <span class="math notranslate nohighlight">\(T\)</span> the sample temperature.
 <span class="math notranslate nohighlight">\(F(q)\)</span> is the magnetic form factor for metallic iron with <span class="math notranslate nohighlight">\(q = \sqrt{q_h^2 + q_k^2 + q_l^2}/(4a^2)\)</span>,
-where <span class="math notranslate nohighlight">\(a=2.87~\text{Å}\)</span> is the lattice parameter of bcc-Iron and the parameters <span class="math notranslate nohighlight">\(A=0.0706\)</span>, <span class="math notranslate nohighlight">\(a=35.008\)</span>,
+where <span class="math notranslate nohighlight">\(a=2.87~\text{Å}\)</span> is the lattice parameter of bcc-Iron and the parameters are <span class="math notranslate nohighlight">\(A=0.0706\)</span>, <span class="math notranslate nohighlight">\(a=35.008\)</span>,
 <span class="math notranslate nohighlight">\(B=0.3589\)</span>, <span class="math notranslate nohighlight">\(b=15.358\)</span>, <span class="math notranslate nohighlight">\(C=0.5819\)</span>, <span class="math notranslate nohighlight">\(c=5.561\)</span>, and <span class="math notranslate nohighlight">\(D=-0.0114\)</span>.</p>
 <p>The data file for the code examples below can be downloaded from
 <a class="reference external" href="https://github.com/pace-neutrons/pace-python-demo/blob/main/datafiles/fe_cut.sqw">here</a>.</p>
@@ -627,7 +628,7 @@ Put the following into a file called <code class="docutils literal notranslate">
 </div>
 <p>For simplicity we have passed the sample temperature as a fit variable but it should be fixed in the fitting:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Make a cut of the data</span>
-<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">ortho_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
 <span class="n">w_fe</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut_sqw</span><span class="p">(</span><span class="s">&#39;fe_cut.sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.05</span><span class="p">,</span><span class="o">-</span><span class="mf">0.95</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">70</span><span class="p">,</span><span class="w"> </span><span class="mi">90</span><span class="p">]);</span>
 
 <span class="c">% Define starting parameters</span>
@@ -685,9 +686,9 @@ This is accessed using the <code class="docutils literal notranslate"><span clas
 we must now wrap this Python function in a Matlab <em>anonymous function</em> (equivalent to a Python <em>lambda</em> function):</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">fe_sqw_py</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">h</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">temperature</span><span class="p">)</span><span class="w"> </span><span class="nb">double</span><span class="p">(</span><span class="n">py</span><span class="p">.</span><span class="n">fe_module</span><span class="p">.</span><span class="n">fe_function</span><span class="p">(</span><span class="w"> </span><span class="k">...</span>
 <span class="w">             </span><span class="n">py</span><span class="p">.</span><span class="n">numpy</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">h</span><span class="p">),</span><span class="w"> </span><span class="n">py</span><span class="p">.</span><span class="n">numpy</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="n">py</span><span class="p">.</span><span class="n">numpy</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">),</span><span class="w"> </span><span class="k">...</span>
-<span class="w">             </span><span class="n">py</span><span class="p">.</span><span class="n">numpy</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">en</span><span class="p">),</span><span class="w"> </span><span class="n">py</span><span class="p">.</span><span class="n">numpy</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">p</span><span class="p">)),</span><span class="w"> </span><span class="n">temperature</span><span class="p">);</span>
+<span class="w">             </span><span class="n">py</span><span class="p">.</span><span class="n">numpy</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">e</span><span class="p">),</span><span class="w"> </span><span class="n">py</span><span class="p">.</span><span class="n">numpy</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">p</span><span class="p">),</span><span class="w"> </span><span class="n">temperature</span><span class="p">));</span>
 <span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit_sqw</span><span class="p">(</span><span class="n">w_fe</span><span class="p">)</span>
-<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="w"> </span><span class="p">(@</span><span class="n">fe_sqw_py</span><span class="p">,</span><span class="w"> </span><span class="p">{[</span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="p">,</span><span class="w"> </span><span class="n">gam</span><span class="p">,</span><span class="w"> </span><span class="n">amp</span><span class="p">]</span><span class="w"> </span><span class="n">temp</span><span class="p">})</span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="w"> </span><span class="p">(</span><span class="n">fe_sqw_py</span><span class="p">,</span><span class="w"> </span><span class="p">{[</span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="p">,</span><span class="w"> </span><span class="n">gam</span><span class="p">,</span><span class="w"> </span><span class="n">amp</span><span class="p">]</span><span class="w"> </span><span class="n">temp</span><span class="p">})</span>
 <span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bfun</span><span class="w"> </span><span class="p">(@</span><span class="n">linear_bg</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span>
 <span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bfree</span><span class="w"> </span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span>
 <span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="w"> </span><span class="n">fitdata</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">fit</span><span class="p">();</span>
@@ -773,7 +774,7 @@ hence the final argument in the call to <code class="docutils literal notranslat
 <span class="w">        </span><span class="n">e2E02</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">en</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">en</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">E0</span><span class="o">*</span><span class="n">E0</span><span class="p">);</span>
 <span class="w">        </span><span class="n">game</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gam</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">en</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
 <span class="w">        </span><span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">ff</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ff</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">amp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">en</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">exp</span><span class="p">(</span><span class="mf">-11.602</span><span class="o">*</span><span class="n">en</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">tt</span><span class="p">)))</span>
-<span class="w">                    </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">gam</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">om</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">e2E02</span><span class="o">*</span><span class="n">e2E02</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">game</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">game</span><span class="p">);</span>
+<span class="w">                    </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">gam</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">E0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">e2E02</span><span class="o">*</span><span class="n">e2E02</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">game</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">game</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="p">}</span>
@@ -872,7 +873,7 @@ same script as above, except that the function is now:</p>
 <span class="w">                     </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">gam</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">E0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">e2E02</span><span class="o">*</span><span class="n">e2E02</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">game</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">game</span><span class="p">);</span>
 <span class="w">    </span><span class="k">end do</span>
 
-<span class="k">end subroutine </span><span class="n">user_model_sqw</span>
+<span class="k">end subroutine </span><span class="n">fe_f90_func</span>
 </pre></div>
 </div>
 <p>Compile it using:</p>
@@ -901,7 +902,7 @@ same script as above, except that the function is now:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 5, 2025, 3:11:51 PM.
+      <span class="lastupdated">Last updated on Feb 5, 2025, 3:45:35 PM.
       </span></p>
   </div>
 

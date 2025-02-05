@@ -71,7 +71,9 @@ save
 There are two ways of saving ``sqw`` or ``dnd`` objects to files on disk.
 
 First -- use MATLAB ``save`` command, which would 
-save objects from memory into MATLAB ``.mat`` files:
+save objects from memory into MATLAB ``.mat`` files, and second one -- using
+Horace overload for ``save`` command in storing objects in ``sqw`` file format.
+MATLAB command works the same as for any MATLAB variable:
 
 .. code-block:: matlab
 

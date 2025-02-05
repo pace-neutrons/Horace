@@ -16,7 +16,6 @@
       <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
       <script src="../_static/doctools.js?v=888ff710"></script>
       <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
-      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -60,7 +59,7 @@
 <li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">12. Binary operations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#introduction">12.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#overview">12.1. Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#sqw-objects">12.2. sqw objects</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#single-sqw-object">12.2.1. Single sqw object</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#array-of-sqw-objects">12.2.2. Array of sqw objects</a></li>
@@ -124,53 +123,48 @@
              
   <section id="binary-operations">
 <h1><span class="section-number">12. </span>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this heading"></a></h1>
-<section id="introduction">
-<h2><span class="section-number">12.1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<section id="overview">
+<h2><span class="section-number">12.1. </span>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
 <p>Binary operations between two objects can be applied in a variety of ways in
 Horace. You can either use the symbolic form (<code class="docutils literal notranslate"><span class="pre">+</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code> , <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">/</span></code>,
 <code class="docutils literal notranslate"><span class="pre">\</span></code>), or you can use the explicit function names (<code class="docutils literal notranslate"><span class="pre">plus,</span> <span class="pre">minus,</span> <span class="pre">mtimes,</span>
-<span class="pre">mrdivide</span></code>, <code class="docutils literal notranslate"><span class="pre">mldivide</span></code>, etc.).</p>
-<p>Main Horace data objects (main from this chapter point of view) have binary operations defined between them
-excluding some special cases below.
-Here we call “main” the objects which are related to results of experiment and contain arrays of data
-obtained from experiment. These objects in order of their priority are:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="s">&#39;sqw&#39;</span><span class="p">,</span><span class="s">&#39;PixelDataBase&#39;</span><span class="p">,</span><span class="s">&#39;DnDBase&#39;</span><span class="p">,</span><span class="s">&#39;IX_dataset&#39;</span><span class="p">,</span><span class="s">&#39;sigvar&#39;</span><span class="p">,</span><span class="s">&#39;numbers and arrays of numbers&#39;</span>
+<span class="pre">mrdivide</span></code>, <code class="docutils literal notranslate"><span class="pre">mldivide</span></code>).</p>
+<p>Most Horace data objects have binary operations defined between them,
+and you can perform operations between objects of different classes,
+as long as the dimensions of the “image” contained in the objects agree
+and/or the size of “pixels” array are the same.
+As described in the <a class="reference internal" href="FAQ.html#what-is-the-difference-between-sqw-and-dnd-objects"><span class="std std-ref">FAQ</span></a>,
+Horace data objects may contain up to two parts: an “image”
+(histogrammed counts on a grid defined by the projection axes) and a set of “pixels”
+(the raw counts from the data per detector element and energy bin).
+The <code class="docutils literal notranslate"><span class="pre">sqw</span></code> class has both sets of information, whereas <code class="docutils literal notranslate"><span class="pre">d1d</span></code>, <code class="docutils literal notranslate"><span class="pre">d2d</span></code>, <code class="docutils literal notranslate"><span class="pre">d3d</span></code>, <code class="docutils literal notranslate"><span class="pre">d4d</span></code>,
+<code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code> and <code class="docutils literal notranslate"><span class="pre">sigvar</span></code> objects contain only the “image” information,
+and <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> objects contain only pixel information.</p>
+<p>Thus, you can perform a binary operation between an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object and any other Horace
+object (as long as the “image” dimensions and the number of “pixels” agree) because it
+contains both “image” and “pixel” data.
+However, you cannot perform a binary operation between a <code class="docutils literal notranslate"><span class="pre">d1d</span></code> and a <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> object
+because one only has “image” data and the other only has “pixel” data.</p>
+<p>You can perform a binary operation between a scalar number and any Horace data object.</p>
+<p>You can perform a binary operation between a numeric Matlab array and any Horace data object
+which contains an “image” as long as the array dimension and image dimension matches.</p>
+<p>The result of the binary operation has the same type as the more “complex” of the input objects,
+where “complexity” equates to the amount of information an object carries.
+That is, an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, which has both “image” and “pixel” data, is considered the most complex,
+whereas a <code class="docutils literal notranslate"><span class="pre">sigvar</span></code> object which just has count data (a signal and a variance array) but no
+coordinate information is considered the least complex.</p>
+<p>Thus, an operation between a <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and a <code class="docutils literal notranslate"><span class="pre">d3d</span></code> object will yield a <code class="docutils literal notranslate"><span class="pre">sqw</span></code> output.
+Such an operation will not only produce a different “image”, it will also change the “pixels”
+in order to maintain consistency between the two parts of the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> output object.
+For example, if you perform the operation:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w_sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w_sqw</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w_d2d_bkg</span>
 </pre></div>
 </div>
-<p>“Priority” here means that the operation between two different priority objects produces the object of higher priority.
-The priority of operations is defined by the amount of information stored in objects. We can
-identify three types of information used in operations.</p>
-<p>First is image information defined by <code class="docutils literal notranslate"><span class="pre">signal</span></code> and <code class="docutils literal notranslate"><span class="pre">variance</span></code> arrays (e.g. <code class="docutils literal notranslate"><span class="pre">s</span></code> and <code class="docutils literal notranslate"><span class="pre">e</span></code> arrays of <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects).</p>
-<p>Second is <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> information containing information about every or almost every “neutron event” occurring
-in experiment (e.g. <code class="docutils literal notranslate"><span class="pre">signal</span></code>, <code class="docutils literal notranslate"><span class="pre">variance</span></code>, <code class="docutils literal notranslate"><span class="pre">u1</span></code> and other contents of <code class="docutils literal notranslate"><span class="pre">PixelDataBase</span></code> classes).</p>
-<p>Third is the “complexity” of the data, i.e. <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object contain signal, variance and number of pixels contributing
-into each image cell, so its priority in operations is higher then <code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code> which contain only <code class="docutils literal notranslate"><span class="pre">signal</span></code> and <code class="docutils literal notranslate"><span class="pre">variance</span></code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The binary operations are undefined between the objects which contain only pixels and only image information
-e.g. operation between <code class="docutils literal notranslate"><span class="pre">PixelDataMemory</span></code> (pixels) and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object (image) is undefined.</p>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects contain both pixels and image information and this information is consistent.
-(See <a class="reference internal" href="#binary-operations-manager">Binary operations manager</a> on more about this)  As top priority Horace object,
-<code class="docutils literal notranslate"><span class="pre">sqw</span></code> object may participate in operations with any other primary Horace object.</p>
-<p>For two objects to be able to participate in binary operation their image size and shape and <code class="docutils literal notranslate"><span class="pre">pixel</span></code> size (number of elements)
-must be equal. Other possibility is that some information (pixel or image) is missing.
-Scalar number is the only exception from this rule, as operation with this is applied to every element of object’s data.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>When you perform operation between numeric arrays and <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, the array modifies image first.
-This means that shape and size of the array have to be consistent with shape and size of image.
-When operation with array is performed, pixels in <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object are modified to maintain consistency with
-modified image. Similar rules are applicable for operations between <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object and other objects containing
-image i.e. <code class="docutils literal notranslate"><span class="pre">dnd</span></code>,``IX_dataset`` and <code class="docutils literal notranslate"><span class="pre">sigvar</span></code> objects.</p>
-</div>
-<p>The more information an object has, the higher priority it has in operation,
-e.g. if you want to add <code class="docutils literal notranslate"><span class="pre">sqw</span></code> (Pixel + image information) and <code class="docutils literal notranslate"><span class="pre">IX_dataset</span></code> information,
-the result would be <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object as it has both pixel and image information. The resulting <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object
-pixel information is calculated from the images resulting in operation to maintain image-pixels consistency.
-Alternatively, the result of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> operation would be <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with image calculated
-from pixels changed by operation.</p>
-<p>Often used and most useful binary operations are described in more details below.</p>
+<p>where <code class="docutils literal notranslate"><span class="pre">w_sqw</span></code> is a <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object and <code class="docutils literal notranslate"><span class="pre">w_d2d_bkg</span></code> is a <code class="docutils literal notranslate"><span class="pre">d2d</span></code>, then <code class="docutils literal notranslate"><span class="pre">w_sub</span></code> will be a <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
+and the signal value of each “pixel” in <code class="docutils literal notranslate"><span class="pre">w_sub</span></code> which contributes to a particular bin (histogram)
+in the “image” of <code class="docutils literal notranslate"><span class="pre">w_sqw</span></code> will be reduced by the value of the corresponding bin in <code class="docutils literal notranslate"><span class="pre">w_d2d_bkg</span></code>
+divided by the number of “pixels” contributing to that bin.</p>
+<p>Commonly used binary operations are described in more detail below.</p>
 </section>
 <section id="sqw-objects">
 <h2><span class="section-number">12.2. </span>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this heading"></a></h2>
@@ -311,9 +305,9 @@ errors are accumulated in each operation so:</p>
 <p><code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects contain both pixels and image information and this information is consistent, i.e.
 image is calculated from pixels and pixels are sorted within <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> array in such a way that the block of
 pixels contributed into image bin(cell) is located in specific position of <code class="docutils literal notranslate"><span class="pre">PixelData</span></code> array and this position can be
-identified from image. The position <span class="math notranslate nohighlight">\(i_1\)</span> of the first pixel contributing into image bin(cell) number <span class="math notranslate nohighlight">\(n\)</span> is defined by
-formula: <span class="math notranslate nohighlight">\(i_1 = cumsum(sqw.data.npix(1:n-1))+1\)</span> and the last by: <span class="math notranslate nohighlight">\(i_{end} = i_1+sqw.data.npix(n)-1\)</span> where
-<span class="math notranslate nohighlight">\(sqw.data.npix\)</span> refers to <code class="docutils literal notranslate"><span class="pre">npix</span></code> array of <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object. Particular pixels positions between <span class="math notranslate nohighlight">\(i_1\)</span> and <span class="math notranslate nohighlight">\(i_{end}\)</span>
+identified from image. The position <code class="docutils literal notranslate"><span class="pre">i_1</span></code> of the first pixel contributing into image bin(cell) number <code class="docutils literal notranslate"><span class="pre">n</span></code> is defined by
+formula: <code class="docutils literal notranslate"><span class="pre">i_1</span> <span class="pre">=</span> <span class="pre">cumsum(sqw.data.npix(1:n-1))+1</span></code> and the last by: <code class="docutils literal notranslate"><span class="pre">i_{end}</span> <span class="pre">=</span> <span class="pre">i_1+sqw.data.npix(n)-1</span></code> where
+<code class="docutils literal notranslate"><span class="pre">sqw.data.npix</span></code> refers to <code class="docutils literal notranslate"><span class="pre">npix</span></code> array of <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object. Particular pixels positions between <code class="docutils literal notranslate"><span class="pre">i_1</span></code> and <code class="docutils literal notranslate"><span class="pre">i_{end}</span></code>
 are random.</p>
 <p>When you perform binary operation between two objects containing pixels, the pixels have to be sorted within the bin to ensure
 the operation is performed between correspondent pixels. In many cases, user may be sure that the operation is performed between two
@@ -325,7 +319,7 @@ to add them together. In this case, you may decrease time of your <code class="d
 <span class="n">w_sum</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">binary_op_manager</span><span class="p">(</span><span class="n">w_fg</span><span class="p">,</span><span class="n">w_bg</span><span class="p">,@</span><span class="nb">plus</span><span class="p">,</span><span class="nb">true</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Last parameter of <code class="docutils literal notranslate"><span class="pre">binary_op_manager</span></code> set to <code class="docutils literal notranslate"><span class="pre">true</span></code> disables sorting pixels in bins while performing binary operations.</p>
+<p>If the last parameter of <code class="docutils literal notranslate"><span class="pre">binary_op_manager</span></code> is set to <code class="docutils literal notranslate"><span class="pre">true</span></code> it disables sorting pixels in bins while performing binary operations.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Use this option carefully. If you do binary operation between two objects with pixels sorted differently, the first result would look correct.
@@ -347,7 +341,7 @@ Unfortunately, any future operations on the result of such operation may produce
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 5, 2025, 3:11:51 PM.
+      <span class="lastupdated">Last updated on Feb 5, 2025, 3:45:35 PM.
       </span></p>
   </div>
 

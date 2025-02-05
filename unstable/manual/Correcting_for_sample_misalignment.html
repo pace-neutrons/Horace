@@ -74,6 +74,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#rlu-corr-to-lattice">4.4.7. rlu_corr_to_lattice</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#calc-proj-matrix">4.5. calc_proj_matrix</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
@@ -234,13 +235,15 @@ peak positions were determined.</p></li>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>These cuts are <code class="docutils literal notranslate"><span class="pre">IX_dataset_1d</span></code> objects and can be plotted using the plot functions.</p>
+<p>These cuts can also be passed to <code class="docutils literal notranslate"><span class="pre">bragg_positions_view</span></code> together with <code class="docutils literal notranslate"><span class="pre">wpeak</span></code> to view the output.</p>
 </div>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">wpeak</span></code> - an n-by-3 array of spectra, that summarise the peak analysis.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>These cuts are <code class="docutils literal notranslate"><span class="pre">IX_dataset_1d</span></code> objects and can be plotted using the plot functions.</p>
+<p>These spectra are <code class="docutils literal notranslate"><span class="pre">IX_dataset_1d</span></code> objects and can be plotted using the plot functions.</p>
+<p>These spectra can also be passed to <code class="docutils literal notranslate"><span class="pre">bragg_positions_view</span></code> together with <code class="docutils literal notranslate"><span class="pre">wcut</span></code> to view the output.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -330,7 +333,7 @@ which is opposite to the rotation, necessary for corrections you will be applyin
 </section>
 <section id="step-3-apply-the-correction-to-the-data">
 <h2><span class="section-number">4.3. </span>Step 3 - apply the correction to the data<a class="headerlink" href="#step-3-apply-the-correction-to-the-data" title="Permalink to this heading"></a></h2>
-<p>There are different ways to do this, to be preferred in different circumstances.</p>
+<p>There are different ways to do this, for different circumstances:</p>
 <p>1. Initially you want to be sure that you have selected correct Bragg peaks,
 that adding new peaks would not improve accuracy of your alignment, and that the resulting alignment is satisfactory.
 In other words, you are following <a class="reference internal" href="#stepa"><span class="std std-ref">the iterative process</span></a> above.
@@ -554,6 +557,15 @@ defined by the two vectors u and v (each given in r.l.u)</p>
 <p>Extract lattice parameters and orientation matrix from r.l.u correction matrix and reference lattice parameters</p>
 </section>
 </section>
+<section id="calc-proj-matrix">
+<h2><span class="section-number">4.5. </span>calc_proj_matrix<a class="headerlink" href="#calc-proj-matrix" title="Permalink to this heading"></a></h2>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">spec_to_u</span><span class="p">,</span><span class="w"> </span><span class="n">u_to_rlu</span><span class="p">,</span><span class="w"> </span><span class="n">spec_to_rlu</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">calc_proj_matrix</span><span class="p">(</span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Calculate matrix that convert momentum from coordinates in spectrometer frame to projection axes defined by <span class="math notranslate nohighlight">\(u1 \| a^*\)</span>,
+<span class="math notranslate nohighlight">\(u2\)</span> in plane of <span class="math notranslate nohighlight">\(a^*\)</span> and <span class="math notranslate nohighlight">\(b^*\)</span> i.e. crystal Cartesian axes. Allows for correction scattering plane (omega, dpsi, gl, gs) -
+see Tobyfit for conventions</p>
+</section>
 </section>
 
 
@@ -568,7 +580,7 @@ defined by the two vectors u and v (each given in r.l.u)</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 5, 2025, 3:11:51 PM.
+      <span class="lastupdated">Last updated on Feb 5, 2025, 3:45:35 PM.
       </span></p>
   </div>
 

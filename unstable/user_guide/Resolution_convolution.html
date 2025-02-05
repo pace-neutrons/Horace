@@ -208,7 +208,7 @@ corresponding to “High resolution”, “Intermediate” and “High Flux” m
 </ul>
 </li>
 </ul>
-<p>In addition to the above parameters all instruments also take a optional <code class="docutils literal notranslate"><span class="pre">'mod_value'</span></code>
+<p>In addition to the above parameters all instruments also take a optional <code class="docutils literal notranslate"><span class="pre">'moderator'</span></code>
 argument specifying the type of moderator pulse model to use.
 At present, only two options are available:</p>
 <ul class="simple">
@@ -341,7 +341,7 @@ plot it at a specified (2D) projected coordinate, use <code class="docutils lite
 <span class="pre">proj_coord)</span></code> where <code class="docutils literal notranslate"><span class="pre">proj_coord</span></code> is a 2-element vector of the coordinate in
 the projection of the cut, or an <span class="math notranslate nohighlight">\(N \times 2\)</span> array of such coordinates.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span>
-<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="s">&#39;fe_cut.sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="s">&#39;fe_cut.sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">1.7</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span>
 <span class="n">xdir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">ydir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">ei</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">401</span><span class="p">;</span><span class="w"> </span><span class="n">freq</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span><span class="w"> </span><span class="n">chop_type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;s&#39;</span><span class="p">;</span>
 <span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_sample</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">IX_sample</span><span class="p">(</span><span class="n">xdir</span><span class="p">,</span><span class="w"> </span><span class="n">ydir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cuboid&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">]));</span>
 <span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_instrument</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">maps_instrument</span><span class="p">(</span><span class="n">ei</span><span class="p">,</span><span class="w"> </span><span class="n">freq</span><span class="p">,</span><span class="w"> </span><span class="n">chop_type</span><span class="p">));</span>
@@ -410,8 +410,8 @@ at these new coordinates, computing the resolution-convolved intensity as:</p>
 <p>By default <span class="math notranslate nohighlight">\(N=10\)</span> is used because often there are many detector-energy
 elements (<code class="docutils literal notranslate"><span class="pre">pixel</span></code> in Horace syntax) which contribute to a single bin
 (histogram), so there is already some broadening included.  This means, though,
-that resolution calculations takes <span class="math notranslate nohighlight">\(N\)</span> times longer than non-resolution
-convolved calculations.  The value of <span class="math notranslate nohighlight">\(N\)</span> is set using the
+that resolution-convolved calculations takes <span class="math notranslate nohighlight">\(N\)</span> times longer than
+non-resolution convolved calculations. The value of <span class="math notranslate nohighlight">\(N\)</span> is set using the
 <code class="docutils literal notranslate"><span class="pre">set_mc_points</span></code> method of the <a class="reference internal" href="../manual/Tobyfit.html#tobyfit"><span class="std std-ref">tobyfit class</span></a>.</p>
 <p>The distribution <span class="math notranslate nohighlight">\(R(\delta\mathbf{Q}, \delta\omega)\)</span> is computed
 analytically in Horace, except for a “work-around” for modern neutron guides
@@ -426,12 +426,12 @@ angular view the spectrometer has of the moderator).  Originally, the theory
 described here <a class="footnote-reference brackets" href="#id6" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> applied only to instruments without neutron guides, so it
 was assumed that the neutron beam’s angular divergences <span class="math notranslate nohighlight">\((\gamma_y,
 \gamma_z)\)</span> can be determined simply by the size of the aperture / viewport
-onto the moderator.  (Horace uses a laboratory coordinate system where
-<span class="math notranslate nohighlight">\(x\)</span> is the beam direction, <span class="math notranslate nohighlight">\(y\)</span> is horizontal perpendicular to the
-beam and <span class="math notranslate nohighlight">\(z\)</span> is vertical).  Modern neutron guides are accommodated in
-this formulism by pre-calculating the (incident energy dependent) divergences
-using a neutron ray-tracing code (<a class="reference external" href="http://mcstas.org/">McStas</a> in this
-case) and using look-up tables in the code.</p></li>
+onto the moderator.
+(Horace uses a laboratory coordinate system where <span class="math notranslate nohighlight">\(x\)</span> is the beam direction,
+<span class="math notranslate nohighlight">\(y\)</span> is the horizontal direction perpendicular to the beam and <span class="math notranslate nohighlight">\(z\)</span> is vertical).
+Modern neutron guides are accommodated in this formulism by pre-calculating the
+(incident energy dependent) divergences using a neutron ray-tracing code
+(<a class="reference external" href="http://mcstas.org/">McStas</a> in this case) and using look-up tables in the code.</p></li>
 <li><p><span class="math notranslate nohighlight">\(t_{ch}\)</span> - the time deviation at the chopper (e.g. the chopper opening
 time)</p></li>
 <li><p><span class="math notranslate nohighlight">\(x_s\)</span>, <span class="math notranslate nohighlight">\(y_s\)</span>, <span class="math notranslate nohighlight">\(z_s\)</span> - the neutron coordinate where it scatters at the sample.</p></li>
@@ -487,7 +487,7 @@ Note that the <span class="math notranslate nohighlight">\(T\)</span> matrix is 
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 5, 2025, 3:11:51 PM.
+      <span class="lastupdated">Last updated on Feb 5, 2025, 3:45:35 PM.
       </span></p>
   </div>
 

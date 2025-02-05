@@ -123,17 +123,18 @@
 <p>The purpose of Tobyfit is to enable you to fit parameters to Horace datasets
 taking into account the broadening of the data arising from the resolution of
 the instrument. Even if the excitations in your sample were infinitely
-long-lives you would have non-zero broadening in energy and wave vector arising
-from numerous contributions.</p>
-<p>The spread of energies arise from:</p>
+long-lived you would have non-zero broadening in energy and wave vector arising
+from instrumental effects which broaden the energy and wavevector distribution
+of the neutron beam.</p>
+<p>The spread of energies arises from:</p>
 <ul class="simple">
 <li><p>the non-zero width in the moderator pulse;</p></li>
 <li><p>the non-zero pulse width from the Fermi or disk choppers;</p></li>
-<li><p>the different flight-times for the neutrons due to different distances that
-neutrons travel depending on the point of emission from the moderator, point
+<li><p>the different flight-times for neutrons due to different distances that
+they travel depending on the point of emission from the moderator, point
 of scattering in the sample and point of absorption in the detector.</p></li>
 </ul>
-<p>The spread of wavevector arises from:</p>
+<p>The spread of wavevectors arises from:</p>
 <ul class="simple">
 <li><p>spread of angle of the incident neutrons at the sample from the non-zero width
 of the moderator;</p></li>
@@ -144,9 +145,9 @@ non-zero size of the detector element.</p></li>
 <p>Resolution effects can be quite considerable. Not only do they result in an
 increase in the energy width of peaks (thereby giving an illusory shorter
 lifetime of the excitations), they can also shift the positions of peaks
-depending on, for example, the curvature of dispersion relation within the
+depending on, for example, the curvature of the dispersion relation within the
 resolution function. This can result in incorrect values of exchange constants
-being extracted from the data is resolution is ignored.</p>
+being extracted from the data if resolution effects are ignored.</p>
 <p>Tobyfit uses the <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">multifit</span></a> fitting interface to
 enable you fit your data to a model for <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega)\)</span> together with background
 functions.</p>
@@ -164,22 +165,26 @@ that all other <a class="reference internal" href="Multifit.html#multifit"><span
 difference is that Tobyfit uses instrument information in the sqw objects to
 convolve the <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega)\)</span> model(s) with the instrument resolution function using a
 Monte Carlo multi-dimensional integration, and provides some additional methods
-to control how the convolution is carried out.</p>
+to control how the convolution is carried out.
+A more detailed description of the theory used by Tobyfit is given in the
+<a class="reference internal" href="../user_guide/Resolution_convolution.html#background-theory"><span class="std std-ref">User’s Guide</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The background functions are <strong>not</strong> convoluted with the resolution
 function - the assumption is that they are simply empirical functions such as
-linear background models and so resolution function convolution makes little
-sense.</p>
+linear background models and so resolution convolution makes little sense.</p>
 </div>
 <p>This also means that instrument information must be included in the <code class="docutils literal notranslate"><span class="pre">sqw</span></code>
 object. At present, this is done using the <code class="docutils literal notranslate"><span class="pre">&lt;inst&gt;_instrument</span></code> functions which
 are defined for the three ISIS spectrometers LET, MAPS and MERLIN. In future,
 this information will be included when the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file is constructed by
 <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> if the input files contain suitable information.</p>
+<p>A detailed description of how to use these functions and a working example
+is given in the <a class="reference internal" href="../user_guide/Resolution_convolution.html#using-tobyfit"><span class="std std-ref">User’s Guide</span></a>.</p>
 </section>
 <section id="performing-resolution-convolution">
 <h2><span class="section-number">16.2. </span>Performing resolution convolution<a class="headerlink" href="#performing-resolution-convolution" title="Permalink to this heading"></a></h2>
+<p>A working example is also given in the <a class="reference internal" href="../user_guide/Resolution_convolution.html#a-worked-example"><span class="std std-ref">User’s Guide</span></a>.</p>
 <section id="setting-the-sample-and-instrument-information">
 <h3><span class="section-number">16.2.1. </span>Setting the sample and instrument information<a class="headerlink" href="#setting-the-sample-and-instrument-information" title="Permalink to this heading"></a></h3>
 <p>The first thing you need to do is provide the sample and instrument information
@@ -209,13 +214,13 @@ several ISIS chopper spectrometers to do this.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">chopper_type</span></code> : character that indicates the chopper type (in the case of
 MAPS this is ‘A’ , ‘B’ or ‘S’ for the sloppy chopper)</p></li>
 </ul>
-<p>The functions for the other spectrometers are <code class="docutils literal notranslate"><span class="pre">merlin_instrument</span></code>,
-<code class="docutils literal notranslate"><span class="pre">mari_instrument</span></code>, and <code class="docutils literal notranslate"><span class="pre">let_instrument</span></code>.</p>
+<p>The functions for the other spectrometers are <code class="docutils literal notranslate"><span class="pre">merlin_instrument</span></code> and <code class="docutils literal notranslate"><span class="pre">let_instrument</span></code>.</p>
 <p>Now you need to associate this information with the cuts you wish to fit with
 Tobyfit.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Tobyfit will only fit <span class="xref std std-ref">sqw objects</span>, because the information of each pixel is needed to
+<p>Tobyfit will only fit <a class="reference internal" href="FAQ.html#what-is-the-difference-between-sqw-and-dnd-objects"><span class="std std-ref">sqw objects</span></a>,
+because the information of each pixel is needed to
 perform the resolution convolution. This information is removed when you
 create cuts of type <code class="docutils literal notranslate"><span class="pre">d1d</span></code>, <code class="docutils literal notranslate"><span class="pre">d2d</span></code>, etc.</p>
 </div>
@@ -315,7 +320,7 @@ reduced by the total number of samples (as a factor of the pixels).</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 5, 2025, 3:11:51 PM.
+      <span class="lastupdated">Last updated on Feb 5, 2025, 3:45:35 PM.
       </span></p>
   </div>
 

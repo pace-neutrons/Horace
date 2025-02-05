@@ -1124,6 +1124,7 @@ difference. The binning arguments of ``cut`` no longer refer to
 
    - :math:`Q_{\perp}` (``Q_tr``) runs from :math:`[0, \infty)` 
    - :math:`\phi` runs between :math:`[-180, 180]`.
+
    Requesting binning outsize of these ranges will fail.
 
 
