@@ -8,4 +8,6 @@ if numel(obj.keys_) ~= numel(obj.values_)
         numel(obj.keys_),numel(obj.values_))
 end
 
+obj.min_max_key_val_ = min_max(obj.keys_);
+
 end

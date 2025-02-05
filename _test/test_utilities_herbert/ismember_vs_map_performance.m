@@ -1,4 +1,4 @@
-n_keys = 10;
+n_keys = 100;
 n_operations= 10000;
 base_val = rand(1,n_keys);
 

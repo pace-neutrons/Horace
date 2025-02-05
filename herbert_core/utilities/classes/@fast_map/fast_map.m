@@ -5,24 +5,51 @@ classdef fast_map < serializable
     % Initial purpose -- use it as the map for connecting run_id-s with
     % IX_experiment number so that correspondence between
     %
-    % The class is necessary because MATLAB containers.map works incredibly
-    % slow.
-
+    % The class is necessary because MATLAB containers.Map class is
+    % incredibly slow.
+    %
+    % Class optimized for key access rather then key insertion.
+    % Further development and acceleration may be possible, including
+    % mexing and building container for
+    %
+    % WARNING: intentianally disabled multiple reliability checks and
+    % convenience properties in favour of access speed.
     properties(Dependent)
-        keys
-        values
-        KeyType
+        n_members; % number of elements in key-value map
+        keys       % arrays of keys used to retrieve the values
+        values     % arrays of values which correspond to keys
+        KeyType    % key type. Currently uint32 only
+        optimized  % If true, map is optimized for faster access without
+        %          % using binary search over keys
+        % debugguging property
+        min_max_key_val; % minimal and maximal key values used in values
+        % access optimization
     end
     properties(Access=protected)
         key_type_ = 'uint32'
-        val_type_ = ''
-        keys_ = [];
-        values_={};
+        val_type_ = 'double'
+        keys_ = uint32([]); % array of keys, used to retrieve values
+        values_=[]; % array of values, accessed through the keys
+        %
+        % Internal properties used in fast map optimization
+        optimized_ = false;
+        min_max_key_val_  = []; % minimal and maximal values of keys in the
+        % map. Used in building the the optimization indices
+        keyval_optimized_ = {}; % 1D cellarrsy, containing values in places
+        % of keys, used for fast access to the values instead of search
+        % within key array.
+        key_shif_;
     end
-    %----------------------------------------------------------------------    
+    %----------------------------------------------------------------------
     methods
         function obj = fast_map(keys,values)
-            %
+            % Constructor:
+            % Usage:
+            %>> fm = fast_map();
+            %>> fm = fast_map(keys,values);
+            % where :
+            % keys      -- array or cellarray (numeric) keys
+            % values    -- array or cellarray of (numeric) values
             if nargin == 0
                 return;
             end
@@ -32,23 +59,38 @@ classdef fast_map < serializable
             obj.do_check_combo_arg_ = true;
             obj = obj.check_combo_arg();
         end
-        function obj = add(obj,key,value)
-            key = obj.check_keys(key);
-
+        function is = isKey(self,key)
+            key = uint32(key);
             present = self.keys_ == key;
+            is = any(present);
+        end
+        function self = add(self,key,value)
+            % add or replace value , corresponding to the key.
+            % if there are no such key in the map, the key-vaue pair is
+            % added to the map. If key is present, its current value is
+            % replaced by the new one.
+            key = uint32(key);
+            present =  self.keys_ == key;
             if any(present)
-                obj.values_(present) = value;
+                self.values_(present) = value;
             else
-                obj.keys_(end+1) = key;
-                obj.values_(end+1) = value;
+                self.keys_(end+1) = key;
+                self.values_(end+1) = value;
+                self.optimized = false;
             end
         end
         function val = get(self,key)
-            present = self.keys_ == key;
-            if any(present)
-                val = self.values_(present);
+            % retrieve value, which corresponds to key
+            if self.optimized_
+                val = self.keyval_optimized_(key-self.key_shif_);
             else
-                val = [];
+                key = uint32(key);
+                present = self.keys_ == key;
+                if any(present)
+                    val = self.values_(present);
+                else
+                    val = nan;
+                end
             end
         end
         function kt = get.KeyType(obj)
@@ -63,7 +105,7 @@ classdef fast_map < serializable
                 ks = [ks{:}];
             end
             ks = obj.check_keys(ks);
-            obj.keys_ = ks;
+            obj.keys_ = ks(:)';
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -71,6 +113,38 @@ classdef fast_map < serializable
         %
         function val = get.values(obj)
             val = obj.values_;
+        end
+        function obj = set.values(obj,val)
+            if iscell(val)
+                val = [val{:}];
+            end
+            val = obj.check_values(val);
+
+            obj.values_ = val(:)';
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+        %
+        function opt = get.optimized(obj)
+            opt = obj.optimized_;
+        end
+        function obj = set.optimized(obj,do_opt)
+            do_opt = logical(do_opt);
+            if do_opt
+                obj = obj.optimize();
+            else
+                obj.optimized_ = false;
+                obj.min_max_key_val_ = [];
+                obj.keyval_optimized_= {};
+            end
+        end
+        %
+        function mmv = get.min_max_key_val(obj)
+            mmv = obj.min_max_key_val_;
+        end
+        function nm = get.n_members(obj)
+            nm = numel(obj.keys_);
         end
     end
     methods(Access=protected)
@@ -85,48 +159,74 @@ classdef fast_map < serializable
                 end
             end
         end
+        function val = check_values(obj,val)
+            if ~isnumeric(val)
+                error('HERBERT:fast_map:invalid_argument', ...
+                    'Only numeric values are currently implemented in fast_map. Your value type is: %s', ...
+                    class(val));
+            else
+                if ~isa(val,obj.val_type_) % Change with changing val_type_
+                    val = double(val);
+                end
+            end
+        end
+        %
+        function obj = optimize(obj)
+            % place values into expanded cellrarray, containing
+            % empty where keys are missing and values where
+            obj.min_max_key_val_ = min_max(obj.keys_);
+            obj.key_shif_ = obj.min_max_key_val_(1)-1;
+            n_places = obj.min_max_key_val_(2)-obj.min_max_key_val_(1)+1;
+            obj.keyval_optimized_ = nan(1,n_places);
+            keys_shifted = obj.keys_-obj.min_max_key_val_(1)+1;
+            obj.keyval_optimized_(keys_shifted) = obj.values_(:);
+            obj.optimized_ = true;
+        end
     end
     %----------------------------------------------------------------------
-    % Overloaded indexers
+    % Overloaded indexers. DESPITE NICE, adding them makes fast_map 40-60
+    % times slower even without using indexes itself. Disabled for this
+    % reason, until, may be mex is written which would deal with fast part
+    % of indices.
     methods
-        function varargout = subsref(self,idxstr)
-            if ~isscalar(self) % input is array or cell of unique_object_containers
-                [varargout{1:nargout}] = builtin('subsref',self,idxstr);
-                return;
-            end
-            % overloaded indexing for retrieving object from container
-            switch idxstr(1).type
-                case {'()'}
-                    key = idxstr(1).subs{:};
-                    val = self.get(key);
-                    if isscalar(idxstr)
-                        varargout{1} = val;
-                    else
-                        idx2 = idxstr(2:end);
-                        [varargout{1:nargout}] = builtin('subsref',val,idx2);
-                    end
-                case '.'
-                    [varargout{1:nargout}] = builtin('subsref',self,idxstr);
-            end % end switch
-        end % end function subsref
-        function self = subsasgn(self,idxstr,varargin)
-            % overloaded indexing for placing object to map
-            switch idxstr(1).type
-                case {'()'}
-                    key = idxstr(1).subs{:};
-                    if ~isscalar(idxstr)
-                        val  = self.get(key);
-                        idx2 = idxstr(2:end);
-                        val  = builtin('subsasgn',val,idx2,varargin{:});
-                    else
-                        val = varargin{1}; % value to assign
-                    end
-                    self = self.add(key,val);                    
-                case '.'
-                    self = builtin('subsasgn',self,idxstr,varargin{:});
-            end
-        end % subsasgn
-    end    
+        % function varargout = subsref(self,idxstr)
+        %     if ~isscalar(self) % input is array or cell of unique_object_containers
+        %         [varargout{1:nargout}] = builtin('subsref',self,idxstr);
+        %         return;
+        %     end
+        %     % overloaded indexing for retrieving object from container
+        %     switch idxstr(1).type
+        %         case {'()'}
+        %             key = idxstr(1).subs{:};
+        %             val = self.get(key);
+        %             if isscalar(idxstr)
+        %                 varargout{1} = val;
+        %             else
+        %                 idx2 = idxstr(2:end);
+        %                 [varargout{1:nargout}] = builtin('subsref',val,idx2);
+        %             end
+        %         case '.'
+        %             [varargout{1:nargout}] = builtin('subsref',self,idxstr);
+        %     end % end switch
+        % end % end function subsref
+        % function self = subsasgn(self,idxstr,varargin)
+        %     % overloaded indexing for placing object to map
+        %     switch idxstr(1).type
+        %         case {'()'}
+        %             key = idxstr(1).subs{:};
+        %             if ~isscalar(idxstr)
+        %                 val  = self.get(key);
+        %                 idx2 = idxstr(2:end);
+        %                 val  = builtin('subsasgn',val,idx2,varargin{:});
+        %             else
+        %                 val = varargin{1}; % value to assign
+        %             end
+        %             self = self.add(key,val);
+        %         case '.'
+        %             self = builtin('subsasgn',self,idxstr,varargin{:});
+        %     end
+        % end % subsasgn
+    end
     % SERIALIZABLE interface
     %------------------------------------------------------------------
     methods
