@@ -93,6 +93,7 @@ classdef test_tobyfit_let_cuts < TestCaseWithSave
             amp=6000;    fwhh=0.2;
 
             clOb = set_temporary_config_options(hor_config, 'mem_chunk_size', 10000);
+            clWa = set_temporary_warning('off','HORACE:runtime_error');
 
             kk = tobyfit(obj.nb_arr);
             kk = kk.set_local_foreground;
@@ -134,7 +135,7 @@ classdef test_tobyfit_let_cuts < TestCaseWithSave
             kk = kk.set_options('fit',[1e-4,20,0.01]);
             [~,fp] = kk.fit();
 
-            ref = getReferenceDataset(obj, 'test_fit_nb_multi_amplitude_global', 'fp')
+            ref = getReferenceDataset(obj, 'test_fit_nb_multi_amplitude_global', 'fp');
             assertTrue(is_same_fit(fp, ref, obj.tolerance))
 
         end

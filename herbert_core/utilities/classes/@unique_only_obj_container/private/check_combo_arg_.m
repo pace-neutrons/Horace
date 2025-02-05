@@ -10,23 +10,18 @@ function self = check_combo_arg_(self,with_checks)
 %                 unique_objects to check that new objects are
 %                 indeed unique.
 
+self.n_duplicates_ = accumarray(self.idx_',1)';
 max_idx = max(self.idx_);
 if max_idx ~= self.n_unique
     error('HERBERT:unique_objects_container:invalid_argument',...
-        ['Container validiry have been violated. Object indexes point outside of the stored objects.\n' ...
-        'Max index=%d, Number of stored unique objects: %d'],...
+        'Container validiry have been violated. Object indexes point outside of the stored objects.\n Max index=%d, Number of stored unique objects: %d',...
         max_idx,numel(self.unique_objects_));
 end
 uni_ind = unique(self.idx_);
-if isempty(uni_ind)
-    if ~isempty(self.unique_objects_)
-        self.idx_ = 1:numel(self.unique_objects_);
-    end
-else
-    if  (uni_ind(1) ~= 1 || numel(uni_ind) ~= self.n_unique)
-        error('HERBERT:unique_objects_container:invalid_argument',...
-            'Container has unique objects which are not referred by any indexes')
-    end
+if ~isempty(uni_ind) && ...
+        (uni_ind(1) ~= 1 || numel(uni_ind) ~= self.n_unique)
+    error('HERBERT:unique_objects_container:invalid_argument',...
+        'Container has unique objects which are not referred by any indexes')
 end
 if ~isempty(self.baseclass_)
     if isempty(self.unique_objects_)
@@ -47,6 +42,11 @@ if ~isempty(self.baseclass_)
             'The type of the container is set to %s but the objects %s are of different type=%s',...
             self.baseclass,disp2str(non_type_ind),class(invalid_obj))
     end
+end
+if self.n_unique ~= numel(self.n_duplicates_)
+    error('HERBERT:unique_objects_container:invalid_argument',...
+        'Size of array of unique objects: %d does not corresponds to size of array of its duplicates: %d', ...
+        self.n_unique,numel(self.n_duplicates_));
 end
 %
 if isempty(self.stored_hashes_) && ~isempty(self.unique_objects)

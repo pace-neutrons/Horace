@@ -38,7 +38,7 @@ if isempty(det) || det.n_runs == 0
 else
     % make a new detector object based on value of use_tubes and insert
     % it into the detector_array info extracted from the sqw
-    if det.n_unique_objects>1
+    if det.n_unique>1
         error('HORACE:detector_info:incorrect_size', ...
             ['all sqw runs must have identical detectors with this ', ...
             'implementation']);

@@ -53,6 +53,7 @@ else
                 i,class(the_obj));
         end
     end
+
     if n_val_to_set  == n_obj
         set_per_obj = true;
     elseif n_val_to_set == sum(n_runs_in_obj)
