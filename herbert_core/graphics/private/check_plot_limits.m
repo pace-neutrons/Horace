@@ -2,12 +2,14 @@ function [xlims, ylims, zlims, ok, mess] = check_plot_limits (lims_type, varargi
 % Check that plot limits have correct format.
 %
 % If lims_type == 'xy' or 'xyz':
-%   >> [lims, ok, mess] = check_plot_limits (lims)
-%   >> [lims, ok, mess] = check_plot_limits (lims, xlo, xhi)
-%   >> [lims, ok, mess] = check_plot_limits (lims, xlo, xhi, ylo, yhi)
+%   >> [xlims, ylims, zlims, ok, mess] = check_plot_limits (lims)
+%   >> [xlims, ylims, zlims, ok, mess] = check_plot_limits (lims, xlo, xhi)
+%   >> [xlims, ylims, zlims, ok, mess] = check_plot_limits (lims, xlo, xhi, ...
+%                                                                   ylo, yhi)
 %
 % If lims_type == 'xyz' only:
-%   >> [lims, ok, mess] = plot_limits_valid (lims, xlo, xhi, ylo, yhi, zlo, zhi)
+%   >> [xlims, ylims, zlims, ok, mess] = check_plot_limits (lims, xlo, xhi, ...
+%                                                           ylo, yhi, zlo, zhi)
 %
 % Input:
 % ------

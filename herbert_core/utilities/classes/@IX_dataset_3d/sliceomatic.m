@@ -1,18 +1,21 @@
-function varargout = sliceomatic(w, varargin)
+function varargout = sliceomatic (w, varargin)
 % Plots IX_dataset_3d object using sliceomatic
 %
 %   >> sliceomatic (w)
-%   >> sliceomatic (w, 'isonormals', true)      % to enable isonormals
 %
-% Control tabs on axis slider bars:
-%   >> sliceomatic (w,..., 'x_axis',xtab,...)   % xtab is a character string label
-%                                               % (and similarly for y_axis, z_axis)
+% Captions on axis slider bars (captions are character strings):
+%   >> sliceomatic (w, ..., 'x_axis', xcaption, ...)
+%   >> sliceomatic (w, ..., 'y_axis', ycaption, ...)
+%   >> sliceomatic (w, ..., 'z_axis', zcaption, ...)
+%
+% To enable isonormals:
+%   >> sliceomatic (w, ..., 'isonormals', true, ...)      
 %
 % Advanced use:
-%   >> sliceomatic (w,..., 'name',fig_name)     % draw with name = fig_name
+%   >> sliceomatic (w, ..., 'name', fig_name, ...)   % draw with name = fig_name
 %
-% Return figure, axes and plot handles:
-%   >> [figureHandle_, axesHandle_, plotHandle_] = sliceomatic(w,...)
+% Return figure and axes handles, and a structure with plot data:
+%   >> [fig_handle, axes_handle, plot_data] = sliceomatic (w, ...)
 %
 %
 % NOTES:
@@ -26,100 +29,184 @@ function varargout = sliceomatic(w, varargin)
 % - To set the default for future Sliceomatic sessions -
 %      On the 'Object_Defaults' menu select 'Slice Color Texture'
 
-arglist=struct('name','',...
+
+% Check input arguments
+% ---------------------
+arglist=struct('name','Sliceomatic',...
     'x_axis','x-axis',...
     'y_axis','y-axis',...
     'z_axis','z-axis',...
     'isonormals',0);
 flags={'isonormals'};
+[par,keyword] = parse_arguments(varargin,arglist,flags);
 
-[par,keyword,present] = parse_arguments(varargin,arglist,flags);
-
-% Check input arguments
-% ---------------------
 if ~isempty(par)
     error('HERBERT:IX_dataset_3d:invalid_argument', ...
-        'Invalid sliceomatic arguments:\n %s',disp2str(par))
+        'Invalid sliceomatic arguments given. Only keyword arguments are permitted')
 end
 
 if numel(w)~=1
     error('HERBERT:IX_dataset_3d:invalid_argument', ...
-        'Sliceomatic only works for a single 3D dataset')
+        'Sliceomatic only works for a single 3D dataset, not an array of datasets')
 end
 
-% Get figure name: if not given, use appropriate default sliceomatic plot name
-if is_string(keyword.name)
-    if ~isempty(keyword.name)
-        fig_name=keyword.name;
-    else
-        fig_name=get_global_var('genieplot','name_sliceomatic');
-    end
-else
-    error('HERBERT:IX_dataset_3d:invalid_argument', ...
-        'Figure name must be a character string')
-end
+% if is_string(keyword.name) && ~isempty(keyword.name)
+%     fig_name=keyword.name;
+% else
+%     error('HERBERT:IX_dataset_3d:invalid_argument', ...
+%         'Figure name must be a character string')
+% end
+
 
 % Plot data
 % ----------
 % Prepare arguments for call to sliceomatic
+
+% Sliceomatic only handles the case of equally spaced points, and need at least
+% two points along each axis
 sz=size(w.signal);
-if numel(w.x)~=sz(1)
-    ux=[0.5*(w.x(2)+w.x(1)), 0.5*(w.x(end)+w.x(end-1))];
-else
-    ux=[w.x(1),w.x(end)];
-end
-if numel(w.y)~=sz(2)
-    uy=[0.5*(w.y(2)+w.y(1)), 0.5*(w.y(end)+w.y(end-1))];
-else
-    uy=[w.y(1),w.y(end)];
-end
-if numel(w.z)~=sz(3)
-    uz=[0.5*(w.z(2)+w.z(1)), 0.5*(w.z(end)+w.z(end-1))];
-else
-    uz=[w.z(1),w.z(end)];
+if any(sz==0)
+    fprintf(2, ['WARNING: Data not plotted.\n',...
+        'There is no data in the signal array.\n'])
 end
 
-% Permute axes 1 and 2 - usual wierd Matlab thing
+% Set data ranges
+point_data = ~ishistogram(w);
+reltol = 1e-4;  % relaxed tolerance on equal spacing as only plotting
+[ux, xuniform] = check_axis_values (w.x, point_data(1), reltol);
+[uy, yuniform] = check_axis_values (w.y, point_data(2), reltol);
+[uz, zuniform] = check_axis_values (w.z, point_data(3), reltol);
+if ~xuniform || ~yuniform || ~zuniform
+    fprintf(2, ['WARNING: Data not plotted.\n',...
+        'Data points must be equally spaced for sliceomatic.\n'])
+end
+
+% Permute axes 1 and 2 - usual weird Matlab thing
 signal = permute(w.signal,[2,1,3]);
 
-[xlabel,ylabel,zlabel]=make_label(w);
+% Main plot axis annotations
+[tx, ty ,tz] = make_label(w);
 clim = [min(w.signal(:)) max(w.signal(:))];
 if clim(2) == clim(1)
     clim(1) = clim(1)-1;
     clim(2) = clim(2)+1;
 end
 
-% ------ Fixes problem on dual monitor systems. Need checks about negative side
-% effects on other systems.
+% Captions to axis slider bars
+xcaption = keyword.x_axis;
+ycaption = keyword.y_axis;
+zcaption = keyword.z_axis;
+
+% Set the plot target figure
+% --------------------------
+% Change the default figure size to be 50% bigger, as sliceomatic is a bust
+% figure. Then after creating the figure, if needed, return to the original
+% default.
+default_position = get(groot, 'DefaultFigurePosition');
+set(groot, 'DefaultFigurePosition', [100, 100, round((3*default_position(3:4))/2)])
+genie_figure_set_target (keyword.name); % the target is now the current figure
+set(groot, 'DefaultFigurePosition', default_position)
+
+% ------ Fixes problem on dual monitor systems ---------------------------------
+% Need checks about negative side effects on other systems.
+% 7 Feb 2025: Is this still necessary? Why only implemented in sliceomatic?
 mode = get(0, 'DefaultFigureRendererMode');
 rend = get(0, 'DefaultFigureRenderer');
 set(0, 'DefaultFigureRendererMode', 'manual');
-set(0,'DefaultFigureRenderer','zbuffer');
-% ------
+set(0, 'DefaultFigureRenderer', 'zbuffer');
+% ------------------------------------------------------------------------------
 
 % Plot data
-plot_ = sliceomatic(ux, uy, uz, signal, keyword.x_axis, keyword.y_axis, keyword.z_axis,...
-    xlabel, ylabel, zlabel, clim, keyword.isonormals,fig_name);
+fig_name = get(gcf, 'Name');
+plot_data = sliceomatic(ux, uy, uz, signal, xcaption, ycaption, zcaption, ...
+    tx, ty, tz, clim, keyword.isonormals, fig_name);
 
-% ----- Return rendering mode
+% ----- Return rendering mode --------------------------------------------------
 set(0, 'DefaultFigureRendererMode', mode);
-set(0,'DefaultFigureRenderer',rend );
-% ------
-
-%title(w.title,'FontWeight','normal','FontSize',10);
-title(w.title,'FontWeight','normal');
-[fig_, axes_] = genie_figure_all_handles (gcf);
-
-% Because we are not going through the usual genie_figure_create route, set some of
-% the options that function sets
-set(fig_,'Name',fig_name,'Tag','','PaperPositionMode','auto','Color','white');
+set(0, 'DefaultFigureRenderer', rend );
+% ------------------------------------------------------------------------------
 
 % Resize the box containing the data
-% set(gca,'Position',[0.225,0.225,0.55,0.55]);
-set(gca,'Position',[0.2,0.2,0.6,0.6]);
+set(gca, 'Position', [0.2, 0.2, 0.6, 0.6]); 
 axis normal
 
+
+% Set the title
+tt = w(1).title(:);
+if any(contains(tt, '$'))
+    inter = 'latex';
+else
+    inter = 'tex';
+end
+title(tt, 'FontWeight', 'normal', 'interpreter', inter);
+
 % Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
+varargout = cell(1, min(3,nargout));
+[varargout{:}] = genie_figure_all_handles (gcf);
+if nargout>=3
+    varargout{3} = plot_data;
+end
+
+
+%-------------------------------------------------------------------------------
+function [ux, uniform] = check_axis_values (x, point_data, reltol)
+% Check abscissae are equally spaced and return the lower and upper values.
+%
+%   >> [ux, uniform] = check_axis_values (x, point_data, reltol)
+%
+% Sliceomatic requires equally spaced abscissae with non-zero separation of the
+% data points along an axis.
+%
+% Input:
+% ------
+%   x           Abscissae (vector). Must have numel(x)>=1 if point data or
+%               numel(x)>2 if not point data.
+%
+%   point_data  True if point data, false if histogram data.
+%
+%   reltol      Relative tolerance for checking absiccae are equally spaced.
+%               Tolerance is with respect to the deviation from the mean spacing
+%               of the abscissae.
+%
+% Output:
+% -------
+%   ux          Lower and upper abscissae (row vector).
+%               If point data with just one point, return [x-0.5, x+0.5].
+%               If histogram data with just one point, return x.
+% 
+%   uniform     True: equally spaced abscissae with non-zero separation within
+%                     the given tolerance.
+%               False: not equally spaced or at least two equal values.
+
+% Check validity of 
+if isempty(x) || (numel(x)==1 && ~point_data)
+    error('HERBERT:IX_dataset_3d:invalid_argument', ['Must have aat least ' ...
+        'one abscissa (point data) or two abscissae (histogram data)'])
+end
+
+% Check absciccae are equally spaced
+uniform = true;
+if numel(x)>1
+    dx_ref = (x(end)-x(1))/(numel(x)-1);
+    dx = diff(x);
+    reldiff = (dx-dx_ref)/dx_ref;
+    if dx_ref==0 || any(dx<0) || ~all(isfinite(reldiff)) || ...
+            any(abs(reldiff)>abs(reltol))
+        uniform = false;
+    end
+end
+
+% Get extremal abscissae
+if ~point_data
+    if numel(x)>2
+        ux = [0.5*(x(2)+x(1)), 0.5*(x(end)+x(end-1))];
+    else
+        ux = [x(1), x(end)];    % only one data point
+    end    
+else
+    if numel(x)>1
+        ux = [x(1), x(end)];
+    else
+        ux = [x-0.5, x+0.5];    % non-zero width if plotting one data point
+    end
 end

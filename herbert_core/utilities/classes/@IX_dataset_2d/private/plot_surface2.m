@@ -1,5 +1,12 @@
 function plot_surface2 (w, wcol)
-% Make surface plot
+% Make a surface plot from an IX_dataset_2d object, or array of objects, with
+% the color mapping from:
+% - the standard errors of the IX_dataset_2d object(s);
+%
+% or, if the optional second argument is given, from:
+% - the signal of any object, or array of objects, with a sigvar method;
+% - a numeric array, or cell array of numeric arrays.
+
 
 % Plot a series of calls to the surface function
 nw = numel(w);
@@ -12,8 +19,9 @@ for i=1:nw
     end 
     if any(size(w(i).signal)<=1)
         if ~warning_printed
-            disp('WARNING: One or more surfaces not plotted')
-            disp('         Must have at least two points along the x and y axes to make a surface plot')
+            fprintf(2, ['WARNING: One or more surfaces not plotted.\n',...
+                'Must have at least two points along the x and y axes ', ...
+                'to make a surface plot.\n'])
             warning_printed=true;
         end
     else

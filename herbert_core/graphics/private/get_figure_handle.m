@@ -35,8 +35,8 @@ function fig_handle = get_figure_handle (varargin)
 %               If fig is not given, or is [], the function returns the figure
 %              handle for the current figure, if one exists.
 %
-%               Note: an empty character string or one containing just
-%              whitespace is a valid name: the name is '' i.e. the empty string.
+%               An empty character string or one containing just whitespace
+%              is a valid name: the name is '' i.e. the empty string.
 %
 %               If fig is set to '-all', then the function returns the handles
 %              of all figures.

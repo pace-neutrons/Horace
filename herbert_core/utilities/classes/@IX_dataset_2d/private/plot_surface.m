@@ -1,5 +1,6 @@
 function plot_surface (w)
-% Make surface plot
+% Make a surface plot from an IX_dataset_2d object or array of objects
+
 
 % Plot a series of calls to the surface function
 nw = numel(w);
@@ -12,8 +13,9 @@ for i=1:nw
     end   
     if any(size(w(i).signal)<=1)
         if ~warning_printed
-            disp('WARNING: One or more surfaces not plotted')
-            disp('         Must have at least two points along the x and y axes to make a surface plot')
+            fprintf(2, ['WARNING: One or more surfaces not plotted.\n',...
+                'Must have at least two points along the x and y axes ', ...
+                'to make a surface plot.\n'])
             warning_printed=true;
         end
     else

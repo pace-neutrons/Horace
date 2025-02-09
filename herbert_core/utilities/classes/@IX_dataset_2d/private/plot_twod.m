@@ -110,7 +110,7 @@ plot_types={'area', 'surface', 'surface2'};
 % Check the number of datasets in the array is not too large
 if numel(w) > maxspec
     error('HERBERT:graphics:invalid_argument', ...
-        ['A maximum number of %s 2D datasets can be plotted at once. ', ...
+        ['A maximum number of %s 2D datasets can be plotted at once.\n', ...
         'Check the size of the input object array'], num2str(maxspec))
 end
 
@@ -137,7 +137,7 @@ if is_string(plot_type) && ~isempty(plot_type)
         plot_type = plot_types{ind};
     else
         error('HERBERT:graphics:invalid_argument', ...
-            'Plot type ''%s'' is not recognised',plot_type);
+            'Plot type ''%s'' is not recognised', plot_type);
     end
 else
     error('HERBERT:graphics:invalid_argument', ...

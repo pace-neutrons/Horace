@@ -2,16 +2,13 @@ function genie_figure_make_cur (fig)
 % Set genie_figure(s) active for plotting
 %
 % If the current figure is a genie_figure, make it the active genie_figure:
-%
 %   >> genie_figure_make_cur
 %
 % Make one genie_figure active for each of the name(s) of figures with selected
 % figure name(s), number(s), or handle(s), if there is one available:
-%
 %   >> genie_figure_make_cur (fig)
 %
 % Make one of each genie_figure name active, if there is one available:
-%
 %   >> genie_figure_make_cur ('-all')
 %
 % This function only operates on genie_figures, that is, those with the
@@ -27,8 +24,8 @@ function genie_figure_make_cur (fig)
 %               If fig is not given, or is [], the function uses the current
 %              figure as input, if one exists.
 %
-%               Note: an empty character string or one containing just
-%              whitespace is a valid name: the name is '' i.e. the empty string.
+%               An empty character string or one containing just whitespace
+%              is a valid name: the name is '' i.e. the empty string.
 %
 %               If fig is set to '-all', then the function makes one of each
 %              genie_figure name have status 'current', so long as there is a
@@ -58,7 +55,7 @@ function genie_figure_make_cur (fig)
 if ~exist('fig', 'var')
     fig_handle = get_figure_handle;     % current figure, if it exists
 else
-    fig_handle = get_figure_handle(fig);
+    fig_handle = get_figure_handle(fig);% output could be an array of handles
 end
 
 % Determine which belong to genie_figures

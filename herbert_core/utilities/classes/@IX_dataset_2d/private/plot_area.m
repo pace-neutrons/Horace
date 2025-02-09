@@ -1,5 +1,6 @@
 function plot_area (w)
-% Make area plot
+% Make an area plot from an IX_dataset_2d object or array of objects
+
 
 % Plot a series of patch commands
 nw = numel(w);

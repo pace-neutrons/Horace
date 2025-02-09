@@ -10,14 +10,19 @@ function clearfigs (fig)
 %   fig         Figure name or cell array of figure names
 %          *OR* Figure number or array of figure numbers
 %          *OR* Figure handle or array of figure handles
+%
+%               If fig is not given, or is set to '-all', the function deletes
+%              all figures.
+%
+%               An empty character string or one containing just whitespace
+%              is a valid name: the name is '' i.e. the empty string.
 
 
 if nargin==0
-    h = findall(0, 'Type', 'figure');
-    if ~isempty(h)
-        delete(h)
-    end
-else
-    fig_handle = get_figure_handle (fig);
+    fig = '-all';
+end
+
+fig_handle = get_figure_handle (fig);
+if ~isempty(fig_handle)
     delete(fig_handle)
 end

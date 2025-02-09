@@ -25,8 +25,8 @@ function genie_figure_keep (fig)
 %               If fig is not given, or is [], the function uses the current
 %              figure as input, if one exists.
 %
-%               Note: an empty character string or one containing just
-%              whitespace is a valid name: the name is '' i.e. the empty string.
+%               An empty character string or one containing just whitespace
+%              is a valid name: the name is '' i.e. the empty string.
 %
 %               If fig is set to '-all', then the function keeps all
 %              genie_figures with 'current' status.
@@ -36,7 +36,7 @@ function genie_figure_keep (fig)
 if ~exist('fig', 'var')
     fig_handle = get_figure_handle;     % current figure, if it exists
 else
-    fig_handle = get_figure_handle(fig);
+    fig_handle = get_figure_handle(fig);% output could be an array of handles
 end
 
 % Determine which belong to genie_figures

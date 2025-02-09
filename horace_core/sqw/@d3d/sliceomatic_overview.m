@@ -69,7 +69,8 @@ for i=1:n_plots
             'Axis argument must be an integer in the range 1 to 3');
     end
 
-    [figureHandle_{i}, axesHandle_{i}, plotHandle_{i}] = sliceomatic(IX_dataset_3d(w(i)),varargin{arg_start:end});
+    [figureHandle_{i}, axesHandle_{i}, plotHandle_{i}] = ...
+        sliceomatic(IX_dataset_3d(w(i)),varargin{arg_start:end});
 
     % Set the camera position
     set(gca,'CameraPosition',camposvec);

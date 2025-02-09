@@ -1,7 +1,7 @@
 function new_figure = genie_figure_set_target (target)
 % Set the current figure and current axes according to the requested plot target
 %
-% >> 
+% >> new_figure = genie_figure_set_target (target)
 %
 % Input:
 % ------
@@ -22,7 +22,8 @@ function new_figure = genie_figure_set_target (target)
 %
 % Output:
 % -------
-%   new_figure
+%   new_figure  True if a new figure had to be created to be the target.
+%               False if an existing figure is the target.
 
 
 if isgraphics(target, 'axes')
@@ -38,9 +39,9 @@ elseif is_string(target)
     fig_name = strtrim(target);
     
     fig_handle = findobj('Type', 'figure', 'Name', fig_name);   % could be array
-    if isempty(fig_handle) || is_genie_figure(fig_handle(1))
-        % No figure with the target name, or there is at least one and it is a
-        % genie_figure. Set the 'current' status genie_figure to be the target
+    if isempty(fig_handle) || any(is_genie_figure(fig_handle(:)))
+        % No figure with the target name, or there is at least one which is also
+        % a genie_figure. Set the 'current' status genie_figure to be the target
         % for plotting, or if they all have 'keep' status, create a new
         % genie_figure with the name, give it 'current' status and make it the
         % target for plotting

@@ -11,6 +11,11 @@ function appdata=sliceomaticfigure(d)
 % clf(fig,'reset')
 
 % === with:
+% History: 
+%   - TGP Feb 2014: Handle figure names so can have multiple sliceometics
+%   - TGP Feb 2025: Allow for the genie_figure menu items, but gracefully
+%                   ignores if not found on the path. Means the code is
+%                   transportable independeny og genie graphics.
 
 % If existing Sliceomatic figure, reset; otherwise create a new figure
 if isfield(d,'name')
@@ -20,11 +25,25 @@ else
 end
 fig=findobj('name',name,'type','figure');
 if ~isempty(fig)
-    cm = colormap;
-    clf(fig,'reset')
-    colormap(cm);
-    fig.Name = name;
-    set(0,'CurrentFigure',fig);
+    fig = fig(1);   % most recent figure with that name
+    figure_cleared = false;
+    try
+        % Catch the case of it being a genie_figure
+        if is_genie_figure(fig)
+            genie_figure_clear(fig)
+        end
+        figure_cleared = true;
+    catch
+        % Genie graphics not installed, so gracefully ignore the error and do
+        % the generic clearing of the figure
+    end
+    if ~figure_cleared
+        cm = colormap;
+        clf(fig,'reset')    % deep cleaning of the figure
+        colormap(cm);       % recover the original colormap
+        fig.Name = name;    % recover the original name
+        set(0,'CurrentFigure',fig);
+    end
 else
     fig=figure('Position',[5, 30, 800, 600],'name',name);
 end
