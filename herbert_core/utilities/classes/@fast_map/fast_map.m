@@ -161,6 +161,38 @@ classdef fast_map < serializable
         function nm = get.n_members(obj)
             nm = numel(obj.keys_);
         end
+        %
+        function val = get_values_for_keys(self,keys,no_validity_checks)
+            if nargin<3
+                no_validity_checks = false;
+            end
+            if ~no_validity_checks && self.optimized_
+                valid = keys<=self.min_max_key_val_(2) | keys<self.key_shif_;
+                if ~all(valid)
+                    error('HERBERT:fast_map:invalid_argument',...
+                        'All input keys must be in the allowed keys range [%d,%d]', ...
+                        self.min_max_key_val_);
+                end
+            end
+            n_keys = numel(keys);
+
+            key = uint32(keys);
+            val = nan(size(keys));
+            if self.optimized_
+                for idx = 1:n_keys
+                    val(idx) = self.keyval_optimized_(keys(idx)-self.key_shif_);
+                end
+            else
+
+                for idx=1:numel(keys)
+                    present = self.keys_ == key(idx);
+                    if any(present)
+                        val(idx) = self.values_(present);
+                    end
+                end
+            end
+        end
+
     end
     methods(Access=protected)
         function ks = check_keys(obj,ks)
@@ -199,7 +231,8 @@ classdef fast_map < serializable
     % Overloaded indexers. DESPITE LOOKING NICE, adding them makes fast_map
     % 40-60 times slower even without using indexes itself. Disabled for this
     % reason, until, may be mex is written which would deal with fast part
-    % of indices.
+    % of indices or we fully switch to MATLAB over 2021a, where you may
+    % overload subsagn using inheritance and special funtions.
     methods
         % function varargout = subsref(self,idxstr)
         %     if ~isscalar(self) % input is array or cell of unique_object_containers
