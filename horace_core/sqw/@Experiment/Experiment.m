@@ -193,7 +193,7 @@ classdef Experiment < serializable
             if isempty(obj.runid_map_)
                 map = [];
             else % copy existing map as containers.Map is handle now.
-                map = containers.Map(obj.runid_map_.keys,obj.runid_map_.values);
+                map = fast_map(obj.runid_map_.keys,obj.runid_map_.values);
             end
         end
         function obj = set.runid_map(obj,val)
@@ -308,17 +308,6 @@ classdef Experiment < serializable
             obj.samples = val;
         end
 
-        function [qspec, en] = calc_qspec(obj)
-            % Compute the Q and E in spectrometer coordinates from
-            % experimental info.
-            efix = obj.get_efix();
-            emode = obj.get_emode();
-            en = obj.expdata(1).en;
-            det_direction = obj.detector_arrays.det_direction();
-            spec_to_rlu = obj.detector_arrays.dmat;
-
-            [qspec, en] = calc_qspec(det_direction, efix, en, emode);
-        end
     end
     %----------------------------------------------------------------------
     methods(Static)
