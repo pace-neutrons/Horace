@@ -25,7 +25,6 @@ if runid_to_keep_are_indexes
 else
     runid_map = obj.runid_map;
     keys = runid_map.keys;
-    keys = [keys{:}];
     if ~any(ismember(runids_to_keep,keys)) % Old files. If the pixel run
         % indexes have been renumbered from 1 to n_headers but headers do not contain
         % correct runids, despite these ID-s may be extracted from
@@ -45,7 +44,7 @@ else
         obj.expdata = exp; % old runid_map gets recalculated on assignment
         obj.runid_recalculated_ = true;
     else
-        head_num = arrayfun(@(id)runid_map(id),runids_to_keep);
+        head_num = runid_map.get_values_for_keys(runids_to_keep,true);
     end
 end
 info = cell(4,1);
