@@ -76,7 +76,7 @@ else % master mode, calculate whole transformation matrix
     % Get matrix to convert from rlu to orthonormal frame defined by u,v; and
     b_matrix  = bmatrix(alatt, angdeg);       % bmat takes Vrlu to Vxtal_cart
     [~,u_matrix] = ubmatrix(u, v, b_matrix);  % ubmat takes Vrlu to V in orthonormal frame defined by u, v
-     % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
+    % u matrix takes V in crystal Cartesian coords to orthonormal frame defined by u, v
 end
 
 % Matrix to convert coords in orthonormal frame defined by notional directions of u, v, to
@@ -93,8 +93,12 @@ cryst = [cos(psi),sin(psi),0; -sin(psi),cos(psi),0; 0,0,1];
 % Combine to get matrix to convert from spectrometer coordinates to crystal Cartesian coordinates
 spec_to_cc = u_matrix\corr*cryst;
 
-% Matrix to convert from crystal Cartesian coords to r.l.u.
-u_to_rlu = inv(b_matrix);
+if nargout>1
+    % Matrix to convert from crystal Cartesian coords to r.l.u.
+    u_to_rlu = inv(b_matrix);
+end
 
-% Matrix to convert from spectrometer coordinates to r.l.u.
-spec_to_rlu = b_matrix\spec_to_cc;
+if nargout>2
+    % Matrix to convert from spectrometer coordinates to r.l.u.
+    spec_to_rlu = b_matrix\spec_to_cc;
+end

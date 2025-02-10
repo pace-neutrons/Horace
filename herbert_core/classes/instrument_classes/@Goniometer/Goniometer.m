@@ -146,19 +146,19 @@ classdef Goniometer < hashable
         %
         function obj = set.omega(obj,val)
             obj.omega_=check_angular_val(obj,val);
-            obj = obj.clear_hash();            
+            obj = obj.clear_hash();
         end
         function obj  = set.dpsi(obj,val)
             obj.dpsi_=check_angular_val(obj,val);
-            obj = obj.clear_hash();            
+            obj = obj.clear_hash();
         end
         function obj =set.gl(obj,val)
             obj.gl_=check_angular_val(obj,val);
-            obj = obj.clear_hash();            
+            obj = obj.clear_hash();
         end
         function obj =set.gs(obj,val)
             obj.gs_=check_angular_val(obj,val);
-            obj = obj.clear_hash();            
+            obj = obj.clear_hash();
         end
         %-----------------------------------------------------------------
         function u=get.u(obj)
@@ -188,6 +188,14 @@ classdef Goniometer < hashable
             obj = check_and_set_uv(obj,'v',v);
         end
         %-----------------------------------------------------------------
+        function [detdir_to_cryst_cc,obj] = calc_proj_matrix(obj,alatt,angdeg)
+            % Calculate matrix that convert momentum from coordinates in spectrometer frame to
+            % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
+            % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
+            obj.angular_units = 'rad';
+            detdir_to_cryst_cc = calc_proj_matrix (alatt, angdeg, obj.u_, obj.v_, ...
+                obj.psi_, obj.omega_, obj.dpsi_, obj.gl_, obj.gs_);
+        end
     end
     %======================================================================
     % partial load and angular transformations.
