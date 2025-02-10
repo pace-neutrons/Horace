@@ -188,13 +188,30 @@ classdef Goniometer < hashable
             obj = check_and_set_uv(obj,'v',v);
         end
         %-----------------------------------------------------------------
-        function [detdir_to_cryst_cc,obj] = calc_proj_matrix(obj,alatt,angdeg)
-            % Calculate matrix that convert momentum from coordinates in spectrometer frame to
+        function [mat,obj] = calc_proj_matrix(obj,alatt,angdeg,n_martix)
+            % Calculate matrices used tp convert momentum from coordinates in spectrometer frame to
             % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
-            % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
+            % or hkl axes.
+            %
+            % inputs:
+            % obj        -- initialized goniometer
+            % alatt      -- 1x3 vector of lattice parameters
+            % angdeg     -- 1x3 vector of lattice angles
+            % n_matrix   -- numner of matrix to return
+            %        1    - spec_to_cc matrix which converts detectors
+            %               coordinates to crystal Cartesian coordinates
+            %        2    - inv(b-matrix) -- converts crystal Cartesian
+            %               into hkl
+            %        3    - spect_to_hkl  -- converts detector direction
+            %               into rotated hkl, defined by u,v vectors
+            %
+            %
+            if nargin <4
+                n_martix = 1;
+            end
             obj.angular_units = 'rad';
-            detdir_to_cryst_cc = calc_proj_matrix (alatt, angdeg, obj.u_, obj.v_, ...
-                obj.psi_, obj.omega_, obj.dpsi_, obj.gl_, obj.gs_);
+            mat = calc_proj_matrix (alatt, angdeg, obj.u_, obj.v_, ...
+                obj.psi_, obj.omega_, obj.dpsi_, obj.gl_, obj.gs_,n_martix);
         end
     end
     %======================================================================

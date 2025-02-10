@@ -27,19 +27,27 @@ if ~isscalar(win)
           'Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
-[qspec, en] = win.experiment_info.calc_qspec();
-remap = containers.Map(unique(irun), 1:numel(win.header));
-irun = arrayfun(@(x) remap(x), irun);
+c = neutron_constants;
+k_to_e = c.c_k_to_emev;
 
-if ~iscell(win.header)
-    header = num2cell(win.header)';
-else
-    header = win.header;
-end
+% as column vectors
+idx = win.pix.all_indexes();
+irun = idx(1,:)';
+idet = idx(2,:)';
+ien = idx(3,:)';
 
-end
+alatt = win.data.alatt;
+angdeg = win.data.angdeg;
 
-emode = emode(1);
+exper = win.experiment_info.expdata;
+remapper = win.experiment_info.runid_map;
+exper_num = remapper.get_values_for_keys(irun,true); % retrieve experiment numbers which corresponds to pix run_id;
+
+
+emode   = emode(1);
+spec_to_rlu  = arrayfun(...
+    @(ex) calc_proj_matrix(ex,alatt, angdeg,3), exper, 'UniformOutput', false);
+
 
 efix = cellfun(@(x) x.efix, header);
 eps_lo = cellfun(@(x) 0.5*(x.en(1)+x.en(2)), header);
@@ -47,12 +55,8 @@ eps_hi = cellfun(@(x) 0.5*(x.en(end-1)+x.en(end)), header);
 n_en = cellfun(@(x) numel(x.en)-1, header);
 
 
-[~, ~, spec_to_rlu] = cellfun(...
-    @(h) calc_proj_matrix(h.alatt, h.angdeg, ...
-                          h.cu, h.cv, h.psi, ...
-                          h.omega, h.dpsi, h.gl, h.gs), header, 'UniformOutput', false);
 
-% Join in 3rd rank leading to n x n x nhead
+% Join in 3rd rank leading to n x n x n_experiments
 spec_to_rlu = cat(3, spec_to_rlu{:});
 
 eps_diff = (eps_lo(irun) .* (n_en(irun) - ien) + eps_hi(irun) .* (ien - 1)) ./ (n_en(irun) - 1);

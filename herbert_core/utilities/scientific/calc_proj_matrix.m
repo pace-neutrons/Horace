@@ -1,4 +1,4 @@
-function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, v, psi, omega, dpsi, gl, gs)
+function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, v, psi, omega, dpsi, gl, gs,varargin)
 % Calculate matrix that convert momentum from coordinates in spectrometer frame to
 % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
@@ -65,6 +65,14 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %              (This matrix is entirely equivalent to u_to_rlu*spec_to_u)
 
 % T.G.Perring 15/6/07
+if nargin>9
+    mat_to_return = varargin{1};
+    if mat_to_return <1 || mat_to_return>3
+        mat_to_return  = 0;
+    end
+else
+    mat_to_return  = 0;
+end
 
 
 if isempty(u) % slave mode
@@ -90,15 +98,32 @@ corr = (rot_om * (rot_dpsi*rot_gl*rot_gs) * rot_om')';
 % Matrix to convert from spectrometer coords to orthonormal frame defined by notional directions of u, v
 cryst = [cos(psi),sin(psi),0; -sin(psi),cos(psi),0; 0,0,1];
 
-% Combine to get matrix to convert from spectrometer coordinates to crystal Cartesian coordinates
-spec_to_cc = u_matrix\corr*cryst;
+if mat_to_return == 0
+    % Combine to get matrix to convert from spectrometer coordinates to crystal Cartesian coordinates
+    spec_to_cc = u_matrix\corr*cryst;
 
-if nargout>1
-    % Matrix to convert from crystal Cartesian coords to r.l.u.
-    u_to_rlu = inv(b_matrix);
+
+    if nargout>1
+        % Matrix to convert from crystal Cartesian coords to r.l.u.
+        u_to_rlu = inv(b_matrix);
+    end
+
+    if nargout>2
+        % Matrix to convert from spectrometer coordinates to r.l.u.
+        spec_to_rlu = b_matrix\spec_to_cc;
+    end
+else
+    u_to_rlu=[];
+    spec_to_rlu=[];
+    % return in first matrix the matrix requested by input number
+    switch(mat_to_return)
+        case(1)
+            % Combine to get matrix to convert from spectrometer coordinates to crystal Cartesian coordinates
+            spec_to_cc = u_matrix\corr*cryst;
+        case(2)
+            spec_to_cc = inv(b_matrix);   % inverse B-matrix assignet to first output argument.
+        case(3)
+            spec_to_cc = (u_matrix*b_matrix)\(corr*cryst); % spec_to_rlu assigned to first output argument
+    end
 end
 
-if nargout>2
-    % Matrix to convert from spectrometer coordinates to r.l.u.
-    spec_to_rlu = b_matrix\spec_to_cc;
-end

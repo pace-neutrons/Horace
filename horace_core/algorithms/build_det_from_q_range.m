@@ -90,7 +90,7 @@ elseif all(size(q_range) == [1,3])
     q_range = [reshape(q1,nq,1),reshape(q2,nq,1),reshape(q3,nq,1)];
 end
 
-[~, ~, spec_to_rlu] = lattice.calc_proj_matrix();
+spec_to_rlu = lattice.calc_proj_matrix(3);
 
 % TODO: Done for elastic only. Make the same for two other modes
 % if memory transfers are provided for inelastic (direct and indirect):
