@@ -22,7 +22,16 @@ classdef fast_map < serializable
     properties
         % map optimization for doing fast access limit
         %
-        % The map optimization works by allocating large array with places
+        % The map optimization works by allocating large continuous array
+        % with places for keys as indices. Where keys correspond places in
+        % array, result contains values, and where no keys present, array
+        % contains nan-s. The property below shows how much more elements
+        % the optimization array should contain wrt the number of keys in
+        % the map. E.g. if empty_space_optimization_limit == 5 and there
+        % are 100 keys, optimization array would contain 500 elements.
+        % If max(keys)-min(keys) > number_of_keys*empty_space_optimization_limit,
+        % map optimization gets disabled and correspondence between keys
+        % and values is calculated by binary search.
         empty_space_optimization_limit = 5;
     end
 
@@ -163,6 +172,22 @@ classdef fast_map < serializable
         end
         %
         function val = get_values_for_keys(self,keys,no_validity_checks)
+            % method retrieves values corresponding to array of keys.
+            %
+            % Using this method for array of keys is approximately two
+            % times faster than retrieving array of values invoking get(key)
+            % method.
+            %
+            % Inputs:
+            % self  -- initialized  instance of fast map class
+            % keys  -- array of numerical keys
+            % no_validity_checks
+            %       --  if true, keys assumed to be valid and validity
+            %           check for keys is not performed (~5 times faster)
+            %           Invalid keys will still throw in optimized map but
+            %           error will be less
+            %
+            %
             if nargin<3
                 no_validity_checks = false;
             end

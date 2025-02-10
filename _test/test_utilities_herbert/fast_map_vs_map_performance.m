@@ -1,4 +1,4 @@
-n_keys = 100;
+n_keys = 500;
 base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
 base_key = unique(base_key);
 
@@ -7,7 +7,7 @@ base_key = base_key(1:n_keys);
 keysUint = uint32(base_key);
 mm = min_max(keysUint)
 
-n_operations= 10000;
+n_operations= 50000;
 
 
 test_keys = repmat(base_key,1,n_operations);
