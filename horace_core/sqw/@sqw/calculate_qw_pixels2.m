@@ -48,33 +48,31 @@ c = neutron_constants;
 k_to_e = c.c_k_to_emev;
 
 % as column vectors
-idx = win.pix.all_indexes();
+idx   = win.pix.all_indexes();
 irun = idx(1,:)';
 idet = idx(2,:)';
-ien = idx(3,:)';
+ien  = idx(3,:)';
 
 alatt = win.data.alatt;
 angdeg = win.data.angdeg;
 
-exper = win.experiment_info.expdata;
+exp_data = win.experiment_info;
+ix_exper = exp_data.expdata;
 remapper = win.experiment_info.runid_map;
-exper_num = remapper.get_values_for_keys(irun,true); % retrieve experiment numbers which corresponds to pix run_id;
+% now irun represent number of IX_experiment in Experiment class
+irun     = remapper.get_values_for_keys(irun,true); % retrieve experiment numbers which corresponds to pix run_id;
 
 
-emode   = emode(1);
 if coord_in_rlu
     n_matrix = 3;
 else % coordinates in Crystan Cartesian
     n_matrix = 1;    
 end
 spec_to_rlu  = arrayfun(...
-    @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), exper, 'UniformOutput', false);
+    @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
 
-
-efix = cellfun(@(x) x.efix, header);
-eps_lo = cellfun(@(x) 0.5*(x.en(1)+x.en(2)), header);
-eps_hi = cellfun(@(x) 0.5*(x.en(end-1)+x.en(end)), header);
-n_en = cellfun(@(x) numel(x.en)-1, header);
+efix = exp_data.get_efix();
+[en,n_unique_en_idx]   = exp_data.get_en_transfer(true);
 
 
 
@@ -108,39 +106,3 @@ end
 
 end
 
-function detdcn = spec_coords_to_det (detpar)
-% Matrix to convert coordinates in spectrometer (or laboratory) frame into detector frame
-%
-%   >> d_mat = spec_coords_to_det (detpar)
-%
-% Input:
-% ------
-%   detpar      Detector parameter structure with fields as read by get_par
-%
-% Output:
-% -------
-%   d_mat       Matrix size [3, 3, ndet] to take coordinates in spectrometer
-%              frame and convert in detector frame.
-%
-%   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
-%               [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
-%
-% The detector frame is one with x axis along kf, y radially outwards. This is the
-% original Tobyfit detector frame.
-
-%% TODO: Investigate use of transform_pix_to_hkl
-
-detdcn = {};
-for i=1:detpar.n_objects
-    ndet = numel(detpar{i}.x2);
-
-    cp = cosd(detpar{i}.phi);
-    sp = sind(detpar{i}.phi);
-    cb = cosd(detpar{i}.azim);
-    sb = sind(detpar{i}.azim);
-
-    detdcn{i} = [cp, cb.*sp, sb.*sp];
-end
-
-detdcn = cat(1, detdcn{:})';
-end

@@ -74,9 +74,10 @@ classdef test_calc_qspec< TestCaseWithSave
                 [qs,en] = calc_qspec(dc, efix, eps, emode);
             end
             te = toc(tb);
+            if obj.ll>1; fprintf('calc_qspec, Emode 1  takes %gsec\n',te); end
             assertEqualWithSave(obj,qs);
             assertEqualWithSave(obj,en);
-            if obj.ll>1; fprintf('calc_qspec, Emode 1  takes %gsec\n',te); end
+
             check_timing(obj,'direct',te)
         end
         %------------------------------------------------------------------
@@ -128,7 +129,7 @@ classdef test_calc_qspec< TestCaseWithSave
                 difr = 0.5*(value-prev_value)/(value+prev_value);
                 if abs(difr) > 0.05
                     fprintf([ ...
-                        '*** calc_qspec: mode %s Execution time changed more then 5%\n' ...
+                        '*** calc_qspec: mode %s Execution time changed more then 5%%\n' ...
                         '*** Times: Previous : %dsec Current: %dsec\n'], ...
                         timing_field,prev_value,value);
                 end

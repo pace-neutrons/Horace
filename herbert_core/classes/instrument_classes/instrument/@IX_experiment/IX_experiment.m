@@ -155,6 +155,14 @@ classdef IX_experiment < Goniometer
         function en = get.en(obj)
             en = obj.en_;
         end
+        function en = get_en(obj,bin_centers)
+            % return energy transfer values with possibility to
+            % retrieve bin centers.
+            en = obj.en_;
+            if bin_centers
+                en = 0.5*(en(1:end-1)+en(2:end));
+            end
+        end
         function obj = set.en(obj,val)
             if ~isnumeric(val)
                 error('HERBERT:IX_experiment:invalid_argument',...

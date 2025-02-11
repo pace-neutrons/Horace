@@ -53,6 +53,9 @@ classdef IX_detector_array < hashable
 
         % Name of file source, if any
         filename_ = ''
+
+        %
+        detdcn_cache_ = [];
     end
 
     properties (Dependent)
@@ -137,23 +140,11 @@ classdef IX_detector_array < hashable
             %                       'azim', 'width', 'height'
 
             if nargin>0
-                is_detector_bank = cellfun(@(x)(isa(x,'IX_detector_bank')), varargin);
-                if all(is_detector_bank)
-                    % All inputs have class IX_detector_bank
-                    % Concatenate into a single array
-                    tmp = cellfun (@(x)(x(:)), varargin, 'uniformOutput', false);
-                    obj.det_bank_ = cat(1,tmp{:});
-                    clear tmp
-
-                    % Check that the detector identifiers are all unique
-                    id = arrayfun (@(O)(O.id), obj.det_bank_, 'uniformOutput', false);
-                    id_all = cat(1,id{:});
-                    if ~is_integer_id (id_all)
-                        error ('HERBERT:IX_detector_array:invalid_argument',...
-                            'Detector identifiers must all be unique')
-                    end
-
-                elseif numel(varargin)==1 && isstruct(varargin{1})
+                if isa(varargin{1},'IX_detector_bank')
+                    % all have to be detector banks, check will be
+                    % performed at assignment
+                    obj.det_bank = varargin;
+                elseif isscalar(varargin) && isstruct(varargin{1})
                     % Single argument that is a structure. Assume attempt to
                     % initialise with a detpar structure
                     S = varargin{1};
@@ -222,10 +213,7 @@ classdef IX_detector_array < hashable
         % Mirrors of private properties; these define object state:
         % ---------------------------------------------------------
         function obj = set.det_bank (obj, val)
-            if ~isa(val,'IX_detector_bank') || isempty(val)
-                error('HERBERT:IX_detector_array:invalid_argument',...
-                    'Detector bank(s) must be a non-empty IX_detector_bank array')
-            end
+            val = check_det_bank_(val);
             obj.det_bank_ = val(:);
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
@@ -463,6 +451,8 @@ classdef IX_detector_array < hashable
 
         % Generic properties across all detector banks:
         function val = get.id(obj)
+            %TODO not obvius why this id is unique among all banks
+            % Should be ensured at construction. Not done
             if numel(obj.det_bank_)>1
                 tmp = arrayfun (@(O)(O.id), obj.det_bank_, 'uniformOutput', false);
                 val = cell2mat(tmp);
@@ -538,6 +528,37 @@ classdef IX_detector_array < hashable
     end
 
     methods
+        function [detdcn,obj] = calc_detdcn(obj,idx)
+            % return unit vectors defining detector directions for each
+            % detector in array together with detector's id defining
+            % detector unuqueness. The ID should coincide with ID-s stored
+            % in Pixels, as this is where they are used
+            %
+            % Optional input:
+            % idx   -- array of indices to get directions for.
+            %
+            % Returns:
+            % detdcn -- 4xn_det array where first 3 rows contain components
+            %           of vector directions and forth -- id-s of the
+            %           detectors
+            %
+            % if called without idx, the result is placed in detdcn cache
+            % so can be easy retrieved in a subsequen calls
+            if nargin<2
+                idx = [];
+            end
+
+            if ~isempty(obj.detdcn_cache_)
+                detdcn = obj.detdcn_cache_;
+                selected = ismember(detdcn(4,:),idx);
+                detdcn  = detdcn(:,selected);
+            else
+                detdcn = calc_detdcn_(obj,idx);
+            end
+            if isempty(idx)
+                obj.detdcn_cache_ = detdcn;
+            end
+        end
         function val = get_detpar_representation(obj)
             %GET_DETPAR_REPRESENTATION convert first detector bank into detpar struct
             % intended for use initialising from a *default* IX_detector_array
@@ -554,6 +575,7 @@ classdef IX_detector_array < hashable
         end
         function obj = check_combo_arg(obj)
             % TODO: at least array equal length should be validated
+            obj.detdcn_cache_ = [];
             obj = obj.clear_hash();
         end
     end

@@ -1,16 +1,35 @@
 classdef Experiment < serializable
-    %EXPERIMENT Container object for all data describing the Experiment
+    %EXPERIMENT object-holder for all data describing the Experiment
+
+    properties (Dependent)
+        n_runs;  % return the number of runs, this class contains
+        %
+        instruments      % Container with references to instruments
+        detector_arrays  % Container with references to detectors for each run
+        samples          % Container with references to samples
+        expdata          % array, containing information about each run,
+        %                  contributing into experiment
+
+        % the property defines the relationship between
+        % the runid, contained in expdata and the position of the object
+        % with this runid in the appropriate container (e.g. expdata
+        % container but also correspondent samples instrument and (TODO:)
+        % detector_arrays
+        runid_map;
+        %
+    end
 
     properties(Access=private)
         % String input here (a) invalid value so should be caught if not
         % redefined later (b) describes what the construction process is.
-        instruments_ = 'initialised in constructor';
-        detector_arrays_ = 'initialised in constructor';
-        samples_ = 'initialised in constructor';
+        instruments_ = 'global storage; refernce initialised in constructor';
+        detector_arrays_ = 'global storage; refernce initialised in constructor';
+        samples_ = 'global storage; refernce initialised in constructor';
         samples_set_ = false; % Two properties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
         old_lattice_holder_ = [];
+
         % NOTE: Not yet implemented
         % if both sample and expdata are set, all contain lattice and
         % lattices are different, expdata_ lattice takes priority
@@ -27,25 +46,12 @@ classdef Experiment < serializable
         % recalculated to make them consistent. If this have happened, it
         % is certainly old file, with runid_headers not defined correctly.
         % unfortunately, if it does not happen, it still may be old file
-        % with incorrect header->pixel.run_indx connection.
+        % with incorrect header->pixel.run_indx connection. Fixture in this
+        % case may be only manual one, trying to identify relation between
+        % experiment info and pixels id-s manually.
         runid_recalculated_ = false;
     end
 
-    properties (Dependent)
-        n_runs;  % return the number of runs, this class contains
-        % Mirrors of private properties
-        instruments
-        detector_arrays
-        samples
-        expdata
-        % the property defines the relationship between
-        % the runid, contained in expdata and the position of the object
-        % with this runid in the appropriate container (e.g. expdata
-        % container but also correspondent samples instrument and (TODO:)
-        % detector_arrays
-        runid_map;
-        %
-    end
     properties(Dependent,Hidden)
         % property providing compatibility with old header interface and
         % returning array of structures, with information used to written
@@ -240,8 +246,11 @@ classdef Experiment < serializable
         % set moderator pulse on every instrument contributing to the
         % object
         obj = set_mod_pulse(obj,pulse_model,pm_par)
-        % Return array of incident energies from all contributing runs
-        en = get_efix(obj);
+        % Return cellarray of incident energies from all contributing runs
+        efix = get_efix(obj);
+        % Return cellarray of energy transfers from all contributing runs
+        [en,nuidx]  = get_en_transfer(obj,bin_centre);
+
         function emode = get_emode(obj)
             % Return array of instrument modes provided in all contributing runs
             emode = arrayfun(@(x)x.emode,obj.expdata_,'UniformOutput',true);
@@ -588,7 +597,7 @@ classdef Experiment < serializable
                 % assume we're adding n_runs identical copies
                 %
                 % add to default compressed container
-               
+
                 obj.(field) = obj.(field).add_copies_(val, obj.n_runs);
 
             elseif isempty(val)

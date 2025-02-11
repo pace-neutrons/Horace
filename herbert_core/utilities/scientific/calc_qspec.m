@@ -48,7 +48,7 @@ switch emode
     en=repmat(eps(:)', 1, ndet);
 
   case 2 % Indirect Geometry
-    %kf=sqrt(efix(:)'/k_to_e);
+    %kf=sqrt(efix(:)'/k_to_e); This will be needed for MASHRUM
     kf=sqrt(efix/k_to_e);
     if numel(efix) > 1
         ki = sqrt(bsxfun(@plus, efix(:)', eps(:))/k_to_e); % [ne x n_det]
