@@ -502,11 +502,11 @@ classdef IX_detector_array < hashable
         end
 
         function val = get.rotvec(obj)
-            if numel(obj.det_bank_)>1
+            if isscalar(obj.det_bank_)
+                val = obj.det_bank_.rotvec;
+            else
                 tmp = arrayfun(@(O)(O.rotvec), obj.det_bank_, 'uniformOutput', false);
                 val = cat(2,tmp{:});
-            else
-                val = obj.det_bank_.rotvec;
             end
         end
 
@@ -574,7 +574,7 @@ classdef IX_detector_array < hashable
             val.filepath = obj.filepath_;
         end
         function obj = check_combo_arg(obj)
-            % TODO: at least array equal length should be validated
+            %
             obj.detdcn_cache_ = [];
             obj = obj.clear_hash();
         end

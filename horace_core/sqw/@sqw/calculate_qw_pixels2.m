@@ -44,60 +44,68 @@ elseif nargin<3
     return_matrix= false;    
 end
 
-c = neutron_constants;
-k_to_e = c.c_k_to_emev;
-
 % as column vectors
 idx   = win.pix.all_indexes();
 irun = idx(1,:)';
 idet = idx(2,:)';
 ien  = idx(3,:)';
 
+% if we want possible change in alatt during experiment, go to 
+% 
 alatt = win.data.alatt;
 angdeg = win.data.angdeg;
 
-exp_data = win.experiment_info;
-ix_exper = exp_data.expdata;
+experiment = win.experiment_info;
+ix_exper = experiment.expdata;
 remapper = win.experiment_info.runid_map;
-% now irun represent number of IX_experiment in Experiment class
+%
+% convert run_id in pixels into number of IX_experiment, corresponding to
+% this pixel. Now irun represent number of IX_experiment in Experiment 
+% class or number of transformation matrix in list of all transformations
+% (spec_to_rlu)
 irun     = remapper.get_values_for_keys(irun,true); % retrieve experiment numbers which corresponds to pix run_id;
 
-
-if coord_in_rlu
+if coord_in_rlu % coordinates in hkl
     n_matrix = 3;
 else % coordinates in Crystan Cartesian
     n_matrix = 1;    
 end
+%
 spec_to_rlu  = arrayfun(...
     @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
 
-efix = exp_data.get_efix();
-[en,n_unique_en_idx]   = exp_data.get_en_transfer(true);
+% energies
+efix = experiment.get_efix();
+[en,n_unique_en_idx]   = experiment.get_en_transfer(true);
+% 
+all_det = experiment.detector_arrays;
+[unique_det, unique_iruns] = all_det.get_unique_objects_and_indices();
 
 
 
-% Join in 3rd rank leading to n x n x n_experiments
-spec_to_rlu = cat(3, spec_to_rlu{:});
-
-eps_diff = (eps_lo(irun) .* (n_en(irun) - ien) + eps_hi(irun) .* (ien - 1)) ./ (n_en(irun) - 1);
-detdcn = spec_coords_to_det(win.detpar);
-kfix = sqrt(efix/k_to_e);
-
-switch emode
-  case 1
-    ki = kfix(irun);
-    kf = sqrt((efix(irun)-eps_diff)/k_to_e);
-  case 2
-    ki = sqrt((efix(irun)+eps_diff)/k_to_e);
-    kf = kfix(irun);
-  otherwise
-    ki = kfix(irun);
-    kf = ki;
-end
-
-qw = cell(4, 1);
-qw(1:3) = calculate_q(ki, kf, detdcn(:, idet), spec_to_rlu(:, :, irun));
-qw{4} = eps_diff;
+% 
+% % Join in 3rd rank leading to n x n x n_experiments
+% spec_to_rlu = cat(3, spec_to_rlu{:});
+% 
+% eps_diff = (eps_lo(irun) .* (n_en(irun) - ien) + eps_hi(irun) .* (ien - 1)) ./ (n_en(irun) - 1);
+% detdcn = spec_coords_to_det(win.detpar);
+% kfix = sqrt(efix/k_to_e);
+% 
+% switch emode
+%   case 1
+%     ki = kfix(irun);
+%     kf = sqrt((efix(irun)-eps_diff)/k_to_e);
+%   case 2
+%     ki = sqrt((efix(irun)+eps_diff)/k_to_e);
+%     kf = kfix(irun);
+%   otherwise
+%     ki = kfix(irun);
+%     kf = ki;
+% end
+% 
+% qw = cell(4, 1);
+% qw(1:3) = calculate_q(ki, kf, detdcn(:, idet), spec_to_rlu(:, :, irun));
+% qw{4} = eps_diff;
 % Join cell array into 4xN mat
 if return_matrix
     qw = cat(2, qw{:})';

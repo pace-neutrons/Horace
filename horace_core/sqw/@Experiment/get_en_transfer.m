@@ -11,6 +11,10 @@ function [en,nuidx]  = get_en_transfer(obj,bin_centre)
 %               of the contributing neutron events.
 %               if bin_centre is true, function returns bin centres of
 %               these bins rather than their bin boundaries.
+% Returns:
+% en         -- cellarray of energy transfer values, present in experiment
+% nuidx      -- numbers of experiments which contain unique energy transfer
+%               values
 
 if nargin == 1
     bin_centre = false;    

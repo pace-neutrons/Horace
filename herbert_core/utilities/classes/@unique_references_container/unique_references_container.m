@@ -380,8 +380,7 @@ classdef unique_references_container < ObjContainersBase
 
         function [unique_objects, unique_indices] = get_unique_objects_and_indices(self)
             %GET_UNIQUE_OBJECTSAND_INDICES - get the unique objects and their
-            % indices into the singleton container. Abandoned implementation
-            % left in case it becomes useful.
+            % indices into the singleton container. 
             unique_indices = unique( self.idx_ );
             storage = unique_obj_store.instance().get_objects(self.baseclass);
             unique_objects = cell( 1,numel(unique_indices) );
