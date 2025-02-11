@@ -210,13 +210,10 @@ classdef fast_map < serializable
                     val(idx) = kvo(keys(idx)-kvs);
                 end
             else
-
-                for idx=1:numel(keys)
-                    present = self.keys_ == key(idx);
-                    if any(present)
-                        val(idx) = self.values_(present);
-                    end
-                end
+                ks = self.keys_;
+                requested = ismember(ks,key);
+                kv = self.values_;
+                val = kv(requested);
             end
         end
 
@@ -260,6 +257,15 @@ classdef fast_map < serializable
     % reason, until, may be mex is written which would deal with fast part
     % of indices or we fully switch to MATLAB over 2021a, where you may
     % overload subsagn using inheritance and specified abstract methods.
+    %  SAMPLE OF PERFORMANCE OF fast_map vrt MATLAB map (UINT map)
+    %                         subsref/subsasgn : enabled    ! disabled
+    %Find & Add keys to UINT        map   takes: 108.82sec  ! 106.53sec
+    %Find & Add keys FAST MAP       map   takes: 372.73sec  !   6.75sec
+    %Find       keys in UINT        map   takes:  29.36sec  !  29.46sec
+    %Find    keys in FAST MAP       map   takes: 183.09sec  !   5.28sec
+    %Find all keys in FAST MAP  non-opt   takes:   0.14sec  !   0.14sec
+    %Find keys in FAST MAP opt      map   takes: 180.73sec  !   0.23sec
+    %Find all keys in FAST MAP opt  map   takes:   0.045sec !   0.038sec
     methods
         % function varargout = subsref(self,idxstr)
         %     if ~isscalar(self) % input is array or cell of unique_object_containers
