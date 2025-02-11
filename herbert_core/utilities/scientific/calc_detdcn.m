@@ -1,17 +1,19 @@
-function detdcn = calc_detdcn(det,varargin)
+function detdcn = calc_detdcn(phi,azim,varargin)
 % Compute the direction from the sample to the detector elements
 %
 %   >> detdcn = calc_detdcn(det)
 %
 % Input:
 % ------
-%   det     Detector structure as read by get_par [scalar structure]
-%
+%   phi       -- polar angle (deviation from z-axis) of a detector 
+%   azim      -- azimthal angle 
 % Optional:
-% keep_detector_id -- if present, return array, also containing the
-%           detectors ID row. If these id-s are missing from input detector
-%           group, the detectors are numbered from 1 to number of elements
-%           in detectors array.
+%   det_group -- detector ID in the list of detectors. In the simples case
+%                it is just detector number, in more complex -- special number
+%                identifying detector in the detector array.
+%Note:
+% phi and azim come from  det struct structure as read by get_par 
+% [scalar structure]
 %
 % Output:
 % -------
@@ -23,20 +25,18 @@ function detdcn = calc_detdcn(det,varargin)
 %           fully implemented and currently works with MATLAB code only)
 %           [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 
-ex = cosd(det.phi);
-ey = sind(det.phi).*cosd(det.azim);
-ez = sind(det.phi).*sind(det.azim);
+ex = cosd(phi);
+sp = sind(phi);
+ey = sp.*cosd(azim);
+ez = sp.*sind(azim);
 % the assumption here is that det will have row vectors, however it is now
 % very possible that they may be columns. So convert ex/y/z to rows
-ex = make_row(ex);
-ey = make_row(ey);
-ez = make_row(ez);
-if nargin == 1
+ex = ex(:)';
+ey = ey(:)';
+ez = ez(:)';
+if nargin < 3
     detdcn = [ex;ey;ez];
 else
-    if isfield(det,'group')
-        detdcn = [ex;ey;ez;det.group];
-    else
-        detdcn = [ex;ey;ez;1:numel(ex)];
-    end
+    det_group = varargin{1};
+    detdcn = [ex;ey;ez;det_group(:)'];    
 end

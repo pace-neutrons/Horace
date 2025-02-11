@@ -110,7 +110,8 @@ if ~use_mex
     else
         qspec_provided = false;
         if isempty(detdcn)
-            detdcn = calc_detdcn(obj.det_par);
+            det = obj.det_par;
+            detdcn = calc_detdcn(det.phi,det.azim);
         end
         [qspec,en]=obj.calc_qspec(detdcn);
         ucoords = [spec_to_cc*qspec;en];
