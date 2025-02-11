@@ -81,6 +81,14 @@ efix = experiment.get_efix();
 all_det = experiment.detector_arrays;
 [unique_det, unique_iruns] = all_det.get_unique_objects_and_indices();
 
+n_unique_det = numel(unique_iruns);
+det_dir = cell(1,n_unique_det);
+for i=1:n_unique_det 
+    selected = irun == unique_iruns(i);
+    idet_4_run = idet(selected);
+    det_dir(i) = unique_det{i}.calc_detdcn(idet_4_run);
+end
+
 
 
 % 
