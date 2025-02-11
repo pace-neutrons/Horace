@@ -204,8 +204,10 @@ classdef fast_map < serializable
             key = uint32(keys);
             val = nan(size(keys));
             if self.optimized_
+                kvo = self.keyval_optimized_;
+                kvs = self.key_shif_;
                 for idx = 1:n_keys
-                    val(idx) = self.keyval_optimized_(keys(idx)-self.key_shif_);
+                    val(idx) = kvo(keys(idx)-kvs);
                 end
             else
 
@@ -257,14 +259,14 @@ classdef fast_map < serializable
     % 40-60 times slower even without using indexes itself. Disabled for this
     % reason, until, may be mex is written which would deal with fast part
     % of indices or we fully switch to MATLAB over 2021a, where you may
-    % overload subsagn using inheritance and special funtions.
+    % overload subsagn using inheritance and specified abstract methods.
     methods
         % function varargout = subsref(self,idxstr)
         %     if ~isscalar(self) % input is array or cell of unique_object_containers
         %         [varargout{1:nargout}] = builtin('subsref',self,idxstr);
         %         return;
         %     end
-        %     % overloaded indexing for retrieving object from container
+        %     %overloaded indexing for retrieving object from container
         %     switch idxstr(1).type
         %         case {'()'}
         %             key = idxstr(1).subs{:};

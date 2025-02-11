@@ -7,7 +7,7 @@ base_key = base_key(1:n_keys);
 keysUint = uint32(base_key);
 mm = min_max(keysUint)
 
-n_operations= 50000;
+n_operations= 100000;
 
 
 test_keys = repmat(base_key,1,n_operations);
@@ -65,7 +65,8 @@ for i=1:n_idx
 end
 tv = toc(tv);
 fprintf('Find keys in FAST MAP Opt      map   takes %gsec\n',tv)
-
+fm = fast_map(test_keys,1:numel(test_keys));
+fm.optimized = true;
 tv = tic;
 idx1 = fm.get_values_for_keys(test_keys,true);
 tv = toc(tv);
