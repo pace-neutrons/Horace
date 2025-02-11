@@ -5,6 +5,8 @@ function mat = calc_proj_matrix (obj,n_matrix)
 %
 %   >> [spec_to_u, u_to_rlu, spec_to_rlu] = obj.calc_proj_matrix(n_matrix)
 %
+%  n_martix -- number from 1 to 3, identifying one of 3 matrix to return.
+%              If out of 1-3 range, first martix is returned.
 %
 % Output:      Dependint on n_matrix, output is equal
 % -------

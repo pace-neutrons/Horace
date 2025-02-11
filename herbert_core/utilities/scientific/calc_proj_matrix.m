@@ -45,6 +45,10 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %   gl          Large goniometer arc angle (rad)
 %   gs          Small goniometer arc angle (rad)
 %
+% Optional:
+% n_martix    -- if present and lies in the range 1-3, return only one
+%                matrix out of 3 possible as output. All matices are asgned
+%                to first output matrix
 %
 % Output:
 % -------
@@ -65,6 +69,8 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %              (This matrix is entirely equivalent to u_to_rlu*spec_to_u)
 
 % T.G.Perring 15/6/07
+
+% process last argument to validate if one or all martix are requested.
 if nargin>9
     mat_to_return = varargin{1};
     if mat_to_return <1 || mat_to_return>3
@@ -126,4 +132,3 @@ else
             spec_to_cc = (u_matrix*b_matrix)\(corr*cryst); % spec_to_rlu assigned to first output argument
     end
 end
-

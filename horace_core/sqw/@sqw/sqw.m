@@ -181,7 +181,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         qsqr_w = calculate_qsqr_w_pixels (win)
         % Calculate hkl,en of datest pixels using detectors and experiment
         % info
-        qw=calculate_qw_pixels2(win)
+        qw=calculate_qw_pixels2(win,coord_in_hkl,return_matrix)
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting

@@ -1,7 +1,9 @@
-function qw=calculate_qw_pixels2(win)
+function qw=calculate_qw_pixels2(win,coord_in_rlu,return_matrix)
 % Calculate qh, qk, ql, en for the pixels in an sqw dataset from the experiment information
 %
 %   >> qw = calculate_qw_pixels2(win)
+%   >> qw = calculate_qw_pixels2(win,coord_in_hkl)
+%   >> qw = calculate_qw_pixels2(win,coord_in_hkl,return_matrix)
 %
 % This method differs from calculate_qw_pixels because it recomputes the values
 % of momentum and energy from efix, emode and the detector information. This is
@@ -9,7 +11,16 @@ function qw=calculate_qw_pixels2(win)
 %
 % Input:
 % ------
-%   win     Input sqw object
+%  win          -- Input sqw object
+% Optional: 
+%  coord_in_rlu -- default true. Returns pixel coordinates in reciprocal
+%                  lattice units (projection onto rotated hkl coordinate
+%                  system). If false, return pixel coordinates in Crystal
+%                  Cartesial coordinate system
+% return_matrix -- default false. Return pixel coordinates as cellarray of
+%                  4 vectors. (See below)
+%                  if true, return coordinates as [4 x n_pixels] array
+%
 %
 % Output:
 % -------
@@ -25,6 +36,12 @@ function qw=calculate_qw_pixels2(win)
 if ~isscalar(win)
     error('HORACE:calculate_qw_pixels2:invalid_argument', ...
           'Only a single sqw object is valid - cannot take an array of sqw objects')
+end
+if nargin<2
+    coord_in_rlu = true;
+    return_matrix= false;
+elseif nargin<3
+    return_matrix= false;    
 end
 
 c = neutron_constants;
@@ -45,8 +62,13 @@ exper_num = remapper.get_values_for_keys(irun,true); % retrieve experiment numbe
 
 
 emode   = emode(1);
+if coord_in_rlu
+    n_matrix = 3;
+else % coordinates in Crystan Cartesian
+    n_matrix = 1;    
+end
 spec_to_rlu  = arrayfun(...
-    @(ex) calc_proj_matrix(ex,alatt, angdeg,3), exper, 'UniformOutput', false);
+    @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), exper, 'UniformOutput', false);
 
 
 efix = cellfun(@(x) x.efix, header);
@@ -79,8 +101,10 @@ qw = cell(4, 1);
 qw(1:3) = calculate_q(ki, kf, detdcn(:, idet), spec_to_rlu(:, :, irun));
 qw{4} = eps_diff;
 % Join cell array into 4xN mat
-qw = cat(2, qw{:})';
-qw = win.data.proj.transform_hkl_to_pix(qw);
+if return_matrix
+    qw = cat(2, qw{:})';
+end
+
 
 end
 
