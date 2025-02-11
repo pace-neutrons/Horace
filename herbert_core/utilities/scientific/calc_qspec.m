@@ -36,15 +36,15 @@ switch emode
     lambda=exp(eps);        % just pass the values as bin centres
 
     k=(2*pi)./lambda;   % [ne x 1]
-    Q_by_k = repmat([1;0;0], [1, ndet]) - detdcn;   % [3 x ndet]
-    qspec = repmat(k', [3, ndet]).*reshape(repmat(reshape(Q_by_k, [3, 1, ndet]), [1, ne, 1]), [3, ne*ndet]);
+    Q_by_k = [1;0;0] - detdcn;   % [3 x ndet]
+    qspec = repmat(k(:)', [3, ndet]).*reshape(repmat(reshape(Q_by_k, [3, 1, ndet]), [1, ne, 1]), [3, ne*ndet]);
     en=zeros(1, ne*ndet);
 
   case 1 % Direct Geometry
     ki=sqrt(efix/k_to_e);
-    kf=sqrt((efix-eps)/k_to_e); % [ne x 1]
-    qspec = repmat([ki;0;0], [1, ne*ndet]) - ...
-        repmat(kf', [3, ndet]).*reshape(repmat(reshape(detdcn, [3, 1, ndet]), [1, ne, 1]), [3, ne*ndet]); %CM:detdcn shape wrong
+    kf=sqrt((efix-eps(:)')/k_to_e); % [ne x 1]
+    qspec = [ki;0;0] - ...    
+        repmat(kf(:)', [3, ndet]).*reshape(repmat(reshape(detdcn, [3, 1, ndet]), [1, ne, 1]), [3, ne*ndet]);
     en=repmat(eps(:)', 1, ndet);
 
   case 2 % Indirect Geometry
