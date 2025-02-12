@@ -28,8 +28,9 @@ classdef fast_map < serializable
         % contains nan-s. The property below shows how much more elements
         % the optimization array should contain wrt the number of keys in
         % the map. E.g. if empty_space_optimization_limit == 5 and there
-        % are 100 keys, optimization array would contain 500 elements.
-        % If max(keys)-min(keys) > number_of_keys*empty_space_optimization_limit,
+        % are 100 keys, optimization array would contain no more than 500 
+        % elements. If this ratio is not satisfied, i.e. 
+        % if max(keys)-min(keys) > number_of_keys*empty_space_optimization_limit,
         % map optimization gets disabled and correspondence between keys
         % and values is calculated by binary search.
         empty_space_optimization_limit = 5;
