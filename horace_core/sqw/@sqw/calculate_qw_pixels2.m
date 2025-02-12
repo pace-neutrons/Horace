@@ -70,7 +70,9 @@ if coord_in_rlu % coordinates in hkl
 else % coordinates in Crystan Cartesian
     n_matrix = 1;    
 end
-%
+% obtain transformation matrices to convert each run's dector positions
+% into common coordinate system related to crystal (hkl or crystal
+% Cartesian)
 spec_to_rlu  = arrayfun(...
     @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
 
@@ -79,12 +81,12 @@ efix = experiment.get_efix();
 [en,n_unique_en_idx]   = experiment.get_en_transfer(true);
 % 
 all_det = experiment.detector_arrays;
-[unique_det, unique_iruns] = all_det.get_unique_objects_and_indices();
+[unique_det, run_idx] = all_det.get_unique_objects_and_indices(true);
 
-n_unique_det = numel(unique_iruns);
+n_unique_det = numel(run_idx);
 det_dir = cell(1,n_unique_det);
 for i=1:n_unique_det 
-    selected = irun == unique_iruns(i);
+    selected = irun == run_idx{i};
     idet_4_run = idet(selected);
     det_dir(i) = unique_det{i}.calc_detdcn(idet_4_run);
 end

@@ -392,7 +392,7 @@ classdef unique_references_container < ObjContainersBase
             % unique_objects
             %          -- cellarray of unique objects referred by this
             %             container
-            % unique_indices
+            % unique_idx
             %          -- either
             %             array of global indices, providing access
             %             to these objects from global storage

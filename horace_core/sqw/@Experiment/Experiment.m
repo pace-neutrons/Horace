@@ -249,7 +249,7 @@ classdef Experiment < serializable
         % Return cellarray of incident energies from all contributing runs
         efix = get_efix(obj);
         % Return cellarray of energy transfers from all contributing runs
-        [en,nuidx]  = get_en_transfer(obj,bin_centre);
+        [en,nuidx]  = get_en_transfer(obj,bin_centre,get_lidx);
 
         function emode = get_emode(obj)
             % Return array of instrument modes provided in all contributing runs
