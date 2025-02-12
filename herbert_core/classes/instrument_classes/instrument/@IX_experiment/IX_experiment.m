@@ -158,10 +158,12 @@ classdef IX_experiment < Goniometer
         function en = get_en(obj,bin_centers)
             % return energy transfer values with possibility to
             % retrieve bin centers.
+            % Return rows, wrt get.en, which always returns columns
             en = obj.en_;
             if bin_centers
                 en = 0.5*(en(1:end-1)+en(2:end));
             end
+            en = en(:)';
         end
         function obj = set.en(obj,val)
             if ~isnumeric(val)

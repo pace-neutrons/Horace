@@ -53,7 +53,7 @@ switch emode
     if numel(efix) > 1
         ki = sqrt(bsxfun(@plus, efix(:)', eps(:))/k_to_e); % [ne x n_det]
         if size(ki, 2) ~= ndet
-            error('HORACE:instr_proj:invalid_argument', ...
+            error('HORACE:calc_qspec:invalid_argument', ...
                   'Number of detector''s energies in indirect mode(%d) must be equal to the number of detectors %d', ...
                   size(ki, 2), ndet);
         end
@@ -72,6 +72,6 @@ switch emode
     en=repmat(eps(:)', 1, ndet);
 
   otherwise
-    error('HORACE:instr_proj:invalid_argument', ...
+    error('HORACE:calc_qspec:invalid_argument', ...
         'EMODE must =1 (direct geometry), =2 (indirect geometry), or =0 (elastic)')
 end
