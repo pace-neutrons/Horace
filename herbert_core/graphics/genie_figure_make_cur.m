@@ -61,9 +61,7 @@ end
 % Determine which belong to genie_figures
 ok = is_genie_figure(fig_handle);
 if ~any(ok)
-    warning(['''make current'' ignored - no ''Keep''/''Make Current''', ...
-        'figure(s) with given name(s), figure number(s) or figure handle(s)'])
-    return
+    return  % no genie_figures found, so nothing to do
 end
 
 % Pick out the handles of those figures that are genie_figures
@@ -106,14 +104,14 @@ for i = 1:numel(fig_name)
         % gracefully pass over any figures that have been mangled)
         hmenu = findobj(h(1), 'Type', 'uimenu', 'Tag', 'keep');
         if ~isempty(hmenu)
-            set(hmenu, 'Enable', 'on'),
+            set(hmenu, 'Enable', 'on')
         end
         
         % Disable 'Make Current' uimenu option (should be present in a genie_figure,
         % but gracefully pass over any figures that have been mangled)
         hmenu = findobj(h(1), 'Type', 'uimenu', 'Tag', 'make_cur');
         if ~isempty(h(1))
-            set(hmenu, 'Enable', 'off'),
+            set(hmenu, 'Enable', 'off')
         end
     end
 end

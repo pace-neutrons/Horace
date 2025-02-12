@@ -67,15 +67,13 @@ LimitMethod = {'padded','padded','tickaligned','tight'};
 % Query without creating a figure if there is no current figure
 fig = get(groot,'CurrentFigure');
 if isempty(fig)
-    warning('No current figure - change limits ignored')
-    return
+    return  % No current figure - change limits ignored
 end
 
 % Check there are axes (without creating axes if there are none)
 ax = fig.CurrentAxes;
 if isempty(ax)
-    warning('No axes on current figure - change limits ignored')
-    return
+    return  % No axes on current figure - change limits ignored
 end
 
 % Determine if there is a z-axis

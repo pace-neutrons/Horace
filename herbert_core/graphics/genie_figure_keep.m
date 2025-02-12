@@ -40,15 +40,13 @@ else
 end
 
 % Determine which belong to genie_figures
-[ok, current] = is_genie_figure(fig_handle);
+[ok, is_current] = is_genie_figure(fig_handle);
 if ~any(ok)
-    warning(['''keep'' ignored - no ''Keep''/''Make Current'' figure(s) ', ...
-        'with given name(s), figure number(s) or figure handle(s)'])
-    return
+    return  % no genie_figures found, so nothing to do
 end
 
 % Pick out the handles of genie_figures which have 'current' status
-genie_fig_handle_curr = fig_handle(current);
+genie_fig_handle_curr = fig_handle(is_current);
 
 % Keep all the genie_figures with 'current' status. By construction, there is at
 % most one genie_figure for each genie_figure name, and all others with the same
@@ -63,13 +61,13 @@ for h = make_row(genie_fig_handle_curr)  % index of 'for' must be a row vector
     % gracefully pass over any figures that have been mangled)
     hmenu = findobj(h, 'Type', 'uimenu', 'Tag', 'keep');
     if ~isempty(hmenu)
-        set(hmenu, 'Enable', 'off'),
+        set(hmenu, 'Enable', 'off')
     end
     
     % Enable the 'Make Current' uimenu option (should be present in a
     % genie_figure, but gracefully pass over any figures that have been mangled)
     hmenu = findobj(h, 'Type', 'uimenu', 'Tag', 'make_cur');
     if ~isempty(h)
-        set(hmenu,'Enable','on'),
+        set(hmenu,'Enable','on')
     end
 end

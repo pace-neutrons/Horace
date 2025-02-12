@@ -69,8 +69,7 @@ end
 if narg==0
     axes_handle = gca;
 elseif narg==1
-    if ~isa(varargin{1},'handle') || ~isgraphics(varargin{1}) || ...
-            ~strcmp(get(varargin{1},'Type'),'axes')
+    if ~(isscalar(varargin{1}) && isgraphics(varargin{1}, 'axes'))
         error('HERBERT:graphics:invalid_argument', ...
             'The target for a colorslider must be a valid axes object')
     end
@@ -82,7 +81,7 @@ end
 fig_handle = ancestor(axes_handle, 'figure');
 
 
-% Perform th appropriate colorslider operations according to the input option.
+% Perform the appropriate colorslider operations according to the input option.
 switch option
     case 'create'
         % Add a colorslider to the axes 

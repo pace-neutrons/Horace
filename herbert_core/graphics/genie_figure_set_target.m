@@ -26,9 +26,18 @@ function new_figure = genie_figure_set_target (target)
 %               False if an existing figure is the target.
 
 
-if isgraphics(target, 'axes')
+% Define function to more strictly check graphics object
+isscalargraphics = @(val,Type)(isscalar(val) && isgraphics(val,Type));
+
+if isscalargraphics(target, 'axes')
     % Valid axes handle (i.e. handle to axes that have not been deleted)
     axes(target)    % set the target as the current axes
+    new_figure = false;
+    
+elseif isscalargraphics(target, 'figure')
+    % Valid figure handle (i.e. handle to a figure that has not been deleted)
+    % This captures both a figure handle and a figure number
+    figure(target)  % set target as the current figure
     new_figure = false;
     
 elseif is_string(target)
@@ -39,32 +48,33 @@ elseif is_string(target)
     fig_name = strtrim(target);
     
     fig_handle = findobj('Type', 'figure', 'Name', fig_name);   % could be array
-    if isempty(fig_handle) || any(is_genie_figure(fig_handle(:)))
-        % No figure with the target name, or there is at least one which is also
-        % a genie_figure. Set the 'current' status genie_figure to be the target
-        % for plotting, or if they all have 'keep' status, create a new
-        % genie_figure with the name, give it 'current' status and make it the
-        % target for plotting
-        new_figure = genie_figure_create(fig_name);
+    [ok, is_current] = is_genie_figure (fig_handle);
+    if isempty(fig_handle) || any(ok)
+        % Either there is no figure with the target name, or there is at least
+        % one which is also a genie_figure. 
+        % - If there is no figure with the target name:
+        %       - Create a new genie_figure with 'current' status and make it
+        %         the plot target.
+        % - In the second case, 
+        %       - If they all have 'keep' status, create a new genie_figure, 
+        %         give it 'current' status and make it the plot target
+        %       - If there is a genie_figure with 'current' status, make it the
+        %         plot target.
+        fig_handle_current = fig_handle(is_current(ok));
+        if isempty(fig_handle) || isempty(fig_handle_current)
+            genie_figure_create(fig_name);
+            new_figure = true;
+        else
+            figure(fig_handle_current);
+            new_figure = false;
+        end
     else
         % A figure exists with the name and it is not a genie_figure.
-        % Make the figure the current one for plotting.
-        figure(fig_handle(1))   % most recently active figure of that name
+        % Make the most recently active figure with that name the current one
+        % for plotting.
+        figure(fig_handle(1))   % most recently active figure has index 1.
         new_figure = false;
     end
-    
-elseif isgraphics(target, 'figure')
-    % Valid figure handle (i.e. handle to a figure that has not been deleted)
-    figure(target)  % set target as the current figure
-    new_figure = false;
-
-elseif isnumeric(target) && isscalar(target) && isgraphics(target, 'figure')
-    % Valid figure number of a currently existing figure.
-    % Note: the call to function isgraphics will return false if the input is
-    % not an integer, not finite or less than unity, so no need to check all
-    % these cases.
-    figure(target)
-    new_figure = false;
     
 else
     error('HERBERT:graphics:invalid_argument', ...

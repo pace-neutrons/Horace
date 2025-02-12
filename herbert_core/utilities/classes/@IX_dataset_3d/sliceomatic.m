@@ -50,18 +50,9 @@ if numel(w)~=1
         'Sliceomatic only works for a single 3D dataset, not an array of datasets')
 end
 
-% if is_string(keyword.name) && ~isempty(keyword.name)
-%     fig_name=keyword.name;
-% else
-%     error('HERBERT:IX_dataset_3d:invalid_argument', ...
-%         'Figure name must be a character string')
-% end
 
-
-% Plot data
-% ----------
 % Prepare arguments for call to sliceomatic
-
+% -----------------------------------------
 % Sliceomatic only handles the case of equally spaced points, and need at least
 % two points along each axis
 sz=size(w.signal);
@@ -97,39 +88,37 @@ xcaption = keyword.x_axis;
 ycaption = keyword.y_axis;
 zcaption = keyword.z_axis;
 
+
 % Set the plot target figure
 % --------------------------
-% Change the default figure size to be 50% bigger, as sliceomatic is a bust
+% Change the default figure size to be 50% bigger, as sliceomatic is a busy
 % figure. Then after creating the figure, if needed, return to the original
 % default.
+% As changing the default position affects the entire matlab session (and here
+% will increase the size by 50% everytime one breaks a debug session while in
+% genie_figure_set_target), make a cleanup object to recover the default on exit
 default_position = get(groot, 'DefaultFigurePosition');
+cleanup = onCleanup(@()set(groot, 'DefaultFigurePosition', default_position));
+
 set(groot, 'DefaultFigurePosition', [100, 100, round((3*default_position(3:4))/2)])
-genie_figure_set_target (keyword.name); % the target is now the current figure
+genie_figure_set_target (keyword.name); % sets the target to the current figure
 set(groot, 'DefaultFigurePosition', default_position)
 
-% ------ Fixes problem on dual monitor systems ---------------------------------
-% Need checks about negative side effects on other systems.
-% 7 Feb 2025: Is this still necessary? Why only implemented in sliceomatic?
-mode = get(0, 'DefaultFigureRendererMode');
-rend = get(0, 'DefaultFigureRenderer');
-set(0, 'DefaultFigureRendererMode', 'manual');
-set(0, 'DefaultFigureRenderer', 'zbuffer');
-% ------------------------------------------------------------------------------
 
 % Plot data
+% ---------
 fig_name = get(gcf, 'Name');
 plot_data = sliceomatic(ux, uy, uz, signal, xcaption, ycaption, zcaption, ...
     tx, ty, tz, clim, keyword.isonormals, fig_name);
 
-% ----- Return rendering mode --------------------------------------------------
-set(0, 'DefaultFigureRendererMode', mode);
-set(0, 'DefaultFigureRenderer', rend );
-% ------------------------------------------------------------------------------
+% Return the figure to being a genie_figure.
+% Sliceomatic resets the figure window which removes the 'keep' / 'make current'
+% menu items and resets all the figure properties.
+genie_figure_create(gcf, fig_name)
 
 % Resize the box containing the data
 set(gca, 'Position', [0.2, 0.2, 0.6, 0.6]); 
 axis normal
-
 
 % Set the title
 tt = w(1).title(:);

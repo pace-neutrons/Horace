@@ -890,6 +890,8 @@ end
 % Will reset just before exiting this function
 set(0, 'DefaultFigureRendererMode', mode);
 set(0,'DefaultFigureRenderer',rend );
+%-------------------------------------------------------------------------------------------------
+
 if nargout>0
     varargout{1} = d;
 end
