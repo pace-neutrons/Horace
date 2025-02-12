@@ -3,7 +3,7 @@ classdef fast_map < serializable
     %key-value pairs, where keys are unit32 numbers and values are double.
     %
     % Initial purpose -- use it as the fast map for connecting run_id-s with
-    % IX_experiment number to maintan correspondence between IX_experiment
+    % IX_experiment number to maintain correspondence between IX_experiment
     % number and pixel ID.
     %
     % The class is necessary because MATLAB containers.Map class is
@@ -13,7 +13,7 @@ classdef fast_map < serializable
     % Further development and acceleration may be possible, including
     % mexing and building wrapper around C++ map class.
     %
-    % WARNING: intentianally disabled multiple reliability checks and
+    % WARNING: intentionally disabled multiple reliability checks and
     % convenience properties in favour of access speed.
     %
     % See fast_map_vs_map_performance in test_herbert_utilities
@@ -56,7 +56,7 @@ classdef fast_map < serializable
         optimized_ = false;
         min_max_key_val_  = []; % minimal and maximal values of keys in the
         % map. Used in building the the optimization indices
-        keyval_optimized_ = {}; % 1D cellarrsy, containing values in places
+        keyval_optimized_ = {}; % 1D cellarray, containing values in places
         % of keys, used for fast access to the values instead of search
         % within key array.
         key_shif_;
@@ -87,7 +87,7 @@ classdef fast_map < serializable
         end
         function self = add(self,key,value)
             % add or replace value , corresponding to the key.
-            % if there are no such key in the map, the key-vaue pair is
+            % if there are no such key in the map, the key-value pair is
             % added to the map. If key is present, its current value is
             % replaced by the new one.
             key = uint32(key);
@@ -255,8 +255,12 @@ classdef fast_map < serializable
     % Overloaded indexers. DESPITE LOOKING NICE, adding them makes fast_map
     % 40-60 times slower even without using indexes itself. Disabled for this
     % reason, until, may be mex is written which would deal with fast part
-    % of indices or we fully switch to MATLAB over 2021a, where you may
-    % overload subsagn using inheritance and specified abstract methods.
+    % of indices or we fully switch to MATLAB over 2021a, where you may    
+    % overload subsasgn using inheritance and implemented abstract methods.
+    %
+    % fast_map_vs_map_performance settings : nkeys = 200, 
+    %                                        n_operations = 40000
+    %
     %  SAMPLE OF PERFORMANCE OF fast_map vrt MATLAB map (UINT map)
     %                         subsref/subsasgn : enabled    ! disabled
     %Find & Add keys to UINT        map   takes: 108.82sec  ! 106.53sec
@@ -310,7 +314,7 @@ classdef fast_map < serializable
     methods
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
+            % and .sqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
             ver = 1;
