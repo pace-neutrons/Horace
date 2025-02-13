@@ -1,4 +1,4 @@
-function plot_handle = plot_markers_errors (w)
+function plot_markers_errors (w)
 % Plot markers and errorbars
 
 line_width=get_global_var('genieplot','line_width');

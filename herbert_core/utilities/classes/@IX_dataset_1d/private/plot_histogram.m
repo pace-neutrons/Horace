@@ -27,7 +27,7 @@ for i=1:nw
             xb(3:2:2*ny-1)=0.5*(x(2:ny)+x(1:ny-1));
             del1=0.5*(x(ny)-x(ny-1));
             xb(2*ny)=x(ny)+del1;
-        else
+        elseif nx==1
             xb=x+[-0.5,0.5];   % give it a false bin width of unity
             yb=[w(i).signal_,w(i).signal_];
         end

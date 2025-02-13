@@ -80,6 +80,8 @@ function genie_figure_create (varargin)
 
 % Parse input arguments
 % ---------------------
+% Must start {handle}, {name}, or {handle, name}, with status as the optional
+% final argument.
 narg = numel(varargin);
 
 % Read the value of the requested status, if given, else set default
@@ -92,8 +94,7 @@ if narg>0
     end
 end
 
-% The remaining argument must be {handle}, {name}, or {handle, name}
-
+% Check the reat of the input arguments
 if narg==1 && (is_string(varargin{1}) || ...
         (isscalar(varargin{1}) && isgraphics(varargin{1}, 'figure')))
     if is_string(varargin{1})
@@ -109,7 +110,8 @@ elseif narg==2 && is_string(varargin{2}) && ...
     request_name = varargin{2};
 else
     error('HERBERT:graphics:invalid_argument', ...
-        'Must provide a figure name, figure handle, or both in that order.')
+        ['Must provide a figure name, figure handle, or both in that order\n',...
+        'optionally followed by status flag ''-current'' or ''-keep''.'])
 end
 
 % The convention for genie_figures is that the name are trimmed of whitespace
@@ -168,7 +170,7 @@ function [ok, request_current] = is_argument_status (arg)
 
 ok = is_string(arg) && numel(arg)>=2 && ...
     (strncmpi(arg, '-current', numel(arg)) || strncmpi(arg, '-keep', numel(arg)));
-% Last argument is one of the two valid options for status
+% The argument is one of the two valid options for status
 if ok
     request_current = (lower(arg(2:2))=='c');   % lower(arg) begins '-c' or '-k'
 else
@@ -223,7 +225,6 @@ if newfig
     
 else
     % Existing figure
-    colordef white;
     set(fig_handle, 'Name', fig_name, 'Tag', tag, 'PaperPositionMode', 'auto')
 end
 
