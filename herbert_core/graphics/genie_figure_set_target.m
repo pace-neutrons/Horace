@@ -1,15 +1,26 @@
-function new_figure = genie_figure_set_target (target)
+function varargout = genie_figure_set_target (target, existing)
 % Set the current figure and current axes according to the requested plot target
+%
+% >> genie_figure_set_target (target)
+% >> genie_figure_set_target (target, 'existing')
 %
 % >> new_figure = genie_figure_set_target (target)
 %
 % Input:
 % ------
 %   target      Target for plotting:
-%               figure name: - Name of a genie_figure (either already existing,
-%                              or to be created).
-%                            - If there is a plot with that name that isn't a
-%                              genie_figure, use it as the target for the plot.
+%               figure name: - If there is one or more genie_figures with the
+%                              name, set the one with 'current' status as the
+%                              target, or, if they all have 'keep' status,
+%                              create a new genie_figure with the name and with
+%                              'current' status.
+%                            - If there are no genie_figures with the name but
+%                              there are one or more plot with that name that
+%                              aren't genie_figures, use the most recently
+%                              active one as the target for the plot.
+%                            - If there are no figures with the name, create a
+%                              genie_figure with the name, give it 'current'
+%                              status, and make it the target for the plot.
 %
 %               figure number or handle:
 %                            - If a figure with that number or handle already
@@ -19,12 +30,34 @@ function new_figure = genie_figure_set_target (target)
 %               axes_handle: - Axes handle to be used as the target of the plot,
 %                              if the axes exist.
 %                              [If doesn't exist, throws an error]
+% Optional argument:
+%   'existing'  If present, then does not create a new figure, but instead
+%               throws an error. This only applies in the case of the target
+%               being a name; if the target is a figure or axes handle a new
+%               figure cannot be created anyway.
+%   
 %
 % Output:
 % -------
 %   new_figure  True if a new figure had to be created to be the target.
 %               False if an existing figure is the target.
+%
+%               If the caller does not request an output argument, then none is
+%               printed (equivalent to calling with a semi-colon at the end,
+%               that is: >> genie_figure_set_target;)
 
+
+% Determine if creation of a new figure is permitted
+if nargin==2
+    if is_string(existing) && ~isempty(existing) && ...
+            strncmpi(existing,'existing',numel(existing))
+        newfig_permitted = false;
+    else
+        error('Unrecognised option')
+    end
+else
+    newfig_permitted = true;
+end
 
 % Define function to more strictly check graphics object
 isscalargraphics = @(val,Type)(isscalar(val) && isgraphics(val,Type));
@@ -42,9 +75,11 @@ elseif isscalargraphics(target, 'figure')
     
 elseif is_string(target)
     % Character string, so use as the name of a figure. The rules are:
-    % - Name of a genie_figure (either already existing, or to be created).
-    % - If there is a plot with that name that isn't genie_figure, use it as the
-    %   target for the plot
+    % - If there is one or more genie_figures, use the one with 'current' status
+    %   as the target, or create a new genie_figure with 'current' status.
+    % - If no genie_figure with the name, then use the most recently active non-
+    %   genie_figure with the name.
+    % - Otherwise, create a genie_figure and give it 'current' status.
     fig_name = strtrim(target);
     
     fig_handle = findobj('Type', 'figure', 'Name', fig_name);   % could be array
@@ -60,10 +95,16 @@ elseif is_string(target)
         %         give it 'current' status and make it the plot target
         %       - If there is a genie_figure with 'current' status, make it the
         %         plot target.
-        fig_handle_current = fig_handle(is_current(ok));
+        fig_handle_current = fig_handle(is_current);
         if isempty(fig_handle) || isempty(fig_handle_current)
-            genie_figure_create(fig_name);
-            new_figure = true;
+            if newfig_permitted
+                genie_figure_create(fig_name);
+                new_figure = true;
+            else
+                error('HERBERT:graphics:invalid_argument', ...
+                    ['Forbidden from creating a new figure with the ', ...
+                    'requested name by the presence of the option ''existing'''])
+            end
         else
             figure(fig_handle_current);
             new_figure = false;
@@ -84,3 +125,7 @@ else
         '- The axes handle of an existing set of axes'])
 end
     
+% Output only if requested
+if nargout>0
+    varargout{1} = new_figure;
+end

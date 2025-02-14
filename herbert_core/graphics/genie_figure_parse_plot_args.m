@@ -64,10 +64,18 @@ function [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %
 %  'name', fig  Fig is a figure name, figure number or figure handle.
 %               
-%               figure name: - Name of a genie_figure (either already existing,
-%                              or to be created).
-%                            - If there is a plot with that name that isn't a
-%                              genie_figure, use it as the target for the plot.
+%               figure name: - If there is one or more genie_figures with the
+%                              name, set the one with 'current' status as the
+%                              target, or, if they all have 'keep' status,
+%                              create a new genie_figure with the name and with
+%                              'current' status.
+%                            - If there are no genie_figures with the name but
+%                              there are one or more plot with that name that
+%                              aren't genie_figures, use the most recently
+%                              active one as the target for the plot.
+%                            - If there are no figures with the name, create a
+%                              genie_figure with the name, give it 'current'
+%                              status, and make it the target for the plot.
 %
 %               figure number or handle:
 %                            - If a figure with that number or handle already

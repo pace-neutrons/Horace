@@ -176,22 +176,23 @@ else
 end
 
 % Determine plot window target
-
 if ~present.noplot  % plotting is required
-    if present.current || present.name
-        % Over-plotting (current plot, or named plot)
-        opt.newplot = false;
-        if present.current
-            opt.over_curr = true;
-            [~,~,fig] = genie_figure_parse_plot_args(opt);
-        elseif present.name
-            opt.over_curr = false;
-            [~,~,fig] = genie_figure_parse_plot_args(opt, 'name', key.name);
+    if present.name
+        % Plot on an existing figure with the provided name, figure
+        % handle, figure number, or axes handle.
+        try
+            genie_figure_set_target(key.name,'existing');
+        catch
+            fig_h = plot(w);
+            genie_figure_create(fig_h, 'Horace resolution plot') % just changes name
         end
-        figure(fig);
+    elseif present.current && ~isempty(get(groot,'CurrentFigure'))
+        % Plot over the current figure if it exists
+        genie_figure_set_target(gcf)
     else
-        % New plot
-        plot(w);
+        % Make a new figure
+        fig_h = plot(w);
+        genie_figure_create(fig_h, 'Horace resolution plot') % just changes name
     end
 end
 
@@ -293,7 +294,7 @@ if ~(isnumeric(C) && isequal(size(C),[4,4]))
 end
 
 if ~(isnumeric(iax) && (numel(iax)==2 || numel(iax)==3) &&...
-        numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax)<=4)
+        numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax<=4))
     error('Check axes indicies')
 end
 
@@ -324,7 +325,11 @@ end
 
 % Perform plot
 % ------------
-hold on
+fig = gcf;
+if ~isempty(fig.CurrentAxes)
+    % There are current axes, so hold for overplotting
+    hold on
+end
 
 lwidth = aline;
 lcol = acolor;
