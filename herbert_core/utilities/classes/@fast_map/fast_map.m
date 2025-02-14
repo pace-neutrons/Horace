@@ -32,9 +32,9 @@ classdef fast_map < serializable
         % The property below shows how much more elements
         % the optimization array should contain wrt the number of keys in
         % the map. E.g. if empty_space_optimization_limit == 5 and there
-        % are 100 keys, optimization array would contain no more than 500 
-        % elements. If this ratio is not satisfied, i.e. 
-        % if 
+        % are 100 keys, optimization array would contain no more than 500
+        % elements. If this ratio is not satisfied, i.e.
+        % if :
         % max(keys)-min(keys) > number_of_keys*empty_space_optimization_limit,
         %
         % map optimization gets disabled and correspondence between keys
@@ -262,10 +262,10 @@ classdef fast_map < serializable
     % Overloaded indexers. DESPITE LOOKING NICE, adding them makes fast_map
     % 40-60 times slower even without using indexes itself. Disabled for this
     % reason, until, may be mex is written which would deal with fast part
-    % of indices or we fully switch to MATLAB over 2021a, where you may    
+    % of indices or we fully switch to MATLAB over 2021a, where you may
     % overload subsasgn using inheritance and implemented abstract methods.
     %
-    % fast_map_vs_map_performance settings : nkeys = 200, 
+    % fast_map_vs_map_performance settings : nkeys = 200,
     %                                        n_operations = 40000
     %
     %  SAMPLE OF PERFORMANCE OF fast_map vrt MATLAB map (UINT map)
