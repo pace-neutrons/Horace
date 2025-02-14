@@ -76,6 +76,8 @@ end
 efix = experiment.get_efix();
 % get unuque emodes. A unique instrument certainly have unique emode
 all_modes= experiment.get_emode();
+% Number of unuque insruments must coincide with number of unique detectors arrays
+% because we do not have different set of unique detector indices
 all_inst = experiment.instruments;
 [~,unique_inst_run_idx] = all_inst.get_unique_objects_and_indices(true);
 emode = zeros(1,numel(unique_inst_run_idx));
@@ -87,7 +89,8 @@ end
 % unique energy transfers arrays. It is common that every run has its own energy
 % transfer values:
 [en,unique_en_run_idx]   = experiment.get_en_transfer(true,true);
-% unique detectors. Wider then unique instrumens, so use detectors
+% unique detectors. It is possible that an instrument may have more
+% than one set of unique detectors but we have to prohibit this.
 all_det = experiment.detector_arrays;
 [unique_det, unique_inst_run_idx] = all_det.get_unique_objects_and_indices(true);
 n_unique_det = numel(unique_inst_run_idx);
@@ -111,7 +114,7 @@ end
 
 % obtain transformation matrices to convert each run's dector positions
 % into common coordinate system related to crystal (hkl or crystal
-% Cartesian)
+% Cartesian depending on input)
 spec_to_rlu  = arrayfun(...
     @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
 % Join in 3rd rank leading to n x n x nhead
