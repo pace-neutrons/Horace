@@ -20,17 +20,23 @@ classdef fast_map < serializable
     % to compare speed and optimize fast_map operations.
     %
     properties
-        % map optimization for doing fast access limit
+        % property describes the maximal grows limit for key-value
+        % optimization array.
         %
-        % The map optimization works by allocating large continuous array
-        % with places for keys as indices. Where keys correspond places in
-        % array, result contains values, and where no keys present, array
-        % contains nan-s. The property below shows how much more elements
+        % The optimization works by allocating large contiguous array
+        % (opt_array). The indices of this array (idx) are treated as keys
+        % for values stored in the array, i.e. idx = key-min(keys)+1; so that
+        % value1 for key1 is calculated as value1 =opt_array(key1-min(keys)+1)
+        % The elements of opt_array array whith indices not equal to keys
+        % contain NaN-s.
+        % The property below shows how much more elements
         % the optimization array should contain wrt the number of keys in
         % the map. E.g. if empty_space_optimization_limit == 5 and there
         % are 100 keys, optimization array would contain no more than 500 
         % elements. If this ratio is not satisfied, i.e. 
-        % if max(keys)-min(keys) > number_of_keys*empty_space_optimization_limit,
+        % if 
+        % max(keys)-min(keys) > number_of_keys*empty_space_optimization_limit,
+        %
         % map optimization gets disabled and correspondence between keys
         % and values is calculated by binary search.
         empty_space_optimization_limit = 5;

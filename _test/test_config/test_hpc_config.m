@@ -45,6 +45,8 @@ classdef test_hpc_config< TestCase
                     break
                 catch
                     ok = false;
+                    % wait for short period of time to allow other instance
+                    % of the test job releave its memory
                     if obj.n_attempts>1; pause(1); end
                 end
             end
@@ -71,6 +73,8 @@ classdef test_hpc_config< TestCase
                     break
                 catch
                     ok = false;
+                    % wait for short period of time to allow other instance
+                    % of the test job releave its memory
                     if obj.n_attempts>1; pause(1); end
                 end
             end
@@ -93,6 +97,8 @@ classdef test_hpc_config< TestCase
                     break
                 catch
                     ok = false;
+                    % wait for short period of time to allow other instance
+                    % of the test job releave its memory
                     if obj.n_attempts>1; pause(1); end
                 end
             end
