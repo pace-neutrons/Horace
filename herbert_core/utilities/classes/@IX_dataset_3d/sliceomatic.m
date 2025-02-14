@@ -1,5 +1,5 @@
 function varargout = sliceomatic (w, varargin)
-% Plots IX_dataset_3d object using sliceomatic
+% Plots an IX_dataset_3d object using sliceomatic
 %
 %   >> sliceomatic (w)
 %
@@ -169,7 +169,7 @@ function [ux, uniform] = check_axis_values (x, point_data, reltol)
 
 % Check validity of 
 if isempty(x) || (numel(x)==1 && ~point_data)
-    error('HERBERT:IX_dataset_3d:invalid_argument', ['Must have aat least ' ...
+    error('HERBERT:IX_dataset_3d:invalid_argument', ['Must have at least ' ...
         'one abscissa (point data) or two abscissae (histogram data)'])
 end
 

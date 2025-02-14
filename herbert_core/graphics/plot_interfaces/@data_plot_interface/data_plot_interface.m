@@ -5,12 +5,9 @@ classdef (Abstract=true) data_plot_interface
     end
     
     methods(Abstract)
+        % This method is needed to enable the generic plot and plot_over methods
+        % to work
         nd = dimensions();
-    end
-    
-    methods(Static)
-        % verify if user wants to change aspect of a 2D plot
-        [adjust,present]=adjust_aspect_option(args_in)
     end
 
     %---------------------------------------------------------------------------
@@ -26,7 +23,7 @@ classdef (Abstract=true) data_plot_interface
         varargout = plotover(w, varargin)
 
         %-----------------------------------------------------------------------
-        % 1D Plotting functions
+        % 1D plotting functions
         %-----------------------------------------------------------------------
         % PLOT
         function varargout = dd(w, varargin)
@@ -126,7 +123,7 @@ classdef (Abstract=true) data_plot_interface
         end
         
         %-----------------------------------------------------------------------
-        % 2D Plotting functions
+        % 2D plotting functions
         %-----------------------------------------------------------------------
         % PLOT
         function varargout = da(w, varargin)
@@ -181,7 +178,7 @@ classdef (Abstract=true) data_plot_interface
         end
         
         %-----------------------------------------------------------------------
-        % 3D Plotting functions
+        % 3D plotting functions
         %-----------------------------------------------------------------------
         function varargout = sliceomatic(w, varargin)
             % Plots 3D object using sliceomatic.
@@ -283,4 +280,16 @@ classdef (Abstract=true) data_plot_interface
         end
     end
     %---------------------------------------------------------------------------
+end
+
+
+%---------------------------------------------------------------------------
+% Utility functions
+%---------------------------------------------------------------------------
+function varargout = throw_unavailable_(obj, method, varargin)
+% Throw method unavailable
+varargout = cell(1, nargout);   % output only if requested
+error(['HORACE:',class(obj),':invalid_argument'],...
+    'Method ''%s'' is not available for objects of class ''%s''', ...
+    method, class(obj))
 end

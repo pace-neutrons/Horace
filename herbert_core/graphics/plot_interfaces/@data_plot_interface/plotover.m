@@ -1,8 +1,15 @@
 function varargout = plotover(w,varargin)
-% Overplot 1D, 2D or 3D sqw object or array of objects
+% Overplot 1D, 2D or 3D object or array of objects on an existing plot
 %
 %   >> plotover(w)
-%   >> plotover(w,opt1,opt2,...)    % plot with optional arguments
+%
+% Advanced use:
+%   >> pp(w, 'name', fig_name)      % overplot on the figure with name = fig_name
+%                                   % or figure with given figure number or handle
+%
+% Return figure, axes and plot handles:
+%   >> [fig_handle, axes_handle, plot_handle] = pp(w,...)
+%
 %
 % Equivalent to:
 %   >> pp(w)                % 1D dataset
@@ -10,24 +17,17 @@ function varargout = plotover(w,varargin)
 %
 %   >> pa(w)                % 2D dataset
 %   >> pa(w,...)
-%
-% For details of optional parameters type >> help sqw/pp, >> help sqw/pa,
-% as appropriate
 
 
 nd=w(1).dimensions();
-if nd<1 || nd>2
-    error('HORACE:SqwDnDPlotInterface:runtime_error', ...
-        'Can overplot plot one or two-dimensional sqw or dnd objects')
-end
 
-if nd==1
-    [figureHandle_, axesHandle_, plotHandle_] = pp(w,varargin{:});
-else
-    [figureHandle_, axesHandle_, plotHandle_] = pa(w,varargin{:});
-end
-
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,figureHandle_, axesHandle_, plotHandle_);
+varargout = cell(1, nargout);   % output only if requested
+switch nd
+    case 1
+        [varargout{:}] = pp(w, varargin{:});
+    case 2
+        [varargout{:}] = pa(w, varargin{:});
+    otherwise
+        error('HORACE:data_plot_interface:runtime_error', ...
+            'Can only overplot one or two-dimensional objects')
 end

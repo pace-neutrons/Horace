@@ -7,7 +7,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
     %---------------------------------------------------------------------------
     methods
         %-----------------------------------------------------------------------
-        % 1d Plotting functions
+        % 1D plotting functions
         %-----------------------------------------------------------------------
         % PLOT
         % ----
@@ -350,7 +350,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         end
         
         %-----------------------------------------------------------------------
-        % 2d Plotting functions
+        % 2D plotting functions
         %-----------------------------------------------------------------------
         % PLOT
         function varargout = da(w, varargin)
@@ -378,7 +378,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = da(IX_dataset_2d(w), args{:});
             if adjust_aspect
-                dnd_plot_interface.adjust_aspect_ratio_2D(w)
+                dnd_plot_interface.adjust_aspect_ratio(w)
             end
         end
         
@@ -408,7 +408,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = ds(IX_dataset_2d(w), args{:});
             if adjust_aspect
-                dnd_plot_interface.adjust_aspect_ratio_2D(w)
+                dnd_plot_interface.adjust_aspect_ratio(w)
             end
         end
         
@@ -452,7 +452,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = ds2(IX_dataset_2d(w), args{:});
             if adjust_aspect
-                dnd_plot_interface.adjust_aspect_ratio_2D(w)
+                dnd_plot_interface.adjust_aspect_ratio(w)
             end
         end
         
@@ -582,6 +582,111 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             [varargout{:}] = ps2oc(IX_dataset_2d(w), varargin{:});
             
         end
+        
+        %-----------------------------------------------------------------------
+        % 3D plotting functions
+        %-----------------------------------------------------------------------
+        function varargout = sliceomatic(w, varargin)
+            % Plots a d3d object using sliceomatic
+            %
+            %   >> sliceomatic (w)
+            %
+            % To enable isonormals:
+            %   >> sliceomatic (w, ..., 'isonormals', true, ...)
+            %
+            % Advanced use:
+            %   >> sliceomatic (w, ..., 'name', fig_name, ...)   % draw with name = fig_name
+            %
+            %   >> sliceomatic (w,...,'-noaspect')  % Do not change aspect ratio
+            %                                       % according to data axes unit lengths
+            %
+            % Return figure and axes handles, and a structure with plot data:
+            %   >> [fig_handle, axes_handle, plot_data] = sliceomatic (w, ...)
+            %
+            %
+            % NOTES:
+            %
+            % - Ensure that the slice color plotting is in 'texture' mode -
+            %      On the 'AllSlices' menu click 'Color Texture'. No indication will
+            %      be made on this menu to show that it has been selected, but you can
+            %      see the result if you right-click on an arrow indicating a slice on
+            %      the graphics window.
+            %
+            % - To set the default for future Sliceomatic sessions -
+            %      On the 'Object_Defaults' menu select 'Slice Color Texture'
+            
+            if numel(w)~=1 ||  dimensions(w)~=3
+                error('HORACE:sliceomatic:invalid_argument', ...
+                    'Sliceomatic only works for a single 3D dataset')
+            end
+            [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});  
+            
+            fig_name = 'Horace sliceomatic';
+            pax = w.pax;
+            dax = w.dax;    % permutation of projection axes to give display axes
+            ulabel = w.label(pax(dax));     % labels in order of the display axes
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = sliceomatic (IX_dataset_3d(w), ...
+                'x_axis', ulabel{1}, 'y_axis', ulabel{2}, 'z_axis', ulabel{3},...
+                'name', fig_name, args{:});
+            if adjust_aspect
+                dnd_plot_interface.adjust_aspect_ratio(w)
+            end
+        end
+        
+        function varargout = sliceomatic_overview(w, varargin)
+            % Plots a d3d object using sliceomatic viewed straight down one of the axes
+            % When the slider for that axis is moved we get a series of what appear to be
+            % two-dimensioonal slices.
+            %
+            %   >> sliceomatic_overview (w)         % down the third (i.e. vertical) axis
+            %   >> sliceomatic_overview (w, axis)   % down the axis of choice (axis=1,2 or 3)
+            %
+            % To enable isonormals:
+            %   >> sliceomatic_overview (w,... 'isonormals', true)
+            %
+            % Advanced use:
+            %   >> sliceomatic_overview (w, ..., 'name', fig_name, ...)
+            %                                               % draw with name = fig_name
+            %
+            %   >> sliceomatic_overview (w,...,'-noaspect') % Do not change aspect ratio
+            %                                       % according to data axes unit lengths
+            %
+            % Return figure and axes handles, and a structure with plot data:
+            %   >> [fig_handle, axes_handle, plot_data] = sliceomatic_overview (w, ...)
+            %
+            %
+            % NOTES:
+            %
+            % - Ensure that the slice colour plotting is in 'texture' mode -
+            %      On the 'AllSlices' menu click 'Colour Texture'. No indication will
+            %      be made on this menu to show that it has been selected, but you can
+            %      see the result if you right-click on an arrow indicating a slice on
+            %      the graphics window.
+            %
+            % - To set the default for future Sliceomatic sessions -
+            %      On the 'Object_Defaults' menu select 'Slice Colour Texture'
+            
+            if numel(w)~=1 ||  dimensions(w)~=3
+                error('HORACE:sliceomatic:invalid_argument', ...
+                    'Sliceomatic only works for a single 3D dataset')
+            end
+            [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});  
+            
+            fig_name = 'Horace sliceomatic';
+            pax = w.pax;
+            dax = w.dax;    % permutation of projection axes to give display axes
+            ulabel = w.label(pax(dax));     % labels in order of the display axes
+            
+            varargout = cell(1, nargout);   % output only if requested
+            [varargout{:}] = sliceomatic_overview (IX_dataset_3d(w), ...
+                'x_axis', ulabel{1}, 'y_axis', ulabel{2}, 'z_axis', ulabel{3},...
+                'name', fig_name, args{:});
+            if adjust_aspect
+                dnd_plot_interface.adjust_aspect_ratio(w)
+            end
+        end
     end
     
     
@@ -625,55 +730,67 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         
         
         %-----------------------------------------------------------------------
-        function adjust_aspect_ratio_2D(w)
+        function adjust_aspect_ratio(w)
             % Set aspect ratio for plotting 2D dnd objects
             %
-            %   >> adjust_aspect_ratio_2D(w)
+            %   >> adjust_aspect_ratio(w)
             %
             % The aspect ratio can only be changed if
             % (1) the rescaling is the same for all objects in the array
-            % (2) it is a permissible option for all objects in the array, as defined by
-            %     w(i).axes.changes_aspect_ratio. [This property is opaque, but refactoring
-            %     the original code which has its value caught means it needs to be retained
-            %     pending deeper investigation.]
+            % (2) it is a permissible option for all objects in the array, as
+            %     defined by w(i).axes.changes_aspect_ratio. [This property is
+            %     opaque, but refactoring the original code which has its value
+            %     caught means it needs to be retained pending deeper
+            %     investigation.]
+            %
+            % If there is any reason why changing the aspect ratio doesn not
+            % make sense e.g. the energy axis is not the same for all datasets,
+            % just do nothing and quietly return.
             %
             % Input:
             % ------
-            %   w       d2d object or array of d2d objects
+            %   w       d2d or d3d object, or an array of such objects
             
             % Check the dnd dimensionality:
-            if dimensions(w(1))~=2
+            if ~(dimensions(w(1))==2 || dimensions(w(1))==3)
                 return
             end
             
-            % Check that the object array elements all permit the aspect ratio to be changed
+            % Check that the object array elements all permit the aspect ratio
+            % to be changed
             if ~all(arrayfun(@(x)(x.axes.changes_aspect_ratio), w(:)))
                 return
             end
             
-            % Loop over all elements of w to check that both the plot axes are Q axes, and
-            % that the unit of measure along each axis is the same for all objects
+            % Loop over all elements of w to check that:
+            % - None of them have an energy axis, or they all have an energy
+            %   axis with the energy axis as the same plot axis;
+            % - The unit of measure along each axis is the same for all objects.
             energy_axis = 4;        % the index of energy axis by convention in Horace
             for i=1:numel(w)
                 pax = w(i).pax;
                 dax = w(i).dax;     % permutation of projection axes to give display axes
                 ulen = w(i).axes.ulen(pax(dax));% unit length in order of the display axes
+                is_energy_axis = (pax(dax) == energy_axis);
                 if i==1
-                    ulen_ref = ulen;    % reference against which to check other objects in w
-                end
-                % Check that neither of the plot axes is the energy axis, and that the unit
-                % lengths do not differ from the reference values by more than a small
-                % relative tolerance
-                if pax(dax(1))==energy_axis || pax(dax(2))==energy_axis || ...
-                        max(abs((ulen-ulen_ref)./ulen_ref)) > 1e-8
-                    return
+                    % Get reference axis unit lengths and energy axis flag
+                    ulen_ref = ulen;
+                    is_energy_axis_ref = is_energy_axis;
+                else
+                    % Check the units of length match reference values within a
+                    % tolerance, and the consistency of the presence or absence
+                    % of an energy axis
+                    if ~all(is_energy_axis == is_energy_axis_ref) || ...
+                            max(abs((ulen-ulen_ref)./ulen_ref)) > 1e-8
+                        return
+                    end
                 end
             end
             
             % All OK, so change the aspect ratio
-            aspect(ulen_ref(1), ulen_ref(2));
+            ulen_ref(is_energy_axis) = 0;   % indicate it will be ignored in call to aspect
+            aspect(ulen_ref);
             colorslider('update');  % redraw the color bar as it may get distorted
-            
         end
     end
     %---------------------------------------------------------------------------
