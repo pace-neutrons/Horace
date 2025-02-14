@@ -51,7 +51,7 @@ end
 ridx          = 1:n_runs;
 [~,ridx]      = sort(ridx(idx));
 unique_idx    = unique_idx(ridx);
-[un_idx,ia,ic] = unique(unique_idx);
+[un_idx,ia,ic]= unique(unique_idx);
 en_tot = en_tot(ia);
 if get_lidx
     n_unique = numel(un_idx);

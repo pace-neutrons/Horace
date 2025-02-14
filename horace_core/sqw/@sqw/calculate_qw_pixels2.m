@@ -45,10 +45,10 @@ elseif nargin<3
 end
 
 % as column vectors
-idx   = win.pix.all_indexes();
-irun = idx(1,:)';
-idet = idx(2,:)';
-ien  = idx(3,:)';
+idx    = win.pix.all_indexes();
+run_id  = idx(1,:)';
+det_id  = idx(2,:)';
+en_id   = idx(3,:)';
 
 % if we want possible change in alatt during experiment, go to
 %
@@ -56,14 +56,14 @@ alatt = win.data.alatt;
 angdeg = win.data.angdeg;
 
 experiment = win.experiment_info;
-ix_exper = experiment.expdata;
-remapper = win.experiment_info.runid_map;
+ix_exper   = experiment.expdata;
+remapper   = win.experiment_info.runid_map;
 %
 % convert run_id in pixels into number of IX_experiment, corresponding to
 % this pixel. Now irun represent number of IX_experiment in Experiment
 % class or number of transformation matrix in list of all transformations
 % (spec_to_rlu)
-irun     = remapper.get_values_for_keys(irun,true); % retrieve experiment numbers which corresponds to pix run_id;
+run_id     = remapper.get_values_for_keys(run_id,true); % retrieve experiment numbers which corresponds to pix run_id;
 
 if coord_in_rlu % coordinates in rlu, lattice is aligned with beam in
     % a direction specified in IX_experiment
@@ -74,23 +74,38 @@ end
 % energies:
 % incident/analysis
 efix = experiment.get_efix();
-% energy transfers:
+% get unuque emodes. A unique instrument certainly have unique emode
+all_modes= experiment.get_emode();
+all_inst = experiment.instruments;
+[~,unique_inst_run_idx] = all_inst.get_unique_objects_and_indices(true);
+emode = zeros(1,numel(unique_inst_run_idx));
+for i=1:numel(unique_inst_run_idx)
+    emode(i) = all_modes(unique_inst_run_idx{i}(1));
+end
+
+
+% unique energy transfers arrays. It is common that every run has its own energy
+% transfer values:
 [en,unique_en_run_idx]   = experiment.get_en_transfer(true,true);
 % unique detectors. Wider then unique instrumens, so use detectors
 all_det = experiment.detector_arrays;
 [unique_det, unique_inst_run_idx] = all_det.get_unique_objects_and_indices(true);
 n_unique_det = numel(unique_inst_run_idx);
 
-% identify maximal enery transfer range, corresponding to each bunch of unique
-% detectors
-en = merge_en_ranges(en,unique_en_run_idx,ien,irun,unique_inst_run_idx); % return 
+% identify bunch of enery transfer values, corresponding to each bunch of
+% unique detectors
+[en,ien_per_run_map] = merge_en_ranges(en,unique_en_run_idx,en_id,run_id,unique_inst_run_idx); % return
 % cellarray of possible enery transfers for each bunch of runs with unique detectors.
 
-det_dir = cell(1,n_unique_det);
+qspec = cell(1,n_unique_det);
+eni   = cell(1,n_unique_det);
+inst_id=cell(1,n_unique_det);
 for i=1:n_unique_det
-    selected = irun == unique_inst_run_idx{i};
-    idet_4_run = idet(selected);
-    det_dir(i) = unique_det{i}.calc_detdcn(idet_4_run);
+    selected = ismemeber(run_id,unique_inst_run_idx{i});
+    inst_id{i} = selected;
+    idet_4_run = det_id(selected);
+    detdcn= unique_det{i}.calc_detdcn(idet_4_run);
+    [qspec{i},eni{i}] = calc_qspec(detdcn(1:3,:), efix{i}, en{i}, emode(i));
 end
 
 
@@ -99,37 +114,24 @@ end
 % Cartesian)
 spec_to_rlu  = arrayfun(...
     @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
+% Join in 3rd rank leading to n x n x nhead
+spec_to_rlu = cat(3, spec_to_rlu{:});
 
-
-
-%
-% % Join in 3rd rank leading to n x n x n_experiments
-% spec_to_rlu = cat(3, spec_to_rlu{:});
-%
-% eps_diff = (eps_lo(irun) .* (n_en(irun) - ien) + eps_hi(irun) .* (ien - 1)) ./ (n_en(irun) - 1);
-% detdcn = spec_coords_to_det(win.detpar);
-% kfix = sqrt(efix/k_to_e);
-%
-% switch emode
-%   case 1
-%     ki = kfix(irun);
-%     kf = sqrt((efix(irun)-eps_diff)/k_to_e);
-%   case 2
-%     ki = sqrt((efix(irun)+eps_diff)/k_to_e);
-%     kf = kfix(irun);
-%   otherwise
-%     ki = kfix(irun);
-%     kf = ki;
-% end
-%
-% qw = cell(4, 1);
-% qw(1:3) = calculate_q(ki, kf, detdcn(:, idet), spec_to_rlu(:, :, irun));
-% qw{4} = eps_diff;
-% Join cell array into 4xN mat
-if return_matrix
-    qw = cat(2, qw{:})';
+qw = zeros(4,numel(run_id));
+for i=1:n_unique_det
+    qtmp = mtimesx_horace (spec_to_rlu, reshape(qspec{i}), [3, 1, size(qspec{i},2)]);
+    qtmp = squeeze(qtmp);
+    qw(1:3,inst_id{i}) = qtmp;
+    qw(4,inst_id{i})   = eni{i};
 end
 
+
+if ~return_matrix
+    qw = num2cell(qw,2);
+    for i=1:4
+        qw{i} = qw{i}(:);
+    end
+end
 
 end
 

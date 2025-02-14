@@ -383,8 +383,8 @@ classdef unique_references_container < ObjContainersBase
             % indices into the singleton container.
             % Inputs:
             % self     --  initialized instance of unique reference container
-            % get_lidx --  boolean. If absent, returns array of unique
-            %              global indices.
+            % get_lidx --  boolean. If absent or false, returns array of
+            %              unique global indices.
             %              If present and true -- return cellarray of local
             %              indices, each bunch referring its own unique
             %              instrument
