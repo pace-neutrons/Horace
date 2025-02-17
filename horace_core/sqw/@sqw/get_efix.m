@@ -46,6 +46,9 @@ end
 
 efix_arr  = arrayfun(@(x)x.experiment_info_.get_efix(),obj,'UniformOutput',false);
 efix_arr  = [efix_arr{:}];
+if iscell(efix_arr)
+    efix_arr   = [efix_arr{:}];
+end
 emode_arr = arrayfun(@(x)x.experiment_info_.get_emode(),obj,'UniformOutput',false);
 emode_arr = [emode_arr{:}];
 
