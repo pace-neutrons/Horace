@@ -50,14 +50,6 @@ run_id  = idx(1,:)';
 det_id  = idx(2,:)';
 en_id   = idx(3,:)';
 
-% if we want possible change in alatt during experiment, go to sampe in
-% experiment and add it here. Currently lattice is unchanged during
-% experiment
-alatt = win.data.alatt;
-angdeg = win.data.angdeg;
-
-experiment = win.experiment_info;
-ix_exper   = experiment.expdata;
 remapper   = win.experiment_info.runid_map;
 %
 % convert run_id in pixels into number of IX_experiment, corresponding to
@@ -66,6 +58,16 @@ remapper   = win.experiment_info.runid_map;
 % (spec_to_rlu)
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve experiment numbers which corresponds to pix run_id;
 
+[lng_idx,mm_run,mm_det,mm_en] = long_idx(run_id,det_id,en_id);
+
+% if we want possible change in alatt during experiment, go to sampe in
+% experiment and add it here. Currently lattice is unchanged during
+% experiment
+alatt = win.data.alatt;
+angdeg = win.data.angdeg;
+
+experiment = win.experiment_info;
+ix_exper   = experiment.expdata;
 if coord_in_rlu % coordinates in rlu, lattice is aligned with beam in
     % a direction specified in IX_experiment
     n_matrix = 3;
@@ -116,15 +118,24 @@ end
 qspec = cell(1,n_unique_det);
 eni   = cell(1,n_unique_det);
 inst_id=cell(1,n_unique_det);
+
 for i=1:n_unique_det
-    run_selected = ismember(run_id,unique_inst_run_idx{i});
+    [lidx_det_en,mm_run,mm_en,mm_det] = long_idx(1,unique_en_run_idx,unique_en_run_idx);
+    run_idx_selected = unique_inst_run_idx{i};
+    run_selected = ismember(run_id,run_idx_selected);
     inst_id{i} = run_selected;
     det_id_selected = det_id(run_selected);
     idet_4_run = unique(det_id_selected);
     detdcn= unique_det{i}.calc_detdcn(idet_4_run);
     [qspec{i},eni{i}] = calc_qspec(detdcn(1:3,:), efix{i}, en{i}, emode(i));
-    % select q and energy transfer values actually contributed into pixels
-    %in_idx = 
+
+    % select q and energy transfer values actually contributed into pixels   
+    % build actual energy and detectors indices distribution
+    these_det_id = repmat(idet_4_run,1,numel(en{i}));
+    these_en_id  = repmat(ien_per_unique_inst{i},1,numel(idet_4_run));
+    these
+    lidx_selected = long_idx(run_idx_selected,unique_en_run_idx{i},idet_4_run, ...
+        mm_run,mm_det,mm_en);
     det_contributed = det_id_selected       == det_id;
     en_contributed  = ien_per_unique_inst{i}== en_id;
 

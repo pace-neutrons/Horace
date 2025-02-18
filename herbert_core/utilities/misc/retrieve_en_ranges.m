@@ -33,7 +33,7 @@ for i=1:n_unique_instruments
             ien_unique        = unique(ien_contributing);
             
             en_out{i} = [en_out{i},en{i}(ien_unique)];
-            en_idx{i} = [en_idx{i},ien_contributing];
+            en_idx{i} = [en_idx{i},ien_unique];
         end
     end
 end
