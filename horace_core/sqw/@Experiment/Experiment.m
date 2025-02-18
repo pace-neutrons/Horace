@@ -247,7 +247,7 @@ classdef Experiment < serializable
         % object
         obj = set_mod_pulse(obj,pulse_model,pm_par)
         % Return cellarray of incident energies from all contributing runs
-        efix = get_efix(obj);
+        [efix,unique_id] = get_efix(obj);
         % Return cellarray of energy transfers from all contributing runs
         [en,nuidx]  = get_en_transfer(obj,bin_centre,get_lidx);
 

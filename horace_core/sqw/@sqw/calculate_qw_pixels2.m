@@ -24,14 +24,20 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_matrix)
 %
 % Output:
 % -------
-%   qw      Components of momentum (in rlu) and energy for each pixel in the dataset
-%           Arrays are packaged as cell array of column vectors for convenience
-%           with fitting routines etc.
+%   qw
+%    either      --
+%           [4xnpix] array of q-de coordinates in rlu or Crystal Cartesian
+%    or          --
+%           Components of momentum (in rlu or CC) and energy for each pixel
+%           in the dataset. Arrays are packaged as cell array of column
+%           vectors for convenience with fitting routines etc.
 %               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
-
-% Get some 'average' quantities for use in calculating transformations and bin boundaries
-% *** assumes that all the contributing spe files had the same lattice parameters and projection axes
-% This could be generalised later - but with repercussions in many routines
+%
+% Get some 'average' quantities for use in calculating transformations and
+% bin boundaries.
+% *** assumes that all the contributing spe files had the same lattice
+% parameters and projection axes This could be generalised later
+% - but with repercussions in many routines
 
 if ~isscalar(win)
     error('HORACE:calculate_qw_pixels2:invalid_argument', ...
@@ -58,8 +64,10 @@ remapper   = win.experiment_info.runid_map;
 % (spec_to_rlu)
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve experiment numbers which corresponds to pix run_id;
 
+% build map to use for placing calculated q-e values into appropriate positions
+% in the input array
 [lng_idx,mm_run,mm_det,mm_en] = long_idx(run_id,det_id,en_id);
-
+res_reorder_map = fast_map(long_idx,1:numel(lng_idx));
 % if we want possible change in alatt during experiment, go to sampe in
 % experiment and add it here. Currently lattice is unchanged during
 % experiment
@@ -79,12 +87,24 @@ end
 all_efix = experiment.get_efix();
 % get unuque emodes. A unique instrument certainly have unique emode
 all_modes= experiment.get_emode();
+
 % Number of unique insruments must coincide or be smaller than number of
 % unique detectors arrays. If detector arrays are different they may be
 % only subsets of some biggest detector arrays object. At the moment,
 % we do not support instruments and detectors array difference.
 all_inst = experiment.instruments;
 [~,unique_inst_run_idx] = all_inst.get_unique_objects_and_indices(true);
+% unique detectors. It is possible that an instrument may have more
+% than one set of unique detectors but we have to prohibit this for the time
+% being.
+all_det = experiment.detector_arrays;
+[unique_det, unique_det_run_idx] = all_det.get_unique_objects_and_indices(true);
+n_unique_det = numel(unique_det_run_idx);
+if n_unique_det ~= numel(unique_inst_run_idx)
+    error('HORACE:sqw:not_implemented', ...
+        'Support for an instrument with multiple detector sets is not yet implemented. Contact Horace team to deal with this')
+end
+
 %
 % this needs generalization
 emode = zeros(1,numel(unique_inst_run_idx));
@@ -99,16 +119,6 @@ end
 % unique energy transfers arrays. It is common that every run has its own
 % energy transfer values:
 [en,unique_en_run_idx]   = experiment.get_en_transfer(true,true);
-% unique detectors. It is possible that an instrument may have more
-% than one set of unique detectors but we have to prohibit this for the time
-% being.
-all_det = experiment.detector_arrays;
-[unique_det, unique_det_run_idx] = all_det.get_unique_objects_and_indices(true);
-n_unique_det = numel(unique_det_run_idx);
-if n_unique_det ~= numel(unique_inst_run_idx)
-    error('HORACE:sqw:not_implemented', ...
-        'Support for an instrument with multiple detector sets is not yet implemented. Contact Horace team to deal with this')
-end
 
 % identify bunch of enery transfer values, corresponding to each bunch of
 % unique detectors
@@ -129,7 +139,7 @@ for i=1:n_unique_det
     detdcn= unique_det{i}.calc_detdcn(idet_4_run);
     [qspec{i},eni{i}] = calc_qspec(detdcn(1:3,:), efix{i}, en{i}, emode(i));
 
-    % select q and energy transfer values actually contributed into pixels   
+    % select q and energy transfer values actually contributed into pixels
     % build actual energy and detectors indices distribution
     these_det_id = repmat(idet_4_run,1,numel(en{i}));
     these_en_id  = repmat(ien_per_unique_inst{i},1,numel(idet_4_run));
