@@ -65,7 +65,8 @@ classdef test_fast_map < TestCase
         end
         %------------------------------------------------------------------
         function test_insertion_in_optimized(obj)
-            [base_key,val] = build_test_key_values(obj,100);
+            n_keys = 100;
+            [base_key,val] = build_test_key_values(obj,n_keys);
 
             fm = fast_map(base_key,val);
             fm.optimized = true;
@@ -81,9 +82,11 @@ classdef test_fast_map < TestCase
         end
 
         function test_optimization(obj)
-            [base_key,val] = build_test_key_values(obj,100);
+            n_keys = 100;
+            [base_key,val] = build_test_key_values(obj,n_keys);
 
             fm = fast_map(base_key,val);
+            fm.optimized = false;
             fmop = fm;
             fmop.optimized = true;
             for i=1:n_keys
