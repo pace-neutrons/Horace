@@ -529,21 +529,35 @@ classdef IX_detector_array < hashable
 
     methods
         function [detdcn,obj] = calc_detdcn(obj,idx)
-            % return unit vectors defining detector directions for each
-            % detector in array together with detector's id defining
-            % detector unuqueness. The ID should coincide with ID-s stored
-            % in Pixels, as this is where they are used
+            %CALC_DETDCN calculate unit vectors directed from sample to each detector
+            %of the detector's array.
             %
-            % Optional input:
-            % idx   -- array of indices to get directions for.
-            %
-            % Returns:
-            % detdcn -- 4xn_det array where first 3 rows contain components
-            %           of vector directions and forth -- id-s of the
-            %           detectors
-            %
-            % if called without idx, the result is placed in detdcn cache
-            % so can be easy retrieved in a subsequen calls
+            % if idx is not empty, calculate detdcn for detectors with requested indices
+            % only.
+            % Input:
+            % obj        -- initialized IX_detectors_array instance containing ndet
+            %               detectors
+            % Optional:
+            % idx        -- list of the indices to select (in the range 1 to number of
+            %               detectors in the array). If missing, select all detectors.
+            % returns:
+            % detdcn     -- [4 x ndet] array of unit vectors, pointing to
+            %               the detector's positions in the spectrometer
+            %               coordinate system (X-axis along the beam
+            % direction). ndet -- number of detectors
+            %               The array contents is:
+            %               [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim);idx]
+            %               where phi is the angle between x-axis and detector
+            %               direction, azim -- polar angle of detector in spherical
+            %               coorinate system with z-axis aligned to x and idx -- array
+            %               of detector id-s from det_bank.id field. (Most often --
+            %               detector number in the array )
+            % obj        -- the instance of the IX_detector_array, with
+            %               detdcn cache filled in if idx field was missing
+            %               during the call.
+            % if called without idx, the result is also placed in detdcn
+            % cache so can be easy retrieved in a subsequen calls to this
+            % method.
             if nargin<2
                 idx = [];
             end

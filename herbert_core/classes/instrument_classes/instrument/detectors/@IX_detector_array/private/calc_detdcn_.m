@@ -1,8 +1,29 @@
 function detdcn = calc_detdcn_(obj,idx)
-%CALC_DETDCN calculate unit vectors directed from sample to each detector% 
+%CALC_DETDCN_ calculate unit vectors directed from sample to each detector
 %of the detector's array.
-% 
-% if idx is not empty, calculate detdcn for requested indices only.
+%
+% if idx is not empty, calculate detdcn for detectors with requested indices
+% only.
+% Input:
+% obj        -- initialized IX_detectors_array instance containing ndet
+%               detectors
+% Optional:
+% idx        -- list of the indices to select (in the range 1 to number of
+%               detectors in the array). If missing, select all detectors.
+% returns:
+% detdcn     -- [4 x M] array of unit vectors, pointing to the detector's
+%               positions in the spectrometer coordinate system (X-axis
+%               along the beam direction). M == numel(idx) if idx is present
+%               or ndet if it is absent.
+%               The array contents is:
+%               [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim);idx]
+%               where phi is the angle between x-axis and detector
+%               direction, azim -- polar angle of detector in spherical
+%               coorinate system with z-axis aligned to x and idx -- array
+%               of detector id-s from det_bank.id field. (Most often --
+%               detector number in the array but Mantid detector-id is also
+%               possible)
+%
 %
 ndet = obj.ndet;
 n_banks = numel(obj.det_bank_);
