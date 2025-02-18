@@ -37,5 +37,12 @@ if nargout>1 % calculate indices for equal values
         ef_selected{i} = efix{unique_idx{i}(1)};
     end
     efix = ef_selected;
+else
+    % enable support for old efix interface used by get_efix Horace.
+    % this interface would not work for MUSHRUM
+    n_elem = cellfun(@(x)numel(x),efix);
+    if all(n_elem==1) %
+        efix = [efix{:}];
+    end
 end
 end

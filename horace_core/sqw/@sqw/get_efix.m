@@ -43,7 +43,7 @@ end
 
 % Perform operations
 % ------------------
-
+% TODO: would not work for indirect instrument 
 efix_arr  = arrayfun(@(x)x.experiment_info_.get_efix(),obj,'UniformOutput',false);
 efix_arr  = [efix_arr{:}];
 if iscell(efix_arr)
