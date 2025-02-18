@@ -32,12 +32,9 @@ classdef test_fast_map < TestCase
             assertEqual(fm.values,1);
         end
         %------------------------------------------------------------------
-        function test_get_all_val_for_keys_optimized_no_checks(~)
-            n_keys = 100;
-            base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
-            base_key = unique(base_key);
-            n_keys = numel(base_key);
-            val = 1:n_keys;
+        function test_get_all_val_for_keys_optimized_no_checks(obj)
+            %
+            [base_key,val] = build_test_key_values(obj,100);
 
             fm = fast_map(base_key,val);
             fm.optimized = true;
@@ -47,12 +44,8 @@ classdef test_fast_map < TestCase
             assertEqual(val,valm);
         end
 
-        function test_get_all_val_for_keys_optimized_with_checks(~)
-            n_keys = 100;
-            base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
-            base_key = unique(base_key);
-            n_keys = numel(base_key);
-            val = 1:n_keys;
+        function test_get_all_val_for_keys_optimized_with_checks(obj)
+            [base_key,val] = build_test_key_values(obj,100);
 
             fm = fast_map(base_key,val);
             fm.optimized = true;
@@ -62,12 +55,8 @@ classdef test_fast_map < TestCase
             assertEqual(val,valm);
         end
 
-        function test_get_all_val_for_keys(~)
-            n_keys = 100;
-            base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
-            base_key = unique(base_key);
-            n_keys = numel(base_key);
-            val = 1:n_keys;
+        function test_get_all_val_for_keys(obj)
+            [base_key,val] = build_test_key_values(obj,100);
 
             fm = fast_map(base_key,val);
             valm = fm.get_values_for_keys(base_key);
@@ -75,12 +64,8 @@ classdef test_fast_map < TestCase
             assertEqual(val,valm);
         end
         %------------------------------------------------------------------
-        function test_insertion_in_optimized(~)
-            n_keys = 100;
-            base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
-            base_key = unique(base_key);
-            n_keys = numel(base_key);
-            val = 1:n_keys;
+        function test_insertion_in_optimized(obj)
+            [base_key,val] = build_test_key_values(obj,100);
 
             fm = fast_map(base_key,val);
             fm.optimized = true;
@@ -95,12 +80,8 @@ classdef test_fast_map < TestCase
             assertFalse(fm.optimized);
         end
 
-        function test_optimization(~)
-            n_keys = 100;
-            base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
-            base_key = unique(base_key);
-            n_keys = numel(base_key);
-            val = 1:n_keys;
+        function test_optimization(obj)
+            [base_key,val] = build_test_key_values(obj,100);
 
             fm = fast_map(base_key,val);
             fmop = fm;
@@ -161,6 +142,17 @@ classdef test_fast_map < TestCase
             fm = fast_map();
             assertTrue(isempty(fm.keys));
             assertTrue(isempty(fm.values));
+        end
+    end
+    methods(Access=protected)
+        function [key,val] = build_test_key_values(~,n_keys)
+            % generate bunch of random unique keys in some reasonable key range
+            key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
+            key = unique(key);
+            n_keys = numel(key);
+            % and build values expected for such keys in real life
+            val = 1:n_keys;
+
         end
     end
 end
