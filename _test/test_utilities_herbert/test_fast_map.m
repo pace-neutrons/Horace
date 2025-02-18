@@ -12,6 +12,16 @@ classdef test_fast_map < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_build_uint64_map_from_constructor(~)
+            keys= uint64([10,20,30]);
+            val  = 1:3;
+            fm = fast_map(keys,val);
+
+            assertEqual(fm.KeyType,'uint64');
+            assertEqual(fm.keys,keys);
+            assertEqual(fm.values,val);
+        end
+
         function test_set_different_key_type(~)
             fm = fast_map();
             fm.KeyType = uint64(1);
