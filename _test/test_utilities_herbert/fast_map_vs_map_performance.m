@@ -14,8 +14,10 @@ base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1)); %generate 10 times
 % more keys then necessary to ensure sufficient unique keys pool.
 base_key = unique(base_key); % ensure absence of duplicated keys
 
+
 n_keys = min(n_keys,numel(base_key));
 base_key = base_key(1:n_keys); % leave the expected number of keys
+base_val = 1:numel(base_key);
 keysUint = uint32(base_key);   % convert them into requested type.
 mm = min_max(keysUint)         % display range of keys used in tests
 
@@ -57,7 +59,7 @@ for i=1:n_idx
     if fm.isKey(test_keys(i))
         idx1 = fm.get(test_keys(i));
     else
-        idx = fm.n_members;        
+        idx = fm.n_members;
         fm  = fm.add(test_keys(i),idx+1);
     end
 end
@@ -97,10 +99,43 @@ tv = toc(tv);
 fprintf('Find keys in FAST MAP opt      map   takes %gsec\n',tv)
 
 % Measure access time for optimized fast_map using remapper method for all keys
-fm = fast_map(base_key,1:numel(base_key));
+fm = fast_map(base_key,base_val);
 fm.optimized = true;
 tv = tic;
 idx1 = fm.get_values_for_keys(test_keys,true);
 tv = toc(tv);
 fprintf('Find all keys in FAST MAP opt  map   takes %gsec\n',tv)
+%--------------------------------------------------------------------------
+% Measure access time for fast_map with uint64 keys
+test_keys = uint64(test_keys);
+fm = fast_map(uint64(base_key),base_val);
+fm.optimized = false;
+tv = tic;
+for i=1:n_idx
+    idx1 = fm.get(test_keys(i));
+end
+tv = toc(tv);
+fprintf('Find keys one-by-one in FAST uint64 MAP     takes %gsec\n',tv)
 
+% Measure access time for fast_map using remapper method for all keys
+tv = tic;
+fm.optimized = false;
+idx1 = fm.get_values_for_keys(test_keys);
+tv = toc(tv);
+fprintf('Find all keys in FAST uint64 MAP  non-opt   takes %gsec\n',tv)
+
+% Measure access time for optimized fast_map
+fm.optimized = true;
+tv = tic;
+for i=1:n_idx
+    idx1 = fm.get(test_keys(i));
+end
+tv = toc(tv);
+fprintf('Find keys one-by-one in FAST uint64 opt MAP takes %gsec\n',tv)
+
+% Measure access time for optimized fast_map using remapper method for all keys
+fm.optimized = true;
+tv = tic;
+idx1 = fm.get_values_for_keys(test_keys,true);
+tv = toc(tv);
+fprintf('Find all keys in FAST uint64 MAP  optimized takes %gsec\n',tv)

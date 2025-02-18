@@ -84,6 +84,11 @@ classdef fast_map < serializable
                 return;
             end
             obj.do_check_combo_arg_ = false;
+            if iscell(keys)
+                obj.KeyType = class(keys{1});
+            else
+                obj.KeyType = class(keys);
+            end
             obj.keys   = keys;
             obj.values = values;
             obj.do_check_combo_arg_ = true;
@@ -128,6 +133,24 @@ classdef fast_map < serializable
         end
         function kt = get.KeyType(obj)
             kt = obj.key_type_;
+        end
+        function obj = set.KeyType(obj,type)
+            if isnumeric(type)
+                type = class(type);
+            end
+            switch(type)
+                case('uint32')
+                    obj.key_conv_handle_ = @uint32;
+                case('uint64')
+                    obj.key_conv_handle_ = @uint64;
+                case('double')
+                    obj.key_conv_handle_ = @double;
+                otherwise
+                    error('HORACE:fast_map:invalid_argument', ...
+                        'Type %s as fast map key is not yet supported',type)
+            end
+            obj.keys_     = obj.key_conv_handle_(obj.keys_);
+            obj.key_type_ = type;
         end
         %
         function ks = get.keys(obj)
@@ -326,13 +349,13 @@ classdef fast_map < serializable
             % and .sqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
 
         function flds = saveableFields(~)
             % get independent fields, which fully define the state of the
             % serializable object.
-            flds = {'keys','values'};
+            flds = {'keys','values','KeyType'};
         end
         %
         function obj = check_combo_arg(obj)
@@ -341,6 +364,13 @@ classdef fast_map < serializable
             % properties
             %
             obj = check_combo_arg_(obj);
+        end
+    end
+    methods(Access=protected)
+        function [S,obj] = convert_old_struct (obj, S, ver)
+            if ver == 1
+                S.KeyType = 'uint32';
+            end
         end
     end
 

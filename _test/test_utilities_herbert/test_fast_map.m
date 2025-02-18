@@ -12,6 +12,16 @@ classdef test_fast_map < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_set_different_key_type(~)
+            fm = fast_map();
+            fm.KeyType = uint64(1);
+            fm = fm.add(10,1);
+
+            assertEqual(fm.KeyType,'uint64');
+            assertEqual(fm.keys,uint64(10));
+            assertEqual(fm.values,1);
+        end
+        %------------------------------------------------------------------
         function test_get_all_val_for_keys_optimized_no_checks(~)
             n_keys = 100;
             base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
@@ -23,10 +33,10 @@ classdef test_fast_map < TestCase
             fm.optimized = true;
 
             valm = fm.get_values_for_keys(base_key,false);
-            
+
             assertEqual(val,valm);
         end
-        
+
         function test_get_all_val_for_keys_optimized_with_checks(~)
             n_keys = 100;
             base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
@@ -38,10 +48,10 @@ classdef test_fast_map < TestCase
             fm.optimized = true;
 
             valm = fm.get_values_for_keys(base_key,false);
-            
+
             assertEqual(val,valm);
         end
-        
+
         function test_get_all_val_for_keys(~)
             n_keys = 100;
             base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
@@ -51,10 +61,10 @@ classdef test_fast_map < TestCase
 
             fm = fast_map(base_key,val);
             valm = fm.get_values_for_keys(base_key);
-            
+
             assertEqual(val,valm);
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         function test_insertion_in_optimized(~)
             n_keys = 100;
             base_key = 10+round(rand(1,10*n_keys)*(10*n_keys-1));
@@ -129,7 +139,7 @@ classdef test_fast_map < TestCase
         end
         function test_fast_map_construction(~)
             val = 10:-1:1;
-            fm = fast_map(1:10,val );
+            fm = fast_map(uint32(1:10),val );
             assertEqual(fm.keys,uint32(1:10));
             assertEqual(fm.values,val);
 
