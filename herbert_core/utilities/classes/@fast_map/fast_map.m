@@ -67,6 +67,8 @@ classdef fast_map < serializable
         % of keys, used for fast access to the values instead of search
         % within key array.
         key_shif_;
+        %
+        key_conv_handle_ = @uint32
     end
     %----------------------------------------------------------------------
     methods
@@ -88,7 +90,7 @@ classdef fast_map < serializable
             obj = obj.check_combo_arg();
         end
         function is = isKey(self,key)
-            key = uint32(key);
+            key = self.key_conv_handle_(key);
             present = self.keys_ == key;
             is = any(present);
         end
@@ -97,7 +99,7 @@ classdef fast_map < serializable
             % if there are no such key in the map, the key-value pair is
             % added to the map. If key is present, its current value is
             % replaced by the new one.
-            key = uint32(key);
+            key = self.key_conv_handle_(key);
             present =  self.keys_ == key;
             if any(present)
                 self.values_(present) = value;
@@ -115,7 +117,7 @@ classdef fast_map < serializable
             if self.optimized_
                 val = self.keyval_optimized_(key-self.key_shif_);
             else
-                key = uint32(key);
+                key = self.key_conv_handle_(key);
                 present = self.keys_ == key;
                 if any(present)
                     val = self.values_(present);
@@ -208,7 +210,7 @@ classdef fast_map < serializable
             end
             n_keys = numel(keys);
 
-            key = uint32(keys);
+            key = self.key_conv_handle_(keys);
             val = nan(size(keys));
             if self.optimized_
                 kvo = self.keyval_optimized_;
@@ -233,7 +235,7 @@ classdef fast_map < serializable
                     class(ks));
             else
                 if ~isa(ks,obj.key_type_) % Change with changing key_type_
-                    ks = uint32(ks);
+                    ks = obj.key_conv_handle_(ks);
                 end
             end
         end

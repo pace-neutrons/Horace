@@ -19,7 +19,7 @@ base_key = base_key(1:n_keys); % leave the expected number of keys
 keysUint = uint32(base_key);   % convert them into requested type.
 mm = min_max(keysUint)         % display range of keys used in tests
 
-n_operations= 40000; % specify the number of operations to perfrom over maps
+n_operations= 10000; % specify the number of operations to perfrom over maps
 % to estimate performance
 
 % prepare test arrays with swarms of test keys to estimate performance
