@@ -72,22 +72,31 @@ classdef fast_map < serializable
     end
     %----------------------------------------------------------------------
     methods
-        function obj = fast_map(keys,values)
+        function obj = fast_map(keys,values,varargin)
             % Constructor:
             % Usage:
             %>> fm = fast_map();
             %>> fm = fast_map(keys,values);
+            %>> fm = fast_map(keys,values,key_type);
             % where :
             % keys      -- array or cellarray (numeric) keys
             % values    -- array or cellarray of (numeric) values
+            % Optional:
+            % key_type  -- string describing the type the keys should have
+            %              Shold be selected from supported types, which
+            %              are currently 'uint32','double' or 'uint64'
             if nargin == 0
                 return;
             end
             obj.do_check_combo_arg_ = false;
-            if iscell(keys)
-                obj.KeyType = class(keys{1});
+            if nargin>2
+                obj.KeyType = varargin{1};
             else
-                obj.KeyType = class(keys);
+                if iscell(keys)
+                    obj.KeyType = class(keys{1});
+                else
+                    obj.KeyType = class(keys);
+                end
             end
             obj.keys   = keys;
             obj.values = values;
@@ -149,8 +158,11 @@ classdef fast_map < serializable
                     error('HORACE:fast_map:invalid_argument', ...
                         'Type %s as fast map key is not yet supported',type)
             end
-            obj.keys_     = obj.key_conv_handle_(obj.keys_);
             obj.key_type_ = type;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+
         end
         %
         function ks = get.keys(obj)
@@ -203,52 +215,74 @@ classdef fast_map < serializable
             nm = numel(obj.keys_);
         end
         %
-        function val = get_values_for_keys(self,keys,no_validity_checks)
+        function [val,key] = get_values_for_keys(self,keys,no_validity_checks,mode)
             % method retrieves values corresponding to array of keys.
             %
-            % Using this method for array of keys is approximately two
-            % times faster than retrieving array of values invoking get(key)
-            % method.
+            % Using this method for array of keys is approximately
+            % two-three times faster than retrieving array of values
+            % invoking get(key) method.
             %
             % Inputs:
             % self  -- initialized  instance of fast map class
             % keys  -- array of numerical keys
+            % Optional:
             % no_validity_checks
             %       --  if true, keys assumed to be valid and validity
             %           check for keys is not performed (~5 times faster)
-            %           Invalid keys will still throw in optimized map but
-            %           error will be less
-            %
-            %
+            %           Default -- do checks.
+            % mode  --  3 numbers representing output modes.
+            %    1  - expanded. return array have size of input keys array
+            %         and nan values are returned for keys which are not
+            %         present in the map.
+            %    2  - compressed. Return array size equal to the number
+            %         of present keys and keys which do not have
+            %         correspondent values are omitted from the output.
             if nargin<3
                 no_validity_checks = false;
             end
+            if nargin<4
+                mode = 1;
+            end
             if ~no_validity_checks && self.optimized_
                 valid = keys<=self.min_max_key_val_(2) | keys<self.key_shif_;
-                if ~all(valid)
-                    error('HERBERT:fast_map:invalid_argument',...
-                        'All input keys must be in the allowed keys range [%d,%d]', ...
-                        self.min_max_key_val_);
-                end
+                all_valid = false;
+            else
+                all_valid = true;
             end
             n_keys = numel(keys);
 
             key = self.key_conv_handle_(keys);
-            val = nan(size(keys));
             if self.optimized_
                 kvo = self.keyval_optimized_;
                 kvs = self.key_shif_;
-                for idx = 1:n_keys
-                    val(idx) = kvo(keys(idx)-kvs);
+                val = nan(size(key));
+                if all_valid
+                    for idx = 1:n_keys
+                        val(idx) = kvo(keys(idx)-kvs);
+                    end
+                else
+                    for idx = 1:n_keys
+                        if valid(idx)
+                            val(idx) = kvo(keys(idx)-kvs);
+                        end
+                    end
                 end
-            else
+            else % non-optimized operations
                 ks = self.keys_;
-                requested = ismember(ks,key);
-                kv = self.values_;
-                val = kv(requested);
+                val = nan(size(key));
+                for i=1:n_keys
+                    present = ks == key(i);
+                    if any(present)
+                        val(i) = self.values_(present);
+                    end
+                end
+
+            end
+            if mode > 1
+                valid = ~isnan(val);
+                val   = val(valid);
             end
         end
-
     end
     methods(Access=protected)
         function ks = check_keys(obj,ks)

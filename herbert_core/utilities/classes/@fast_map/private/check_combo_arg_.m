@@ -8,10 +8,13 @@ if numel(obj.keys_) ~= numel(obj.values_)
         'Number of keys (%d) and number of values (%d) must be equal',...
         numel(obj.keys_),numel(obj.values_))
 end
+if ~isa(obj.keys_,obj.key_type_)
+    obj.keys_     = obj.key_conv_handle_(obj.keys_);
+end
 
 obj.min_max_key_val_ = min_max(obj.keys_);
 % always optimiza if key spread is bigger then specified number
-if obj.min_max_key_val_(2)-obj.min_max_key_val_(1) <= obj.empty_space_optimization_limit * obj.n_members
+if ~isempty(obj.min_max_key_val_) && (obj.min_max_key_val_(2)-obj.min_max_key_val_(1) <= obj.empty_space_optimization_limit * obj.n_members)
     obj.optimized = true;
 end
 

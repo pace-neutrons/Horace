@@ -12,6 +12,81 @@ classdef test_fast_map < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_get_all_val_opt_noopt_mode2_with_missing(obj)
+            %
+            [base_key,val] = build_test_key_values(obj,100);
+            fm = fast_map(base_key(1:100),val(1:100));
+            idx = randperm(200);
+            base_key = base_key(idx);
+
+            fm.optimized = false;
+
+            val_n = fm.get_values_for_keys(base_key,false,2);
+            fm.optimized = true;
+            val_o = fm.get_values_for_keys(base_key,false,2);
+
+            assertEqual(val_n,val_o);
+        end
+
+        function test_get_all_val_opt_noopt_mode1_with_missing(obj)
+            %
+            [base_key,val] = build_test_key_values(obj,200);
+            fm = fast_map(base_key(1:100),val(1:100));
+
+            idx = randperm(200);
+            base_key = base_key(idx);
+
+            fm.optimized = false;
+            val_n = fm.get_values_for_keys(base_key,false,1);
+            fm.optimized = true;
+            val_o = fm.get_values_for_keys(base_key,false,1);
+
+            assertEqualToTol(val_n,val_o,'-nan_equal');
+        end
+        %
+        function test_get_all_val_opt_noopt_mode3(obj)
+            %
+            [base_key,val] = build_test_key_values(obj,100);
+
+            fm = fast_map(base_key,val);
+            fm.optimized = false;
+
+            val_n = fm.get_values_for_keys(base_key,false,3);
+            fm.optimized = true;
+            val_o = fm.get_values_for_keys(base_key,false,3);
+
+            assertEqual(val_n,val_o);
+        end
+
+        function test_get_all_val_opt_noopt_mode2(obj)
+            %
+            [base_key,val] = build_test_key_values(obj,100);
+
+            fm = fast_map(base_key,val);
+            fm.optimized = false;
+
+            val_n = fm.get_values_for_keys(base_key,false,2);
+            fm.optimized = true;
+            val_o = fm.get_values_for_keys(base_key,false,2);
+
+            assertEqual(val_n,val_o);
+        end
+
+        function test_get_all_val_opt_noopt_mode1(obj)
+            %
+            [base_key,val] = build_test_key_values(obj,100);
+
+            fm = fast_map(base_key,val);
+            fm.optimized = false;
+
+            val_n = fm.get_values_for_keys(base_key,false,1);
+            fm.optimized = true;
+            val_o = fm.get_values_for_keys(base_key,false,1);
+
+            assertEqual(val_n,val_o);
+        end
+
+        %------------------------------------------------------------------
         function test_build_uint64_map_from_constructor(~)
             keys= uint64([10,20,30]);
             val  = 1:3;
@@ -155,7 +230,6 @@ classdef test_fast_map < TestCase
             n_keys = numel(key);
             % and build values expected for such keys in real life
             val = 1:n_keys;
-
         end
     end
 end
