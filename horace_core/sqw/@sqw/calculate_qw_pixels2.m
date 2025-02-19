@@ -55,13 +55,13 @@ idx    = win.pix.all_indexes();
 run_id  = idx(1,:)';
 det_id  = idx(2,:)';
 en_id   = idx(3,:)';
+experiment = win.experiment_info;
 
-remapper   = win.experiment_info.runid_map;
-%
 % convert run_id in pixels into number of IX_experiment, corresponding to
 % this pixel. Now irun represent number of IX_experiment in Experiment
 % class or number of transformation matrix in list of all transformations
 % (spec_to_rlu)
+remapper   = experiment.runid_map;
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve experiment numbers which corresponds to pix run_id;
 
 % build map to use for placing calculated q-e values into appropriate positions
@@ -74,7 +74,7 @@ res_reorder_map = fast_map(long_idx,1:numel(lng_idx));
 alatt = win.data.alatt;
 angdeg = win.data.angdeg;
 
-experiment = win.experiment_info;
+
 ix_exper   = experiment.expdata;
 if coord_in_rlu % coordinates in rlu, lattice is aligned with beam in
     % a direction specified in IX_experiment
@@ -84,7 +84,7 @@ else % coordinates in Crystan Cartesian
 end
 % energies:
 % incident for direct/analysis for indirect energies.
-all_efix = experiment.get_efix();
+[all_efix,unique_efix_run_idx] = experiment.get_efix();
 % get unuque emodes. A unique instrument certainly have unique emode
 all_modes= experiment.get_emode();
 
@@ -118,11 +118,11 @@ end
 
 % unique energy transfers arrays. It is common that every run has its own
 % energy transfer values:
-[en,unique_en_run_idx]   = experiment.get_en_transfer(true,true);
+[en,unique_etf_run_idx]   = experiment.get_en_transfer(true,true);
 
 % identify bunch of enery transfer values, corresponding to each bunch of
 % unique detectors
-[en,ien_per_unique_inst] = retrieve_en_ranges(en,unique_en_run_idx,en_id,run_id,unique_inst_run_idx); % return
+[en,ien_per_unique_inst] = retrieve_en_ranges(en,unique_etf_run_idx,en_id,run_id,unique_inst_run_idx); % return
 % cellarray of possible enery transfers for each bunch of runs with unique detectors.
 
 qspec = cell(1,n_unique_det);
@@ -130,7 +130,7 @@ eni   = cell(1,n_unique_det);
 inst_id=cell(1,n_unique_det);
 
 for i=1:n_unique_det
-    [lidx_det_en,mm_run,mm_en,mm_det] = long_idx(1,unique_en_run_idx,unique_en_run_idx);
+    [lidx_det_en,mm_run,mm_en,mm_det] = long_idx(1,unique_etf_run_idx,unique_etf_run_idx);
     run_idx_selected = unique_inst_run_idx{i};
     run_selected = ismember(run_id,run_idx_selected);
     inst_id{i} = run_selected;
@@ -144,7 +144,7 @@ for i=1:n_unique_det
     these_det_id = repmat(idet_4_run,1,numel(en{i}));
     these_en_id  = repmat(ien_per_unique_inst{i},1,numel(idet_4_run));
     these
-    lidx_selected = long_idx(run_idx_selected,unique_en_run_idx{i},idet_4_run, ...
+    lidx_selected = long_idx(run_idx_selected,unique_etf_run_idx{i},idet_4_run, ...
         mm_run,mm_det,mm_en);
     det_contributed = det_id_selected       == det_id;
     en_contributed  = ien_per_unique_inst{i}== en_id;

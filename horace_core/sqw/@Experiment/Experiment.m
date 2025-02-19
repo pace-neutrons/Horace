@@ -199,7 +199,7 @@ classdef Experiment < serializable
             if isempty(obj.runid_map_)
                 map = [];
             else % copy existing map as containers.Map is handle now.
-                map = fast_map(obj.runid_map_.keys,obj.runid_map_.values);
+                map = fast_map(obj.runid_map_.keys,obj.runid_map_.values,'uint32');
             end
         end
         function obj = set.runid_map(obj,val)

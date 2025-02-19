@@ -13,19 +13,19 @@ classdef test_get_en_transfer< TestCase
                 name = varargin{1};
             end
             obj = obj@TestCase(name);
-            
+
         end
         %------------------------------------------------------------------
         function test_multiple_unique_en_lidx(~)
             id1 = IX_experiment();
             en1 = -0.5:1:10.5;
-            en2 = -2:2:21;            
+            en2 = -2:2:21;
             id1.en =en1 ;
             id = repmat(id1,1,5);
-            id1.en =en2 ;            
-            id2 = repmat(id1,1,3);            
-            id1.en =en1 ;                     
-            id3 = repmat(id1,1,2);                        
+            id1.en =en2 ;
+            id2 = repmat(id1,1,3);
+            id1.en =en1 ;
+            id3 = repmat(id1,1,2);
             id = [id,id2,id3];
 
             [uen,lidx] = get_en_transfer(id,true,true);
@@ -34,45 +34,45 @@ classdef test_get_en_transfer< TestCase
                 0.5*(en2(1:end-1)+en2(2:end))});
             assertEqual(lidx,{[1:5,9,10],[6,7,8]});
         end
-        
+
         function test_multiple_unique_en_gidx(~)
             id1 = IX_experiment();
             en1 = -0.5:1:10.5;
-            en2 = -2:2:21;            
+            en2 = -2:2:21;
             id1.en =en1 ;
             id = repmat(id1,1,5);
-            id1.en =en2 ;            
-            id2 = repmat(id1,1,3);            
-            id1.en =en1 ;                     
-            id3 = repmat(id1,1,2);                        
+            id1.en =en2 ;
+            id2 = repmat(id1,1,3);
+            id1.en =en1 ;
+            id3 = repmat(id1,1,2);
             id = [id,id2,id3];
 
             [uen,gidx] = get_en_transfer(id,true,false);
 
             assertEqual(uen{1},0.5*(en1(1:end-1)+en1(2:end)));
-            assertEqual(uen{2},0.5*(en2(1:end-1)+en2(2:end)));            
+            assertEqual(uen{2},0.5*(en2(1:end-1)+en2(2:end)));
             assertEqual(gidx,{1,6});
         end
-        
+
         function test_single_unique_en_lidx(~)
             id1 = IX_experiment();
             en = -0.5:1:10.5;
             id1.en =en ;
             id = repmat(id1,1,5);
-            
+
 
             [uen,lidx] = get_en_transfer(id,true,true);
 
             assertEqual(uen,{0.5*(en(1:end-1)+en(2:end))});
             assertEqual(lidx,{1:5});
         end
-        
+
         function test_single_unique_en(~)
             id1 = IX_experiment();
             en = -0.5:1:10.5;
             id1.en =en ;
             id = repmat(id1,1,5);
-            
+
 
             [uen,gidx] = get_en_transfer(id,true,false);
 
@@ -81,3 +81,4 @@ classdef test_get_en_transfer< TestCase
         end
     end
 end
+
