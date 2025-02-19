@@ -48,7 +48,7 @@ for i=1:nw
 end
 
 % Make linear or log axes as required
-xscale=get_global_var('genieplot','xscale');
-yscale=get_global_var('genieplot','yscale');
-set (gca, 'XScale', xscale);
-set (gca, 'YScale', yscale);
+XScale = genieplot.get('XScale');
+YScale = genieplot.get('YScale');
+set (gca, 'XScale', XScale);
+set (gca, 'YScale', YScale);
