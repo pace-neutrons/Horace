@@ -1,4 +1,4 @@
-function [efix_out,efix_idx,en_out,en_idx] = retrieve_en_ranges(all_efix,nunq_efix_run_idx,all_ent,nunq_ent_run_idx,en_id,run_id,unique_inst_run_idx)
+function [efix_out,en_out,en_idx] = retrieve_en_ranges(efix_info,en_tr_info,udet_info,run_id,en_id)
 %RETRIEVE_EN_RANGES Identify maximal enery transfer range, corresponding to
 % each bunch of unique detectors. Return cellarray of possible enery transfers for each
 % bunch of runs with unique detectors.
@@ -24,7 +24,7 @@ function [efix_out,efix_idx,en_out,en_idx] = retrieve_en_ranges(all_efix,nunq_ef
 % en_idx              -- cellarray containing arrays of energy indices,
 %                        each array contributing to a unique run.
 
-n_unique_instruments = numel(unique_inst_run_idx);
+n_unique_instruments = udet_info.n_unique;
 
 en_out = cell(1,n_unique_instruments);
 en_idx = cell(1,n_unique_instruments);

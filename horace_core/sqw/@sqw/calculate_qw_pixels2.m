@@ -84,7 +84,8 @@ else % coordinates in Crystan Cartesian
 end
 % energies:
 % incident for direct/analysis for indirect energies.
-[all_efix,unique_efix_run_idx] = experiment.get_efix();
+[unique_efix,unique_efix_run_idx] = experiment.get_efix();
+efix_info = compact_array(unique_efix_run_idx,unique_efix);
 % get unuque emodes. A unique instrument certainly have unique emode
 all_modes= experiment.get_emode();
 emode = all_modes(1); % theoretically, we can use multiple emodes but...
@@ -95,16 +96,18 @@ emode = all_modes(1); % theoretically, we can use multiple emodes but...
 % instruments
 all_det = experiment.detector_arrays;
 [unique_det, unique_det_run_idx] = all_det.get_unique_objects_and_indices(true);
+undet_info = compact_array(unique_det_run_idx,unique_det);
 n_unique_det_arrays = numel(unique_det_run_idx);
 
 
 % unique energy transfers arrays. It is common that every run has its own
 % energy transfer values:
 [en_tr,unique_etf_run_idx]   = experiment.get_en_transfer(true,true);
+en_tr_info = compact_array(unique_etf_run_idx,en_tr);
 
 % identify bunch of incident energies and energy transfer values, 
 % corresponding to each bunch of unique detectors
-[efix,iefix_per_unique_inst,en_tr,ien_per_unique_inst] = retrieve_en_ranges(all_efix,unique_efix_run_idx,en_tr,unique_etf_run_idx,en_id,run_id,unique_det_run_idx);
+[efix,iefix_per_unique_inst,en_tr,ien_per_unique_inst] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,run_id,en_id);
 % return cellarras of possible incident energies and enery transfers for each bunch of runs with unique detectors.
 
 qspec = cell(1,n_unique_det_arrays);
