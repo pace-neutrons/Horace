@@ -65,7 +65,7 @@ remapper   = experiment.runid_map;
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve experiment numbers which corresponds to pix run_id;
 
 % build map to use for placing calculated q-e values into appropriate positions
-% in the input array
+% of the input array
 [lng_idx,mm_run,mm_det,mm_en] = long_idx(run_id,det_id,en_id);
 res_reorder_map = fast_map(long_idx,1:numel(lng_idx));
 % if we want possible change in alatt during experiment, go to sampe in
@@ -87,70 +87,55 @@ end
 [all_efix,unique_efix_run_idx] = experiment.get_efix();
 % get unuque emodes. A unique instrument certainly have unique emode
 all_modes= experiment.get_emode();
+emode = all_modes(1); % theoretically, we can use multiple emodes but...
+% TODO: enable multiple emodes
 
-% Number of unique insruments must coincide or be smaller than number of
-% unique detectors arrays. If detector arrays are different they may be
-% only subsets of some biggest detector arrays object. At the moment,
-% we do not support instruments and detectors array difference.
-all_inst = experiment.instruments;
-[~,unique_inst_run_idx] = all_inst.get_unique_objects_and_indices(true);
-% unique detectors. It is possible that an instrument may have more
-% than one set of unique detectors but we have to prohibit this for the time
-% being.
+% unique detectors. It is possible Only detectors are used here
+% and their number expected to coincied with the number of unique
+% instruments
 all_det = experiment.detector_arrays;
 [unique_det, unique_det_run_idx] = all_det.get_unique_objects_and_indices(true);
-n_unique_det = numel(unique_det_run_idx);
-if n_unique_det ~= numel(unique_inst_run_idx)
-    error('HORACE:sqw:not_implemented', ...
-        'Support for an instrument with multiple detector sets is not yet implemented. Contact Horace team to deal with this')
-end
-
-%
-% this needs generalization
-emode = zeros(1,numel(unique_inst_run_idx));
-efix  = cell(1,numel(unique_inst_run_idx));
-for i=1:numel(unique_inst_run_idx)
-    emode(i) = all_modes(unique_inst_run_idx{i}(1));
-    ef = all_efix(unique_inst_run_idx{i});
-    efix{i}  = unique([ef{:}]);
-end
+n_unique_det_arrays = numel(unique_det_run_idx);
 
 
 % unique energy transfers arrays. It is common that every run has its own
 % energy transfer values:
-[en,unique_etf_run_idx]   = experiment.get_en_transfer(true,true);
+[en_tr,unique_etf_run_idx]   = experiment.get_en_transfer(true,true);
 
-% identify bunch of enery transfer values, corresponding to each bunch of
-% unique detectors
-[en,ien_per_unique_inst] = retrieve_en_ranges(en,unique_etf_run_idx,en_id,run_id,unique_inst_run_idx); % return
-% cellarray of possible enery transfers for each bunch of runs with unique detectors.
+% identify bunch of incident energies and energy transfer values, 
+% corresponding to each bunch of unique detectors
+[efix,iefix_per_unique_inst,en_tr,ien_per_unique_inst] = retrieve_en_ranges(all_efix,unique_efix_run_idx,en_tr,unique_etf_run_idx,en_id,run_id,unique_det_run_idx);
+% return cellarras of possible incident energies and enery transfers for each bunch of runs with unique detectors.
 
-qspec = cell(1,n_unique_det);
-eni   = cell(1,n_unique_det);
-inst_id=cell(1,n_unique_det);
+qspec = cell(1,n_unique_det_arrays);
+eni   = cell(1,n_unique_det_arrays);
+inst_id=cell(1,n_unique_det_arrays);
 
-for i=1:n_unique_det
-    [lidx_det_en,mm_run,mm_en,mm_det] = long_idx(1,unique_etf_run_idx,unique_etf_run_idx);
-    run_idx_selected = unique_inst_run_idx{i};
+for i=1:n_unique_det_arrays
+    run_idx_selected = unique_det_run_idx{i};
     run_selected = ismember(run_id,run_idx_selected);
     inst_id{i} = run_selected;
     det_id_selected = det_id(run_selected);
     idet_4_run = unique(det_id_selected);
     detdcn= unique_det{i}.calc_detdcn(idet_4_run);
-    [qspec{i},eni{i}] = calc_qspec(detdcn(1:3,:), efix{i}, en{i}, emode(i));
+    if emode == 1 
+        ef = efix{i};
+        efix{i} = [ef{:}];
+    end
+    [qspec{i},eni{i}] = calc_qspec(detdcn(1:3,:), efix{i}, en_tr{i}, emode);
 
-    % select q and energy transfer values actually contributed into pixels
-    % build actual energy and detectors indices distribution
-    these_det_id = repmat(idet_4_run,1,numel(en{i}));
-    these_en_id  = repmat(ien_per_unique_inst{i},1,numel(idet_4_run));
-    these
-    lidx_selected = long_idx(run_idx_selected,unique_etf_run_idx{i},idet_4_run, ...
-        mm_run,mm_det,mm_en);
-    det_contributed = det_id_selected       == det_id;
-    en_contributed  = ien_per_unique_inst{i}== en_id;
-
-    qspec{i} = qspec{i}(:,det_contributed&en_contributed);
-    eni{i}   = eni{i}(det_contributed&en_contributed);
+    % % select q and energy transfer values actually contributed into pixels
+    % % build actual energy and detectors indices distribution
+    % these_det_id = repmat(idet_4_run,1,numel(en_tr{i}));
+    % these_en_id  = repmat(ien_per_unique_inst{i},1,numel(idet_4_run));
+    % these
+    % lidx_selected = long_idx(run_idx_selected,unique_etf_run_idx{i},idet_4_run, ...
+    %     mm_run,mm_det,mm_en);
+    % det_contributed = det_id_selected       == det_id;
+    % en_contributed  = ien_per_unique_inst{i}== en_id;
+    % 
+    % qspec{i} = qspec{i}(:,det_contributed&en_contributed);
+    % eni{i}   = eni{i}(det_contributed&en_contributed);
 end
 
 
@@ -159,16 +144,16 @@ end
 % Cartesian depending on input)
 spec_to_rlu  = arrayfun(...
     @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
-spec_to_rlu_mat = cell(1,n_unique_det);
-for i=1:n_unique_det
-    the_runs = unique_inst_run_idx{i};
+spec_to_rlu_mat = cell(1,n_unique_det_arrays);
+for i=1:n_unique_det_arrays
+    the_runs = unique_det_run_idx{i};
     the_matr = spec_to_rlu(the_runs);
     % Join in 3rd rank leading to n x n x n_runs
     spec_to_rlu_mat{i} = cat(3, the_matr{:});
 end
 
 qw = zeros(4,numel(run_id));
-for i=1:n_unique_det
+for i=1:n_unique_det_arrays
     n_this_runs = size(spec_to_rlu_mat{i},3);
     qtmp = mtimesx_horace (repmat(spec_to_rlu_mat{i},1,1,size(qspec{i},2)), repmat(reshape(qspec{i}, [3, 1, size(qspec{i},2)]),1,1,n_this_runs));
     qtmp = squeeze(qtmp);

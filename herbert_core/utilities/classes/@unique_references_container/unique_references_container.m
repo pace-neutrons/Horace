@@ -450,7 +450,7 @@ classdef unique_references_container < ObjContainersBase
                     [storage,igdx] = storage.add(v(i));
                     self.idx_(i) = igdx;
                 end
-            elseif numel(v)==1 && ~isa(v,'unique_objects_container')
+            elseif isscalar(v) && ~isa(v,'unique_objects_container')
                 [storage,idgs] = storage.add(v);
                 self.idx_ = repmat(idgs,1,self.n_objects);
                 storage   = storage.replicate_runs(self.n_objects,idgs);

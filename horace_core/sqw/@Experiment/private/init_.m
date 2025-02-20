@@ -8,8 +8,7 @@ if isempty(argi)
 end
 
 S = argi{1};
-narg = numel(argi);
-if narg  == 1
+if isscalar(argi)
     if isa(S,'Experiment')
         obj = S;
         return;
