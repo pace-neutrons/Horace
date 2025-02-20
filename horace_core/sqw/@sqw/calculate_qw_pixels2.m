@@ -67,7 +67,7 @@ run_id     = remapper.get_values_for_keys(run_id,true); % retrieve experiment nu
 % build map to use for placing calculated q-e values into appropriate positions
 % of the input array
 [lng_idx,mm_run,mm_det,mm_en] = long_idx(run_id,det_id,en_id);
-res_reorder_map = fast_map(long_idx,1:numel(lng_idx));
+res_reorder_map = fast_map(lng_idx,1:numel(lng_idx));
 % if we want possible change in alatt during experiment, go to sampe in
 % experiment and add it here. Currently lattice is unchanged during
 % experiment
@@ -97,7 +97,7 @@ emode = all_modes(1); % theoretically, we can use multiple emodes but...
 all_det = experiment.detector_arrays;
 [unique_det, unique_det_run_idx] = all_det.get_unique_objects_and_indices(true);
 undet_info = compact_array(unique_det_run_idx,unique_det);
-n_unique_det_arrays = numel(unique_det_run_idx);
+n_unique_det_arrays = undet_info.n_unique;
 
 
 % unique energy transfers arrays. It is common that every run has its own
@@ -107,8 +107,9 @@ en_tr_info = compact_array(unique_etf_run_idx,en_tr);
 
 % identify bunch of incident energies and energy transfer values, 
 % corresponding to each bunch of unique detectors
-[efix,iefix_per_unique_inst,en_tr,ien_per_unique_inst] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,run_id,en_id);
-% return cellarras of possible incident energies and enery transfers for each bunch of runs with unique detectors.
+[efix,en_tr,en_tr_idx] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,en_id);
+% return compact_arrays of possible incident energies and enery transfers
+% for each bunch of runs with unique detectors.
 
 qspec = cell(1,n_unique_det_arrays);
 eni   = cell(1,n_unique_det_arrays);
@@ -122,7 +123,7 @@ for i=1:n_unique_det_arrays
     idet_4_run = unique(det_id_selected);
     detdcn= unique_det{i}.calc_detdcn(idet_4_run);
     if emode == 1 
-        ef = efix{i};
+        ef = efix.uniq_val{i};
         efix{i} = [ef{:}];
     end
     [qspec{i},eni{i}] = calc_qspec(detdcn(1:3,:), efix{i}, en_tr{i}, emode);
