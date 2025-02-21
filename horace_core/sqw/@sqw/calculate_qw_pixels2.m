@@ -83,17 +83,17 @@ else % coordinates in Crystan Cartesian
     n_matrix = 1;
 end
 % energies:
-% incident for direct/analysis for indirect energies.
-[unique_efix,unique_efix_run_idx] = experiment.get_efix();
-efix_info = compact_array(unique_efix_run_idx,unique_efix);
+% compact_array containing incident for direct/analysis for indirect energies.
+efix_info  = experiment.get_efix(true);
 % get unuque emodes. A unique instrument certainly have unique emode
 all_modes= experiment.get_emode();
-emode = all_modes(1); % theoretically, we can use multiple emodes but...
-% TODO: enable multiple emodes
+emode = all_modes(1); % theoretically, we may ebanle multiple emodes here 
+% but too much husstle. TODO: enable multiple emodes
 
-% unique detectors. It is possible Only detectors are used here
-% and their number expected to coincied with the number of unique
-% instruments
+% unique detectors. It is possible to have mutliple instruments but Only
+% detectors are used here and their number expected to coincied with the
+% number of unique instruments. As no separate indices exists for
+% instruments themselves, unique_detectors is all that means here.
 all_det = experiment.detector_arrays;
 [unique_det, unique_det_run_idx] = all_det.get_unique_objects_and_indices(true);
 undet_info = compact_array(unique_det_run_idx,unique_det);
@@ -102,12 +102,12 @@ n_unique_det_arrays = undet_info.n_unique;
 
 % unique energy transfers arrays. It is common that every run has its own
 % energy transfer values:
-[en_tr,unique_etf_run_idx]   = experiment.get_en_transfer(true,true);
-en_tr_info = compact_array(unique_etf_run_idx,en_tr);
+en_tr_info   = experiment.get_en_transfer(true,true);
+
 
 % identify bunch of incident energies and energy transfer values, 
 % corresponding to each bunch of unique detectors
-[efix,en_tr,en_tr_idx] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,en_id);
+[efix,en_tr,en_tr_selected_idx] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,en_id);
 % return compact_arrays of possible incident energies and enery transfers
 % for each bunch of runs with unique detectors.
 

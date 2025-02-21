@@ -12,8 +12,9 @@ function [en,unique_idx]  = get_en_transfer(obj,bin_centre,get_lidx)
 %               if bin_centre is true, function returns bin centres of
 %               these bins rather than their bin boundaries. Default --
 %               false
-% get_lidx  --  default false. If true, return cellarray of local indices,
-%               if false, arry of unique indices
+% get_lidx  --  default false. If true, return compact_array of energy transfers
+%               highlighting unique energy transfer values and 
+%               if false, array of unique indices
 %
 % Returns:
 % en       -- cellarray of energy transfer arrays, present in experiment
@@ -35,3 +36,6 @@ if nargin == 2
     get_lidx   = false;
 end
 [en,unique_idx]  = get_en_transfer(obj.expdata_,bin_centre,get_lidx);
+if get_lidx
+    en = compact_array(unique_idx,en);
+end
