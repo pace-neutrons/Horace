@@ -50,7 +50,7 @@ classdef fast_map < serializable
         optimized  % If true, map is optimized for faster access without
         %          % using binary search over keys
         % debugguging property
-        min_max_key_val; % minimal and maximal key values used in values
+        min_max_key; % minimal and maximal key values used in values
         % access optimization
     end
     properties(Access=protected)
@@ -61,7 +61,7 @@ classdef fast_map < serializable
         %
         % Internal properties used in fast map optimization
         optimized_ = false;
-        min_max_key_val_  = []; % minimal and maximal values of keys in the
+        min_max_key_  = []; % minimal and maximal values of keys in the
         % map. Used in building the the optimization indices
         keyval_optimized_ = {}; % 1D cellarray, containing values in places
         % of keys, used for fast access to the values instead of search
@@ -203,13 +203,13 @@ classdef fast_map < serializable
                 obj = obj.optimize();
             else
                 obj.optimized_ = false;
-                obj.min_max_key_val_ = [];
+                obj.min_max_key_ = [];
                 obj.keyval_optimized_= [];
             end
         end
         %
-        function mmv = get.min_max_key_val(obj)
-            mmv = obj.min_max_key_val_;
+        function mmv = get.min_max_key(obj)
+            mmv = obj.min_max_key_;
         end
         function nm = get.n_members(obj)
             nm = numel(obj.keys_);
@@ -243,45 +243,7 @@ classdef fast_map < serializable
             if nargin<4
                 mode = 1;
             end
-            if ~no_validity_checks && self.optimized_
-                valid = keys<=self.min_max_key_val_(2) | keys<self.key_shif_;
-                all_valid = false;
-            else
-                all_valid = true;
-            end
-            n_keys = numel(keys);
-
-            key = self.key_conv_handle_(keys);
-            if self.optimized_
-                kvo = self.keyval_optimized_;
-                kvs = self.key_shif_;
-                val = nan(size(key));
-                if all_valid
-                    for idx = 1:n_keys
-                        val(idx) = kvo(keys(idx)-kvs);
-                    end
-                else
-                    for idx = 1:n_keys
-                        if valid(idx)
-                            val(idx) = kvo(keys(idx)-kvs);
-                        end
-                    end
-                end
-            else % non-optimized operations
-                ks = self.keys_;
-                val = nan(size(key));
-                for i=1:n_keys
-                    present = ks == key(i);
-                    if any(present)
-                        val(i) = self.values_(present);
-                    end
-                end
-
-            end
-            if mode > 1
-                valid = ~isnan(val);
-                val   = val(valid);
-            end
+            [val,key] = get_values_for_keys_(self,keys,no_validity_checks,mode);
         end
     end
     methods(Access=protected)
@@ -308,13 +270,18 @@ classdef fast_map < serializable
             end
         end
         %
-        function obj = optimize(obj)
+        function obj = optimize(obj,varargin)
             % place values into expanded array or cellarray, containing
             % NaN or empty where keys are missing and values where
             % keys are present. This array/cellarray is optimal for fast
             % access to the values as function of keys.
             %
-            obj = optimize_(obj);
+            if nargin == 1
+                minmax_keys  = min_max(obj.keys_);
+            else
+                minmax_keys = varargin{1};
+            end
+            obj = optimize_(obj,minmax_keys);
         end
     end
     %----------------------------------------------------------------------

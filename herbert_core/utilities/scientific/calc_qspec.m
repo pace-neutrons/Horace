@@ -1,7 +1,7 @@
 function [qspec, en]=calc_qspec(detdcn, efix, eps, emode)
 % Calculate the components of Q in reference frame fixed w.r.t. spectrometer
 %
-%   >> qspec = calc_qspec(detdcn, efix, eps, emode)
+%   >>[qspec,en] = calc_qspec(detdcn, efix, eps, emode)
 %
 % Input:
 % ------
@@ -23,6 +23,7 @@ function [qspec, en]=calc_qspec(detdcn, efix, eps, emode)
 %        bin centres i.e. have fudged the array data.en
 
 % T.G.Perring 15/6/07
+
 
 % Get components of Q in spectrometer frame (x || ki, z vertical)
 ne = numel(eps);

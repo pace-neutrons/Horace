@@ -2,11 +2,13 @@ classdef compact_array < serializable
     %COMPACT_ARRAY intendent to store array with non-unique elements
     % e.g. val1,val2,val3:
     % [val1,val1,val2,val1,val2,val3,val3]
+    %N:   1,   2,   3,   4,   5,   6,   7
     % in the form:
     % {val1,val2,val3},{[1,2,4],[3,5],[6,7]}
     % where
     % val1, val2 and val3 are unique objects (including arrays of values or
     % objects)
+    % Alternative form, which may be extacted
     %
     % This is helper class to unique_*_containers for helping in operations
     % with these containers because the container themselves are incredibly
@@ -21,8 +23,10 @@ classdef compact_array < serializable
     properties(Access=protected)
         uniq_val_
         nunq_idx_
+        unique_value_used_
         % cache for linear indices
         lidx_cache_;
+        gidx_cache_;
     end
 
     methods
@@ -60,6 +64,7 @@ classdef compact_array < serializable
                     'Compact array values have to be wrapped in cellarray')
             end
             obj.uniq_val_ = val;
+            obj.unique_value_used_ = false(1,numel(val));
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
@@ -77,6 +82,7 @@ classdef compact_array < serializable
         end
         %------------------------------------------------------------------
         function [nu,obj] = get_lidx(obj)
+            % return array of indices which contributed to this class
             if isempty(obj.lidx_cache_)
                 pos     = [obj.nunq_idx_{:}];
                 n_pos   = max(pos);
@@ -89,16 +95,21 @@ classdef compact_array < serializable
             end
             nu = obj.lidx_cache_;
         end
-        function [val,obj] = get(obj,lidx)
+        function [val,obj,used_unique_num,was_used] = get(obj,lidx)
             % obtain object related to specifix non-unique index
-            [lic,obj] = get_lidx(obj);
-            val = obj.uniq_val_(lic(lidx));
+            [lic,obj]       = get_lidx(obj);
+            used_unique_num = lic(lidx);
+            val = obj.uniq_val_(used_unique_num);
+            was_used = obj.unique_value_used_(used_unique_num );
+            obj.unique_value_used_(used_unique_num) = true;
         end
 
         function other_obj = get_subobj(obj,idx_to_select)
             % get other unique object which would contain
             % only indices, corresponding to the indices, provided as input
 
+            % Inconcistence here:
+            % indices become global and not adjusted
             n_uni = obj.n_unique;
             lidx = cell(1,n_uni);
             val = cell(1,n_uni);
@@ -106,7 +117,7 @@ classdef compact_array < serializable
             for i=1:n_uni
                 selected = ismember(obj.nunq_idx_{i},idx_to_select);
                 if any(selected)
-                    val{i} = obj.uniq_val_{i};
+                    val{i}  = obj.uniq_val_{i};
                     lidx{i} = obj.nunq_idx_{i}(selected);
                 else
                     not_empty(i) = false;

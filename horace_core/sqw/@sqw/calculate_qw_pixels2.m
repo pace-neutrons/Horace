@@ -86,9 +86,7 @@ end
 % compact_array containing incident for direct/analysis for indirect energies.
 efix_info  = experiment.get_efix(true);
 % get unuque emodes. A unique instrument certainly have unique emode
-all_modes= experiment.get_emode();
-emode = all_modes(1); % theoretically, we may ebanle multiple emodes here 
-% but too much husstle. TODO: enable multiple emodes
+emodes= experiment.get_emode();
 
 % unique detectors. It is possible to have mutliple instruments but Only
 % detectors are used here and their number expected to coincied with the
@@ -107,40 +105,9 @@ en_tr_info   = experiment.get_en_transfer(true,true);
 
 % identify bunch of incident energies and energy transfer values, 
 % corresponding to each bunch of unique detectors
-[efix,en_tr,en_tr_selected_idx] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,en_id);
+[efix_info,en_tr_info,en_tr_minmax_idx] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,run_id,en_id);
 % return compact_arrays of possible incident energies and enery transfers
 % for each bunch of runs with unique detectors.
-
-qspec = cell(1,n_unique_det_arrays);
-eni   = cell(1,n_unique_det_arrays);
-inst_id=cell(1,n_unique_det_arrays);
-
-for i=1:n_unique_det_arrays
-    run_idx_selected = unique_det_run_idx{i};
-    run_selected = ismember(run_id,run_idx_selected);
-    inst_id{i} = run_selected;
-    det_id_selected = det_id(run_selected);
-    idet_4_run = unique(det_id_selected);
-    detdcn= unique_det{i}.calc_detdcn(idet_4_run);
-    if emode == 1 
-        ef = efix.uniq_val{i};
-        efix{i} = [ef{:}];
-    end
-    [qspec{i},eni{i}] = calc_qspec(detdcn(1:3,:), efix{i}, en_tr{i}, emode);
-
-    % % select q and energy transfer values actually contributed into pixels
-    % % build actual energy and detectors indices distribution
-    % these_det_id = repmat(idet_4_run,1,numel(en_tr{i}));
-    % these_en_id  = repmat(ien_per_unique_inst{i},1,numel(idet_4_run));
-    % these
-    % lidx_selected = long_idx(run_idx_selected,unique_etf_run_idx{i},idet_4_run, ...
-    %     mm_run,mm_det,mm_en);
-    % det_contributed = det_id_selected       == det_id;
-    % en_contributed  = ien_per_unique_inst{i}== en_id;
-    % 
-    % qspec{i} = qspec{i}(:,det_contributed&en_contributed);
-    % eni{i}   = eni{i}(det_contributed&en_contributed);
-end
 
 
 % obtain transformation matrices to convert each run's dector positions
@@ -148,22 +115,48 @@ end
 % Cartesian depending on input)
 spec_to_rlu  = arrayfun(...
     @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
-spec_to_rlu_mat = cell(1,n_unique_det_arrays);
-for i=1:n_unique_det_arrays
-    the_runs = unique_det_run_idx{i};
-    the_matr = spec_to_rlu(the_runs);
-    % Join in 3rd rank leading to n x n x n_runs
-    spec_to_rlu_mat{i} = cat(3, the_matr{:});
-end
 
 qw = zeros(4,numel(run_id));
 for i=1:n_unique_det_arrays
-    n_this_runs = size(spec_to_rlu_mat{i},3);
-    qtmp = mtimesx_horace (repmat(spec_to_rlu_mat{i},1,1,size(qspec{i},2)), repmat(reshape(qspec{i}, [3, 1, size(qspec{i},2)]),1,1,n_this_runs));
+    run_idx_selected = undet_info.nunq_idx{i};
+    run_selected     = ismember(run_id,run_idx_selected);
+    det_id_selected  = det_id(run_selected);
+    idet_4_run = unique(det_id_selected);
+
+    detdcn= unique_det{i}.calc_detdcn(idet_4_run);
+
+    n_runs = numel(run_idx_selected);
+    qspec_i = cell(1,n_runs);
+    mapper = unique_map();
+    en_base = efix_info.n_unique;
+    for run_number=1:n_runs
+        [efix,efix_info,used_efix_num,used_efix]    = efix_info.get(run_number);
+        [en_tr,en_tr_info,unique_en_tr_num,used_en] = en_tr_info.get(run_number);        
+        q_spec_idx = en_base* 
+        if used_efix && unique_en
+            en_idx = 
+        else
+
+        end
+
+        [qspec_,eni_] = calc_qspec(detdcn(1:3,:), efix,en_tr, emodes(run_number));
+    end
+    spec_to_rlu_mat = spec_to_rlu(run_selected)  ;
+
+    qtmp = mtimesx_horace (repmat(spec_to_rlu_mat,1,1,size(qspec_,2)), repmat(reshape(qspec_, [3, 1, size(qspec_,2)]),1,1,n_these_runs));
     qtmp = squeeze(qtmp);
-    qw(1:3,inst_id{i}&ien_per_unique_inst{i}) = qtmp;
-    qw(4,inst_id{i})   = eni{i};
+    
+    % Calculate indices of the processed values
+
+
+    qspec_idx = long_idx(run_idx_selected,en_tr_minmax_idx{i},idet_4_run,mm_run,mm_det,mm_en);
+    % select 
+    contributed = ismember(lng_idx,qspec_idx);
+    qspec_idx   = qspec_idx(contributed);
+    qspec_      = qspec_(:,contributed);
+    eni_        = eni_(contributed);
 end
+
 
 
 if ~return_matrix
@@ -172,6 +165,5 @@ if ~return_matrix
         qw{i} = qw{i}(:);
     end
 end
-
 end
 
