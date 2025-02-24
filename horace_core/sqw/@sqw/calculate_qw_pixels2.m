@@ -103,7 +103,7 @@ n_unique_det_arrays = undet_info.n_unique;
 en_tr_info   = experiment.get_en_transfer(true,true);
 
 
-% identify bunch of incident energies and energy transfer values, 
+% identify bunch of incident energies and energy transfer values,
 % corresponding to each bunch of unique detectors
 [efix_info,en_tr_info,en_tr_minmax_idx] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,run_id,en_id);
 % return compact_arrays of possible incident energies and enery transfers
@@ -126,31 +126,39 @@ for i=1:n_unique_det_arrays
     detdcn= unique_det{i}.calc_detdcn(idet_4_run);
 
     n_runs = numel(run_idx_selected);
-    qspec_i = cell(1,n_runs);
+    qspec_i    = cell(1,n_runs);
+    eni_i      = cell(1,n_runs);
+    run_id_rep = cell(1,n_runs);
     mapper = unique_map();
-    en_base = efix_info.n_unique;
+    n_unique_efix= efix_info.n_unique;
+    n_unique_entr= en_tr_info.n_unique;
+    mapper = mapper.optimize([0,n_unique_entr*n_unique_efix-1]);
     for run_number=1:n_runs
         [efix,efix_info,used_efix_num,used_efix]    = efix_info.get(run_number);
-        [en_tr,en_tr_info,unique_en_tr_num,used_en] = en_tr_info.get(run_number);        
-        q_spec_idx = en_base* 
-        if used_efix && unique_en
-            en_idx = 
+        [en_tr,en_tr_info,unique_en_tr_num,used_en] = en_tr_info.get(run_number);
+        q_spec_idx = n_unique_efix*(unique_en_tr_num-1)+used_efix_num-1;
+        if used_efix && used_en
+            spec_idx = mapper.get(q_spec_idx);
+            qspec_i{run_number} = qspec_i{spec_idx};
+            eni_i{run_number}   = eni_i{spec_idx};
         else
-
+            mapper = mapper.add(q_spec_idx,run_numbert);
+            [qspec_,eni_] = calc_qspec(detdcn(1:3,:), efix,en_tr, emodes(run_number));
+            qspec_i{run_number} = qspec_;
+            eni_i{run_number} = eni_;
         end
-
-        [qspec_,eni_] = calc_qspec(detdcn(1:3,:), efix,en_tr, emodes(run_number));
+        run_id_rep{run_number} = [repmat(run_idx_selected,1,numel(en_tr)*)]
     end
     spec_to_rlu_mat = spec_to_rlu(run_selected)  ;
 
     qtmp = mtimesx_horace (repmat(spec_to_rlu_mat,1,1,size(qspec_,2)), repmat(reshape(qspec_, [3, 1, size(qspec_,2)]),1,1,n_these_runs));
     qtmp = squeeze(qtmp);
-    
+
     % Calculate indices of the processed values
 
 
     qspec_idx = long_idx(run_idx_selected,en_tr_minmax_idx{i},idet_4_run,mm_run,mm_det,mm_en);
-    % select 
+    % select
     contributed = ismember(lng_idx,qspec_idx);
     qspec_idx   = qspec_idx(contributed);
     qspec_      = qspec_(:,contributed);
