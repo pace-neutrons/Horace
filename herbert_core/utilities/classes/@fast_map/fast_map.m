@@ -104,6 +104,8 @@ classdef fast_map < serializable
             obj = obj.check_combo_arg();
         end
         function is = isKey(self,key)
+            % Returns true if key is present within the keys of the object
+            % and false otherwise.
             key = self.key_conv_handle_(key);
             present = self.keys_ == key;
             is = any(present);
@@ -140,6 +142,7 @@ classdef fast_map < serializable
                 end
             end
         end
+        %
         function kt = get.KeyType(obj)
             kt = obj.key_type_;
         end
@@ -245,6 +248,20 @@ classdef fast_map < serializable
             end
             [val,key] = get_values_for_keys_(self,keys,no_validity_checks,mode);
         end
+
+        function obj = optimize(obj,varargin)
+            % Allocate cache array of size max(key)-min(key)+1 containing
+            % NaNs and place values into locations where keys-min(key)+1
+            % indices are present. This array is optimal for fast
+            % access to the values as function of keys.
+            if nargin == 1
+                minmax_keys  = min_max(obj.keys_);
+            else
+                minmax_keys = varargin{1};
+            end
+            obj = optimize_(obj,minmax_keys);
+        end
+
     end
     methods(Access=protected)
         function ks = check_keys(obj,ks)
@@ -270,19 +287,6 @@ classdef fast_map < serializable
             end
         end
         %
-        function obj = optimize(obj,varargin)
-            % place values into expanded array or cellarray, containing
-            % NaN or empty where keys are missing and values where
-            % keys are present. This array/cellarray is optimal for fast
-            % access to the values as function of keys.
-            %
-            if nargin == 1
-                minmax_keys  = min_max(obj.keys_);
-            else
-                minmax_keys = varargin{1};
-            end
-            obj = optimize_(obj,minmax_keys);
-        end
     end
     %----------------------------------------------------------------------
     % Overloaded indexers. DESPITE LOOKING NICE, adding them makes fast_map

@@ -99,7 +99,7 @@ classdef compact_array < serializable
             % obtain object related to specifix non-unique index
             [lic,obj]       = get_lidx(obj);
             used_unique_num = lic(lidx);
-            val = obj.unique_val_(used_unique_num);
+            val = [obj.unique_val_{used_unique_num}];
             was_used = obj.unique_value_used_(used_unique_num );
             obj.unique_value_used_(used_unique_num) = true;
         end
