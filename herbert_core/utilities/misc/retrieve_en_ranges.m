@@ -40,7 +40,7 @@ for i=1:n_unique_instruments
     efix_out{i}   = efix_info.get_subobj(inst_runs);
     en_tr         = en_tr_info.get_subobj(inst_runs);    
     % found energy indices, which may contribute into this run
-    contributed_runs = run_id == en_tr.get_lidx(); 
+    contributed_runs = ismember(run_id,en_tr.nonunq_idx()); 
     idx_ent_present   = unique(en_id(contributed_runs));
     min_max_etr_idx = cell(1,en_tr.n_unique);
     for j = 1:en_tr.n_unique
