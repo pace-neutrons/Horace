@@ -16,15 +16,18 @@ function idx_short = short_from_long_idx(idx_long,minmax_idx)
 %               build with ranges defined nu minmax_idx array
 
 
-scale = [1;minmax_idx(:,2)-minmax_idx(:,1)+1];
-scale = cumprod(scale);
-n_dims = numel(scale)-1;
-
-
-remain = idx_long;
-idx_short = zeros(n_dims,numel(idx_long));
-for nd=n_dims:-1:1
-    idx_short(nd,:) = floor(remain/scale(nd));
-    remain = remain -idx_short(nd,:)*scale(nd);
-    idx_short(nd,:) = idx_short(nd,:)+minmax_idx(nd,1);
+sizes = minmax_idx(:,2)-minmax_idx(:,1)+1;
+nt = numel(sizes);
+switch(nt)
+    case(1)
+        idx_short = idx_long+minmax_idx(1,1)-1;
+    case(2)
+        [ix,iy] = ind2sub(sizes,idx_long+1);
+        idx_short = [ix+minmax_idx(1,1)-1;iy+minmax_idx(2,1)-1];
+    case(3)
+        [ix,iy,iz] = ind2sub(sizes,idx_long+1);
+        idx_short = [ix+minmax_idx(1,1)-1;iy+minmax_idx(2,1)-1;iz+minmax_idx(3,1)-1];
+    otherwise
+        error('HERBERT:utilies:not_implemented', ...
+            'Processing Indices for more than 3 dimension have not been yet implemented')
 end

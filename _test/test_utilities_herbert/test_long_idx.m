@@ -10,13 +10,30 @@ classdef test_long_idx < TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_long_idx_convertable(~)
+
+            run_id0 = 500:550;
+            det_id0  = 1:200;
+            en_id0 = 100:120;
+
+            [idx,mm_all] = long_idx({run_id0,det_id0,en_id0});
+            assertEqual(mm_all,[500,550;1,200;100,120]);
+
+            sid = short_from_long_idx(idx,mm_all);
+            assertEqual(size(sid),[3,51*200*21]);
+
+            assertEqual(unique(sid(1,:)),run_id0);
+            assertEqual(unique(sid(2,:)),det_id0);
+            assertEqual(unique(sid(3,:)),en_id0);
+        end
+
         function test_long_idx_working(~)
 
             run_id0 = 500:550;
-            en_id0  = 1:200;
-            det_id0 = 100:1100;
+            det_id0  = 1:200;
+            en_id0 = 100:1100;
 
-            [idx,mm_all] = long_idx({run_id0,en_id0,det_id0});
+            [idx,mm_all] = long_idx({run_id0,det_id0,en_id0});
 
             assertEqual(mm_all,[500,550;1,200;100,1100]);
 
@@ -25,12 +42,11 @@ classdef test_long_idx < TestCase
             assertEqual(numel(idx),51*200*1001);
 
             [X,Y,Z] = ndgrid( ...
-                run_id0-mm_all(1,1)+1,en_id0-mm_all(2,1)+1,det_id0-mm_all(3,1)+1);
+                run_id0-mm_all(1,1)+1,det_id0-mm_all(2,1)+1,en_id0-mm_all(3,1)+1);
             [x,y,z] = ind2sub([51,200,1001],idx+1);
             assertEqual(X(:),x')
             assertEqual(Y(:),y')
             assertEqual(Z(:),z')
-
         end
 
         function test_simple_long_idx(~)
@@ -54,6 +70,5 @@ classdef test_long_idx < TestCase
             assertEqual(Z(:),z')
 
         end
-
     end
 end
