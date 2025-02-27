@@ -18,8 +18,8 @@ classdef test_compact_array < TestCase
             ca = compact_array(nuidx,uval);
             
             cas = ca.get_subobj([2,4,5]);
-            assertEqual(cas.uniq_val,{10,30})
-            assertEqual(cas.nunq_idx,{4,[2,5]})            
+            assertEqual(cas.unique_val,{10,30})
+            assertEqual(cas.nonunq_idx,{4,[2,5]})            
         end
         
         function test_get_subobj_all_included(~)
@@ -28,8 +28,8 @@ classdef test_compact_array < TestCase
             ca = compact_array(nuidx,uval);
             
             cas = ca.get_subobj([1,2,4,5]);
-            assertEqual(cas.uniq_val,{10,20,30})
-            assertEqual(cas.nunq_idx,{4,1,[2,5]})            
+            assertEqual(cas.unique_val,{10,20,30})
+            assertEqual(cas.nonunq_idx,{4,1,[2,5]})            
         end
 
         function test_get(~)
@@ -54,20 +54,20 @@ classdef test_compact_array < TestCase
             nuidx = {4,[1,3],[2,5,6]};
             ca = compact_array(nuidx,uval);
             assertEqual(ca.n_unique,3);
-            assertEqual(ca.nunq_idx,nuidx);
-            assertEqual(ca.uniq_val,uval);
+            assertEqual(ca.nonunq_idx,nuidx);
+            assertEqual(ca.unique_val,uval);
         end
         function test_empty_constructor_with_cells(~)
             ca = compact_array({},{});
             assertEqual(ca.n_unique,0);
-            assertTrue(isempty(ca.nunq_idx));
-            assertTrue(isempty(ca.uniq_val));
+            assertTrue(isempty(ca.nonunq_idx));
+            assertTrue(isempty(ca.unique_val));
         end       
         function test__empty_constructor(~)
             ca = compact_array();
             assertEqual(ca.n_unique,0);
-            assertTrue(isempty(ca.nunq_idx));
-            assertTrue(isempty(ca.uniq_val));
+            assertTrue(isempty(ca.nonunq_idx));
+            assertTrue(isempty(ca.unique_val));
         end
     end
 end
