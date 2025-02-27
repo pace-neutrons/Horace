@@ -62,7 +62,7 @@ experiment = win.experiment_info;
 % class or number of transformation matrix in list of all transformations
 % (spec_to_rlu)
 remapper   = experiment.runid_map;
-run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment array indices 
+run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment array indices
 %                                                       % which corresponds to pixels run_id;
 idx(1,:)   = run_id;
 
@@ -130,6 +130,7 @@ for i=1:n_unique_det_arrays
     n_runs = numel(run_idx_selected);
     qspec_i_cache  = cell(1,n_runs);
     eni_i_cache    = cell(1,n_runs);
+    short_idx_cache= cell(1,n_runs);
     %
 
     efix_info_i = efix_info{i};
@@ -144,29 +145,42 @@ for i=1:n_unique_det_arrays
         [efix,efix_info_i,unique_efix_num,used_efix]  = efix_info_i.get(run_id_number);
         [en_tr,en_tr_info_i,unique_en_tr_num,used_en] = en_tr_info_i.get(run_id_number);
         q_spec_idx = n_unique_efix*(unique_en_tr_num-1)+unique_efix_num-1;
+        en_tr_idx_per_run = en_tr_idx_i{unique_en_tr_num};
 
         if used_efix && used_en
             spec_idx = mapper.get(q_spec_idx);
-            qspec_ = qspec_i_cache{spec_idx};
-            eni_   = eni_i_cache{spec_idx};            
-            qspec_i_cache{run_id_number} = qspec_;
-            eni_i_cache{run_id_number}   = eni_   ;
+            qspec_     = qspec_i_cache{spec_idx};
+            eni_       = eni_i_cache{spec_idx};
+            calc_idx_  = short_idx_cache{spec_idx};
+            % would not occupy much space as COW. done just to simlify logic
+            qspec_i_cache{run_id_number}   = qspec_;
+            eni_i_cache{run_id_number}     = eni_   ;
+            short_idx_cache{run_id_number} = calc_idx_;
         else
             mapper = mapper.add(q_spec_idx,run_id_number);
             [qspec_,eni_] = calc_qspec(detdcn(1:3,:), efix,en_tr, emodes(run_id_number));
+            %
             qspec_i_cache{run_id_number} = qspec_;
-            eni_i_cache{run_id_number} = eni_;
+            eni_i_cache{run_id_number}   = eni_;
+            % calc_q_spec replicated used detectors and energies into martix.
+            % here we need to make the same replication for detector
+            % indices and energy indices
+            run_det_idx  = repmat(idet_4_runs(:)',1,numel(en_tr));
+            run_entr_idx = repmat(en_tr_idx_per_run(:)',1,numel(idet_4_runs));
+            calc_idx_  = [run_det_idx;run_entr_idx];
+            short_idx_cache{run_id_number} = calc_idx_;
         end
         % found indices of the run, energy bins and detector used in q-dE
         % calculations in the frame of the input indices
-        en_tr_idx_per_run = en_tr_idx_i{unique_en_tr_num};
-        lng_run_idx       = long_idx({run_idx_selected(run_id_number),idet_4_runs,en_tr_idx_per_run},mm_range);
+        run_idx = [repmat(run_idx_selected(run_id_number),1,size(calc_idx_,2));calc_idx_];
+        lng_run_idx       = long_idx(run_idx,mm_range);
         accounted_for     = ismember(lng_run_idx,lng_idx);
         lng_run_idx       = lng_run_idx(accounted_for);
         if ~isempty(lng_run_idx)
             % found this run transformation matrix
             spec_to_rlu_mat = spec_to_rlu{run_id_number};
-            % and transform q-coordinates from sectrometer to crystal Cartesian
+            % and transform q-coordinates from sectrometer to crystal
+            % Cartesian or hkl as requested
             qspec_ = mtimesx_horace(spec_to_rlu_mat,reshape(qspec_(:,accounted_for), [3, 1, numel(lng_run_idx)]));
             qspec_ = squeeze(qspec_);
 
