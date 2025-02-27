@@ -62,7 +62,9 @@ experiment = win.experiment_info;
 % class or number of transformation matrix in list of all transformations
 % (spec_to_rlu)
 remapper   = experiment.runid_map;
-run_id     = remapper.get_values_for_keys(run_id,true); % retrieve experiment numbers which corresponds to pix run_id;
+run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment array indices 
+%                                                       % which corresponds to pixels run_id;
+idx(1,:)   = run_id;
 
 % build map to use for placing calculated q-e values into appropriate positions
 % of the input pixel array.
@@ -89,7 +91,7 @@ efix_info  = experiment.get_efix(true);
 emodes= experiment.get_emode();
 
 % unique detectors. It is possible to have mutliple instruments but Only
-% detectors are used here and their number expected to coincied with the
+% detectors are used here and their number expected to coincide with the
 % number of unique instruments. As no separate indices exists for
 % instruments themselves, unique_detectors is all that means here.
 all_det = experiment.detector_arrays;
@@ -145,8 +147,10 @@ for i=1:n_unique_det_arrays
 
         if used_efix && used_en
             spec_idx = mapper.get(q_spec_idx);
-            qspec_i_cache{run_id_number} = qspec_i_cache{spec_idx};
-            eni_i_cache{run_id_number}   = eni_i_cache{spec_idx};
+            qspec_ = qspec_i_cache{spec_idx};
+            eni_   = eni_i_cache{spec_idx};            
+            qspec_i_cache{run_id_number} = qspec_;
+            eni_i_cache{run_id_number}   = eni_   ;
         else
             mapper = mapper.add(q_spec_idx,run_id_number);
             [qspec_,eni_] = calc_qspec(detdcn(1:3,:), efix,en_tr, emodes(run_id_number));
@@ -156,7 +160,7 @@ for i=1:n_unique_det_arrays
         % found indices of the run, energy bins and detector used in q-dE
         % calculations in the frame of the input indices
         en_tr_idx_per_run = en_tr_idx_i{unique_en_tr_num};
-        lng_run_idx       = long_idx({run_id_number+mm_range(1,1)-1,en_tr_idx_per_run,idet_4_runs},mm_range);
+        lng_run_idx       = long_idx({run_idx_selected(run_id_number),idet_4_runs,en_tr_idx_per_run},mm_range);
         accounted_for     = ismember(lng_run_idx,lng_idx);
         lng_run_idx       = lng_run_idx(accounted_for);
         if ~isempty(lng_run_idx)
@@ -164,6 +168,7 @@ for i=1:n_unique_det_arrays
             spec_to_rlu_mat = spec_to_rlu{run_id_number};
             % and transform q-coordinates from sectrometer to crystal Cartesian
             qspec_ = mtimesx_horace(spec_to_rlu_mat,reshape(qspec_(:,accounted_for), [3, 1, numel(lng_run_idx)]));
+            qspec_ = squeeze(qspec_);
 
             % found the positons of the calculated q-dE values in the pixel
             % array with input indices.

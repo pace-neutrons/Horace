@@ -133,7 +133,7 @@ if numel(sza) > 2 || numel(szb) >2
     if a_tail_size > 1
         A = reshape(A,sza(1),sza(2),tail_size);
     else
-        A = reshape(repmat(A,1,tail_size),[sz,tail_size]);
+        A = reshape(repmat(A,1,tail_size),[sza(1:2),tail_size]);
     end
     if b_tail_size > 1
         B = reshape(B,szb(1),szb(2),tail_size);
