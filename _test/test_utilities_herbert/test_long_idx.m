@@ -15,18 +15,43 @@ classdef test_long_idx < TestCase
             run_id0 = 500:550;
             en_id0  = 1:200;
             det_id0 = 100:1100;
-            run_id = repmat(run_id0,1,numel(en_id0)*numel(det_id0));
-            en_id  = repmat(en_id0,1,numel(run_id0 )*numel(det_id0));
-            det_id = repmat(det_id0,1,numel(run_id0 )*numel(en_id0));
 
-            [idx,mm_run,mm_en,mm_det] = long_idx(run_id,en_id,det_id);
+            [idx,mm_all] = long_idx({run_id0,en_id0,det_id0});
 
-            assertEqual(mm_run,[500,550]);
-            assertEqual(mm_en,[1,200]);
-            assertEqual(mm_det,[100,1100]);
+            assertEqual(mm_all,[500,550;1,200;100,1100]);
 
-            assertEqual(numel(idx),numel(run_id));
+
             assertEqual(min_max(idx),uint64([0,51*200*1001-1]));
+            assertEqual(numel(idx),51*200*1001);
+
+            [X,Y,Z] = ndgrid( ...
+                run_id0-mm_all(1,1)+1,en_id0-mm_all(2,1)+1,det_id0-mm_all(3,1)+1);
+            [x,y,z] = ind2sub([51,200,1001],idx+1);
+            assertEqual(X(:),x')
+            assertEqual(Y(:),y')
+            assertEqual(Z(:),z')
+
+        end
+
+        function test_simple_long_idx(~)
+
+            run_id0 = 1:10;
+            en_id0  = 1:100;
+            det_id0 = 1:200;
+            [X,Y,Z] = ndgrid(run_id0,en_id0,det_id0);
+
+            idx = [X(:),Y(:),Z(:)]';
+            [idx,mm_all] = long_idx(idx);
+
+            assertEqual(mm_all,[1,10;1,100;1,200]);
+
+            assertEqual(numel(idx),numel(X));
+            assertEqual(min_max(idx),uint64([0,10*100*200-1]));
+
+            [x,y,z] = ind2sub([10,100,200],idx+1);
+            assertEqual(X(:),x')
+            assertEqual(Y(:),y')
+            assertEqual(Z(:),z')
 
         end
 

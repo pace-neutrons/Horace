@@ -89,7 +89,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
 
         function test_calculate_qw_pixels2_unchanged(obj)
             sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
-            qw = calculate_qw_pixels2(sqw_obj);
+            qw = sqw_obj.calculate_qw_pixels2(false,true);
 
             % Pixels unchanged so should be the same.
             assertEqualToTol(qw, sqw_obj.pix.coordinates,'tol',1.e-3);

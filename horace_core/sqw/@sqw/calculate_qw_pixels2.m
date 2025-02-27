@@ -65,8 +65,8 @@ remapper   = experiment.runid_map;
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve experiment numbers which corresponds to pix run_id;
 
 % build map to use for placing calculated q-e values into appropriate positions
-% of the input array
-[lng_idx,mm_run,mm_det,mm_en] = long_idx(run_id,det_id,en_id);
+% of the input pixel array.
+[lng_idx,mm_range] = long_idx(idx);
 res_reorder_map = fast_map(lng_idx,1:numel(lng_idx));
 % if we want possible change in alatt during experiment, go to sampe in
 % experiment and add it here. Currently lattice is unchanged during
@@ -147,12 +147,12 @@ for i=1:n_unique_det_arrays
             qspec_i{run_number} = qspec_;
             eni_i{run_number} = eni_;
         end
-        run_id_rep{run_number} = [repmat(run_idx_selected,1,numel(en_tr)*)]
+        run_id_rep{run_number} = [repmat(run_idx_selected,1,numel(en_tr))];
     end
     spec_to_rlu_mat = spec_to_rlu(run_selected)  ;
 
-    qtmp = mtimesx_horace (repmat(spec_to_rlu_mat,1,1,size(qspec_,2)), repmat(reshape(qspec_, [3, 1, size(qspec_,2)]),1,1,n_these_runs));
-    qtmp = squeeze(qtmp);
+    %qtmp = mtimesx_horace (repmat(spec_to_rlu_mat,1,1,size(qspec_,2)), repmat(reshape(qspec_, [3, 1, size(qspec_,2)]),1,1,n_these_runs));
+    %qtmp = squeeze(qtmp);
 
     % Calculate indices of the processed values
 
