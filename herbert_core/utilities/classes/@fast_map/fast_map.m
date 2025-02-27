@@ -125,7 +125,14 @@ classdef fast_map < serializable
             else
                 self.keys_(end+1) = key;
                 self.values_(end+1) = value;
-                self.optimized = false;
+                if self.optimized_
+                    if key >= self.min_max_key_(1) && key<=self.min_max_key_(2)
+                        self.keyval_optimized_(key-self.key_shif_) = value;
+                    else
+                        self.optimized = false;
+                    end
+
+                end
             end
         end
         function val = get(self,key)

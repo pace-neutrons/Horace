@@ -92,7 +92,7 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             qw = sqw_obj.calculate_qw_pixels2(false,true);
 
             % Pixels unchanged so should be the same.
-            assertEqualToTol(qw, sqw_obj.pix.coordinates,'tol',1.e-3);
+            assertEqualToTol(qw, sqw_obj.pix.coordinates,'tol',1.e-8);
         end
 
         function test_calculate_qw_pixels2_symmetrised(obj)
