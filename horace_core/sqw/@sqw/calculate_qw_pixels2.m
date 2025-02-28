@@ -69,7 +69,7 @@ idx(1,:)   = run_id;
 % build map to use for placing calculated q-e values into appropriate positions
 % of the input pixel array.
 [lng_idx,mm_range] = long_idx(idx);
-res_reorder_map = fast_map(lng_idx,1:numel(lng_idx));
+res_reorder_map = fast_map(double(lng_idx),1:numel(lng_idx));
 % if we want possible change in alatt during experiment, go to sampe in
 % experiment and add it here. Currently lattice is unchanged during
 % experiment
@@ -187,8 +187,8 @@ for i=1:n_unique_det_arrays
             % found the positons of the calculated q-dE values in the pixel
             % array with input indices.
             res_places   = res_reorder_map.get_values_for_keys(lng_run_idx);
-            qw(1:3,res_places) = qspec_;
-            qw(4,res_places)   = eni_(accounted_for);
+            qw(1:3,run_selected) = qspec_(:,res_places);
+            qw(4,run_selected)   = eni_(res_places);
         end
     end
 end
