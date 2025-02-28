@@ -58,9 +58,9 @@ en_id   = idx(3,:)';
 experiment = win.experiment_info;
 
 % convert run_id in pixels into number of IX_experiment, corresponding to
-% this pixel. Now irun represent number of IX_experiment in Experiment
-% class or number of transformation matrix in list of all transformations
-% (spec_to_rlu)
+% this pixel. After that irun represents number of IX_experiment element in 
+% Experiment.expdata array or number of transformation matrix in list of 
+% all transformations (spec_to_rlu)
 remapper   = experiment.runid_map;
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment array indices
 %                                                       % which corresponds to pixels run_id;
