@@ -353,9 +353,12 @@ classdef IX_experiment < Goniometer
             old_fldnms = {'filename','filepath','efix','emode','en','cu',...
                 'cv','psi','omega','dpsi','gl','gs','uoffset','u_to_rlu'};
             obj = IX_experiment();
+            obj.do_check_combo_arg = false;
             for i=1:numel(old_fldnms)
                 obj.(old_fldnms{i}) = inputs.(old_fldnms{i});
             end
+            obj.do_check_combo_arg = true;
+            obj = obj.check_combo_arg();
             % old headers always contain angular values in radians
             obj.angular_is_degree_ = false;
             alatt = inputs.alatt;
