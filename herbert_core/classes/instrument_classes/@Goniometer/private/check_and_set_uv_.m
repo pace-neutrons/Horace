@@ -5,7 +5,7 @@ function obj = check_and_set_uv_(obj,name,val)
 if isnumeric(val)
     if numel(val)==3
         cand = val(:)'; % make it row vector
-    elseif numel(val) == 1
+    elseif isscalar(val)
         cand = [val,val,val];
     else
         error('HERBERT:Goniometer:invalid_argument',...
