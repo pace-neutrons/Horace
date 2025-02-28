@@ -20,7 +20,10 @@ else
 end
 exp_info = sqw_type.experiment_info;
 file_id = exp_info.runid_map.keys;
-%file_id = [file_id{:}];
+if iscell(file_id{:}) % support for old runid map. New optimized for
+    % performance custom map returns array of numerical keys.
+    file_id = [file_id{:}];
+end
 if pix_runid_known  % all pixels are in memory or pix_runid are known and we
     % can properly analyse run-ids
 
