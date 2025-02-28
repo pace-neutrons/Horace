@@ -69,7 +69,7 @@ classdef rundatah < rundata
             if present.transform_sqw
                 transf = opt.transform_sqw;
                 for i=1:numel(runfiles_list)
-                    if numel(transf) == 1
+                    if isscalar(transf)
                         runfiles_list{i}.transform_sqw = transf;
                     else % never tried, it looks wrong
                         runfiles_list{i}.transform_sqw = transf{i};

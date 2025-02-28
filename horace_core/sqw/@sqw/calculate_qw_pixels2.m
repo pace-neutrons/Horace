@@ -1,4 +1,4 @@
-function qw=calculate_qw_pixels2(win,coord_in_rlu,return_matrix)
+function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 % Calculate qh, qk, ql, en for the pixels in an sqw dataset from the experiment information
 %
 %   >> qw = calculate_qw_pixels2(win)
@@ -11,13 +11,13 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_matrix)
 %
 % Input:
 % ------
-%  win          -- Input sqw object
+%  win         -- Input sqw object
 % Optional:
-%  coord_in_rlu -- default true. Returns pixel coordinates in reciprocal
+% coord_in_rlu -- default true. Returns pixel coordinates in reciprocal
 %                  lattice units (projection onto rotated hkl coordinate
 %                  system). If false, return pixel coordinates in Crystal
 %                  Cartesial coordinate system
-% return_matrix -- default false. Return pixel coordinates as cellarray of
+% return_array -- default false. Return pixel coordinates as cellarray of
 %                  4 vectors. (See below)
 %                  if true, return coordinates as [4 x n_pixels] array
 %
@@ -45,9 +45,9 @@ if ~isscalar(win)
 end
 if nargin<2
     coord_in_rlu = true;
-    return_matrix= false;
+    return_array= false;
 elseif nargin<3
-    return_matrix= false;
+    return_array= false;
 end
 
 % as column vectors
@@ -138,7 +138,7 @@ for i=1:n_unique_det_arrays
     en_tr_idx_i  = en_tr_idx{i};
     n_unique_efix= efix_info_i.n_unique;
     n_unique_entr= en_tr_info_i.n_unique;
-    % create fast map for rapid addition/extraction
+    % create fast map for rapid addition/extraction of unique q-dE spectra
     mapper = fast_map();
     mapper = mapper.optimize([0,n_unique_entr*n_unique_efix-1]);
     for run_id_number=1:n_runs
@@ -193,7 +193,7 @@ for i=1:n_unique_det_arrays
     end
 end
 
-if ~return_matrix
+if ~return_array
     qw = num2cell(qw,2);
     for i=1:4
         qw{i} = qw{i}(:);
