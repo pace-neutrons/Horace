@@ -187,7 +187,7 @@ for i=1:n_unique_det_arrays
             % array with input indices.
             res_places   = res_reorder_map.get_values_for_keys(lng_run_idx);
             qw(1:3,res_places) = qspec_;
-            qw(4,res_places)   = eni_;
+            qw(4,res_places)   = eni_(accounted_for);
         end
     end
 end
