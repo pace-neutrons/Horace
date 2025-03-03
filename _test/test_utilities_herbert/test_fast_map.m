@@ -15,14 +15,16 @@ classdef test_fast_map < TestCase
         function test_soriting_with_map(obj)
             %
             [base_key,val] = build_test_key_values(obj,100);
-            fm = fast_map(base_key(1:100),val(1:100));
-            idx = randperm(200);
-            mixed_keys = base_key(idx);
+            used_keys = base_key(1:100);
+            fm = fast_map(used_keys,val(1:100));
+            idx = randperm(100);
+            mixed_keys = used_keys(idx);
 
             val_n = fm.get_values_for_keys(mixed_keys,false,2);
 
+            sorted_keys = mixed_keys(val_n);
 
-            assertEqual(val_n,val_o);
+            assertEqual(used_keys,sorted_keys);
         end
         
         %------------------------------------------------------------------        
