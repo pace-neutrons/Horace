@@ -12,22 +12,41 @@ classdef test_fast_map < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_soriting_with_map_3D(obj)
+            %
+            select = 20;
+            [base_key,val] = build_test_key_values(obj,select);
+            used_keys = base_key(1:select );
+            ref_values = [used_keys;used_keys;used_keys];
+            fm = fast_map(used_keys,val(1:select ));
+            idx = randperm(select );
+            mixed_keys = used_keys(idx);
+            mixed_keys = [mixed_keys;mixed_keys;mixed_keys];
+
+            val_n = fm.get_values_for_keys(mixed_keys(1,:),true,1);
+
+            sorted_keys=zeros(3,select);
+            sorted_keys(:,val_n) = mixed_keys;
+            assertEqual(ref_values,sorted_keys);
+        end
+
+
         function test_soriting_with_map(obj)
             %
-            [base_key,val] = build_test_key_values(obj,100);
-            used_keys = base_key(1:100);
-            fm = fast_map(used_keys,val(1:100));
-            idx = randperm(100);
+            select = 100;
+            [base_key,val] = build_test_key_values(obj,select);
+            used_keys = base_key(1:select );
+            fm = fast_map(used_keys,val(1:select ));
+            idx = randperm(select );
             mixed_keys = used_keys(idx);
 
-            val_n = fm.get_values_for_keys(mixed_keys,false,2);
+            val_n = fm.get_values_for_keys(mixed_keys,true,1);
 
-            sorted_keys = mixed_keys(val_n);
-
+            sorted_keys(val_n) = mixed_keys;
             assertEqual(used_keys,sorted_keys);
         end
-        
-        %------------------------------------------------------------------        
+
+        %------------------------------------------------------------------
         function test_get_all_val_opt_noopt_mode2_with_missing(obj)
             %
             [base_key,val] = build_test_key_values(obj,100);
