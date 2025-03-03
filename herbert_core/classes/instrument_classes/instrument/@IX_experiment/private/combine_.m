@@ -15,7 +15,7 @@ function [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_
 %                    throws HORACE:IX_experiment:invalid_argument
 %                    if the IX_experiment have the same run_id
 %                    and the same values.
-% keep_runid      -- true if run_id-s stored in input IX_experiment-s 
+% keep_runid      -- true if run_id-s stored in input IX_experiment-s
 %                    should be kept or false if final obj run_id should be
 %                    recalculated starting from 1 to number of kept runs.
 % WARNING:        -- run_id(s) modified if keep_runid == false
@@ -98,7 +98,7 @@ for i=1:n_exper_to_add
         % extract particular IX_experiments to check for addition
         add_IX_exper      = add_exper(j);
         % hash will be used either forever in a future, or in comparison below.
-        add_IX_exper      = add_IX_exper.build_hash();        
+        add_IX_exper      = add_IX_exper.build_hash();
         run_id            = add_IX_exper.run_id;
         file_id_array(ic) = run_id; % this is run_id for current IX_experiment
 
@@ -138,7 +138,7 @@ for i=1:n_exper_to_add
         end
         % store new unique run to add to existing ones
         n_existing_runs           = n_existing_runs+1;
-        this_runid_map(run_id)    = n_existing_runs;
+        this_runid_map            = this_runid_map.add(run_id,n_existing_runs);
 
         base_runs{n_existing_runs}= add_IX_exper;
     end
@@ -183,4 +183,3 @@ for i=1:numel(obj)
     obj(i).run_id = i;
 end
 end
-
