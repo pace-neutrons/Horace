@@ -31,6 +31,9 @@ function [efix,unique_idx] = get_efix(obj,extract_unique)
 if nargin == 1
     extract_unique = false;
 end
+if nargout>1
+    extract_unique = true;    
+end
 
 efix = arrayfun(@(x)x.efix(:)',obj.expdata_,'UniformOutput',false);
 if extract_unique  % calculate indices for equal values
