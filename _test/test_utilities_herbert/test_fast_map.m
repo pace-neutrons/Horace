@@ -12,6 +12,23 @@ classdef test_fast_map < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_soriting_with_map(obj)
+            %
+            [base_key,val] = build_test_key_values(obj,100);
+            fm = fast_map(base_key(1:100),val(1:100));
+            idx = randperm(200);
+            base_key = base_key(idx);
+
+            fm.optimized = false;
+
+            val_n = fm.get_values_for_keys(base_key,false,2);
+            fm.optimized = true;
+            val_o = fm.get_values_for_keys(base_key,false,2);
+
+            assertEqual(val_n,val_o);
+        end
+        
+        %------------------------------------------------------------------        
         function test_get_all_val_opt_noopt_mode2_with_missing(obj)
             %
             [base_key,val] = build_test_key_values(obj,100);
