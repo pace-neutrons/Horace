@@ -52,11 +52,13 @@ classdef test_experiment_methods < TestCase
             exp_data(3).efix = 12;
             sa.expdata = exp_data;
 
-            [ef,idx] = sa.get_efix();
-            assertTrue(iscell(ef));
-            assertEqual(ef,{10,12});
+            [ef,idx] = sa.get_efix(true);
+            assertTrue(isa(ef,'compact_array'));
+            assertEqual(ef.n_unique,2);            
+            assertEqual(ef.unique_val,{10,12});
             assertTrue(iscell(idx));
             assertEqual(idx,{[1,2],3});
+            assertEqual(ef.nonunq_idx,idx);            
 
         end
         
@@ -68,7 +70,7 @@ classdef test_experiment_methods < TestCase
             exp_data(3).efix = 12;
             sa.expdata = exp_data;
 
-            ef = sa.get_efix();
+            ef = sa.get_efix();            
             assertEqual(ef,[10,11,12]);
         end
 
@@ -81,8 +83,8 @@ classdef test_experiment_methods < TestCase
             sa.expdata = exp_data;
 
             [ef,idx] = sa.get_efix();
-            assertTrue(iscell(ef));
-            assertEqual(ef{1},10);
+            assertTrue(isa(ef,'compact_array'));
+            assertEqual(ef.unique_val{1},10);
             assertTrue(iscell(idx));
             assertEqual(idx{1},[1,2,3]);
         end
@@ -204,8 +206,8 @@ classdef test_experiment_methods < TestCase
             assertEqual(rec_exp.n_runs, 1);
 
             assertEqual(rec_exp.expdata,exp.expdata(2));
-            assertEqual(rec_exp.runid_map.keys,{20});
-            assertEqual(rec_exp.runid_map.values,{1});
+            assertEqual(rec_exp.runid_map.keys,uint32(20));
+            assertEqual(rec_exp.runid_map.values,1);
 
             assertEqual(rec_exp.detector_arrays.n_runs, 0);
 
@@ -249,8 +251,8 @@ classdef test_experiment_methods < TestCase
             exp = obj.sample_exper;
             exp.runid_map = containers.Map([20,30,40],[1,3,2]);
 
-            assertEqual(exp.runid_map.keys,{20,30,40});
-            assertEqual(exp.runid_map.values,{1,3,2});
+            assertEqual(exp.runid_map.keys,uint32([20,30,40]));
+            assertEqual(exp.runid_map.values,[1,3,2]);
             runid_s = exp.expdata.get_run_ids();
             assertEqual(runid_s,[20,40,30]);
 
@@ -260,8 +262,8 @@ classdef test_experiment_methods < TestCase
             exp = obj.sample_exper;
             exp.runid_map = [20,30,40];
 
-            assertEqual(exp.runid_map.keys, {20,30,40})
-            assertEqual(exp.runid_map.values, {1,2,3});
+            assertEqual(exp.runid_map.keys, uint32([20,30,40]))
+            assertEqual(exp.runid_map.values, [1,2,3]);
             runid_s = exp.expdata.get_run_ids();
             assertEqual(runid_s,[20,30,40]);
 
@@ -274,8 +276,8 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj([2,3]);
             assertTrue(part.runid_recalculated);
 
-            assertEqual(part.runid_map.keys,{2,3})
-            assertEqual(part.runid_map.values,{1,2});
+            assertEqual(part.runid_map.keys,uint32([2,3]))
+            assertEqual(part.runid_map.values,[1,2]);
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
@@ -306,8 +308,8 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj([20,30]);
 
             assertFalse(part.runid_recalculated);
-            assertEqual(part.runid_map.keys,{20,30});
-            assertEqual(part.runid_map.values,{1,2});
+            assertEqual(part.runid_map.keys,uint32([20,30]));
+            assertEqual(part.runid_map.values,[1,2]);
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGfermi'));
@@ -329,8 +331,8 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj(2:3);
             assertTrue(part.runid_recalculated);
 
-            assertEqual(part.runid_map.keys,{2,3})
-            assertEqual(part.runid_map.values,{1,2})
+            assertEqual(part.runid_map.keys,uint32([2,3]))
+            assertEqual(part.runid_map.values,[1,2])
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
@@ -350,8 +352,8 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj(2:3,'-ind');
             assertFalse(part.runid_recalculated)
 
-            assertEqual(part.runid_map.keys,{20,30})
-            assertEqual(part.runid_map.values,{1,2})
+            assertEqual(part.runid_map.keys,uint32([20,30]))
+            assertEqual(part.runid_map.values,[1,2])
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
