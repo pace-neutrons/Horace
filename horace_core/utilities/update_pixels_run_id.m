@@ -20,7 +20,7 @@ else
 end
 exp_info = sqw_type.experiment_info;
 file_id = exp_info.runid_map.keys;
-if iscell(file_id{:}) % support for old runid map. New optimized for
+if iscell(file_id) % support for old runid map. New optimized for
     % performance custom map returns array of numerical keys.
     file_id = [file_id{:}];
 end
