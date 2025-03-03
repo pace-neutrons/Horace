@@ -186,8 +186,8 @@ for i=1:n_unique_det_arrays
             % found the positons of the calculated q-dE values in the pixel
             % array with input indices.
             res_places   = res_reorder_map.get_values_for_keys(lng_run_idx);
-            qw(1:3,run_selected) = qspec_(:,res_places);
-            qw(4,run_selected)   = eni_(res_places);
+            qw(1:3,res_places) = qspec_;
+            qw(4,res_places)   = eni_;
         end
     end
 end

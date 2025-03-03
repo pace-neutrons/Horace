@@ -12,12 +12,13 @@ classdef test_fast_map < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
-        function test_soriting_with_map_3D(obj)
-            %
-            select = 20;
+        function test_soriting_with_map_4D(obj)
+            % Sample of the sorting code which is used by 
+            % calculate_qw_pixels2
+            select = 100;
             [base_key,val] = build_test_key_values(obj,select);
             used_keys = base_key(1:select );
-            ref_values = [used_keys;used_keys;used_keys];
+            ref_values = [used_keys;used_keys;used_keys;1:select];
             fm = fast_map(used_keys,val(1:select ));
             idx = randperm(select );
             mixed_keys = used_keys(idx);
@@ -25,8 +26,9 @@ classdef test_fast_map < TestCase
 
             val_n = fm.get_values_for_keys(mixed_keys(1,:),true,1);
 
-            sorted_keys=zeros(3,select);
-            sorted_keys(:,val_n) = mixed_keys;
+            sorted_keys=zeros(4,select);
+            sorted_keys(1:3,val_n) = mixed_keys;
+            sorted_keys(4,:)   = 1:select;
             assertEqual(ref_values,sorted_keys);
         end
 
