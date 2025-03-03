@@ -19,13 +19,21 @@ function [idx_lng,minmax_idx] = long_idx(idx_short,minmax_idx)
 %  idx_lng  -- linear indices of the n-dimensional box build on input
 %              indices provided.
 %
+
 if nargin<2
-    minmax_idx = min_max(idx_short);
+    if iscell(idx_short)
+    else
+        minmax_idx = min_max(idx_short);
+    end
 end
 
 
 sz  = minmax_idx(:,2)-minmax_idx(:,1)+1;
-idx_short = idx_short-minmax_idx(:,1)+1;
-idx_lng   = uint64(sub2ind(sz',idx_short(1,:),idx_short(2,:),idx_short(3,:)));
-
+if iscell(idx_short)
+    ii = 1:numel(sz);
+    idx_short = arrayfun(@(ii)(idx_short{ii}-minmax_idx(ii,1)+1),ii,'UniformOutput',false);
+    idx_lng   = uint64(sub2ind(sz',idx_short{:}));
+else
+    idx_short = idx_short-minmax_idx(:,1)+1;
+    idx_lng   = uint64(sub2ind(sz',idx_short(1,:),idx_short(2,:),idx_short(3,:)));
 end

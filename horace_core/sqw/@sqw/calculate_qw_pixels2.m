@@ -165,14 +165,13 @@ for i=1:n_unique_det_arrays
             % calc_q_spec replicated used detectors and energies into martix.
             % here we need to make the same replication for detector
             % indices and energy indices
-            run_det_idx  = repmat(idet_4_runs(:)',1,numel(en_tr));
-            run_entr_idx = repmat(en_tr_idx_per_run(:)',1,numel(idet_4_runs));
-            calc_idx_  = [run_det_idx;run_entr_idx];
+            [X,Y] = ndgrid(en_tr_idx_per_run(:),idet_4_runs(:));
+            calc_idx_  = {X(:)',Y(:)'};
             short_idx_cache{run_id_number} = calc_idx_;
         end
         % found indices of the run, energy bins and detector used in q-dE
         % calculations in the frame of the input indices
-        run_idx = [repmat(run_idx_selected(run_id_number),1,size(calc_idx_,2));calc_idx_];
+        run_idx = [repmat(run_idx_selected(run_id_number),1,numel(calc_idx_{1}));calc_idx_(:)];
         lng_run_idx       = long_idx(run_idx,mm_range);
         accounted_for     = ismember(lng_run_idx,lng_idx);
         lng_run_idx       = lng_run_idx(accounted_for);
