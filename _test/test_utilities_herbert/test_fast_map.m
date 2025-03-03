@@ -14,7 +14,7 @@ classdef test_fast_map < TestCase
         %------------------------------------------------------------------
         function test_soriting_with_map_4D(obj)
             % Sample of the sorting code which is used by 
-            % calculate_qw_pixels2
+            % calculate_qw_pixels2 and may be by projections
             select = 100;
             [base_key,val] = build_test_key_values(obj,select);
             used_keys = base_key(1:select );

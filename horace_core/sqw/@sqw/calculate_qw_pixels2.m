@@ -166,7 +166,7 @@ for i=1:n_unique_det_arrays
             % here we need to make the same replication for detector
             % indices and energy indices
             [X,Y] = ndgrid(en_tr_idx_per_run(:),idet_4_runs(:));
-            calc_idx_  = {X(:)',Y(:)'};
+            calc_idx_  = {Y(:)',X(:)'};
             short_idx_cache{run_id_number} = calc_idx_;
         end
         % found indices of the run, energy bins and detector used in q-dE
