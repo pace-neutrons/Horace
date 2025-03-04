@@ -1,5 +1,6 @@
 function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
-% Calculate qh, qk, ql, en for the pixels in an sqw dataset from the experiment information
+% Calculate qh, qk, ql, en for the pixels in an sqw dataset from the 
+% experiment information
 %
 %   >> qw = calculate_qw_pixels2(win)
 %   >> qw = calculate_qw_pixels2(win,coord_in_hkl)
@@ -13,11 +14,11 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 % ------
 %  win         -- Input sqw object
 % Optional:
-% coord_in_rlu -- default true. Returns pixel coordinates in reciprocal
+% coord_in_rlu --  default true. Returns pixel coordinates in reciprocal
 %                  lattice units (projection onto rotated hkl coordinate
 %                  system). If false, return pixel coordinates in Crystal
 %                  Cartesial coordinate system
-% return_array -- default false. Return pixel coordinates as cellarray of
+% return_array --  default false. Return pixel coordinates as cellarray of
 %                  4 vectors. (See below)
 %                  if true, return coordinates as [4 x n_pixels] array
 %
@@ -85,7 +86,8 @@ else % coordinates in Crystan Cartesian
     n_matrix = 1;
 end
 % energies:
-% compact_array containing incident for direct/analysis for indirect energies.
+% compact_array containing incident for direct or analysis for indirect 
+% energies.
 efix_info  = experiment.get_efix(true);
 % get unuque emodes. A unique instrument certainly have unique emode
 emodes= experiment.get_emode();
@@ -100,14 +102,17 @@ undet_info = compact_array(unique_det_run_idx,unique_det);
 n_unique_det_arrays = undet_info.n_unique;
 
 
-% unique energy transfers arrays. It is common that every run has its own
-% energy transfer values:
+% unique energy transfers arrays. Despite it is common that runs have the 
+% same energy transf value, it may often happen (e.g. data reduced with 
+% auto-ei and relative bin edges) that every run has its own energy
+% transfer value:
 en_tr_info   = experiment.get_en_transfer(true,true);
 
 
 % identify bunch of incident energies and energy transfer values,
 % corresponding to each bunch of unique detectors
-[efix_info,en_tr_info,en_tr_idx] = retrieve_en_ranges(efix_info,en_tr_info,undet_info,run_id,en_id);
+[efix_info,en_tr_info,en_tr_idx] = retrieve_en_ranges( ...
+    efix_info,en_tr_info,undet_info,run_id,en_id);
 % return compact_arrays of possible incident energies and enery transfers
 % for each bunch of runs with unique detectors.
 
@@ -118,21 +123,26 @@ en_tr_info   = experiment.get_en_transfer(true,true);
 spec_to_rlu  = arrayfun(...
     @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
 
+% allocate common space for result. Improves performance.
 qw = zeros(4,numel(run_id));
+%
 for i=1:n_unique_det_arrays
     run_idx_selected = undet_info.nonunq_idx{i};
     run_selected     = ismember(run_id,run_idx_selected);
-    det_id_selected  = det_id(run_selected);  % detector ids contribured into runs with this instrument
-    idet_4_runs = unique(det_id_selected);     % unique detector ids contribured into runs with this instrument
+    det_id_selected  = det_id(run_selected);  % detector ids contribured into runs with these detectors
+    idet_4_runs = unique(det_id_selected);    % unique detector ids contribured into runs with these detectors
 
+    % calculate detectors directions in instrument coordinate frame.
     detdcn= unique_det{i}.calc_detdcn(idet_4_runs);
 
-    n_runs = numel(run_idx_selected);
+    % allocate caches for intermediate calculations
+    n_runs = numel(run_idx_selected);  % runs which correspond to a 
     qspec_i_cache  = cell(1,n_runs);
     eni_i_cache    = cell(1,n_runs);
     short_idx_cache= cell(1,n_runs);
     %
 
+    %prepare processing for the particular run.
     efix_info_i = efix_info{i};
     en_tr_info_i = en_tr_info{i};
     en_tr_idx_i  = en_tr_idx{i};
