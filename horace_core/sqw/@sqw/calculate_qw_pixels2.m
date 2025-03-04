@@ -142,7 +142,7 @@ for i=1:n_unique_det_arrays
     short_idx_cache= cell(1,n_runs);
     %
 
-    %prepare processing for the particular run.
+    %prepare processing for the particular run number i.
     efix_info_i = efix_info{i};
     en_tr_info_i = en_tr_info{i};
     en_tr_idx_i  = en_tr_idx{i};
@@ -172,9 +172,9 @@ for i=1:n_unique_det_arrays
             %
             qspec_i_cache{run_id_number} = qspec_;
             eni_i_cache{run_id_number}   = eni_;
-            % calc_q_spec replicated used detectors and energies into martix.
+            % calc_q_spec replicates used detectors and energies into martix.
             % here we need to make the same replication for detector
-            % indices and energy indices
+            % indices and energy indices.
             [X,Y] = ndgrid(en_tr_idx_per_run(:),idet_4_runs(:));
             calc_idx_  = {Y(:)',X(:)'};
             short_idx_cache{run_id_number} = calc_idx_;

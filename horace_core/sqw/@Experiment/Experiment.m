@@ -198,8 +198,13 @@ classdef Experiment < serializable
             % deep copy handle class, to maintain consistent behaviour
             if isempty(obj.runid_map_)
                 map = [];
-            else % copy existing map as containers.Map is handle now.
-                map = fast_map(obj.runid_map_.keys,obj.runid_map_.values,'uint32');
+            else
+                if isa(obj.runid_map_,'containers.Map')
+                    % copy existing map as containers.Map is handle.
+                    map = fast_map(obj.runid_map_.keys,obj.runid_map_.values,'uint32');
+                else
+                    map = obj.runid_map_;
+                end
             end
         end
         function obj = set.runid_map(obj,val)
