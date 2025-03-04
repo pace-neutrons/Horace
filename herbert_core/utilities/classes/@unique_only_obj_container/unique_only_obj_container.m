@@ -264,7 +264,7 @@ classdef unique_only_obj_container < ObjContainersBase
                 nuidx = varargin{1};
                 self.check_if_range_allowed(nuidx);
                 uidx = self.lidx_(nuidx);
-                if numel(uidx)==1
+                if isscalar(numel(uidx))
                     uo = self.unique_objects_{uidx};
                 else % this makes {a:b}  behave like (a:b).
                     % TODO: May be should be modified and extended.
