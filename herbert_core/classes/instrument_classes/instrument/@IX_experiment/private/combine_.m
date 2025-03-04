@@ -105,7 +105,7 @@ for i=1:n_exper_to_add
         if this_runid_map.isKey(run_id) % run_id is already added to combine.
             % check if runs with the same run_id contain the same
             % IX_experiments
-            present_run_pos  = this_runid_map(run_id);
+            present_run_pos  = this_runid_map.get(run_id);
             present_IX_exper = base_runs{present_run_pos};
 
             [present_IX_exper,~,is_new] = present_IX_exper.build_hash();
@@ -171,14 +171,10 @@ function [obj,id_map,id_array] = recalc_runid(obj,id_map,file_id_array)
 %             replaced by new run_id
 %
 
-id_array = zeros(1,numel(file_id_array));
-for i=1:numel(file_id_array)
-    id_array(i) = id_map(file_id_array(i));
-end
-%
+id_array = id_map.get_values_for_keys(file_id_array);
 ids = 1:numel(obj);
-id_map = containers.Map(ids,ids);
-
+id_map = fast_map(ids,ids);
+%
 for i=1:numel(obj)
     obj(i).run_id = i;
 end

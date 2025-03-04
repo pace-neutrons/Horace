@@ -134,7 +134,7 @@ classdef IX_experiment < Goniometer
             % run_id
             ind = 1:numel(obj);
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
-            idmap = containers.Map(ids,ind);
+            idmap = fast_map(ids,ind);
         end
 
         %
