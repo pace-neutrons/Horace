@@ -38,7 +38,7 @@ classdef test_compact_array < TestCase
             ca = compact_array(nuidx,uval);
             
             val = ca.get(1:6);
-            assertEqual(val,{20,30,20,10,30,30})
+            assertEqual(val,[20,30,20,10,30,30])
         end
         
         function test_get_lidx(~)
