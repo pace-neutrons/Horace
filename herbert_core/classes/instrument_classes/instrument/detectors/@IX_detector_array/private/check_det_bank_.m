@@ -9,7 +9,7 @@ if iscell(val)
     end
     % All inputs have class IX_detector_bank
     % Concatenate into a single array
-    tmp = cellfun (@(x)(x(:)), varargin, 'uniformOutput', false);
+    tmp = cellfun (@(x)(x(:)), val, 'uniformOutput', false);
     val = cat(1,tmp{:});
     clear tmp;
 end
