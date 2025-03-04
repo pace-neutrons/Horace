@@ -206,7 +206,7 @@ classdef test_experiment_methods < TestCase
             assertEqual(rec_exp.n_runs, 1);
 
             assertEqual(rec_exp.expdata,exp.expdata(2));
-            assertEqual(rec_exp.runid_map.keys,uint32(20));
+            assertEqual(rec_exp.runid_map.keys,20);
             assertEqual(rec_exp.runid_map.values,1);
 
             assertEqual(rec_exp.detector_arrays.n_runs, 0);
@@ -251,7 +251,7 @@ classdef test_experiment_methods < TestCase
             exp = obj.sample_exper;
             exp.runid_map = containers.Map([20,30,40],[1,3,2]);
 
-            assertEqual(exp.runid_map.keys,uint32([20,30,40]));
+            assertEqual(exp.runid_map.keys,[20,30,40]);
             assertEqual(exp.runid_map.values,[1,3,2]);
             runid_s = exp.expdata.get_run_ids();
             assertEqual(runid_s,[20,40,30]);
@@ -262,7 +262,7 @@ classdef test_experiment_methods < TestCase
             exp = obj.sample_exper;
             exp.runid_map = [20,30,40];
 
-            assertEqual(exp.runid_map.keys, uint32([20,30,40]))
+            assertEqual(exp.runid_map.keys, [20,30,40])
             assertEqual(exp.runid_map.values, [1,2,3]);
             runid_s = exp.expdata.get_run_ids();
             assertEqual(runid_s,[20,30,40]);
@@ -276,7 +276,7 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj([2,3]);
             assertTrue(part.runid_recalculated);
 
-            assertEqual(part.runid_map.keys,uint32([2,3]))
+            assertEqual(part.runid_map.keys,[2,3])
             assertEqual(part.runid_map.values,[1,2]);
 
             assertEqual(part.n_runs,2);
@@ -308,7 +308,7 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj([20,30]);
 
             assertFalse(part.runid_recalculated);
-            assertEqual(part.runid_map.keys,uint32([20,30]));
+            assertEqual(part.runid_map.keys,[20,30]);
             assertEqual(part.runid_map.values,[1,2]);
 
             assertEqual(part.n_runs,2);
@@ -331,7 +331,7 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj(2:3);
             assertTrue(part.runid_recalculated);
 
-            assertEqual(part.runid_map.keys,uint32([2,3]))
+            assertEqual(part.runid_map.keys,[2,3])
             assertEqual(part.runid_map.values,[1,2])
 
             assertEqual(part.n_runs,2);
@@ -352,7 +352,7 @@ classdef test_experiment_methods < TestCase
             part = exper.get_subobj(2:3,'-ind');
             assertFalse(part.runid_recalculated)
 
-            assertEqual(part.runid_map.keys,uint32([20,30]))
+            assertEqual(part.runid_map.keys,[20,30])
             assertEqual(part.runid_map.values,[1,2])
 
             assertEqual(part.n_runs,2);
