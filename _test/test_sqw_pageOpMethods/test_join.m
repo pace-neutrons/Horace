@@ -24,7 +24,7 @@ classdef test_join < TestCase
             for i = 1:n_parts
                 id = obj.sqw_to_join(i).runid_map.keys;
                 [~,fn] = fileparts(obj.sqw_to_join(i).main_header.filename);
-                fn = sprintf('%s_runID%d',fn,id{1});
+                fn = sprintf('%s_runID%d',fn,id(1));
                 fn = fullfile(obj.work_dir,fn);
                 obj.files_to_join{i} = fn;
                 if isfile(fn)
@@ -70,7 +70,9 @@ classdef test_join < TestCase
                 'en', 10, ...
                 'run_id', 1);
             sqw_obj.main_header.nfiles = 2;
-            sqw_obj.experiment_info.runid_map(2) = 2;
+            rm  = sqw_obj.experiment_info.runid_map;
+            rm  = rm.add(2,2);
+            sqw_obj.experiment_info.runid_map = rm;
 
             split_obj = sqw_obj.split();
 
@@ -102,7 +104,7 @@ classdef test_join < TestCase
             reformed_obj = sqw.join(obj.files_to_join,'-recalc');
 
             runid = reformed_obj.runid_map.keys();
-            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+            assertEqual(double(runid),1:reformed_obj.main_header.nfiles);
 
             sobj = obj.sample_obj;
             pix_data = sobj.pix.data;
@@ -232,7 +234,7 @@ classdef test_join < TestCase
             reformed_obj = sqw.join(split_obj,'-recalc_runid');
 
             runid = reformed_obj.runid_map.keys();
-            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+            assertEqual(double(runid),1:reformed_obj.main_header.nfiles);
 
             sobj = obj.sample_obj;
             pix_data = sobj.pix.data;
@@ -252,8 +254,8 @@ classdef test_join < TestCase
 
             reformed_obj = sqw.join(split_obj,obj.sample_obj,'-recalc_runid');
 
-            runid = reformed_obj.runid_map.keys();
-            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+            runid = reformed_obj.runid_map.keys;
+            assertEqual(double(runid),1:reformed_obj.main_header.nfiles);
 
             sobj = obj.sample_obj;
             pix_data = sobj.pix.data;

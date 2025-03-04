@@ -201,7 +201,7 @@ classdef Experiment < serializable
             else
                 if isa(obj.runid_map_,'containers.Map')
                     % copy existing map as containers.Map is handle.
-                    map = fast_map(obj.runid_map_.keys,obj.runid_map_.values,'uint32');
+                    map = fast_map(obj.runid_map_.keys,obj.runid_map_.values,'double');
                 else
                     map = obj.runid_map_;
                 end
