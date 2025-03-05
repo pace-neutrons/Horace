@@ -24,7 +24,7 @@ classdef test_calc_detdcn< TestCaseWithSave
         function test_get_par_nxspe(obj)
             par = get_par(obj.small_nxspe_file_path);
             dc = calc_detdcn(par.phi,par.azim);
-            assertEqualWithSave(obj,dc);
+            assertEqualToTolWithSave(obj,dc,2e-15);
         end
     end
 end

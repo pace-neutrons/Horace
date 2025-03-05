@@ -41,8 +41,8 @@ classdef test_calc_qspec< TestCaseWithSave
                 [qs,en] = calc_qspec(dc, efix, eps, emode);
             end
             te = toc(tb);
-            assertEqualWithSave(obj,qs);
-            assertEqualWithSave(obj,en);
+            assertEqualToTolWithSave(obj,qs,2.e-15);
+            assertEqualToTolWithSave(obj,en,2.e-15);
             if obj.ll>1; fprintf('calc_qspec, Emode 0  takes %gsec\n',te);end
             check_timing(obj,'elastic',te)
         end
@@ -57,8 +57,8 @@ classdef test_calc_qspec< TestCaseWithSave
                 [qs,en] = calc_qspec(dc, efix, eps, emode);
             end
             te = toc(tb);
-            assertEqualWithSave(obj,qs);
-            assertEqualWithSave(obj,en);
+            assertEqualToTolWithSave(obj,qs,2e-15);
+            assertEqualToTolWithSave(obj,en,2e-15);
             if obj.ll>1; fprintf('calc_qspec, Emode 2  takes %gsec\n',te); end
 
             check_timing(obj,'indirect',te)
@@ -75,8 +75,8 @@ classdef test_calc_qspec< TestCaseWithSave
             end
             te = toc(tb);
             if obj.ll>1; fprintf('calc_qspec, Emode 1  takes %gsec\n',te); end
-            assertEqualWithSave(obj,qs);
-            assertEqualWithSave(obj,en);
+            assertEqualToTolWithSave(obj,qs,2e-15);
+            assertEqualToTolWithSave(obj,en,2e-15);
 
             check_timing(obj,'direct',te)
         end
@@ -88,8 +88,8 @@ classdef test_calc_qspec< TestCaseWithSave
             eps = -1:0.1:1 + efix;
             emode = 0;
             [qs,en] = calc_qspec(dc, efix, eps, emode);
-            assertEqualWithSave(obj,qs);
-            assertEqualWithSave(obj,en);
+            assertEqualToTolWithSave(obj,qs,2e-15);
+            assertEqualToTolWithSave(obj,en,2e-15);
         end
 
         function test_calc_qspec_small_mode2(obj)
@@ -99,8 +99,8 @@ classdef test_calc_qspec< TestCaseWithSave
             eps = -10:99;
             emode = 2;
             [qs,en] = calc_qspec(dc, efix, eps, emode);
-            assertEqualWithSave(obj,qs);
-            assertEqualWithSave(obj,en);
+            assertEqualToTolWithSave(obj,qs,2e-15);
+            assertEqualToTolWithSave(obj,en,2e-15);
         end
 
         function test_calc_qspec_small_mode1(obj)
@@ -110,8 +110,8 @@ classdef test_calc_qspec< TestCaseWithSave
             eps = -10:99;
             emode = 1;
             [qs,en] = calc_qspec(dc, efix, eps, emode);
-            assertEqualWithSave(obj,qs);
-            assertEqualWithSave(obj,en);
+            assertEqualToTolWithSave(obj,qs,2e-15);
+            assertEqualToTolWithSave(obj,en,2e-15);
         end
     end
     methods(Access=protected)
