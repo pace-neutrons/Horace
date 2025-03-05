@@ -146,19 +146,19 @@ classdef Goniometer < hashable
         %
         function obj = set.omega(obj,val)
             obj.omega_=check_angular_val(obj,val);
-            obj = obj.clear_hash();            
+            obj = obj.clear_hash();
         end
         function obj  = set.dpsi(obj,val)
             obj.dpsi_=check_angular_val(obj,val);
-            obj = obj.clear_hash();            
+            obj = obj.clear_hash();
         end
         function obj =set.gl(obj,val)
             obj.gl_=check_angular_val(obj,val);
-            obj = obj.clear_hash();            
+            obj = obj.clear_hash();
         end
         function obj =set.gs(obj,val)
             obj.gs_=check_angular_val(obj,val);
-            obj = obj.clear_hash();            
+            obj = obj.clear_hash();
         end
         %-----------------------------------------------------------------
         function u=get.u(obj)
@@ -188,6 +188,31 @@ classdef Goniometer < hashable
             obj = check_and_set_uv(obj,'v',v);
         end
         %-----------------------------------------------------------------
+        function [mat,obj] = calc_proj_matrix(obj,alatt,angdeg,n_martix)
+            % Calculate matrices used tp convert momentum from coordinates in spectrometer frame to
+            % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
+            % or hkl axes.
+            %
+            % inputs:
+            % obj        -- initialized goniometer
+            % alatt      -- 1x3 vector of lattice parameters
+            % angdeg     -- 1x3 vector of lattice angles
+            % n_matrix   -- numner of matrix to return
+            %        1    - spec_to_cc matrix which converts detectors
+            %               coordinates to crystal Cartesian coordinates
+            %        2    - inv(b-matrix) -- converts crystal Cartesian
+            %               into hkl
+            %        3    - spect_to_hkl  -- converts detector direction
+            %               into rotated hkl, defined by u,v vectors
+            %
+            %
+            if nargin <4
+                n_martix = 1;
+            end
+            obj.angular_units = 'rad';
+            mat = calc_proj_matrix (alatt, angdeg, obj.u_, obj.v_, ...
+                obj.psi_, obj.omega_, obj.dpsi_, obj.gl_, obj.gs_,n_martix);
+        end
     end
     %======================================================================
     % partial load and angular transformations.

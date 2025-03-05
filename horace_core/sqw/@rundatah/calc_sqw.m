@@ -73,7 +73,7 @@ if isempty(grid_size_in)
     grid_size = [50,50,50,50];
 else
     grid_size = grid_size_in(:)';
-    if numel(grid_size) == 1
+    if isscalar(grid_size)
         grid_size = ones(1,4)*grid_size;
     end
     if ~all(size(grid_size) == [1,4]) || any(grid_size < 1)

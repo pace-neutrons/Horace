@@ -11,7 +11,7 @@ function [self,gidx] = add_if_new_single_(self,obj)
 % Output
 % ------
 % self - the modified container (modified by adding obj)
-% nuix - the insertion index at which obj is added in the container
+% gidx - the insertion index at which obj is added in the container
 
 % check that obj is of the appropriate base class
 if ~isempty(self.baseclass_) && ~isa(obj, self.baseclass_)

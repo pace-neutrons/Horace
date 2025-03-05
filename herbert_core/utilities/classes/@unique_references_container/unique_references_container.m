@@ -9,14 +9,14 @@ classdef unique_references_container < ObjContainersBase
     % tests in the test_unqiue_objects_container suite.
     %
     % The objects are assigned to a category (or parent class name), and
-    % all containers with the same category have their unique objects 
+    % all containers with the same category have their unique objects
     % stored in a singleton unique_obj_store. Access to the global storage
     % of the container be obtained by calling singleton's method:
     %
     %>> storage =  unique_obj_store.instance().get_objects('category');
     %
     % Any changes to storage can be send back by inverse method:
-    % unique_obj_store.instance().set_objects(storage); 
+    % unique_obj_store.instance().set_objects(storage);
     % but this method should be used within unique_references_container
     % only, because invalid deleteon of objects from global storage may
     % invalidate other unique_reference_container-s present in sqw objects
@@ -336,7 +336,7 @@ classdef unique_references_container < ObjContainersBase
             end
         end
         function self = set_unique_objects(self,val)
-            %SET_UNIQUE_OBJECTS - copy objects stored in uinput 
+            %SET_UNIQUE_OBJECTS - copy objects stored in uinput
             % into this container and set set up this container's indices
             % to address these objects.
 
@@ -345,7 +345,7 @@ classdef unique_references_container < ObjContainersBase
             % Input
             % -----
             % - val: unique_objects_container with the objects to be restored
-            %        to this container 
+            %        to this container
             %   Or
             %       cellarray of unique objects to add them to the container
             %       set unique objects for storage
@@ -380,15 +380,46 @@ classdef unique_references_container < ObjContainersBase
     % remove
     methods % property (and method) set/get
 
-        function [unique_objects, unique_indices] = get_unique_objects_and_indices(self)
+        function [unique_objects, unique_idx] = get_unique_objects_and_indices(self,get_lidx)
             %GET_UNIQUE_OBJECTSAND_INDICES - get the unique objects and their
-            % indices into the singleton container. Abandoned implementation
-            % left in case it becomes useful.
-            unique_indices = unique( self.idx_ );
+            % indices into the singleton container.
+            % Inputs:
+            % self     --  initialized instance of unique reference container
+            % get_lidx --  boolean. If absent or false, returns array of
+            %              unique global indices.
+            %              If present and true -- return cellarray of local
+            %              indices, each bunch referring its own unique
+            %              instrument
+            % Returns:
+            % unique_objects
+            %          -- cellarray of unique objects referred by this
+            %             container
+            % unique_idx
+            %          -- either
+            %             array of global indices, providing access
+            %             to these objects from global storage
+            %          -- or
+            %             cellarray of arrays of local indices, each bunch
+            %             gives access to local indices pointing to a
+            %             single unique object in the container
+
+            if nargin<2
+                get_lidx = false;
+            end
+            [unique_idx,~,ic] = unique( self.idx_ );
             storage = unique_obj_store.instance().get_objects(self.baseclass);
-            unique_objects = cell( 1,numel(unique_indices) );
-            for i = 1:numel(unique_indices)
-                unique_objects{i} = storage{unique_indices(i)};
+            n_unique = numel(unique_idx);
+            unique_objects = cell( 1, n_unique);
+
+            for i = 1:n_unique
+                unique_objects{i} = storage.get(unique_idx(i));
+            end
+            if get_lidx
+                lidx = 1:self.n_objects;
+                unique_idx = cell(1,n_unique);
+                for i=1:n_unique
+                    unique_idx{i} = lidx(ic==i);
+                end
             end
         end
 
@@ -421,7 +452,7 @@ classdef unique_references_container < ObjContainersBase
                     [storage,igdx] = storage.add(v(i));
                     self.idx_(i) = igdx;
                 end
-            elseif numel(v)==1 && ~isa(v,'unique_objects_container')
+            elseif isscalar(v) && ~isa(v,'unique_objects_container')
                 [storage,idgs] = storage.add(v);
                 self.idx_ = repmat(idgs,1,self.n_objects);
                 storage   = storage.replicate_runs(self.n_objects,idgs);
