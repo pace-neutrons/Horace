@@ -134,7 +134,7 @@ classdef IX_experiment < Goniometer
             % run_id
             ind = 1:numel(obj);
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
-            idmap = containers.Map(ids,ind);
+            idmap = fast_map(ids,ind);
         end
 
         %
@@ -154,6 +154,16 @@ classdef IX_experiment < Goniometer
         %
         function en = get.en(obj)
             en = obj.en_;
+        end
+        function en = get_en(obj,bin_centers)
+            % return energy transfer values with possibility to
+            % retrieve bin centers.
+            % Return rows, wrt get.en, which always returns columns
+            en = obj.en_;
+            if bin_centers
+                en = 0.5*(en(1:end-1)+en(2:end));
+            end
+            en = en(:)';
         end
         function obj = set.en(obj,val)
             if ~isnumeric(val)

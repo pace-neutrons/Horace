@@ -129,7 +129,6 @@ page_op.outfile = outfile;
 %
 if recalc_runid
     run_id = wout.runid_map.keys();
-    run_id = [run_id{:}];
 else
     run_id = [];
 end
