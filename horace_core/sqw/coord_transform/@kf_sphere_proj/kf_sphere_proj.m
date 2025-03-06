@@ -71,15 +71,21 @@ classdef kf_sphere_proj<sphere_proj
     % 'e'-energy transfer in meV (no other scaling so may be missing)
     %
     properties(Dependent)
-        Ei
-        % return vector ki in A^-1. Used for debugging and easy cut range
-        % estimation
-        ki;
+        Ei  % incident for direct or analyzer for indirect energy.
+        ki_mod % modulo of vector ki in A^-1. Used for debugging and easy
+        % cut range estimation
+        %
+        emode % data processing mode (1-direct, 2-indirect, 0 -- elastic)
     end
     properties(Access=protected)
-        Ei_ = [];
-        % cache for ki -- incident beam wave vector
-        ki_ = [1;0;0];
+        Ei_     = [];
+        Energy_transfer_ % used for indirect mode only
+        ki_mod_ = [];
+        ki_     = [];
+        emode_  = 1;
+        cc_to_spec_mat_ = {}; %cellarray of matrices used to transform each
+        % run event coordinates from Crytal Cartesian coordinate system to
+        % the spectrometer frame.
     end
     methods
         function obj=kf_sphere_proj(varargin)
@@ -93,17 +99,33 @@ classdef kf_sphere_proj<sphere_proj
                 obj = obj.init(varargin{:});
             end
         end
+        function obj = copy_proj_param_from_source(obj,cut_source)
+            % overloaded aProjectionBase method, which sets up
+            % kf_sphere_proj specific properties necessary for this kind of
+            % projection to work.
+            %
+            % Namely, in addition to standard projection properties, this
+            % projection works on sqw objects only and requests incident
+            % energies and set of transformation matrices, used for
+            % convertion from instrument frame to Crystal Cartesian
+            % coordinate system. These matrices are stored in
+            % Experiment/IX_dataset array.
+            obj = copy_proj_param_from_source_(obj,cut_source);
+        end
         %------------------------------------------------------------------
+        function emode = get.emode(obj)
+            emode = obj.emode_;
+        end
         function ei = get.Ei(obj)
             ei = obj.Ei_;
         end
-        function ki = get.ki(obj)
-            ki=(obj.ki_(:))';
+        function ki = get.ki_mod(obj)
+            ki=obj.ki_mod_;
         end
         function obj = set.Ei(obj,val)
-            if ~isnumeric(val)||~isscalar(val)
+            if ~isnumeric(val)
                 error('HORACE:kf_sphere_proj:invalid_arguments', ...
-                    'Incident beam must be poisitive. Got %d',val);
+                    'Incident beam values must be numeric. Got %d',val);
             end
             if val<=0
                 error('HORACE:kf_sphere_proj:invalid_arguments', ...
@@ -135,7 +157,8 @@ classdef kf_sphere_proj<sphere_proj
             %
             if isa(pix_data,'PixelDataBase')
                 pix_cc = pix_data.q_coordinates;
-                shift_ei = obj.offset(4) ~=0; % its ginored for the time being
+                %shift_ei = obj.offset(4) ~=0; % It is not implemented and
+                %does not look like this should be implemented
 
                 ndim = 3;
                 input_is_obj = true;
@@ -147,9 +170,9 @@ classdef kf_sphere_proj<sphere_proj
                 input_is_obj = false;
             end
             if ndim ==3
-                kf = obj.ki_-pix_cc;
+                kf = obj.ki_mod_-pix_cc;
             else
-                kf = obj.ki_-pix_cc(1:3,:);
+                kf = obj.ki_mod_-pix_cc(1:3,:);
             end
             pix_transformed = transform_pix_to_img@sphere_proj(obj,kf,varargin{:});
             if ndim > 3 || input_is_obj
@@ -164,7 +187,7 @@ classdef kf_sphere_proj<sphere_proj
             % Transform pixels in image (spherical) coordinate system
             % into crystal Cartesian system of pixels
             kf = transform_img_to_pix@sphere_proj(obj,pix_transformed,varargin{:});
-            pix_cc = obj.ki_-kf;
+            pix_cc = obj.ki_mod_-kf;
             if size(pix_transformed,1) > 3
                 pix_cc = [pix_cc;kf(4,:)];
             end
@@ -211,17 +234,25 @@ classdef kf_sphere_proj<sphere_proj
             % transformation to new coordinate system when operation is
             % successful
             obj = check_combo_arg@sphere_proj(obj);
-            if obj.alatt_defined && obj.angdeg_defined
-                bm = obj.bmatrix();
-            else
-                bm = eye(3);
+            if any(abs(obj.offset_)>eps('double'))
+                error('HORACE:kf_sphere_proj:not_implemented',[ ...
+                    'non-zero offset is not implemented for this type of projection.\n' ...
+                    'There are doubts that it should be implemented at all'])
             end
-            kf_modulo=sqrt(obj.Ei_/neutron_constants('c_k_to_emev')); % incident
-            % neutron beam wavevector in A^-1
-            u_in_A = bm*obj.u(:); % direction in Crystal Cartesian
-            obj.ki_ = u_in_A/norm(u_in_A)*kf_modulo;
+            if obj.emode_ == 1
+                obj.ki_mod_ = sqrt(obj.Ei_/neutron_constants('c_k_to_emev')); % incident
+                obj.ki_ = [obj.ki_mod_;0;0];
+            elseif obj.emode_==2
+                error('HORACE:kf_sphere_proj:not_implemented', ...
+                    'kf_sphere_proj is not yet implemented for emode %d', ...
+                    obj.emode_)
+                %obj.ki_mod_=sqrt((efix+eps(:))/neutron_constants('c_k_to_emev')); % [ne x 1]
+            else
+                error('HORACE:kf_sphere_proj:not_implemented', ...
+                    'kf_sphere_proj is not implemented for emode %d', ...
+                    obj.emode_)
+            end
         end
-
     end
     methods(Static)
         function obj = loadobj(S)

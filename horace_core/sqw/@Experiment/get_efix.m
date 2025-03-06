@@ -1,4 +1,4 @@
-function [efix,unique_idx] = get_efix(obj,extract_unique)
+function [efix,unique_idx,obj] = get_efix(obj,extract_unique)
 % Return cellarray of incident energies from all runs, contributing to
 % experiment.
 %
