@@ -86,7 +86,7 @@ classdef kf_sphere_proj<sphere_proj
         cc_to_spec_mat_ = {}; %cellarray of matrices used to transform each
         % run event coordinates from Crytal Cartesian coordinate system to
         % the spectrometer frame.
-        run_id_mapper_ % holder for fast map class which converts actual run-id 
+        run_id_mapper_ % holder for fast map class which converts actual run-id
         % into the number of IX_experiment array elelment.
     end
     methods
@@ -177,14 +177,24 @@ classdef kf_sphere_proj<sphere_proj
                 input_is_obj = false;
             end
             run_id = obj.remapper_.get_values_for_keys(run_id,true);
+
             np = numel(run_id);
-            desort = fast_map(run_id,1:np);
-            [run_id,sid] = sort(run_id);
+            %desort = fast_map(run_id_sorted,1:np);
+            [run_id_sorted,sid] = sort(run_id);
             pix_cc = pix_cc(:,sid);
-            mat_range =[1,diff(run_id)];
 
+            [blocks_sums,bl_edges] = histcounts(run_id_sorted);
+            n_blocks = numel(bl_edges)-1;
+            %used_transf = obj.cc_to_spec_mat_(used_transf_nums);
+            pix_sectr = zeros(3,np);
+            for i = 1:n_blocks
+                run_num   = run_id_sorted(bl_edges(i));
+                block_pix = mtimesx_horace(obj.cc_to_spec_mat_{run_num},reshape(pix_cc(:,bl_edges(i):bl_edges(i+1)),3,1,blocks_sums(i)));
+                run_pos  = ismember(run_id,run_num);
+                pix_sectr(:,run_pos) = block_pix;
+            end
 
-            kf = obj.ki_mod_-pix_cc;
+            kf = obj.ki_mod_-pix_sectr;
 
             pix_transformed = transform_pix_to_img@sphere_proj(obj,kf,varargin{:});
             if ndim > 3 || input_is_obj
