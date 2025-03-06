@@ -86,6 +86,8 @@ classdef kf_sphere_proj<sphere_proj
         cc_to_spec_mat_ = {}; %cellarray of matrices used to transform each
         % run event coordinates from Crytal Cartesian coordinate system to
         % the spectrometer frame.
+        run_id_mapper_ % holder for fast map class which converts actual run-id 
+        % into the number of IX_experiment array elelment.
     end
     methods
         function obj=kf_sphere_proj(varargin)
@@ -157,23 +159,33 @@ classdef kf_sphere_proj<sphere_proj
             %
             if isa(pix_data,'PixelDataBase')
                 pix_cc = pix_data.q_coordinates;
+                run_id = pix_data.run_index;
                 %shift_ei = obj.offset(4) ~=0; % It is not implemented and
                 %does not look like this should be implemented
 
                 ndim = 3;
                 input_is_obj = true;
-            else % if pix_input is 4-d, this will use 4-D matrix and shift
+            else % This method needs 5xnpix matrix as acively uses run_id-s
                 % if its 3-d -- matrix is 3-dimensional and energy is not shifted
                 % anyway
                 ndim         = size(pix_data,1);
-                pix_cc       = pix_data;
+                if ndim<5
+
+                end
+                pix_cc       = pix_data(1:3,:);
+                run_id       = pix_data(5,:);
                 input_is_obj = false;
             end
-            if ndim ==3
-                kf = obj.ki_mod_-pix_cc;
-            else
-                kf = obj.ki_mod_-pix_cc(1:3,:);
-            end
+            run_id = obj.remapper_.get_values_for_keys(run_id,true);
+            np = numel(run_id);
+            desort = fast_map(run_id,1:np);
+            [run_id,sid] = sort(run_id);
+            pix_cc = pix_cc(:,sid);
+            mat_range =[1,diff(run_id)];
+
+
+            kf = obj.ki_mod_-pix_cc;
+
             pix_transformed = transform_pix_to_img@sphere_proj(obj,kf,varargin{:});
             if ndim > 3 || input_is_obj
                 if input_is_obj

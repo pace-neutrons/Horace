@@ -26,6 +26,7 @@ if efix_cor.n_unique > 1
         'Processing multiple incident energies is not yet implemented')
 end
 obj.do_check_combo_arg = false;
+
 obj.Ei = efix_cor.unique_val{1};
 obj.emode_ = emodes(1);
 %TODO: retrieve energy transfer values if it is indirect mode
@@ -39,4 +40,6 @@ angdeg = obj.angdeg;
 obj.cc_to_spec_mat_ = arrayfun(...
     @(ex) inv(calc_proj_matrix(ex,alatt, angdeg,1)), ix_exper, 'UniformOutput', false);
 obj.do_check_combo_arg = true;
+obj.remapper_ = experiment.runid_map;
+
 obj = obj.check_combo_arg();
