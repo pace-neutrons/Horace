@@ -266,8 +266,8 @@ classdef AxesBlockBase < serializable
             % Return the extent along each dimension of the signal arrays.
             % suitable for allocating appropriate size memory
             sz = obj.data_nbins;
-            if isempty(sz)      ; sz = [1,1];
-            elseif numel(sz) ==1; sz = [sz,1];
+            if isempty(sz)     ; sz = [1,1];
+            elseif isscalar(sz); sz = [sz,1];
             end
         end
         %
