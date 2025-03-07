@@ -179,7 +179,11 @@ classdef aProjectionBase < serializable
             % this is generic method, which may be overloaded by specific
             % projections, which may want more information from the source
             % sqw
-            source_proj = cut_source.proj;
+            if isa(cut_source,'sqw')
+                source_proj = cut_source.data.proj;
+            else
+                source_proj = cut_source.proj;
+            end
             %
             %Retrived lattice from the source object
             obj.do_check_combo_arg = false;
