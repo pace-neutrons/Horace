@@ -16,7 +16,7 @@ if ~isa(cut_source,'sqw')
         class(cut_source));
 end
 % retrieve common projection parameters
-obj = copy_proj_param_from_source@aProjectionBase(obj,cut_source);
+
 %
 experiment  = cut_source.experiment_info;
 emodes = experiment.get_emode();
@@ -40,6 +40,6 @@ angdeg = obj.angdeg;
 obj.cc_to_spec_mat_ = arrayfun(...
     @(ex) inv(calc_proj_matrix(ex,alatt, angdeg,1)), ix_exper, 'UniformOutput', false);
 obj.do_check_combo_arg = true;
-obj.remapper_ = experiment.runid_map;
+obj.run_id_mapper_ = experiment.runid_map;
 
 obj = obj.check_combo_arg();

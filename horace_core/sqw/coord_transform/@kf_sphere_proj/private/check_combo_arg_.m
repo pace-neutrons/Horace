@@ -11,11 +11,14 @@ function obj = check_combo_arg_(obj)
 % Normalizes input vectors to unity and constructs the
 % transformation to new coordinate system when operation is
 % successful
-obj = check_combo_arg@sphere_proj(obj);
 if any(abs(obj.offset_)>eps('double'))
     error('HORACE:kf_sphere_proj:not_implemented',[ ...
         'non-zero offset is not implemented for this type of projection.\n' ...
         'There are doubts that it should be implemented at all'])
+end
+if isempty(obj.Ei_)
+    obj.ki_mod_ = 0;
+    obj.ki_ = [0,0,0];    
 end
 if obj.emode_ == 1
     obj.ki_mod_ = sqrt(obj.Ei_/neutron_constants('c_k_to_emev')); % incident

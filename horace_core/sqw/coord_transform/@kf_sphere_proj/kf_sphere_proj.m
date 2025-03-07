@@ -112,6 +112,7 @@ classdef kf_sphere_proj<sphere_proj
             % convertion from instrument frame to Crystal Cartesian
             % coordinate system. These matrices are stored in
             % Experiment/IX_dataset array.
+            obj = copy_proj_param_from_source@aProjectionBase(obj,cut_source);            
             obj = copy_proj_param_from_source_(obj,cut_source);
         end
         %------------------------------------------------------------------
@@ -176,7 +177,7 @@ classdef kf_sphere_proj<sphere_proj
                 run_id       = pix_data(5,:);
                 input_is_obj = false;
             end
-            run_id = obj.remapper_.get_values_for_keys(run_id,true);
+            run_id = obj.run_id_mapper_.get_values_for_keys(run_id,true);
 
             np = numel(run_id);
             %desort = fast_map(run_id_sorted,1:np);
@@ -256,6 +257,7 @@ classdef kf_sphere_proj<sphere_proj
             % Normalizes input vectors to unity and constructs the
             % transformation to new coordinate system when operation is
             % successful
+            obj = check_combo_arg@sphere_proj(obj);
             obj = check_combo_arg_(obj);
         end
     end
