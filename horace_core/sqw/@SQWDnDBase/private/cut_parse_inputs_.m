@@ -234,14 +234,19 @@ if opt.proj_given
 else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning
     % parameters with their default values.
+    if isa(obj,'sqw')
+        img = obj.data;
+    else
+        img = obj;
+    end
     pbin_tmp = pbin;
     pbin = cell(4,1);
     % run checks on given pbin, and if given pbin is empty, take pbin from
     % existing projection axis
-    paxis = cellfun(@select_pbin,pbin_tmp,obj.p,'UniformOutput',false);
-    pbin(obj.pax) = paxis(:);
+    paxis = cellfun(@select_pbin,pbin_tmp,img.p,'UniformOutput',false);
+    pbin(img.pax) = paxis(:);
     % set other limits to integration axis
-    pbin(obj.iax) = num2cell(obj.iint,1);
+    pbin(img.iax) = num2cell(img.iint,1);
     % ensure row vectors
     [pbin,pbin_expanded] = cellfun(@make_row_check_expansion,pbin,'UniformOutput',false);
     pbin = pbin';

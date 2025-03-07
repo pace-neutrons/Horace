@@ -129,7 +129,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     methods (Static,Hidden) % should be protected but Matlab have some
         % issues with calling this from children
         %
-        function [proj, pbin, sym, opt] = process_and_validate_cut_inputs(data,...
+        function [proj, pbin, sym, opt] = process_and_validate_cut_inputs(in_obj,...
                 return_cut, varargin)
             % interface to private cut parameters parser/validator
             % checking and parsing cut inputs in any acceptable form.
@@ -139,8 +139,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
             %
             % TODO: do we want an option to express cut ranges in the source
             %       coordinate system?
-            ndims = data.dimensions;
-            [proj, pbin, sym, opt]= cut_parse_inputs_(data, ndims, return_cut, varargin{:});
+            ndims = in_obj.dimensions;
+            [proj, pbin, sym, opt]= cut_parse_inputs_(in_obj, ndims, return_cut, varargin{:});
         end
         %
     end
