@@ -65,7 +65,7 @@ if proj_mode<0 || proj_mode >2
 end
 
 % Create matrix to convert from spectrometer axes to coordinates along crystal Cartesian projection axes
-spec_to_cc = obj.lattice.calc_proj_matrix();
+spec_to_cc = obj.lattice.calc_proj_matrix(1);
 
 % Calculate Q in spectrometer coordinates for each pixel
 nThreads = config_store.instance().get_value('parallel_config', 'threads');
@@ -110,7 +110,8 @@ if ~use_mex
     else
         qspec_provided = false;
         if isempty(detdcn)
-            detdcn = calc_detdcn(obj.det_par);
+            det = obj.det_par;
+            detdcn = calc_detdcn(det.phi,det.azim);
         end
         [qspec,en]=obj.calc_qspec(detdcn);
         ucoords = [spec_to_cc*qspec;en];
