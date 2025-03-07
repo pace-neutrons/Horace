@@ -112,7 +112,7 @@ classdef kf_sphere_proj<sphere_proj
             % convertion from instrument frame to Crystal Cartesian
             % coordinate system. These matrices are stored in
             % Experiment/IX_dataset array.
-            obj = copy_proj_param_from_source@aProjectionBase(obj,cut_source);            
+            obj = copy_proj_param_from_source@aProjectionBase(obj,cut_source);
             obj = copy_proj_param_from_source_(obj,cut_source);
         end
         %------------------------------------------------------------------
@@ -145,12 +145,14 @@ classdef kf_sphere_proj<sphere_proj
         %------------------------------------------------------------------
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
-            % into spherical coordinate system defined by the object
+            % into spectrometer coordinate system defined by the object
             % properties
             %
             % Input:
-            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
-            %             expressed in crystal Cartesian coordinate system
+            % pix_data -- [3-5xNpix] array of pix coordinates
+            %             expressed in crystal Cartesian coordinate system.
+            %             if 5th row of pix_coordinates is present, it
+            %             describes run_id-s, referred
             %             or instance of PixelDatBase class containing this
             %             information.
             % Returns:
@@ -160,7 +162,7 @@ classdef kf_sphere_proj<sphere_proj
             %
             if isa(pix_data,'PixelDataBase')
                 pix_cc = pix_data.q_coordinates;
-                run_id = pix_data.run_index;
+                run_id = pix_data.run_idx;
                 %shift_ei = obj.offset(4) ~=0; % It is not implemented and
                 %does not look like this should be implemented
 
@@ -170,11 +172,16 @@ classdef kf_sphere_proj<sphere_proj
                 % if its 3-d -- matrix is 3-dimensional and energy is not shifted
                 % anyway
                 ndim         = size(pix_data,1);
-                if ndim<5
-
-                end
                 pix_cc       = pix_data(1:3,:);
-                run_id       = pix_data(5,:);
+                if ndim<5
+                    % a point in Crystal Cartesian may reflected into
+                    % multiple points in the instrument frame, depending on
+                    % the crystal position
+                    run_id = obj.run_id_mapper_.keys(1);
+                    run_id       = repmat(run_id,1,size(pix_cc,2));
+                else
+                    run_id       = pix_data(5,:);
+                end
                 input_is_obj = false;
             end
             run_id = obj.run_id_mapper_.get_values_for_keys(run_id,true);
@@ -183,19 +190,21 @@ classdef kf_sphere_proj<sphere_proj
             %desort = fast_map(run_id_sorted,1:np);
             [run_id_sorted,sid] = sort(run_id);
             pix_cc = pix_cc(:,sid);
-
-            [blocks_sums,bl_edges] = histcounts(run_id_sorted);
-            n_blocks = numel(bl_edges)-1;
+            un_id  = unique(run_id_sorted);            
+            % find edges for unique pixels blocks            
+            bl_edges = [0,find(diff(run_id_sorted)>0),np];
+            n_blocks = numel(un_id);
             %used_transf = obj.cc_to_spec_mat_(used_transf_nums);
             pix_sectr = zeros(3,np);
             for i = 1:n_blocks
-                run_num   = run_id_sorted(bl_edges(i));
-                block_pix = mtimesx_horace(obj.cc_to_spec_mat_{run_num},reshape(pix_cc(:,bl_edges(i):bl_edges(i+1)),3,1,blocks_sums(i)));
-                run_pos  = ismember(run_id,run_num);
-                pix_sectr(:,run_pos) = block_pix;
+                mat_num   = un_id(i);
+                run_pixels = squeeze(mtimesx_horace(obj.cc_to_spec_mat_{mat_num},reshape(pix_cc(:,bl_edges(i)+1:bl_edges(i+1)),3,1,bl_edges(i+1)-bl_edges(i))));
+
+                run_pos  = ismember(run_id,mat_num);
+                pix_sectr(:,run_pos) = run_pixels;
             end
 
-            kf = obj.ki_mod_-pix_sectr;
+            kf = obj.ki_-pix_sectr;
 
             pix_transformed = transform_pix_to_img@sphere_proj(obj,kf,varargin{:});
             if ndim > 3 || input_is_obj
@@ -210,7 +219,7 @@ classdef kf_sphere_proj<sphere_proj
             % Transform pixels in image (spherical) coordinate system
             % into crystal Cartesian system of pixels
             kf = transform_img_to_pix@sphere_proj(obj,pix_transformed,varargin{:});
-            pix_cc = obj.ki_mod_-kf;
+            pix_cc = obj.ki_-kf;
             if size(pix_transformed,1) > 3
                 pix_cc = [pix_cc;kf(4,:)];
             end
