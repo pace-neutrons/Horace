@@ -77,6 +77,10 @@ classdef kf_sphere_proj<sphere_proj
         %
         emode % data processing mode (1-direct, 2-indirect, 0 -- elastic)
     end
+    properties(Dependent,Hidden)
+        cc_to_spec_mat;
+        run_id_mapper;
+    end
     properties(Access=protected)
         Ei_     = [];
         Energy_transfer_ % used for indirect mode only
@@ -119,6 +123,18 @@ classdef kf_sphere_proj<sphere_proj
         function emode = get.emode(obj)
             emode = obj.emode_;
         end
+        function obj = set.emode(obj,val)
+            if ~(isnumeric(val)&&isscalar()&&ismember(val,[0,1,2]))
+                error('HORACE:kf_sphere_proj:invalid_arguments', ...
+                    'emode must be a scalar number in the range 0-2. It is %s',...
+                    disp2str(val))
+            end
+            obj.emode_ = val;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+
         function ei = get.Ei(obj)
             ei = obj.Ei_;
         end
@@ -134,12 +150,12 @@ classdef kf_sphere_proj<sphere_proj
                 error('HORACE:kf_sphere_proj:invalid_arguments', ...
                     'Incident beam energy must be poisitive. Got %d',val);
             end
-
             obj.Ei_ = val;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
         end
+
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
         %------------------------------------------------------------------
@@ -184,14 +200,14 @@ classdef kf_sphere_proj<sphere_proj
                 end
                 input_is_obj = false;
             end
-            run_id = obj.run_id_mapper_.get_values_for_keys(run_id,true);
+            run_id = obj.run_id_mapper_.get_values_for_keys(run_id,true,1);
 
             np = numel(run_id);
             %desort = fast_map(run_id_sorted,1:np);
             [run_id_sorted,sid] = sort(run_id);
             pix_cc = pix_cc(:,sid);
-            un_id  = unique(run_id_sorted);            
-            % find edges for unique pixels blocks            
+            un_id  = unique(run_id_sorted);
+            % find edges for unique pixels blocks
             bl_edges = [0,find(diff(run_id_sorted)>0),np];
             n_blocks = numel(un_id);
             %used_transf = obj.cc_to_spec_mat_(used_transf_nums);
@@ -241,14 +257,30 @@ classdef kf_sphere_proj<sphere_proj
             % overloadeded field construction order to put incident energy
             % first while using sphere_proj initialization procedure.
             flds = init_order_fields@CurveProjBase(obj);
-            flds = ['Ei';flds(:)];
+            flds = ['Ei';flds(:);'emode';'cc_to_spec_mat';'run_id_mapper'];
         end
     end
 
     methods
+        % these properties are dangerous to set from interface as this
+        % information is usually hidden within experiment. It is here to
+        % provide valid serializable interface.
+        function mf = get.cc_to_spec_mat(obj)
+            mf = obj.cc_to_spec_mat_;
+        end
+        function obj = set.cc_to_spec_mat(obj,val)
+            obj.cc_to_spec_mat_ = val;
+        end
+        function mp = get.run_id_mapper(obj)
+            mp = obj.run_id_mapper_;
+        end
+        function obj = set.run_id_mapper(obj,val)
+            obj.run_id_mapper_ = val;
+        end
+
         function  flds = saveableFields(obj)
             flds = saveableFields@sphere_proj(obj);
-            flds = ['Ei';flds(:)];
+            flds = ['Ei';flds(:);'emode';'cc_to_spec_mat';'run_id_mapper'];
         end
         function ver  = classVersion(~)
             ver = 1;
