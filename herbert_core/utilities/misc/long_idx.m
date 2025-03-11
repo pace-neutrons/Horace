@@ -22,6 +22,8 @@ function [idx_lng,minmax_idx] = long_idx(idx_short,minmax_idx)
 
 if nargin<2
     if iscell(idx_short)
+        minmax_cell =  cellfun(@(x)min_max(x(:)'),idx_short,'UniformOutput',false);
+        minmax_idx  =  cat(1,minmax_cell{:});
     else
         minmax_idx = min_max(idx_short);
     end
