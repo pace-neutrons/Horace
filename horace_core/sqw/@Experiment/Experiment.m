@@ -22,9 +22,9 @@ classdef Experiment < serializable
     properties(Access=private)
         % String input here (a) invalid value so should be caught if not
         % redefined later (b) describes what the construction process is.
-        instruments_ = 'global storage; refernce initialised in constructor';
-        detector_arrays_ = 'global storage; refernce initialised in constructor';
-        samples_ = 'global storage; refernce initialised in constructor';
+        instruments_ = 'global storage; refernece initialised in constructor';
+        detector_arrays_ = 'global storage; refernece initialised in constructor';
+        samples_ = 'global storage; refernece initialised in constructor';
         samples_set_ = false; % Two properties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set
@@ -46,7 +46,7 @@ classdef Experiment < serializable
         % recalculated to make them consistent. If this have happened, it
         % is certainly old file, with runid_headers not defined correctly.
         % unfortunately, if it does not happen, it still may be old file
-        % with incorrect header->pixel.run_indx connection. Fixture in this
+        % with incorrect header->pixel.run_indx connection. Fix in this
         % case may be only manual one, trying to identify relation between
         % experiment info and pixels id-s manually.
         runid_recalculated_ = false;

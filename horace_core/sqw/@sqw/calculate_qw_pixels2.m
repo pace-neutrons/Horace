@@ -67,10 +67,16 @@ run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment
 %                                                       % which corresponds to pixels run_id;
 idx(1,:)   = run_id;
 
-% build map to use for placing calculated q-e values into appropriate positions
-% of the input pixel array.
+% build map to use for placing calculated q-e values into appropriate
+% positions of the input pixel array.
 [lng_idx,mm_range] = long_idx(idx);
 res_reorder_map = fast_map(double(lng_idx),1:numel(lng_idx));
+
+
+%----------------- Partially generic code -- the methods used here may 
+%  use caches precalculated before the calling here and running calculations
+%  over pixels pages.
+%
 % if we want possible change in alatt during experiment, go to sampe in
 % experiment and add it here. Currently lattice is unchanged during
 % experiment
@@ -108,7 +114,7 @@ n_unique_det_arrays = undet_info.n_unique;
 % transfer value:
 en_tr_info   = experiment.get_en_transfer(true,true);
 
-
+%----------------- Generic code
 % identify bunch of incident energies and energy transfer values,
 % corresponding to each bunch of unique detectors
 [efix_info,en_tr_info,en_tr_idx] = retrieve_en_ranges( ...
@@ -179,6 +185,9 @@ for i=1:n_unique_det_arrays
             calc_idx_  = {Y(:)',X(:)'};
             short_idx_cache{run_id_number} = calc_idx_;
         end
+        % MAY BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP on the basis of
+        % mtimesx_horace with pivot.
+        %
         % found indices of the run, energy bins and detector used in q-dE
         % calculations in the frame of the input indices
         run_idx = [repmat(run_idx_selected(run_id_number),1,numel(calc_idx_{1}));calc_idx_(:)];

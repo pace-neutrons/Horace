@@ -16,11 +16,11 @@ function [efix,unique_idx] = get_efix(obj,extract_unique)
 % efix  
 %   either
 %      --  cellrarray or array of incident energies or crystal analyzer
-%          eneries for indirect instrument one array per run. If number of
+%          energies for indirect instrument one array per run. If number of
 %          incident energy values for each element in cellarray is equal to
 %          one, the celarray is converted to array of energies.
 %   or 
-%      --  If extact_unique == true efix returned in the form of as 
+%      --  If extract_unique == true efix returned in the form of 
 %          compact_array of data highlighting equal and unique elements
 %          in efix
 % 
