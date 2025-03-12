@@ -82,16 +82,16 @@ classdef test_cut < TestCase
             data_npix = sqw_obj.data.npix;
 
             proj = ref_par{1};
-            %proj = 
+            proj = proj.copy_proj_param_from_source(sqw_obj.data);
+
             [block_start,block_size]=sproj.get_nrange(data_npix , saxes, ax, proj);
-            assertEqual(numel(block_start),10)
+            assertEqual(numel(block_start),260)
             assertEqual(numel(block_size),numel(block_start))
             assertTrue(sum(block_size)<sum(data_npix(:)));
 
             proj.disable_pix_preselection = true;
             [block_start,block_size]=sproj.get_nrange(data_npix , saxes, ax, proj);
             assertEqual(block_start,1)
-            assertEqual(numel(block_size),numel(block_start))
             assertEqual(block_size,sum(data_npix(:)))
 
         end
