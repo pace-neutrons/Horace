@@ -100,6 +100,10 @@ classdef aProjectionBase < serializable
         % Helper property, which specifies the name of the axes class,
         % which corresponds to this projection. The class has to be defined
         axes_name
+        % property used in testing and if set to true, disables
+        % pixel preselection part of cut algorithm. Cut then works over all
+        % pixels present in the source image.
+        disable_pix_preselection
     end
 
     properties(Constant, Hidden)
@@ -144,6 +148,9 @@ classdef aProjectionBase < serializable
         % methods for specific projections, but 4D transformation is
         % algorithmically simpler so actively used in tests.
         do_3D_transformation_ = true;
+        %if set to true, disables pixel preselection part of cut algorithm.
+        % Cut then works over all pixels present in the source image.
+        disable_pix_preselection_ = false;
         %------------------------------------------------------------------
         %
         type_ = ''
@@ -170,6 +177,24 @@ classdef aProjectionBase < serializable
                 return;
             end
             [obj,par] = init(obj,varargin{:});
+        end
+        function obj = copy_proj_param_from_source(obj,cut_source)
+            % a projection may need some information from the object,
+            % it used to process. For example, all projections used for cut
+            % need to know lattice parameters of sqw object used as source
+            %
+            % this is generic method, which may be overloaded by specific
+            % projections, which may want more information from the source
+            % sqw
+            source_proj = cut_source.proj;
+            %
+            %Retrived lattice from the source object
+            obj.do_check_combo_arg = false;
+            obj.alatt = source_proj.alatt;
+            obj.angdeg = source_proj.angdeg;
+
+            obj.do_check_combo_arg = true;
+            obj = obj.check_combo_arg();
         end
         %
         function [obj,remains] = init(obj,varargin)
@@ -276,7 +301,14 @@ classdef aProjectionBase < serializable
         function obj=set.type(obj,type)
             obj = check_and_set_type(obj,type);
         end
-
+        %
+        function dis = get.disable_pix_preselection(obj)
+            dis = obj.disable_pix_preselection_;
+        end
+        function obj = set.disable_pix_preselection(obj,val)
+            obj.disable_pix_preselection_ = logical(val);
+        end
+        %
         function [bm,arlu,angrlu] = bmatrix(obj,ndim)
             % Return b-matrix defined on this projection lattice.
             %
@@ -382,6 +414,12 @@ classdef aProjectionBase < serializable
                 % available and enable if it available
                 targ_proj.targ_proj = obj;
                 obj.targ_proj = targ_proj;
+
+                if targ_proj.disable_pix_preselection_
+                    bl_start = 1;
+                    bl_size  = sum(npix(:));
+                    return;
+                end
             end
 
             contrib_ind= obj.get_contrib_cell_ind(...
@@ -392,7 +430,6 @@ classdef aProjectionBase < serializable
                 bl_size = [];
                 return;
             end
-
             % Calculate pix indexes from cell indexes. Compress indexes of
             % contributing cells into bl_start:bl_start+bl_size-1 form if
             % it has not been done before.
@@ -954,7 +991,7 @@ classdef aProjectionBase < serializable
             %                 for indexes to include
             % en_inside    -- 1D logical array, containing true, for
             %                 contributing cells (n_cells = n_edges-1) for
-            %                 orthogonal 1D indexes on dE lattice 
+            %                 orthogonal 1D indexes on dE lattice
             %
             % Uses knowledge about linear arrangement of 4-D array of indexes
             % in memory and on disk
