@@ -6,12 +6,12 @@ function  detdcn = calc_or_restore_detdcn_(det)
 %           as obtained by rundata.get_par method [scalar structure]
 %
 % Returns:
-% detdcn -- [3 x ndet] array of unit vectors, poinitng to the detector's
+% detdcn -- [3 x ndet] array of unit vectors, pointing to the detector's
 %           positions in the spectrometer coordinate system (X-axis
 %           along the beam direction). ndet -- number of detectors
 %           Can be later assigned to the next rundata object
 %           property "detdcn_cache" to accelerate calculations. (not
-%           fully implemented and currently workis with Matlab code only)
+%           fully implemented and currently works with MATLAB code only)
 %           [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %
 persistent det_buff;
@@ -23,7 +23,7 @@ if (isempty(detdch_buf) || ~compare_det(det,det_buff))
     if isempty(det)
         det_buff = [];
     else
-        detdcn=calc_detdcn(det);
+        detdcn=calc_detdcn(det.phi,det.azim);
         detdch_buf =detdcn;
     end
 else
@@ -36,7 +36,7 @@ if numel(det.phi) ~= numel(det_buff.phi)
     return;
 end
 
-% columnise to ensure working comparison
+% columnize to ensure working comparison
 if all(abs(det.group(:)-det_buff.group(:))<1.e-8) && ...
    all(abs(det.phi(:)-det_buff.phi(:))<1.e-8)     && ...
    all(abs(det.azim(:)-det_buff.azim(:))<1.e-8)
