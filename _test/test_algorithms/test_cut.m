@@ -60,6 +60,42 @@ classdef test_cut < TestCase
             end
         end
 
+        function test_cut_preselection_disabled(obj)
+            sqw_obj = obj.sqw_4d; % it has already been read in constructor
+            ref_par = obj.ref_params;
+            sqw_cut_short = cut(sqw_obj,ref_par{:});
+
+            % do cut over whole pixel range
+            ref_par{1}.disable_pix_preselection= true;
+            sqw_cut_long = cut(sqw_obj,ref_par{:});
+
+            assertEqualToTol(sqw_cut_short,sqw_cut_long,'-ignore_date');
+
+        end
+        function test_nrange_is_whole_without_preselection(obj)
+            sqw_obj = obj.sqw_4d; % it has already been read in constructor
+            ref_par = obj.ref_params;
+
+            ax = line_axes(ref_par{2:5});
+            saxes = sqw_obj.data.axes;
+            sproj = sqw_obj.data.proj;
+            data_npix = sqw_obj.data.npix;
+
+            proj = ref_par{1};
+            %proj = 
+            [block_start,block_size]=sproj.get_nrange(data_npix , saxes, ax, proj);
+            assertEqual(numel(block_start),10)
+            assertEqual(numel(block_size),numel(block_start))
+            assertTrue(sum(block_size)<sum(data_npix(:)));
+
+            proj.disable_pix_preselection = true;
+            [block_start,block_size]=sproj.get_nrange(data_npix , saxes, ax, proj);
+            assertEqual(block_start,1)
+            assertEqual(numel(block_size),numel(block_start))
+            assertEqual(block_size,sum(data_npix(:)))
+
+        end
+        %------------------------------------------------------------------
         function test_cut_sqw_file_single_chunk(obj)
             % Really large file V2 on disk to ensure that ranges are
             % calculated using filebased algorithm rather than all data
@@ -109,7 +145,7 @@ classdef test_cut < TestCase
             ref_sqw = read_sqw(obj.ref_cut_file);
 
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
-                'ignore_str', true,'-ignore_date');
+                '-ignore_str','-ignore_date');
 
         end
 

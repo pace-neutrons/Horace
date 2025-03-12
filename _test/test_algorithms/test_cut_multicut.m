@@ -17,7 +17,6 @@ classdef test_cut_multicut < TestCase
 
         sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
         dnd_file = '../common_data/w1d_d1d.sqw';
-        ref_cut_file = 'test_cut_ref_sqw.sqw'
         ref_params = { ...
             line_proj([1, -1 ,0], [1, 1, 0]/sqrt(2), 'offset', [1, 1, 0], 'type', 'paa'), ...
             [-0.1, 0.025, 0.1], ...
@@ -33,31 +32,15 @@ classdef test_cut_multicut < TestCase
     methods
 
         function obj = test_cut_multicut(varargin)
-            save_reference = false;
             if nargin == 0
                 name = 'test_cut_multicut';
             else
-                if strcmpi(varargin{1},'-save')
-                    save_reference = true;
-                    name = 'test_cut_multicut';
-                else
-                    name = varargin{1};
-                    if nargin>1 && strcmpi(varargin{2},'-save')
-                        save_reference = true;
-                    end
-                end
+                name = varargin{1};
             end
             obj = obj@TestCase(name);
             obj.sqw_4d = read_sqw(obj.sqw_file);
             obj.working_dir = tmp_dir();
             obj.old_ws = warning('off','HORACE:old_file_format');
-
-            if save_reference
-                fprintf('*** Rebuilding and overwriting reference cut file %s\n',...
-                    obj.ref_cut_file);
-                sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
-                save(sqw_cut,obj.ref_cut_file);
-            end
         end
 
 
