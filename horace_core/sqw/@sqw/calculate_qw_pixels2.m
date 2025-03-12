@@ -1,5 +1,5 @@
 function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
-% Calculate qh, qk, ql, en for the pixels in an sqw dataset from the 
+% Calculate qh, qk, ql, en for the pixels in an sqw dataset from the
 % experiment information
 %
 %   >> qw = calculate_qw_pixels2(win)
@@ -59,8 +59,8 @@ en_id   = idx(3,:)';
 experiment = win.experiment_info;
 
 % convert run_id in pixels into number of IX_experiment, corresponding to
-% this pixel. After that irun represents number of IX_experiment element in 
-% Experiment.expdata array or number of transformation matrix in list of 
+% this pixel. After that irun represents number of IX_experiment element in
+% Experiment.expdata array or number of transformation matrix in list of
 % all transformations (spec_to_rlu)
 remapper   = experiment.runid_map;
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment array indices
@@ -73,9 +73,9 @@ idx(1,:)   = run_id;
 res_reorder_map = fast_map(double(lng_idx),1:numel(lng_idx));
 
 
-%----------------- Partially generic code -- the methods used here may 
+%----------------- Partially generic code -- the methods used here may
 %  use caches precalculated before the calling here and running calculations
-%  over pixels pages.
+%  over pixels pages. See also one in runid loop below, around row 145
 %
 % if we want possible change in alatt during experiment, go to sampe in
 % experiment and add it here. Currently lattice is unchanged during
@@ -92,7 +92,7 @@ else % coordinates in Crystan Cartesian
     n_matrix = 1;
 end
 % energies:
-% compact_array containing incident for direct or analysis for indirect 
+% compact_array containing incident for direct or analysis for indirect
 % energies.
 efix_info  = experiment.get_efix(true);
 % get unuque emodes. A unique instrument certainly have unique emode
@@ -108,8 +108,8 @@ undet_info = compact_array(unique_det_run_idx,unique_det);
 n_unique_det_arrays = undet_info.n_unique;
 
 
-% unique energy transfers arrays. Despite it is common that runs have the 
-% same energy transf value, it may often happen (e.g. data reduced with 
+% unique energy transfers arrays. Despite it is common that runs have the
+% same energy transf value, it may often happen (e.g. data reduced with
 % auto-ei and relative bin edges) that every run has its own energy
 % transfer value:
 en_tr_info   = experiment.get_en_transfer(true,true);
@@ -139,10 +139,13 @@ for i=1:n_unique_det_arrays
     idet_4_runs = unique(det_id_selected);    % unique detector ids contribured into runs with these detectors
 
     % calculate detectors directions in instrument coordinate frame.
+    % Ideally, the values here should be precalculated before call to
+    % cacluate_qw_pixels2 and call here would just picks up cached
+    % values
     detdcn= unique_det{i}.calc_detdcn(idet_4_runs);
 
     % allocate caches for intermediate calculations
-    n_runs = numel(run_idx_selected);  % runs which correspond to a 
+    n_runs = numel(run_idx_selected);  % runs which correspond to a
     qspec_i_cache  = cell(1,n_runs);
     eni_i_cache    = cell(1,n_runs);
     short_idx_cache= cell(1,n_runs);
@@ -156,6 +159,7 @@ for i=1:n_unique_det_arrays
     n_unique_entr= en_tr_info_i.n_unique;
     % create fast map for rapid addition/extraction of unique q-dE spectra
     mapper = fast_map();
+    % allocate optimization array for known number of elements to insert
     mapper = mapper.optimize([0,n_unique_entr*n_unique_efix-1]);
     for run_id_number=1:n_runs
         [efix,efix_info_i,unique_efix_num,used_efix]  = efix_info_i.get(run_id_number);
