@@ -342,7 +342,8 @@ classdef IX_experiment < Goniometer
             if nargin<4
                 keep_runid = true;
             end
-            [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_cellarray,allow_eq_headers,keep_runid,varargin{:});
+            [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj, ...
+                exper_cellarray,allow_eq_headers,keep_runid,varargin{:});
         end
         %
     end
