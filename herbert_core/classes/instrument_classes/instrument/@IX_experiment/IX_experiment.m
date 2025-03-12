@@ -136,7 +136,6 @@ classdef IX_experiment < Goniometer
             ids = arrayfun(@(in)(obj(in).run_id_),ind);
             idmap = fast_map(ids,ind);
         end
-
         %
         function mode = get.emode(obj)
             mode = obj.emode_;
@@ -150,7 +149,6 @@ classdef IX_experiment < Goniometer
             obj.emode_ = val;
             obj = obj.clear_hash();
         end
-
         %
         function en = get.en(obj)
             en = obj.en_;
@@ -174,6 +172,10 @@ classdef IX_experiment < Goniometer
             obj.en_ = val(:);
             obj = obj.clear_hash();
         end
+        % method which usually used on array of IX_experiments to obtain
+        % array of energy transfers and additional information (uniqueness
+        % of energy transfers). Works on single IX_experiment too.
+        [en_transf,unique_idx]  = get_en_transfer(obj,bin_centre,get_lidx)
         %
         function ef = get.efix(obj)
             ef = obj.efix_;

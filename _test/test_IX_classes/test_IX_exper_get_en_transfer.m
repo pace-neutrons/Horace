@@ -1,4 +1,4 @@
-classdef test_get_en_transfer< TestCase
+classdef test_IX_exper_get_en_transfer< TestCase
     %
     %
 
@@ -6,9 +6,9 @@ classdef test_get_en_transfer< TestCase
     end
     methods
         %
-        function obj=test_get_en_transfer(varargin)
+        function obj=test_IX_exper_get_en_transfer(varargin)
             if nargin == 0
-                name = 'test_get_en_transfer';
+                name = 'test_IX_exper_get_en_transfer';
             else
                 name = varargin{1};
             end
@@ -79,6 +79,18 @@ classdef test_get_en_transfer< TestCase
             assertEqual(uen,{0.5*(en(1:end-1)+en(2:end))});
             assertEqual(gidx,{1});
         end
+
+        function test_get_en_transfer_works_on_single_en(~)
+            id1 = IX_experiment();
+            en = -0.5:1:10.5;
+            id1.en =en ;
+
+            [uen,gidx] = get_en_transfer(id1,true,false);
+
+            assertEqual(uen,{0.5*(en(1:end-1)+en(2:end))});
+            assertEqual(gidx,{1});
+        end
+        
     end
 end
 
