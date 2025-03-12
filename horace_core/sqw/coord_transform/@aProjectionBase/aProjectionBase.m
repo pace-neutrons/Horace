@@ -429,6 +429,12 @@ classdef aProjectionBase < serializable
                 % available and enable if it available
                 targ_proj.targ_proj = obj;
                 obj.targ_proj = targ_proj;
+
+                if targ_proj.disable_pix_preselection_
+                    bl_start = 1;
+                    bl_size  = sum(npix(:));
+                    return;
+                end
             end
 
             contrib_ind= obj.get_contrib_cell_ind(...
