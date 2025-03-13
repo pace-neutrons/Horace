@@ -124,7 +124,7 @@ classdef kf_sphere_proj<sphere_proj
             emode = obj.emode_;
         end
         function obj = set.emode(obj,val)
-            if ~(isnumeric(val)&&isscalar()&&ismember(val,[0,1,2]))
+            if ~(isnumeric(val)&&isscalar(val)&&ismember(val,[0,1,2]))
                 error('HORACE:kf_sphere_proj:invalid_arguments', ...
                     'emode must be a scalar number in the range 0-2. It is %s',...
                     disp2str(val))
