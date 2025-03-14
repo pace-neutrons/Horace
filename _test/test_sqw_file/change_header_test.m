@@ -35,7 +35,7 @@ tmpfromfile=read_sqw(tmpsqwfile);
 % ignore file creation date by setting to match other's
 wnew.creation_date = tmpfromfile.creation_date;
 
-assertEqualToTol(wnew,tmpfromfile,[1.e-8,1.e-8],'ignore_str',1)
+assertEqualToTol(wnew,tmpfromfile,[1.e-8,1.e-8],'-ignore_str')
 
 % Delete output file, if can
 delete(tmpsqwfile)

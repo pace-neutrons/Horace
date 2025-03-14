@@ -1,4 +1,4 @@
-classdef IX_samp  < serializable
+classdef IX_samp  < hashable
     % Base class for samples to include the null sample case defined from a
     % structure with no fields (IX_null_sample) and the standard IX_sample
 
@@ -95,6 +95,7 @@ classdef IX_samp  < serializable
                         'Sample name must be a character string (or empty string)')
                 end
             end
+            obj = obj.clear_hash();
         end
 
         function name=get.name(obj)
@@ -104,6 +105,7 @@ classdef IX_samp  < serializable
         function obj=set.alatt(obj,val)
             if isempty(val)
                 obj.alatt_ = [];
+                obj = obj.clear_hash();
                 return;
             end
             if ~isnumeric(val)
@@ -119,6 +121,7 @@ classdef IX_samp  < serializable
                 error('HERBERT:IX_samp:invalid_argument', ...
                     'Sample alatt must be a 1 or 3 compoment numeric vector')
             end
+            obj = obj.clear_hash();
         end
         function alat=get.alatt(obj)
             alat = get_lattice(obj);
@@ -130,6 +133,7 @@ classdef IX_samp  < serializable
         function obj=set.angdeg(obj,val)
             if isempty(val)
                 obj.angdeg_ = [];
+                obj = obj.clear_hash();
                 return;
             end
             if ~isnumeric(val)
@@ -147,6 +151,7 @@ classdef IX_samp  < serializable
             end
 
             obj.angdeg_=val(:)';
+            obj = obj.clear_hash();
         end
     end
     methods(Access = protected)

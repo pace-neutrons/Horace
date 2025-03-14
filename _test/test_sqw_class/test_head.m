@@ -30,8 +30,7 @@ classdef test_head < TestCaseWithSave
 
             obj.dnd_file_1d_name = fullfile(horp.test_common, obj.dnd_file_1d_name);
             obj.sqw_file_1d_name = fullfile(horp.test_common, obj.sqw_file_1d_name);
-            obj.sqw_file_v4_name = fullfile(horp.test, ...
-                'test_sqw_file',obj.sqw_file_v4_name);
+            obj.sqw_file_v4_name = fullfile(horp.test_common, obj.sqw_file_v4_name);
 
             obj.sq1d_obj = read_sqw(obj.sqw_file_1d_name);
             obj.save();

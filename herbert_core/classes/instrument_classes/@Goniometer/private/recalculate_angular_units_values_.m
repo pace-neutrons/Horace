@@ -15,3 +15,4 @@ for i=1:numel(angular_values)
         obj.(pn) = deg2rad(obj.(pn));
     end
 end
+obj = obj.clear_hash();

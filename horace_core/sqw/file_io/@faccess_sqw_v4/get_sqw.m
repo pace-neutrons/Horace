@@ -70,30 +70,17 @@ end
 if ~(opts.head || opts.his)
     % detpar-independent inputs
     sqw_skel.data = DnDBase.dnd(sqw_skel.data.metadata,sqw_skel.data.nd_data);
-    sqw_skel.experiment_info = Experiment([],sqw_skel.experiment_info.instruments, ...
-        sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
-    
+
     % detpar inputs
-    detpar = sqw_skel.detpar; 
+    detpar = sqw_skel.detpar;
     if ~isempty(detpar)
-        if isstruct(detpar) && ~isempty(detpar.group)
-            detpar = IX_detector_array(detpar);
-            sqw_skel.experiment_info.detector_arrays = ...
-                sqw_skel.experiment_info.detector_arrays.add_copies_( ...
-                                     detpar, numel(sqw_skel.experiment_info.expdata));
-            % the detpar field has now been used so don't leave it around to be spuriously
-            % copied any further
-            sqw_skel = rmfield(sqw_skel,'detpar');
-        elseif isa(detpar,'unique_references_container')
-            sqw_skel.experiment_info.detector_arrays = detpar;
-        else
-            error('HORACE:faccess_v4:invalid_argument', ...
-                  'detpar from file is neither detpar struct or detector arrays');
-        end
-    else
-		% detpar is empty, do nothing (see above for field removal)
-        sqw_skel = rmfield(sqw_skel,'detpar');
+        n_instances = numel(sqw_skel.experiment_info.expdata);
+        sqw_skel.detpar = obj.convert_old_det_forms(detpar,n_instances);
+
     end
+    sqw_skel.experiment_info = Experiment(sqw_skel.detpar, ...
+        sqw_skel.experiment_info.instruments, ...
+        sqw_skel.experiment_info.samples,sqw_skel.experiment_info.expdata);
 end
 
 

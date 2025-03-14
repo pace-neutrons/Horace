@@ -14,6 +14,11 @@ classdef test_IX_source < TestCaseWithSave
             self.save()
         end
         
+        function test_hashable_prop(~)
+            ap = IX_source('ISIS','-freq',50);
+            hashable_obj_tester(ap);
+        end
+        
         %--------------------------------------------------------------------------
         function test_simple_source(self)
             ap = IX_source('ISIS','-freq',50);

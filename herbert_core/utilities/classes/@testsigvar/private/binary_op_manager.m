@@ -44,12 +44,17 @@ elseif isa(w1, 'double')
     % w1 is a double array; w2 must have class 'classname'
     if ~isscalar(w1)
         size_stack1 = size(w2);
-        [size_root1, ok] = size_array_split (size(w1), size(w2));
-        if ~ok
-            mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
-                'with stack size matching the object array size.'];
-            error([upper(thisClassname),':binary_op_manager'], mess);
+
+        try
+            size_root1 = size_array_split (size(w1), size(w2));
+        catch ME
+            err = MException(['HERBERT:',upper(thisClassname),':invalid_argument'], ...
+                             ['Unable to resolve the numeric array into a stack of arrays, ',...
+                              'with stack size matching the object array size.']);
+            err = err.addCause(ME);
+            throw(err);
         end
+
     else
         size_stack1 = [1,1];    % want the scalar to apply to each object in w2
         size_root1 = [1,1];
@@ -75,12 +80,17 @@ elseif isa(w2, 'double')
     % w1 is a double array; w2 must have class 'classname'
     if ~isscalar(w2)
         size_stack2 = size(w1);
-        [size_root2, ok] = size_array_split (size(w2), size(w1));
-        if ~ok
-            mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
-                'with stack size matching the object array size.'];
-            error([upper(thisClassname),':binary_op_manager'], mess);
+
+        try
+            size_root2 = size_array_split (size(w2), size(w1));
+        catch ME
+            err = MException(['HERBERT:',upper(thisClassname),':invalid_argument'], ...
+                             ['Unable to resolve the numeric array into a stack of arrays, ',...
+                              'with stack size matching the object array size.']);
+            err = err.addCause(ME);
+            throw(err);
         end
+
     else
         size_stack2 = [1,1];    % want the scalar to apply to each object in w1
         size_root2 = [1,1];

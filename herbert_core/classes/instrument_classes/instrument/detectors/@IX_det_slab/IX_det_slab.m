@@ -25,7 +25,7 @@ classdef IX_det_slab < IX_det_abstractType
         atten       % Attenuation length (to 1/e) at 2200 m/s (m) (column vector)
 
         % Other dependent properties required by abstract template:
-        ndet        % Number of detectors (get access only) (scalar)s        
+        ndet        % Number of detectors (get access only) (scalar)s
     end
 
     methods
@@ -64,23 +64,23 @@ classdef IX_det_slab < IX_det_abstractType
                 options = struct('key_dash', true, 'mandatory_props', mandatory);
                 [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                     property_names, options, varargin{:});
-                
+
                 if ~isempty(remains)
                     error('HERBERT:IX_det_slab:invalid_argument', ...
                         ['Unrecognised extra parameters provided as input to ',...
                         'IX_det_slab constructor:\n %s'], disp2str(remains));
                 end
-                
+
             else
-            
-            	oldval = obj.do_check_combo_arg_;
+
+                oldval = obj.do_check_combo_arg_;
                 obj.do_check_combo_arg_ = false;
-            	obj.depth = obj.depth_;
-            	obj.width = obj.width_;
-            	obj.height = obj.height_;
+                obj.depth = obj.depth_;
+                obj.width = obj.width_;
+                obj.height = obj.height_;
                 obj.atten = obj.atten_;
                 obj.do_check_combo_arg_ = oldval;
-                
+
             end
         end
 
@@ -154,9 +154,9 @@ classdef IX_det_slab < IX_det_abstractType
         %------------------------------------------------------------------
 
     end
-    
+
     %======================================================================
-        % SERIALIZABLE INTERFACE
+    % SERIALIZABLE INTERFACE
     %======================================================================
 
     methods
@@ -179,13 +179,14 @@ classdef IX_det_slab < IX_det_abstractType
             % without problem it they are not.
 
             flds = obj.saveableFields();
-            
+
             % Inherited method from IX_det_abstractType
-            obj = obj.expand_internal_properties_to_max_length (flds);            
+            obj = obj.expand_internal_properties_to_max_length (flds);
+            obj = obj.clear_hash();
         end
-        
+
     end
-    
+
     %----------------------------------------------------------------------
     methods(Access=protected)
         function [inputs,obj] = convert_old_struct(obj,inputs,ver)

@@ -54,7 +54,7 @@ classdef test_experiment_methods < TestCase
             % here so this container refers to whatever is already in the
             % global container and so is also a test of keeping all
             % unique items of 'GLOBAL_NAME_SAMPLES_CONTAINER' regardless of where created.
-            urc = unique_references_container('GLOBAL_NAME_SAMPLES_CONTAINER','IX_samp');
+            urc = unique_references_container('IX_samp');
             urc = urc.add(sample);
             urc = urc.replicate_runs(3);
             clOwr =set_temporary_warning('off','HORACE:Experiment:lattice_changed');
@@ -167,7 +167,7 @@ classdef test_experiment_methods < TestCase
             % the reconstruction via hdrs_cell. To ensure that exp does
             % have the required detector_array data, do this test
             assertEqual(exp.detector_arrays.n_objects, 3);
-            assertEqual(exp.detector_arrays.n_unique_objects, 1);
+            assertEqual(exp.detector_arrays.n_unique, 1);
         end
 
 

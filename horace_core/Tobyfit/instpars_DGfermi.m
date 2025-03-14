@@ -69,7 +69,7 @@ if ~use_unique_objects
 	end
 	
 else
-	
+    
 	moderator=instruments.get_unique_field('moderator').unique_objects;
 	aperture=instruments.get_unique_field('aperture').unique_objects;
 	chopper=instruments.get_unique_field('fermi_chopper').unique_objects;
