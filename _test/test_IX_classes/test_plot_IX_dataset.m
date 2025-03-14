@@ -238,7 +238,7 @@ classdef test_plot_IX_dataset < TestCase
         end
         %------------------------------------------------------------------
         function test_IX1d_plot1D_all_types_on_array(obj)
-            all_types = get_global_var('genieplot','marker_types');
+            all_types = genieplot.get('marker_types');
             n_types = numel(all_types);
             IX1d_arr = repmat(obj.IX_data{1},1,n_types+2);
             [objh,axh,plh] = dp(IX1d_arr);
@@ -254,7 +254,7 @@ classdef test_plot_IX_dataset < TestCase
         end
 
         function test_IX1d_plot1D_all_colour_on_array(obj)
-            all_col = get_global_var('genieplot','colors');
+            all_col = genieplot.get('colors');
             n_colours = numel(all_col);
             IX1d_arr = repmat(obj.IX_data{1},1,n_colours+2);
             [objh,axh,plh] = pl(IX1d_arr);
