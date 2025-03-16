@@ -32,6 +32,18 @@ classdef test_AxesBlockBase_methods < TestCase
         end
         %------------------------------------------------------------------        
         %------------------------------------------------------------------
+        function test_invalid_binning_arg(~)
+            function thrower()
+                ab = AxesBlockBase_tester();                
+                pbin={1:1:10,[],[],[]};                
+                abDef = ab.build_from_input_binning(line_axes(),...
+                cell(1,4),pbin);                
+            end
+            assertExceptionThrown(@thrower,'HORACE:AxesBlockBase:invalid_argument')
+    
+
+        end
+        %------------------------------------------------------------------        
         function test_get_char_size_sphere_proj_col(~)
             pr = sphere_proj('alatt',2*pi,'angdeg',90);
             ax = pr.get_proj_axes_block(cell(1,4),{[0,0.1,1],[45,1,75],[0,10],[0,10]});
@@ -97,10 +109,10 @@ classdef test_AxesBlockBase_methods < TestCase
 
             assertEqual(numel(bv),n_cells);
 
-            % the volume of the first bin is the production
+            % the volume of the first bin is the product
             % of all sizes of the first cell
             assertEqualToTol(bv(1),1*1*0.1*2,'tol',1.e-11);
-            % the volume of the last bin is the production
+            % the volume of the last bin is the product
             % of all sizes of the last cell
             assertEqualToTol(bv(end),5*1*0.1*5,'tol',1.e-11);
 
