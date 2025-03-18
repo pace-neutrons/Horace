@@ -1,6 +1,6 @@
 function obj = sqw_op(obj, sqwfunc, pars, varargin)
-% Perform an operation or set of operations defined over pixels and defined
-% by   sqw_func
+% Perform an operation or set of operations over pixels defined
+% by user provided sqw_func. 
 %
 %   >> wout = sqw_op(win, sqwfunc, p)
 %   >> wout = sqw_op(___, '-all')
@@ -28,12 +28,13 @@ function obj = sqw_op(obj, sqwfunc, pars, varargin)
 %              If numel(win) > 1, outfile must either be omitted or be a cell
 %              array of file paths with equal number of elements as win.
 %
-%   all        If true, requests that the calculated sqw be returned over
+%   -all or pair of arguments: [all,[true|false]]
+%              If true, requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If false, then
-%              the function will be returned only at those points of the dataset
-%              that contain data_.
-%               Applies only to input with no pixel information - it is ignored if
-%              full sqw object.
+%              the function will be returned only at those points of the 
+%              dataset that contain data_.
+%              Applies only to input with no pixel information - it is 
+%              ignored if input is full sqw object.
 %              [default = false]
 %
 %   average    If true, requests that the calculated sqw be computed for the
@@ -46,7 +47,9 @@ function obj = sqw_op(obj, sqwfunc, pars, varargin)
 %   filebacked  If true, the result of the function will be saved to file and
 %               the output will be a file path. If no `outfile` is specified,
 %               a unique path within `tempdir()` will be generated.
-%               Default is false.
+%               Default is false so resulting object intended to be put in
+%               memory but if the resulting object is too big to
+%               be stored in memory, result will be filebacked.
 %
 % Note: all optional string input parameters can be truncated up to minimal
 %       difference between them e.g. routine would accept 'al' and
@@ -62,7 +65,7 @@ function obj = sqw_op(obj, sqwfunc, pars, varargin)
 %===============================================================
 
 [sqwfunc, pars, opts] = parse_eval_args(obj, sqwfunc, pars, varargin{:});
-if isempty(opts.outfile) || (numel(opts.outfile)==1 && isempty(opts.outfile{1})) || opts.filebacked
+if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is

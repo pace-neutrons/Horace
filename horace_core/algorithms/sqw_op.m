@@ -1,6 +1,7 @@
 function wout = sqw_op(win, sqwfunc, pars, varargin)
 % Apply operation or sequence of operations over input sqw files 
-% The operations act on pixels and are defined in sqwfunc
+% The operations act on pixels and are defined in user provided 
+% sqwfunc which should accept PageOp_sqw_op object as first argument
 % 
 %
 %   >> wout = sqw_op(win, sqwfunc, p)
