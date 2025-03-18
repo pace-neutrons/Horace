@@ -39,41 +39,20 @@ classdef test_sqw_op < TestCase
             obj.sqw_2d_sqw_eval_ref_obj = read_sqw(obj.sqw_2d_sqw_eval_ref_file);
         end
 
-
-        %% Argument validation tests
-        function test_invalid_argument_error_if_unknown_flag(obj)
-            f = @() sqw_eval( ...
-                obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, '-notaflag' ...
-                );
-            assertExceptionThrown(f, 'MATLAB:InputParser:ParamMissingValue');
-        end
-
-        function test_notEnoughOutputs_error_if_no_ret_value_and_no_outfile(obj)
-            f = @() sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params);
-            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs');
-        end
-
+        %------------------------------------------------------------------
+        % Argument validation tests -- Majority are the same as for test_sqw_eval
+        % so look there for missing checks
         function test_notEnoughOutputs_error_if_no_ret_value_and_filebacked(obj)
-            f = @() sqw_eval( ...
+            f = @() sqw_op( ...
                 obj.sqw_2d_obj, ...
                 obj.gauss_sqw, ...
                 obj.gauss_params, ...
                 'filebacked', true ...
                 );
-            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs');
+            assertExceptionThrown(f, 'HORACE:sqw_op:invalid_argument');
         end
-
-        function test_error_if_num_outfiles_ne_to_num_input_objects(obj)
-            f = @() sqw_eval( ...
-                [obj.sqw_2d_obj, obj.sqw_2d_obj], ...
-                obj.gauss_sqw, ...
-                obj.gauss_params, ...
-                'outfile', 'some_path' ...
-                );
-            assertExceptionThrown(f, 'HORACE:sqw:invalid_arguments');
-        end
-
-        %% SQW object tests
+        %------------------------------------------------------------------        
+        % SQW object tests
         function test_gauss_on_sqw_object_matches_reference_file(obj)
             out_sqw = sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params);
 
@@ -131,8 +110,8 @@ classdef test_sqw_op < TestCase
                 'ignore_str', true,'-ignore_date' ...
                 );
         end
-
-        %% SQW file tests
+        %------------------------------------------------------------------
+        % SQW file tests
         function test_gauss_on_sqw_file_matches_reference_file(obj)
             out_sqw = sqw_eval(obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params);
 
@@ -214,34 +193,12 @@ classdef test_sqw_op < TestCase
                 'ignore_str', true,'-ignore_date' ...
                 );
         end
-
-        %% DND tests
-        function test_func_on_dnd_file_acts_on_signal_and_sets_e_to_zeros(obj)
+        %------------------------------------------------------------------
+        % DND tests
+        function test_func_on_dnd_fails(obj)
             fake_dnd = obj.build_fake_dnd();
 
-            dnd_out = sqw_eval(fake_dnd, obj.linear_func, obj.linear_params);
-
-            % Expected signal is bin_centers.*pars
-            % bin center coords in each dim are {[1, 2, 3], [], [0.6, 1], []}
-            % These are defined by dnd.p (the bin edges), which was set when
-            % creating the dnd.
-            % => bin centers are:
-            %     [1, 0.6], [3, 0.6], [2, 1],
-            %     [2, 0.6], [1,   1], [3, 1]
-            % pars = [2, 1, 1, 4]
-            % => since dnd.pax = [1, 3], only relevant pars are at idx 1 and 3
-            % => pars = [2, 1]
-            % => signal =
-            %     sum([1, 0.6]*[2, 1]), sum([3, 0.6]*[2, 1]), sum([2, 1]*[2, 1]),
-            %     sum([2, 0.6]*[2, 1]), sum([1,   1]*[2, 1]), sum([3, 1]*[2, 1])
-            % but empty bins are ignored, so set [1, 2] to 0
-            expected_signal = [ ...
-                2.6, 0, 6.6;
-                3, 5.0, 7.0 ...
-                ]';
-
-            assertEqualToTol(dnd_out.s, expected_signal, obj.DOUBLE_TOL);
-            assertEqual(dnd_out.e, zeros(size(fake_dnd.npix)));
+            assertExceptionThrown(@()sqw_op(fake_dnd),obj.linear_func,obj.linear_params)
         end
 
         function test_func_on_dnd_file_acts_on_non_empty_bins_if_all_flag_true(obj)

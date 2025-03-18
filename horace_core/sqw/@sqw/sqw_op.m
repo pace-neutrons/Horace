@@ -1,6 +1,6 @@
 function obj = sqw_op(obj, sqwfunc, pars, varargin)
 % Perform an operation or set of operations over pixels defined
-% by user provided sqw_func. 
+% by user provided sqw_func.
 %
 %   >> wout = sqw_op(win, sqwfunc, p)
 %   >> wout = sqw_op(___, '-all')
@@ -31,9 +31,9 @@ function obj = sqw_op(obj, sqwfunc, pars, varargin)
 %   -all or pair of arguments: [all,[true|false]]
 %              If true, requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If false, then
-%              the function will be returned only at those points of the 
+%              the function will be returned only at those points of the
 %              dataset that contain data_.
-%              Applies only to input with no pixel information - it is 
+%              Applies only to input with no pixel information - it is
 %              ignored if input is full sqw object.
 %              [default = false]
 %
@@ -70,7 +70,11 @@ if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1}))
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is
     % generated. This is not much use to a user if it's not returned.
-    nargoutchk(1, 1);
+    if nargout ~=1
+        error('HORACE:sqw_op:invalid_argument', ...
+            'This method request single output argument. Got: %d', ...
+            nargout)
+    end
 end
 
 for i=1:numel(obj)
