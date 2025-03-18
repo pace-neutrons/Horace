@@ -1,4 +1,4 @@
-classdef test_sqw_eval < TestCase & common_state_holder
+classdef test_sqw_eval < TestCase
 
     properties (Constant)
         FLOAT_TOL = 1e-5;
@@ -50,7 +50,7 @@ classdef test_sqw_eval < TestCase & common_state_holder
 
         function test_notEnoughOutputs_error_if_no_ret_value_and_no_outfile(obj)
             f = @() sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params);
-            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs');
+            assertExceptionThrown(f, 'HORACE:sqw_eval:invalid_argument');
         end
 
         function test_notEnoughOutputs_error_if_no_ret_value_and_filebacked(obj)
@@ -60,7 +60,7 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 obj.gauss_params, ...
                 'filebacked', true ...
                 );
-            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs');
+            assertExceptionThrown(f, 'HORACE:sqw_eval:invalid_argument');
         end
 
         function test_error_if_num_outfiles_ne_to_num_input_objects(obj)
@@ -70,7 +70,7 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 obj.gauss_params, ...
                 'outfile', 'some_path' ...
                 );
-            assertExceptionThrown(f, 'HORACE:sqw:invalid_arguments');
+            assertExceptionThrown(f, 'HORACE:sqw:invalid_argument');
         end
 
         %% SQW object tests

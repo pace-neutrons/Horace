@@ -83,12 +83,16 @@ function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 %===============================================================
 
 [sqwfunc, pars, opts] = parse_eval_args(obj, sqwfunc, pars, varargin{:});
-if isempty(opts.outfile) || (numel(opts.outfile)==1 && isempty(opts.outfile{1})) || opts.filebacked
+if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is
     % generated. This is not much use to a user if it's not returned.
-    nargoutchk(1, 1);
+    if nargout ~=1
+        error('HORACE:sqw_eval:invalid_argument', ...
+            'This method request single output argument. Got: %d', ...
+            nargout)
+    end    
 end
 
 for i=1:numel(obj)
