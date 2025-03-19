@@ -1,9 +1,9 @@
 function [val,key] = get_values_for_keys_(self,keys,no_validity_checks,mode)
-%GET_VALUES_FOR_KEYS             method retrieves values corresponding to array of keys.
+%GET_VALUES_FOR_KEYS_   method retrieves values corresponding to array of keys.
 %
 % Using this method for array of keys is approximately
 % two-three times faster than retrieving array of values
-% invoking get(key) method.
+% invoking self.get(key(i)) method in a loop.
 %
 % Inputs:
 % self  -- initialized  instance of fast map class
@@ -13,7 +13,7 @@ function [val,key] = get_values_for_keys_(self,keys,no_validity_checks,mode)
 %       --  if true, keys assumed to be valid and validity
 %           check for keys is not performed (~5 times faster)
 %           Default -- do checks.
-% mode  --  3 numbers representing output modes.
+% mode  --  2 numbers representing output modes.
 %    1  - expanded. return array have size of input keys array
 %         and nan values are returned for keys which are not
 %         present in the map.

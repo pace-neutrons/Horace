@@ -19,8 +19,9 @@ function [qspec, en]=calc_qspec(detdcn, efix, eps, emode)
 %           (x-axis along ki, z-axis vertically upwards) ([3, ne*ndet] array)
 %   en      Energy transfer for all pixels ([1, ne*ndet] array)
 %
-%  Note: We sometimes use this routine with the energy bin boundaries replaced with
-%        bin centres i.e. have fudged the array data.en
+%  Note: We normally use this routine with the energy bin boundaries 
+%        replaced with bin centres i.e though it will work perfectly well
+%        with bin boundaries defined by data.en array.
 
 % T.G.Perring 15/6/07
 

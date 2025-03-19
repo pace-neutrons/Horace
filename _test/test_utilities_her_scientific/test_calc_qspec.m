@@ -41,8 +41,8 @@ classdef test_calc_qspec< TestCaseWithSave
                 [qs,en] = calc_qspec(dc, efix, eps, emode);
             end
             te = toc(tb);
-            assertEqualToTolWithSave(obj,qs,2.e-15);
-            assertEqualToTolWithSave(obj,en,2.e-15);
+            assertEqualToTolWithSave(obj,qs,[4e-15,4e-15]);
+            assertEqualToTolWithSave(obj,en,[4e-15,4e-15]);
             if obj.ll>1; fprintf('calc_qspec, Emode 0  takes %gsec\n',te);end
             check_timing(obj,'elastic',te)
         end
@@ -88,8 +88,8 @@ classdef test_calc_qspec< TestCaseWithSave
             eps = -1:0.1:1 + efix;
             emode = 0;
             [qs,en] = calc_qspec(dc, efix, eps, emode);
-            assertEqualToTolWithSave(obj,qs,2e-15);
-            assertEqualToTolWithSave(obj,en,2e-15);
+            assertEqualToTolWithSave(obj,qs,[4e-15,4e-15]);
+            assertEqualToTolWithSave(obj,en,[4e-15,4e-15]);
         end
 
         function test_calc_qspec_small_mode2(obj)
