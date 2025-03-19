@@ -28,6 +28,7 @@ classdef PageOp_sqw_eval < PageOpBase
             if isa(sqw_obj,'sqw') % non-sqw impossible for sqw_eval but may
                 % be necessary for children (generic apply)
                 obj.proj      = sqw_obj.data.proj;
+                obj.init_filebacked_output = sqw_obj.is_filebacked;
             end
         end
         function obj = update_img_accumulators(obj,npix_block,npix_idx, ...

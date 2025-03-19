@@ -384,6 +384,7 @@ classdef PageOpBase
                     class(val));
             end
             obj.outfile_ = val;
+            obj.init_filebacked_output_ = true;
         end
         %
         function idx = get.signal_idx(obj)
@@ -435,6 +436,17 @@ classdef PageOpBase
         function pixd = get.pix(obj)
             pixd = obj.pix_;
         end
+        function obj = set.pix(obj,val)
+            % Set target pix data explicitly.
+            %
+            % Intended for use in tests only so should not be used in
+            % production code.
+            if ~isa(val,'PixelDataBase')
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'Pix can be an object of PixelDatBase class only');
+            end
+            obj.pix_ = val;
+        end        
         %------------------------------------------------------------------
         function fn = get.source_filename(obj)
             [~,fn,fe] = fileparts(obj.pix_.full_filename);
