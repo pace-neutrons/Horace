@@ -1,4 +1,4 @@
-function obj = sqw_op_single_(obj, sqwfunc, pars, outfile)
+function obj = sqw_op_single_(obj, sqwfunc, pars, opts,i)
 %==================================================================================================
 % SQW_OP_SINGLE_
 % Helper function for sqw_op executed on a full sqw object containing
@@ -24,8 +24,11 @@ function obj = sqw_op_single_(obj, sqwfunc, pars, outfile)
 
 eval_op = PageOp_sqw_op();
 % file have to be set first to account for the case infile == outfile
-if ~isempty(outfile)
-    eval_op.outfile = outfile;
+if ~isempty(opts.outfile)
+    eval_op.outfile = opts.outfile{i};
+end
+if opts.filebacked
+    eval_op.init_filebacked_output = true;
 end
 eval_op = eval_op.init(obj,sqwfunc,pars);
 

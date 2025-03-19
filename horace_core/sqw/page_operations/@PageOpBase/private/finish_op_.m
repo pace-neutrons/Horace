@@ -39,6 +39,10 @@ else
     % image should be modified by method overload.
     out_obj.data = obj.img_;
     out_obj = out_obj.finish_dump(obj);
+    if ~out_obj.is_filebacked && obj.init_filebacked_output
+        save(out_obj,obj.outfile);
+        out_obj = sqw(obj.outfile,'filebacked',true);
+    end
 end
 obj.pix_  = PixelDataMemory();
 obj.img_  = [];

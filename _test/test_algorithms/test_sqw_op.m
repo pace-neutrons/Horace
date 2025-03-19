@@ -7,7 +7,7 @@ classdef test_sqw_op < TestCaseWithSave
 
     properties
         sqw_2d_obj;
-        sqw_2d_file = 'sqw_2d_1.sqw';
+        sqw_2d_file = 'sqw_2d_2.sqw';
         dnd_file    = 'w3d_d3d.sqw';
         sqw_2d_pix_pg_size = floor(3e5/36); % Gives us 6 pages used in filebacked operations
 
@@ -35,7 +35,7 @@ classdef test_sqw_op < TestCaseWithSave
             % 4D gaussian in the centre of pixel data block in 4 dimensions
             obj.gauss_sqw_fun = ...
                 @(op, pars)test_sqw_op.page_gauss(op,pars);
-            obj.gauss_sigma = [0.1, 0.05, 100,100]; % gaussian in qx,qy,
+            obj.gauss_sigma = [0.5, 0.5, 100,10]; % gaussian in qx,qy,
             % almost constant in qz,dE directions. Centre defined by
             % function
 
@@ -175,11 +175,12 @@ classdef test_sqw_op < TestCaseWithSave
             end
         end
         %
-        function test_output_is_file_if_filebacked_true_and_pix_in_memory(obj)
+        function test_output_is_filebacked_if_filebacked_true_and_pix_in_memory(obj)
             out_sqw = sqw_op( ...
                 obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma,...
                  'filebacked', true);
-
+              assertTrue(out_sqw.is_filebacked)
+              
             assertEqualToTolWithSave(obj,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end        
@@ -232,7 +233,7 @@ classdef test_sqw_op < TestCaseWithSave
             end
             coord = page(q_idx,:);
             center = 0.5*(pix_range(1,:)+pix_range(2,:));
-            signal = exp(-sum(((coord-center(:))./sigma(:)).^2,1));
+            signal = exp(-sum(((coord-center(:))./sigma(:)).^2,1))/(prod(sigma)*pi*pi);
             page(op.signal_idx,:) = signal;
         end
 

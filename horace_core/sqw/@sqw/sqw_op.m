@@ -59,6 +59,6 @@ if  opts.average
 end
 
 for i=1:numel(obj)
-    obj(i) = sqw_op_single_(obj(i),sqwop_func,pars,opts.outfile{i});
+    obj(i) = sqw_op_single_(obj(i),sqwop_func,pars,opts,i);
 end
 end
