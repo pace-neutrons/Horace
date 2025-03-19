@@ -99,7 +99,7 @@ classdef PageOpBase
         inform_about_target_file
         % read-only. expose source pixels array object, cached by the
         % operation
-        pix 
+        pix
     end
 
     properties(Access=protected)
@@ -156,7 +156,7 @@ classdef PageOpBase
         % of the file backing this object.
         inform_about_target_file_ = true;
         % if true, intiialize filebacked output sqw object
-        init_filebacked_output_ = true;
+        init_filebacked_output_ = false;
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -558,7 +558,7 @@ classdef PageOpBase
         % Log frequency
         %------------------------------------------------------------------
         function rat = get_info_split_log_ratio(obj)
-            rat = obj.split_log_ratio_;            
+            rat = obj.split_log_ratio_;
         end
         function obj = set_info_split_log_ratio(obj,val)
             if ~isnumeric(val)

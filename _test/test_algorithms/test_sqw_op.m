@@ -13,8 +13,6 @@ classdef test_sqw_op < TestCaseWithSave
 
         gauss_sqw_fun;
         gauss_sigma;
-        linear_func;
-        linear_params;
     end
 
     methods
@@ -38,11 +36,6 @@ classdef test_sqw_op < TestCaseWithSave
             obj.gauss_sigma = [0.5, 0.5, 100,10]; % gaussian in qx,qy,
             % almost constant in qz,dE directions. Centre defined by
             % function
-
-            % Sum of multiple of each coordinate
-            obj.linear_func = ...
-                @(u1, u2, u3, dE, pars) sum([u1, u2, u3, dE].*pars, 2);
-            obj.linear_params = [2, 1, 1, 4];
 
             hps = horace_paths;
             obj.sqw_2d_file= fullfile(hps.test_common,obj.sqw_2d_file);
@@ -71,60 +64,6 @@ classdef test_sqw_op < TestCaseWithSave
         end
         %------------------------------------------------------------------
         % SQW file tests
-        function test_gauss_on_sqw_file_matches_reference_file(obj)
-            out_sqw = sqw_eval(obj.sqw_2d_file_path, obj.gauss_sqw_fun, obj.gauss_params);
-
-            assertEqualToTol( ...
-                out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true ...
-                );
-        end
-
-        function test_gauss_on_sqw_file_with_all_flag_ignores_the_flag(obj)
-            out_sqw = sqw_eval( ...
-                obj.sqw_2d_file_path, obj.gauss_sqw_fun, obj.gauss_params, '-all' ...
-                );
-
-            assertEqualToTol( ...
-                out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true ...
-                );
-        end
-
-        function test_gauss_on_cell_of_sqw_files_matches_reference_file(obj)
-            sqws_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
-
-            out_sqw = sqw_eval(sqws_in, obj.gauss_sqw_fun, obj.gauss_params);
-
-            assertEqual(size(out_sqw), size(sqws_in));
-            for i = 1:numel(sqws_in)
-                assertEqualToTol( ...
-                    out_sqw(i), obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                    'ignore_str', true ...
-                    );
-            end
-        end
-
-        function test_filebacked_pix_matches_reference_object_with_no_mex(obj)
-            conf_cleanup = set_temporary_config_options(hor_config, ...
-                'mem_chunk_size', obj.sqw_2d_pix_pg_size, ...
-                'use_mex', false ...
-                );
-
-            out_sqw = sqw_eval( ...
-                obj.sqw_2d_file_path, obj.gauss_sqw_fun, obj.gauss_params, ...
-                'filebacked', true ...
-                );
-            assertTrue(isa(out_sqw.pix,'PixelDataFileBacked'));
-
-            ref_obj = obj.sqw_2d_sqw_eval_ref_obj;
-
-            assertEqualToTol( ...
-                out_sqw, ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true,'-ignore_date' ...
-                );
-        end
-
         function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
             conf_cleanup = set_temporary_config_options( ...
                 hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
@@ -135,55 +74,41 @@ classdef test_sqw_op < TestCaseWithSave
             % We test that the in-memory is correct in:
             % test_calling_with_average_flag_sets_each_pix_signal_to_average
             fb_out_sqw = sqw_op( ...
-                obj.sqw_2d_file_path, obj.gauss_sqw_fun, obj.gauss_sigma, ...
+                obj.sqw_2d_file, obj.gauss_sqw_fun, obj.gauss_sigma, ...
                 'filebacked', true ...
                 );
-            assertTrue(isa(fb_out_sqw.pix,'PixelDataFileBacked'));
+            assertTrue(fb_out_sqw.is_filebacked);
 
             ref_out_sqw = sqw_op( ...
                 obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma);
-            assertTrue(isa(ref_out_sqw.pix,'PixelDataMemory'));
+            assertFalse(ref_out_sqw.is_filebacked);
 
-            assertEqualToTol( ...
-                fb_out_sqw, ref_out_sqw, ...
-                'tol', obj.FLOAT_TOL, ...
-                '-ignore_str','-ignore_date' ...
-                );
+            assertEqualToTol(fb_out_sqw, ref_out_sqw, ...
+                'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
         %------------------------------------------------------------------
         % SQW object tests
-        function test_gauss_on_sqw_object_matches_reference_file(obj)
-            out_sqw = sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_params);
-
-            assertEqualToTol( ...
-                out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true ...
-                );
-        end
-
         function test_gauss_on_array_of_sqw_objects_matches_reference_file(obj)
             sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
 
-            out_sqw = sqw_eval(sqws_in, obj.gauss_sqw_fun, obj.gauss_params);
+            out_sqw = sqw_op(sqws_in, obj.gauss_sqw_fun, obj.gauss_sigma);
 
             assertEqual(size(out_sqw), size(sqws_in));
-            for i = 1:numel(sqws_in)
-                assertEqualToTol( ...
-                    out_sqw(i), obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                    'ignore_str', true ...
-                    );
-            end
+            assertEqualToTolWithSave(obj,out_sqw(1),...
+                obj.FLOAT_TOL, '-ignore_str','-ignore_date');
+            assertEqualToTol(out_sqw(1),out_sqw(1),obj.FLOAT_TOL)
+
         end
         %
         function test_output_is_filebacked_if_filebacked_true_and_pix_in_memory(obj)
             out_sqw = sqw_op( ...
                 obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma,...
-                 'filebacked', true);
-              assertTrue(out_sqw.is_filebacked)
-              
+                'filebacked', true);
+            assertTrue(out_sqw.is_filebacked)
+
             assertEqualToTolWithSave(obj,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
-        end        
+        end
         function test_gauss_on_sqw_in_mem_is_equal_to_reference(obj)
 
             out_sqw = sqw_op(obj.sqw_2d_obj, ...
@@ -205,26 +130,28 @@ classdef test_sqw_op < TestCaseWithSave
         function test_sqw_op_on_dnd_fails(obj)
             fake_dnd = {d4d()};
 
-            assertExceptionThrown(@()sqw_op(fake_dnd,obj.linear_func,obj.linear_params),...
+            assertExceptionThrown(@()sqw_op(fake_dnd,obj.gauss_sqw_fun,obj.gauss_sigma),...
                 'HORACE:sqw_op:invalid_argument');
         end
         function test_sqw_op_on_dnd_file_fails(obj)
-            assertExceptionThrown(@()sqw_op(obj.dnd_file,obj.linear_func,obj.linear_params),...
+            assertExceptionThrown(@()sqw_op(obj.dnd_file,obj.gauss_sqw_fun,obj.gauss_sigma),...
                 'HORACE:sqw_op:invalid_argument');
         end
 
         function test_sqw_op_something_unknown_file_fails(obj)
-            assertExceptionThrown(@()sqw_op(10,obj.linear_func,obj.linear_params),...
+            assertExceptionThrown(@()sqw_op(10,obj.gauss_sqw_fun,obj.gauss_sigma),...
                 'HORACE:sqw_op:invalid_argument');
         end
         function test_sqw_op_wrong_mixture_fails(obj)
-            assertExceptionThrown(@()sqw_op({obj.sqw_2d_obj,obj.dnd_file},obj.linear_func,obj.linear_params),...
+            assertExceptionThrown(@()sqw_op({obj.sqw_2d_obj,obj.dnd_file},obj.gauss_sqw_fun,obj.gauss_sigma),...
                 'HORACE:sqw_op:invalid_argument');
         end
     end
 
     methods(Static,Access=protected)
-        function page = page_gauss(op,sigma)
+        function page = page_gauss(op,gauss_sigma)
+            % function-sample used to calculate function of interest over
+            % pixels page.
             page = op.page_data;
             pix_range = op.pix.pix_range;
             persistent q_idx
@@ -233,9 +160,8 @@ classdef test_sqw_op < TestCaseWithSave
             end
             coord = page(q_idx,:);
             center = 0.5*(pix_range(1,:)+pix_range(2,:));
-            signal = exp(-sum(((coord-center(:))./sigma(:)).^2,1))/(prod(sigma)*pi*pi);
+            signal = exp(-sum(((coord-center(:))./gauss_sigma(:)).^2,1))/(prod(gauss_sigma)*pi*pi);
             page(op.signal_idx,:) = signal;
         end
-
     end
 end

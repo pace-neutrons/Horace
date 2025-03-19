@@ -92,12 +92,13 @@ if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1}))
         error('HORACE:sqw_eval:invalid_argument', ...
             'This method request single output argument. Got: %d', ...
             nargout)
-    end    
+    end
 end
 
 for i=1:numel(obj)
     if has_pixels(obj(i))   % determine if object contains pixel data
-        obj(i) = obj(i).sqw_eval_pix(sqwfunc, opts.average, pars, opts.outfile{i});
+        obj(i) = obj(i).sqw_eval_pix(sqwfunc, opts.average, pars, ...
+            opts.outfile{i},opts.filebacked);
     else
         obj(i) = obj(i).sqw_eval_nopix(sqwfunc, opts.all, pars);
     end
