@@ -51,9 +51,11 @@ if numel(obj.data.npix) == 1 % single bin original grid
     block_starts = 1;
     block_sizes = obj.data.npix;
 else
-    [block_starts, block_sizes] = arrayfun(@(proj, ax) sproj.get_nrange(obj.data.npix, saxes, ax, proj), ...
+    data_npix = obj.data.npix;
+    [block_starts, block_sizes] = arrayfun(@(proj, ax) sproj.get_nrange(data_npix , saxes, ax, proj), ...
         targ_proj, targ_axes, 'UniformOutput', false);
     [block_starts, block_sizes] = merge_ranges(block_starts, block_sizes);
+
 end
 
 if isempty(block_starts)
