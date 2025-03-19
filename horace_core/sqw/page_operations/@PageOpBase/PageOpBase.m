@@ -97,6 +97,9 @@ classdef PageOpBase
         % if true, page_op completed on filebacked object prints the name
         % of the file backing this object.
         inform_about_target_file
+        % read-only. expose source pixels array object, cached by the
+        % operation
+        pix 
     end
 
     properties(Access=protected)
@@ -427,6 +430,10 @@ classdef PageOpBase
         end
         function obj = set.page_num(obj,val)
             obj.pix_.page_num = val;
+        end
+        %
+        function pixd = get.pix(obj)
+            pixd = obj.pix_;
         end
         %------------------------------------------------------------------
         function fn = get.source_filename(obj)
