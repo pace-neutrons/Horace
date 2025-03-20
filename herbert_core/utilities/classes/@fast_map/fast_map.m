@@ -230,7 +230,7 @@ classdef fast_map < serializable
             %
             % Using this method for array of keys is approximately
             % two-three times faster than retrieving array of values
-            % invoking get(key) method.
+            % invoking self.get(key(i)) method in a loop.
             %
             % Inputs:
             % self  -- initialized  instance of fast map class
@@ -240,7 +240,8 @@ classdef fast_map < serializable
             %       --  if true, keys assumed to be valid and validity
             %           check for keys is not performed (~5 times faster)
             %           Default -- do checks.
-            % mode  --  3 numbers representing output modes.
+            % mode  --  2 numbers representing output modes. Default --
+            %         mode == 1
             %    1  - expanded. return array have size of input keys array
             %         and nan values are returned for keys which are not
             %         present in the map.

@@ -1,6 +1,13 @@
 function val = check_det_bank_(val)
-%Validate if input detectir banks set contains unique detector id-s
-% and is acceptable as input for detectors_array
+%Validate if input detector banks set contains unique detector id-s
+% and is acceptable as input for detectors_array.
+% Input:
+% val -- celarray or array of IX_detector_bank classes
+% Returns:
+% val -- verified for detector uniqueness array of IX_detector_bank classes
+%        constructed from input cellarray or just repeating input array of
+%        IX_detector_bank classes.
+
 if iscell(val)
     is_detector_bank = cellfun(@(x)(isa(x,'IX_detector_bank')), val);
     if ~all(is_detector_bank )
@@ -21,7 +28,7 @@ end
 
 
 % Check that the detector identifiers are all unique
-id = arrayfun (@(O)(O.id), val, 'uniformOutput', false);
+id = arrayfun (@(x)(x.id), val, 'uniformOutput', false);
 id_all = cat(1,id{:});
 if ~is_integer_id (id_all)
     error ('HERBERT:IX_detector_array:invalid_argument',...

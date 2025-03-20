@@ -22,10 +22,10 @@ switch(nt)
     case(1)
         idx_short = idx_long+minmax_idx(1,1)-1;
     case(2)
-        [ix,iy] = ind2sub(sizes,idx_long);
+        [ix,iy] = ind2sub(sizes,idx_long(:)');
         idx_short = [ix+minmax_idx(1,1)-1;iy+minmax_idx(2,1)-1];
     case(3)
-        [ix,iy,iz] = ind2sub(sizes,idx_long);
+        [ix,iy,iz] = ind2sub(sizes,idx_long(:)');
         idx_short = [ix+minmax_idx(1,1)-1;iy+minmax_idx(2,1)-1;iz+minmax_idx(3,1)-1];
     otherwise
         error('HERBERT:utilies:not_implemented', ...
