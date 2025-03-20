@@ -102,7 +102,9 @@ classdef aProjectionBase < serializable
         axes_name
         % property used in testing and if set to true, disables
         % pixel preselection part of cut algorithm. Cut then works over all
-        % pixels present in the source image.
+        % pixels present in the source image. Default -- false. Setting
+        % it to true makes cut very inefficient unless cut ranges set to do
+        % cut over all pixels anyway.
         disable_pix_preselection
     end
 
@@ -150,6 +152,8 @@ classdef aProjectionBase < serializable
         do_3D_transformation_ = true;
         %if set to true, disables pixel preselection part of cut algorithm.
         % Cut then works over all pixels present in the source image.
+        % Default -- false. Setting it to true makes cut very inefficient
+        % unless cut ranges set to do cut over all pixels anyway.
         disable_pix_preselection_ = false;
         %------------------------------------------------------------------
         %
@@ -179,14 +183,15 @@ classdef aProjectionBase < serializable
             [obj,par] = init(obj,varargin{:});
         end
         function obj = copy_proj_param_from_source(obj,cut_source)
-            % a projection may need some information from the object,
-            % it used to process. For example, all projections used for cut
-            % need to know lattice parameters of sqw object used as source
+            % Load information into the projection from the object being
+            % processed, which is required to perform the operation. 
+            % For example, all projections used for cut need to know
+            % lattice parameters of sqw object used as source.
             %
-            % this is generic method, which may be overloaded by specific
-            % projections, which may want more information from the source
-            % sqw or dnd object
-            % 
+            % This is generic method which copies lattice parameters and 
+            % should be overloaded by specific projections, which
+            % need more information from the source sqw or dnd object.
+            %
             % Input:
             % obj         -- partially initialized projection object, 
             %                used by cut
@@ -429,8 +434,9 @@ classdef aProjectionBase < serializable
                 % available and enable if it available
                 targ_proj.targ_proj = obj;
                 obj.targ_proj = targ_proj;
-
+                
                 if targ_proj.disable_pix_preselection_
+                    % select all pixels
                     bl_start = 1;
                     bl_size  = sum(npix(:));
                     return;

@@ -151,7 +151,6 @@ end
 
 % Get leading projection, if present, and strip from parameter list
 % -----------------------------------------------------------------
-
 opt.proj_given = ~isempty(par) && ...
     (isstruct(par{1}) || isa(par{1},'aProjectionBase'));
 
@@ -165,7 +164,11 @@ if opt.proj_given
     % all components of Q and energy
     npbin_expected = 4;
 else
-    proj = obj.proj;
+    if isa(obj,'sqw')
+        proj  = obj.data.proj;
+    else
+        proj = obj.proj;
+    end
     % must match the number of plot axes
     npbin_expected = ndims_in;
 end

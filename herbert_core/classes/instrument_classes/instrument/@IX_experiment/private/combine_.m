@@ -6,7 +6,7 @@ function [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_
 %
 % Inputs:
 % obj             -- single instance or array of IX_experiment objects
-% exper_cellarray -- cellarray containing IX_experiments arrays
+% exper_cellarray -- cellarray containing IX_experiment arrays
 %                    or Experiment classes to combine their IX_experiments
 %                    into obj.
 % allow_eq_headers-- if true, headers with the same runid and
@@ -95,7 +95,7 @@ for i=1:n_exper_to_add
     skipped_input = false(1,n_runs);
     for j=1:n_runs
         ic = ic+1;
-        % extract particular IX_experiments to check for addition
+        % extract particular IX_experiment to check for addition
         add_IX_exper      = add_exper(j);
         % hash will be used either forever in a future, or in comparison below.
         add_IX_exper      = add_IX_exper.build_hash();

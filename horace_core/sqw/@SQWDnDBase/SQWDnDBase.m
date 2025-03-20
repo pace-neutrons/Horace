@@ -61,7 +61,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     %----------------------------------------------------------------------
     % PageOp abstract protected methods
     methods (Abstract, Access = protected)
-        wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i);
+        wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i,varargin);
         % REDUNDANT METHOD to remove
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object

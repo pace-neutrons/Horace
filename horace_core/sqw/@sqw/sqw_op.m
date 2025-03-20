@@ -1,14 +1,8 @@
-function obj = sqw_op(obj, sqwfunc, pars, varargin)
-% Perform an operation or set of operations defined over pixels and defined
-% by   sqw_func
+function obj = sqw_op(obj, sqwop_func, pars, varargin)
+% Perform an operation or set of operations over pixels defined
+% by user provided sqw_func.
 %
 %   >> wout = sqw_op(win, sqwfunc, p)
-%   >> wout = sqw_op(___, '-all')
-%   >> wout = sqw_op(___, 'all', true)
-%   >> wout = sqw_op(___, '-average')
-%   >> wout = sqw_op(___, 'average', true)
-%   >> sqw_op(___, 'outfile', outfile)
-%   >> wout = sqw_op(___, 'outfile', outfile)
 %   >> sqw_op(__, 'outfile', outfile, 'filebacked', true)
 %   >> wout = sqw_op(__, 'filebacked', true)
 %
@@ -18,8 +12,10 @@ function obj = sqw_op(obj, sqwfunc, pars, varargin)
 %              as the source of oordinates for sqwfunc:
 %              namely the pixel coordinates or their cell  average.
 %
-%   sqwfunc    Handle to function that calculates operation
+%  sqwop_func  Handle to function that calculates operation
 %   pars       Cellarray of arguments needed by the function.
+%              The function would have a form
+%              sqwop_func(PageOp_sqw_eval_obj_instance,pars{:});
 %
 % Keyword Arguments:
 % ------------------
@@ -28,29 +24,12 @@ function obj = sqw_op(obj, sqwfunc, pars, varargin)
 %              If numel(win) > 1, outfile must either be omitted or be a cell
 %              array of file paths with equal number of elements as win.
 %
-%   all        If true, requests that the calculated sqw be returned over
-%              the whole of the domain of the input dataset. If false, then
-%              the function will be returned only at those points of the dataset
-%              that contain data_.
-%               Applies only to input with no pixel information - it is ignored if
-%              full sqw object.
-%              [default = false]
-%
-%   average    If true, requests that the calculated sqw be computed for the
-%              average values of h, k, l of the pixels in a bin, not for each
-%              pixel individually. Reduces cost of expensive calculations.
-%              Applies only to the case of sqw object with pixel information
-%              - it is ignored if dnd type object.
-%              [default = false]
-%
 %   filebacked  If true, the result of the function will be saved to file and
 %               the output will be a file path. If no `outfile` is specified,
 %               a unique path within `tempdir()` will be generated.
-%               Default is false.
-%
-% Note: all optional string input parameters can be truncated up to minimal
-%       difference between them e.g. routine would accept 'al' and
-%       'av', 'ave', 'aver' etc....
+%               Default is false so resulting object intended to be put in
+%               memory but if the resulting object is too big to
+%               be stored in memory, result will be filebacked.
 %
 %
 % Output:
@@ -59,19 +38,27 @@ function obj = sqw_op(obj, sqwfunc, pars, varargin)
 %              If `filebacked` is true, a file path or cell array of file paths.
 %              Output argument must be specified if `outfile` not given.
 %
-%===============================================================
-
-[sqwfunc, pars, opts] = parse_eval_args(obj, sqwfunc, pars, varargin{:});
-if isempty(opts.outfile) || (numel(opts.outfile)==1 && isempty(opts.outfile{1})) || opts.filebacked
+%==========================================================================
+[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, varargin{:});
+if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is
     % generated. This is not much use to a user if it's not returned.
-    nargoutchk(1, 1);
+    if nargout ~=1
+        error('HORACE:sqw_op:invalid_argument',[ ...
+            'This method request single output argument unless output filename to save result is specified.\n' ...
+            'Filename is missing and got: %d output argumets'], ...
+            nargout)
+    end
+end
+if  opts.average
+    error('HORACE:PageOp_sqw_op:not_implemented', [ ...
+        '"-average" option is not currently implemented for sqw_op.' ...
+        'Contact HoraceHelp@stfc.ac.uk if you need it'])
 end
 
 for i=1:numel(obj)
-    obj(i) = sqw_op_single_(obj(i),sqwfunc, opts.average, pars, opts.outfile{i});
+    obj(i) = sqw_op_single_(obj(i),sqwop_func,pars,opts,i);
 end
-
 end

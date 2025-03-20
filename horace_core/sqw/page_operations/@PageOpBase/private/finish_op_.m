@@ -39,6 +39,12 @@ else
     % image should be modified by method overload.
     out_obj.data = obj.img_;
     out_obj = out_obj.finish_dump(obj);
+    if ~out_obj.is_filebacked && obj.init_filebacked_output
+        warning('HORACE:filebacked_ignored',['\n' ...
+            '*** Input and output objects are placed in memory. Filebacked option is ignored.\n' ...
+            '    Save the resulting object in sqw file\n' ...
+            '    and open it in filebacked mode if you really need it filebacked.'])
+    end
 end
 obj.pix_  = PixelDataMemory();
 obj.img_  = [];

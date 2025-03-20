@@ -1,5 +1,5 @@
 classdef compact_array < serializable
-    %COMPACT_ARRAY intendent to store array with non-unique elements
+    %COMPACT_ARRAY intended to store array with non-unique elements
     % e.g. val1,val2,val3:
     % [val1,val1,val2,val1,val2,val3,val3]
     %N:   1,   2,   3,   4,   5,   6,   7
@@ -8,12 +8,9 @@ classdef compact_array < serializable
     % where
     % val1, val2 and val3 are unique objects (including arrays of values or
     % objects)
-    % Alternative form, which may be extacted
     %
     % This is helper class to unique_*_containers for helping in operations
-    % with these containers because the container themselves are incredibly
-    % slow.
-
+    % with these containers because the container themselves are slow.
     properties(Dependent)
         n_unique         % number of unique objects
         n_objects        % total number of non-unique objects
