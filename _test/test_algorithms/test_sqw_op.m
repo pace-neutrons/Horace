@@ -27,7 +27,8 @@ classdef test_sqw_op < TestCaseWithSave
             % currently it is uses as input for assertEqualWithSave, but
             % when data_sqw_dnd_changes, these data should be used as input
             % to support loading the previous version
-            obj = obj@TestCaseWithSave(opt,'test_sqw_op_ref_data.mat');
+            this_folder = fileparts(mfilename("fullpath"));
+            obj = obj@TestCaseWithSave(opt,fullfile(this_folder,'test_sqw_op_ref_data.mat'));
 
 
             % 4D gaussian in the centre of pixel data block in 4 dimensions
@@ -65,8 +66,10 @@ classdef test_sqw_op < TestCaseWithSave
         %------------------------------------------------------------------
         % SQW file tests
         function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
+            % change source configuration to make source object filebacked
             conf_cleanup = set_temporary_config_options( ...
-                hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size ...
+                hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size, ...
+                'fb_scale_factor',5 ...
                 );
 
             % In this function we just test equivalence between in-memory and
@@ -79,6 +82,8 @@ classdef test_sqw_op < TestCaseWithSave
                 );
             assertTrue(fb_out_sqw.is_filebacked);
 
+            clear conf_cleanup; % clear small chunk config limit to avoid 
+            % warning about data chunk beeing too big to fit memory
             ref_out_sqw = sqw_op( ...
                 obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma);
             assertFalse(ref_out_sqw.is_filebacked);
@@ -96,15 +101,18 @@ classdef test_sqw_op < TestCaseWithSave
             assertEqual(size(out_sqw), size(sqws_in));
             assertEqualToTolWithSave(obj,out_sqw(1),...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
-            assertEqualToTol(out_sqw(1),out_sqw(1),obj.FLOAT_TOL)
+            assertEqualToTol(out_sqw(1),out_sqw(2),obj.FLOAT_TOL)
 
         end
         %
-        function test_output_is_filebacked_if_filebacked_true_and_pix_in_memory(obj)
+        function test_output_filebacked_ignored_if_fb_true_and_pix_in_memory(obj)
+            clWa = set_temporary_warning('off','HORACE:filebacked_ignored');
             out_sqw = sqw_op( ...
                 obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma,...
                 'filebacked', true);
-            assertTrue(out_sqw.is_filebacked)
+            assertFalse(out_sqw.is_filebacked)
+            [~,lw] = lastwarn;
+            assertEqual(lw,'HORACE:filebacked_ignored')
 
             assertEqualToTolWithSave(obj,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
@@ -154,6 +162,14 @@ classdef test_sqw_op < TestCaseWithSave
             % pixels page.
             page = op.page_data;
             pix_range = op.pix.pix_range;
+            if any(isinf(pix_range(:))) % this is test file and we use
+                % horace_v2 reference file to get test reference data.
+                % Filebacked data of this kind do not contain image range.
+                % To simplify test architecture, let's specify correct
+                % ranges for this reference file here
+                pix = op.pix.recalc_data_range('all');
+                pix_range = pix.pix_range;
+            end
             persistent q_idx
             if isempty(q_idx)
                 q_idx = PixelDataBase.field_index('coordinates');
