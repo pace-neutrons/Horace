@@ -615,7 +615,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % - To set the default for future Sliceomatic sessions -
             %      On the 'Object_Defaults' menu select 'Slice Color Texture'
             
-            if numel(w)~=1 ||  dimensions(w)~=3
+            if numel(w)~=1 || dimensions(w)~=3
                 error('HORACE:sliceomatic:invalid_argument', ...
                     'Sliceomatic only works for a single 3D dataset')
             end
@@ -668,7 +668,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % - To set the default for future Sliceomatic sessions -
             %      On the 'Object_Defaults' menu select 'Slice Colour Texture'
             
-            if numel(w)~=1 ||  dimensions(w)~=3
+            if numel(w)~=1 || dimensions(w)~=3
                 error('HORACE:sliceomatic:invalid_argument', ...
                     'Sliceomatic only works for a single 3D dataset')
             end
@@ -731,7 +731,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         
         %-----------------------------------------------------------------------
         function adjust_aspect_ratio(w)
-            % Set aspect ratio for plotting 2D dnd objects
+            % Set aspect ratio for plotting 2D and 3D dnd objects
             %
             %   >> adjust_aspect_ratio(w)
             %

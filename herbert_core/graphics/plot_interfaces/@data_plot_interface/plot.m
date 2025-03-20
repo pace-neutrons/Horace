@@ -27,7 +27,7 @@ function varargout = plot(w,varargin)
 %   >> sliceomatic(w, ...)
 
 
-nd=w(1).dimensions();
+nd = w(1).dimensions();
 
 varargout = cell(1, nargout);   % output only if requested
 switch nd

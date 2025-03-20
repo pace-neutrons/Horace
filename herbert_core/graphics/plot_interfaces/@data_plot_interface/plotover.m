@@ -19,7 +19,7 @@ function varargout = plotover(w,varargin)
 %   >> pa(w,...)
 
 
-nd=w(1).dimensions();
+nd = w(1).dimensions();
 
 varargout = cell(1, nargout);   % output only if requested
 switch nd

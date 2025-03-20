@@ -205,17 +205,6 @@ classdef (Abstract=true) data_plot_interface
         % being called, with all the possible hard to track errors that may
         % occur.
         %-----------------------------------------------------------------------
-        function out = set_argout(nout, varargin)
-            % set output arguments depending on number of output arguments
-            % requested. 
-            % 
-            % expected usage is to set varargout, and because of this, no 
-            % output cell array is allocated (is this reasonable?)
-            for i=1:nout
-                out{i} = varargin{i};
-            end
-        end
-        
         function stored_name = default_name (name)
             % Set the default name for a figure
             %
