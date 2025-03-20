@@ -29,7 +29,7 @@ for i=frame_no
     
     errorbar(xx,ss.*zz,sqrt(ee),'or');
     title(sprintf('Frame: %d#%d; RunID: %d; Filename: %s; Psi = %4.1f',...
-        i,n_headers,run_id{1},w(i).header.filename,(180/pi)*w(i).header.psi),'Interpreter','none');
+        i,n_headers,run_id(1),w(i).header.filename,(180/pi)*w(i).header.psi),'Interpreter','none');
     ii=IX_dataset_1d(w(i));
     [xlab,ylab]=make_label(ii);
     xlabel(xlab);

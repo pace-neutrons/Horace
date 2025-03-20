@@ -84,7 +84,6 @@ if use_mex
         % Call the mex routine .
         [varargout{1:nargout}] = mtimesx_mex(argi{:}, n_threads);
     catch ERR
-        use_mex = false;
         if hc.force_mex_if_use_mex
             rethrow(ERR);
         else
@@ -107,7 +106,7 @@ function varargout = mtimesx_matlab(varargin)
 A = varargin{1};
 B = varargin{2};
 
-if numel(A) == 1 || numel(B) == 1
+if isscalar(A) || isscalar(B) 
     varargout{1} = A*B;
     return;
 end
@@ -134,7 +133,7 @@ if numel(sza) > 2 || numel(szb) >2
     if a_tail_size > 1
         A = reshape(A,sza(1),sza(2),tail_size);
     else
-        A = reshape(repmat(A,1,tail_size),[sz,tail_size]);
+        A = reshape(repmat(A,1,tail_size),[sza(1:2),tail_size]);
     end
     if b_tail_size > 1
         B = reshape(B,szb(1),szb(2),tail_size);

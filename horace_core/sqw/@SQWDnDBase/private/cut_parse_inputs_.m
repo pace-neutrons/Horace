@@ -151,7 +151,6 @@ end
 
 % Get leading projection, if present, and strip from parameter list
 % -----------------------------------------------------------------
-
 opt.proj_given = ~isempty(par) && ...
     (isstruct(par{1}) || isa(par{1},'aProjectionBase'));
 
@@ -165,7 +164,11 @@ if opt.proj_given
     % all components of Q and energy
     npbin_expected = 4;
 else
-    proj = obj.proj;
+    if isa(obj,'sqw')
+        proj  = obj.data.proj;
+    else
+        proj = obj.proj;
+    end
     % must match the number of plot axes
     npbin_expected = ndims_in;
 end
@@ -226,29 +229,27 @@ for i=1:npbin_expected
 end
 
 if opt.proj_given
-    % There are currently no situations where we want to define lattice in
-    % projection. so always take lattice from the source object
-    source_proj = obj.proj;
-    proj.do_check_combo_arg = false;
-
-    proj.alatt = source_proj.alatt;
-    proj.angdeg = source_proj.angdeg;
-
-    proj.do_check_combo_arg = true;
-    proj = proj.check_combo_arg();
-    %end
-
+    %
+    % Take source parameters, which projection may need to
+    % use in its transformation from source to target coordinate
+    % system.
+    proj = proj.copy_proj_param_from_source(obj);
 else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning
     % parameters with their default values.
+    if isa(obj,'sqw')
+        img = obj.data;
+    else
+        img = obj;
+    end
     pbin_tmp = pbin;
     pbin = cell(4,1);
     % run checks on given pbin, and if given pbin is empty, take pbin from
     % existing projection axis
-    paxis = cellfun(@select_pbin,pbin_tmp,obj.p,'UniformOutput',false);
-    pbin(obj.pax) = paxis(:);
+    paxis = cellfun(@select_pbin,pbin_tmp,img.p,'UniformOutput',false);
+    pbin(img.pax) = paxis(:);
     % set other limits to integration axis
-    pbin(obj.iax) = num2cell(obj.iint,1);
+    pbin(img.iax) = num2cell(img.iint,1);
     % ensure row vectors
     [pbin,pbin_expanded] = cellfun(@make_row_check_expansion,pbin,'UniformOutput',false);
     pbin = pbin';

@@ -1,13 +1,15 @@
 classdef test_get_par< TestCase
     %
-    %
-    
+    %    
     properties
+        small_nxspe_file_path        
     end
     methods
         %
-        function this=test_get_par(name)
-            this = this@TestCase(name);
+        function obj=test_get_par(name)
+            obj = obj@TestCase(name);
+            hp = horace_paths;
+            obj.small_nxspe_file_path = fullfile(hp.test_common,'MAR11001_test.nxspe');            
         end
         % tests themself
         function test_wrong_file_name(this)
@@ -35,13 +37,14 @@ classdef test_get_par< TestCase
             assertTrue(~isstruct(par));
             assertEqual([6,69632],size(par));
         end
-        function test_get_par_nxspe(this)
-            parar = get_par('MAR11001_test.nxspe','-nohor');
+        %
+        function test_get_par_nxspe(obj)
+            parar = get_par(obj.small_nxspe_file_path,'-nohor');
             assertTrue(~isstruct(parar));
             
             assertEqual([6,285],size(parar));
             
-            par = get_par('MAR11001_test.nxspe');
+            par = get_par(obj.small_nxspe_file_path);
             assertTrue(all(parar(3,:)== par.azim));
         end
         
