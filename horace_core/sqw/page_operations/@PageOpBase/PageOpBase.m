@@ -97,6 +97,9 @@ classdef PageOpBase
         % if true, page_op completed on filebacked object prints the name
         % of the file backing this object.
         inform_about_target_file
+        % read-only. expose source pixels array object, cached by the
+        % operation
+        pix
     end
 
     properties(Access=protected)
@@ -153,7 +156,7 @@ classdef PageOpBase
         % of the file backing this object.
         inform_about_target_file_ = true;
         % if true, intiialize filebacked output sqw object
-        init_filebacked_output_ = true;
+        init_filebacked_output_ = false;
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -210,11 +213,11 @@ classdef PageOpBase
                     'hor_config','mem_chunk_size','fb_scale_factor');
                 mb_max = mchs*fb;
                 if any(chunk_sizes>mb_max)
-                    warning('HORACE:runtime_error', ...
-                        ['*** The algorithm %s request input sqw object to be split on bin boundaries.\n' ...
+                    warning('HORACE:runtime_error', ['\n' ...
+                        '*** The algorithm %s request input sqw object to be split on bin boundaries.\n' ...
                         '*** Unfortunately input object contans bins that are so large,\n' ...
-                        '*** that even one bin may not fit to memory. ' ...
-                        '*** This algorithm will probably fail trying to process such bins.\n' ...
+                        '*** that even one bin may not fit to memory.\n' ...
+                        '*** This algorithm will try but probably fail processing such bins.\n' ...
                         '*** Rebin input sqw object to smaller grid to be able to use this algorithm\n'], ...
                         obj.op_name);
                 end
@@ -428,6 +431,21 @@ classdef PageOpBase
         function obj = set.page_num(obj,val)
             obj.pix_.page_num = val;
         end
+        %
+        function pixd = get.pix(obj)
+            pixd = obj.pix_;
+        end
+        function obj = set.pix(obj,val)
+            % Set target pix data explicitly.
+            %
+            % Intended for use in tests only so should not be used in
+            % production code.
+            if ~isa(val,'PixelDataBase')
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'Pix can be an object of PixelDatBase class only');
+            end
+            obj.pix_ = val;
+        end        
         %------------------------------------------------------------------
         function fn = get.source_filename(obj)
             [~,fn,fe] = fileparts(obj.pix_.full_filename);
@@ -551,7 +569,7 @@ classdef PageOpBase
         % Log frequency
         %------------------------------------------------------------------
         function rat = get_info_split_log_ratio(obj)
-            rat = obj.split_log_ratio_;            
+            rat = obj.split_log_ratio_;
         end
         function obj = set_info_split_log_ratio(obj,val)
             if ~isnumeric(val)

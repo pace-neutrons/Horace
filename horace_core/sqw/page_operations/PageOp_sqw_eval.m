@@ -1,5 +1,5 @@
 classdef PageOp_sqw_eval < PageOpBase
-    % Single pixel page operation used by sqw_eval function
+    % Single pixel page operation used by sqw_eval algorithm
     %
     properties
         % empty operation
@@ -41,6 +41,22 @@ classdef PageOp_sqw_eval < PageOpBase
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
+            % Apply user-defined operation over page of pixels located in
+            % memory. Pixels have to be split on bin edges
+            % 
+            % Inputs:
+            % obj         -- initialized instance of PageOp_sqw_eval class
+            % npix_block  -- array containing distrubution of pixel loaded into current page 
+            %                over image bins of the processed data chunk
+            % npix_idx    -- 2-element array [nbin_min,nbun_max] containing
+            %                min/max indices of the image bins
+            %                corresponding to the pixels, currently loaded
+            %                into page.
+            % NOTE:
+            % pixel data are split over bin edges (see split_vector_max_sum
+            % for details), so npix_idx contains min/max indices of
+            % currently processed image cells.
+            %
             qw = obj.proj.transform_pix_to_hkl(obj.page_data_(obj.coord_idx,:));
             qw_pix_coord =  {qw(1,:)',qw(2,:)',qw(3,:)',qw(4,:)'};
             if obj.average

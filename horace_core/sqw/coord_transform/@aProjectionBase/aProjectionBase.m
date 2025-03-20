@@ -191,6 +191,17 @@ classdef aProjectionBase < serializable
             % This is generic method which copies lattice parameters and 
             % should be overloaded by specific projections, which
             % need more information from the source sqw or dnd object.
+            %
+            % Input:
+            % obj         -- partially initialized projection object, 
+            %                used by cut
+            % cut_source  -- sqw or dnd object to be cut using the
+            %                projection object
+            %
+            % Result:
+            % obj         -- projection object initialized by data
+            %                retrieved from the source object
+
             if isa(cut_source,'sqw')
                 source_proj = cut_source.data.proj;
             else

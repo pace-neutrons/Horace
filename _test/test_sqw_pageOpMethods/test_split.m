@@ -20,6 +20,8 @@ classdef test_split< TestCase
             obj.this_dir = fileparts(mfilename('fullpath'));
             source_data = fullfile(hpc.test_common,obj.sqw_source);
             obj.sqw_source   = source_data;
+            clWarn = set_temporary_warning('off','SQW_FILE:old_version');
+            
             obj.source_sqw4D = read_sqw(source_data);
 
         end
@@ -38,7 +40,9 @@ classdef test_split< TestCase
             phys_mem_req = img_size*23/3; % assume only 1/3 of all split
             % images may fit memory
             clWarn = set_temporary_warning('off', ...
-                'HORACE:insufficient_physical_memory','HORACE:physical_memory_configured');
+                'HORACE:insufficient_physical_memory', ...
+                'HORACE:physical_memory_configured', ...
+                'SQW_FILE:old_version');
             clConf = set_temporary_config_options(hpc_config, ...
                 'phys_mem_available',phys_mem_req );
             source = sqw(obj.sqw_source,'file_backed',true);
@@ -67,6 +71,7 @@ classdef test_split< TestCase
 
             n_pix = obj.source_sqw4D.npixels;
             clConf = set_temporary_config_options(hor_config,'mem_chunk_size',n_pix/3);
+            clWarn = set_temporary_warning('off','SQW_FILE:old_version');            
             source = sqw(obj.sqw_source,'file_backed',true);
             assertTrue(source.is_filebacked);
 
@@ -89,6 +94,7 @@ classdef test_split< TestCase
         function test_split_all_filebacked_generates_files(obj)
             n_pix = obj.source_sqw4D.npixels;
             clConf = set_temporary_config_options(hor_config,'mem_chunk_size',n_pix/3);
+            clWarn = set_temporary_warning('off','SQW_FILE:old_version');            
             source = sqw(obj.sqw_source,'file_backed',true);
             assertTrue(source.is_filebacked);
 
@@ -165,6 +171,7 @@ classdef test_split< TestCase
             n_pix = obj.source_sqw4D.npixels;
 
             clConf = set_temporary_config_options(hor_config,'mem_chunk_size',n_pix/3);
+            clWarn = set_temporary_warning('off','SQW_FILE:old_version');            
             source = sqw(obj.sqw_source,'file_backed',true);
             assertTrue(source.is_filebacked);
 
@@ -175,7 +182,7 @@ classdef test_split< TestCase
 
 
             for i=1:numel(w_spl_mem)
-                assertEqualToTol(w_spl_mem(i),w_spl_fb(i),'ignore_str',true, ...
+                assertEqualToTol(w_spl_mem(i),w_spl_fb(i),'-ignore_str','-ignore_date', ...
                     'tol',[8*eps('single'),8*eps('single')]);
             end
         end
@@ -183,6 +190,7 @@ classdef test_split< TestCase
         function test_split_pix_filebacked(obj)
             n_pix = obj.source_sqw4D.npixels;
             clConf = set_temporary_config_options(hor_config,'mem_chunk_size',n_pix/3);
+            clWarn = set_temporary_warning('off','SQW_FILE:old_version');            
             source = sqw(obj.sqw_source,'file_backed',true);
             assertTrue(source.is_filebacked);
 
