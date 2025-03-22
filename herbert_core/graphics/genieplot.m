@@ -15,9 +15,11 @@ classdef genieplot < handle
     % functions. Ideally, we would not have it visible to users.
     
     properties (Access=private)
-        XScale = 'linear'
-        YScale = 'linear'
-        ZScale = 'linear'
+        XScale = 'linear'       % x-axis scaling: 'linear' or 'log'
+        YScale = 'linear'       % y-axis scaling: 'linear' or 'log'
+        ZScale = 'linear'       % z-axis scaling: 'linear' or 'log'
+        
+        maxspec_1D = 1000;      % Maximum number of 1D datasets in a plottable array
         colors = {'k'}          % Row cell array of default colors
         color_cycle = 'with'    % 'fast' or 'with': colours cycle faster or with
                                 % line and marker properties in a plot of
@@ -26,6 +28,8 @@ classdef genieplot < handle
         line_widths = 0.5;      % Row vector of default line widths
         marker_types = {'o'};   % Row cell array of default marker types
         marker_sizes = 6;       % Row vector of default marker sizes
+
+        maxspec_2D = 1000;      % Maximum number of 2D datasets in a plottable array
     end
     
     methods (Access=private)
@@ -66,6 +70,16 @@ classdef genieplot < handle
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     'ZScale must be ''linear'' or ''log''');
+            end
+        end
+        %-----------------------------------------------------------------------
+        function set.maxspec_1D(obj, val)
+            if isnumeric(val) && isscalar(val) && val>0 && (isinf(val) || ...
+                    (isfinite(val) && rem(val,1)==0))
+                obj.maxspec_1D = val;
+            else
+                error('HERBERT:genieplot:invalid_argument', ...
+                    'maxspec_1D must be a positive integer or Inf');
             end
         end
         %-----------------------------------------------------------------------
@@ -153,6 +167,16 @@ classdef genieplot < handle
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     '''marker_sizes'' must be reals greater than zero');
+            end
+        end
+        %-----------------------------------------------------------------------
+        function set.maxspec_2D(obj, val)
+            if isnumeric(val) && isscalar(val) && val>0 && (isinf(val) || ...
+                    (isfinite(val) && rem(val,1)==0))
+                obj.maxspec_2D = val;
+            else
+                error('HERBERT:genieplot:invalid_argument', ...
+                    'maxspec_2D must be a positive integer or Inf');
             end
         end
         %-----------------------------------------------------------------------

@@ -12,10 +12,9 @@ function appdata=sliceomaticfigure(d)
 
 % === with:
 % History: 
-%   - TGP Feb 2014: Handle figure names so can have multiple sliceometics
-%   - TGP Feb 2025: Allow for the genie_figure menu items, but gracefully
-%                   ignores if not found on the path. Means the code is
-%                   transportable independeny og genie graphics.
+%   - TGP Feb 2014: Handle figure names so can have multiple sliceomatics.
+%   - TGP Feb 2025: Correct bug if more than one figure with the name exists,
+%                   and now retains existing figure colour.
 
 % If existing Sliceomatic figure, reset; otherwise create a new figure
 if isfield(d,'name')

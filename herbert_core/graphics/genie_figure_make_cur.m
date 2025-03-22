@@ -17,7 +17,7 @@ function genie_figure_make_cur (fig)
 %
 % Input:
 % ------
-%   fig         Figure name or cellstr of figure names
+%   fig         Figure name or cell array of figure names
 %          *OR* Figure number or array of figure numbers
 %          *OR* Figure handle or array of figure handles
 %

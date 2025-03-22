@@ -1,6 +1,29 @@
 classdef (Abstract=true) data_plot_interface
-    % Abstract class that defines the interface to all plotting functions
-
+    % Abstract class that defines the interface to all plotting functions.
+    %
+    % The purpose of this interface is to assist in making a uniform
+    % interface and syntax to plotting routines. It shows which methods are
+    % expected for different dimensionalities of plottable objects.
+    %
+    % If a class inherits this interface (e.g. IX_dataset_1d) then any of
+    % the methods below that are explicitly defined for that class will have
+    % precedence; the other methods in this interface will throw an error to
+    % that states they are undefined.
+    %
+    % This interface does not define the arguments needed by the plotting
+    % routines. The concrete plotting implementations the use of which this
+    % interface assists are methods of IX_dataset_1d, IX_dataset_2d and
+    % IX_dataset_3d - see the concrete methods of those classes for 1D, 2D and
+    % 3D objects respectively.
+    %
+    % The Horace classes d1d, d2d, d3d inherits a similar plot interface class,
+    % dnd_plot_interface, which in turn inherits this class and defines
+    % particular implementations of the methods. These implementations use the
+    % IX_dataset_1d, *_2d and *_3d plot methods. Similarly, the Horace class sqw
+    % inherits a similar plot interface class, sqw_plot_interface, which also
+    % inherits data_plot_interface and defines particular implementations of the
+    % plot methods as defined for d1d, d2d and d3d objects.
+    
     properties
     end
     
@@ -9,19 +32,11 @@ classdef (Abstract=true) data_plot_interface
         % to work
         nd = dimensions();
     end
-
+    
     %---------------------------------------------------------------------------
     % Plotting methods
     %---------------------------------------------------------------------------
     methods
-        %-----------------------------------------------------------------------
-        % Generic plotting interfaces for N-D objects
-        %-----------------------------------------------------------------------
-        % Plot 1D, 2D or 3D sqw or dnd object or array of objects
-        varargout = plot(w, varargin)
-        % Overplot 1D, 2D or 3D sqw or dnd object or array of objects
-        varargout = plotover(w, varargin)
-
         %-----------------------------------------------------------------------
         % 1D plotting functions
         %-----------------------------------------------------------------------
@@ -122,6 +137,7 @@ classdef (Abstract=true) data_plot_interface
             varargout = throw_unavailable_(w, 'ppoc', varargin{:});
         end
         
+        
         %-----------------------------------------------------------------------
         % 2D plotting functions
         %-----------------------------------------------------------------------
@@ -163,7 +179,7 @@ classdef (Abstract=true) data_plot_interface
             % Fails if dataset to overplot is missing.
             varargout = throw_unavailable_(w, 'psoc', varargin{:});
         end
-        function varargout = ps2(w, varargin)            
+        function varargout = ps2(w, varargin)
             % Overplot a surface plot of a 2D dataset or array of datasets, with
             % the possibility of providing second dataset(s) as the source of
             % the plot or plots colour scale.
@@ -177,6 +193,7 @@ classdef (Abstract=true) data_plot_interface
             varargout = throw_unavailable_(w, 'ps2oc', varargin{:});
         end
         
+        
         %-----------------------------------------------------------------------
         % 3D plotting functions
         %-----------------------------------------------------------------------
@@ -189,6 +206,89 @@ classdef (Abstract=true) data_plot_interface
             % Plots 3D object using sliceomatic with the view straight down one
             % of the axes.
             varargout = throw_unavailable_(w,'sliceomatic_overview', varargin{:});
+        end
+        
+        
+        %-----------------------------------------------------------------------
+        % Generic plotting interfaces for N-D objects
+        %-----------------------------------------------------------------------
+        function varargout = plot(w,varargin)
+            % Plot a 1D, 2D or 3D object or array of objects
+            %
+            %   >> plot(w)
+            %   >> plot(w, xlo, xhi)                    % if 1D, 2D or 3D
+            %   >> plot(w, xlo, xhi, ylo, yhi)          % if 2D or 3D
+            %   >> plot(w, xlo, xhi, ylo, yhi, zlo,zhi) % if 3D
+            %
+            % Advanced use:
+            %   >> plot(w,..., 'name', fig_name)        % plot with figure name = fig_name
+            % or
+            %   >> plot(w,..., 'axes', axes_handle)     % plot on the figure with the given
+            %                                           % figure number or handle
+            %
+            % Return figure, axes and plot handles:
+            %   >> [fig_handle, axes_handle, plot_handle] = plot(w, ...)
+            %
+            %
+            % Equivalent to:
+            %   >> dp(w)                % 1D dataset
+            %   >> dp(w, ...)
+            %
+            %   >> da(w)                % 2D dataset
+            %   >> da(w, ...)
+            %
+            %   >> sliceomatic(w)       % 3D dataset
+            %   >> sliceomatic(w, ...)
+            
+            nd = w(1).dimensions();
+            
+            varargout = cell(1, nargout);   % output only if requested
+            switch nd
+                case 1
+                    [varargout{:}] = dp(w, varargin{:});
+                case 2
+                    [varargout{:}] = da(w, varargin{:});
+                case 3
+                    [varargout{:}] = sliceomatic(w, varargin{:});
+                otherwise
+                    error('HORACE:data_plot_interface:runtime_error', ...
+                        'Can only plot one, two or three-dimensional objects')
+            end
+        end
+        
+        function varargout = plotover(w,varargin)
+            % Overplot a 1D, 2D or 3D object or array of objects on an existing plot
+            %
+            %   >> plotover(w)
+            %
+            % Advanced use:
+            %   >> pp(w, 'name', fig_name)      % overplot on the figure with name = fig_name
+            %                                   % or figure with given figure number or handle
+            %
+            % Return figure, axes and plot handles:
+            %   >> [fig_handle, axes_handle, plot_handle] = pp(w,...)
+            %
+            %
+            % Equivalent to:
+            %   >> pp(w)                % 1D dataset
+            %   >> pp(w,...)
+            %
+            %   >> pa(w)                % 2D dataset
+            %   >> pa(w,...)
+            
+            nd = w(1).dimensions();
+            
+            varargout = cell(1, nargout);   % output only if requested
+            switch nd
+                case 1
+                    [varargout{:}] = pp(w, varargin{:});
+                case 2
+                    [varargout{:}] = pa(w, varargin{:});
+                otherwise
+                    error('HORACE:data_plot_interface:runtime_error', ...
+                        'Can only overplot one or two-dimensional objects')
+            end
+            
         end
     end
     
@@ -238,7 +338,7 @@ classdef (Abstract=true) data_plot_interface
             %                     default is set to the null name, which
             %                     indicates that the hard-wired defaults for the
             %                     different plot types (one-dimensional, area
-            %                     plot, surface plot etc.) will be used.                   
+            %                     plot, surface plot etc.) will be used.
             %
             % Output:
             % -------
@@ -265,7 +365,7 @@ classdef (Abstract=true) data_plot_interface
                     error('HERBERT:data_plot_interface:invalid_argument', ...
                         'Cannot have both input and output arguments')
                 end
-            end 
+            end
         end
     end
     %---------------------------------------------------------------------------

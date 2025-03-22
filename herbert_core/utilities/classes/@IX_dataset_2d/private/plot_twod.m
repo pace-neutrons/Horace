@@ -99,7 +99,7 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, newplot, ..
 
 
 lims_type = 'xyz';
-maxspec = 1000;     % maximum number of 2D datasets that can be plotted
+maxspec = genieplot.get('maxspec_2D');  % maximum number of 2D datasets that can be plotted
 default_fig_name = data_plot_interface.default_name();
 
 plot_types={'area', 'surface', 'surface2'};

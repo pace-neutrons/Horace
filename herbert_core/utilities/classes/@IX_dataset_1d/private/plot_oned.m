@@ -71,7 +71,7 @@ function [fig_h, axes_h, plot_h] = plot_oned (w, newplot, ...
 
 
 lims_type = 'xy';
-maxspec = 1000;     % maximum number of 1D datasets that can be plotted
+maxspec = genieplot.get('maxspec_1D');  % maximum number of 2D datasets that can be plotted
 default_fig_name = data_plot_interface.default_name();
 
 plot_types = {'errors', 'histogram', 'line', 'markers', 'data', 'points'};
