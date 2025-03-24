@@ -184,16 +184,16 @@ classdef aProjectionBase < serializable
         end
         function obj = copy_proj_param_from_source(obj,cut_source)
             % Load information into the projection from the object being
-            % processed, which is required to perform the operation. 
+            % processed, which is required to perform the operation.
             % For example, all projections used for cut need to know
             % lattice parameters of sqw object used as source.
             %
-            % This is generic method which copies lattice parameters and 
+            % This is generic method which copies lattice parameters and
             % should be overloaded by specific projections, which
             % need more information from the source sqw or dnd object.
             %
             % Input:
-            % obj         -- partially initialized projection object, 
+            % obj         -- partially initialized projection object,
             %                used by cut
             % cut_source  -- sqw or dnd object to be cut using the
             %                projection object
@@ -407,8 +407,23 @@ classdef aProjectionBase < serializable
         function name = get.axes_name(obj)
             name = get_axes_name(obj);
         end
+        function obj = set(obj,prop_name,prop_value)
+            % set random property value using functional form of setter
+            % method.
+            % Inputs:
+            % obj         -- instance of the projection object
+            % prop_name   -- name of the property to set usin this function
+            % prop_value  -- value to set to property
+            %
+            if ~istext(prop_name)
+                error('HORACE:aProjectionBase:invalid_argument',[ ...
+                    'method set requests second argument to be a property name (character string).' ...
+                    'Provided property name class is: %s'], ...
+                    class(prop_name));
+            end
+            obj.(prop_name) = prop_value;
+        end
     end
-
     %======================================================================
     % MAIN PROJECTION OPERATIONS
     % BINNING:
@@ -434,13 +449,13 @@ classdef aProjectionBase < serializable
                 % available and enable if it available
                 targ_proj.targ_proj = obj;
                 obj.targ_proj = targ_proj;
-                
+
                 if targ_proj.disable_pix_preselection_
                     % select all pixels
                     bl_start = 1;
                     bl_size  = sum(npix(:));
                     return;
-            end
+                end
             end
 
             contrib_ind= obj.get_contrib_cell_ind(...
