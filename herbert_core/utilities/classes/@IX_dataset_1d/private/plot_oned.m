@@ -90,12 +90,12 @@ else
     elseif numel(par)==2||numel(par)==4
         bad=false;
         xlims=true;
-        if isnumeric(par{1}) && isscalar(par{1}), xlo=par{1}; else bad=true; end
-        if isnumeric(par{2}) && isscalar(par{2}), xhi=par{2}; else bad=true; end
+        if isnumeric(par{1}) && isscalar(par{1}), xlo=par{1}; else; bad=true; end
+        if isnumeric(par{2}) && isscalar(par{2}), xhi=par{2}; else; bad=true; end
         if numel(par)==4
             ylims=true;
-            if isnumeric(par{3}) && isscalar(par{3}), ylo=par{3}; else bad=true; end
-            if isnumeric(par{4}) && isscalar(par{4}), yhi=par{4}; else bad=true; end
+            if isnumeric(par{3}) && isscalar(par{3}), ylo=par{3}; else; bad=true; end
+            if isnumeric(par{4}) && isscalar(par{4}), yhi=par{4}; else; bad=true; end
         else
             ylims=false;
         end
