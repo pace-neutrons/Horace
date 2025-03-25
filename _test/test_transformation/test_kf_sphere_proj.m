@@ -1,5 +1,5 @@
 classdef test_kf_sphere_proj<TestCase
-    % The test class to verify how projection works
+    % The test class to verify how kf_sphwew_projection works
     %
     properties
     end
@@ -45,12 +45,10 @@ classdef test_kf_sphere_proj<TestCase
             proj.do_check_combo_arg  = true;
             proj = proj.check_combo_arg();
 
-
             sph  = proj.transform_pix_to_img(pix0);
 
             pixr  = proj.transform_img_to_pix(sph);
             assertElementsAlmostEqual(pixr,pix0);
-
         end
 
         function test_empty_constructor(~)
