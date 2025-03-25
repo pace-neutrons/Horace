@@ -800,7 +800,8 @@ classdef aProjectionBase < serializable
             %           coordinates, defined by cut projection using
             %           dnd.get_targ_range(targ_proj) method.
             % requested_bin_ranges --
-            %           cellarray of cut bin ranges, requested by user.
+            %           cellarray of cut bin ranges, requested by user and
+            %           expressed in source coordinate system.
             %
             % Returns:
             % ax_bl -- initialized, i.e. containing defined ranges and

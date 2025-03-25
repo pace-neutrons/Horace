@@ -11,7 +11,16 @@ classdef test_kf_sphere_proj<TestCase
             end
             this=this@TestCase(name);
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
+        function test_kf_sphere_caption(~)
+            sp = kf_sphere_proj();
+            ax = sp.get_proj_axes_block(cell(1,4),{[0,10],[0,2,70],[-180,180],[-10,2,50]});
+
+            title = ax.main_title({'\theta','En'},{'kf_integrated','phi_integrated'});
+
+            assertEqual(numel(title),4);
+            assertEqual(title{2},'Instument view along beam direction');
+        end
         %------------------------------------------------------------------
         function test_coord_transf_PixData_plus_offset_not_implemented(~)
             proj = kf_sphere_proj('alatt',2*pi,'angdeg',90);

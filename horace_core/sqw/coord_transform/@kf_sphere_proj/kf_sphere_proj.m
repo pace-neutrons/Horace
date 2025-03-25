@@ -36,11 +36,11 @@ classdef kf_sphere_proj<sphere_proj
     % >>sp = kf_sphere_proj(Ei,u,v,type,alatt,angdeg);
     % >>sp = kf_sphere_proj(Ei,u,v,type,alatt,angdeg,offset,label,title);
     % >>sp = kf_sphere_proj(Ei,....,emode,cc_to_spec_mat,run_id_mapper)
-    % 
+    %
     % As for any serializable, the positional parameters may be replaced by
     % random set of key-values pairs where keys are the names of the
     % properties to set.
-    % 
+    %
     % Where:
     % Ei -- Incident energy in direct spectrometer. Will work for indirect
     %       too though its meaning a bit unclear.
@@ -69,19 +69,19 @@ classdef kf_sphere_proj<sphere_proj
     %
     % all parameters may be provided as 'key',value pairs appearing in
     % arbitrary order after positional parameters
-    % 
+    %
     % NOTE 1:
     %       the idea of this projection is that u and v should be set to
     %       the values of u,v vectors, used to obtain sqw object i.e. u
     %       should coicide with beam direction and v selected to define the
-    %       uv plane, where rotation occurs.    
+    %       uv plane, where rotation occurs.
     % NOTE 2:
-    %       This is special projection which would not work without 
+    %       This is special projection which would not work without
     %       cc_to_spec_mat and run_id_mapper being defined.
     %
     properties(Dependent)
         Ei  % incident for direct or analyzer for indirect energy.
-        ki_mod % read-only parameter. Modulo of vector ki in A^-1. 
+        ki_mod % read-only parameter. Modulo of vector ki in A^-1.
         % Used for debugging and easy cut range estimation
         %
         emode % data processing mode (1-direct, 2-indirect, 0 -- elastic)
@@ -128,6 +128,39 @@ classdef kf_sphere_proj<sphere_proj
             obj = copy_proj_param_from_source@aProjectionBase(obj,cut_source);
             obj = copy_proj_param_from_source_(obj,cut_source);
         end
+        function ax_bl = get_proj_axes_block(obj,default_bin_ranges,requested_bin_ranges)
+            % Construct the axes block, corresponding to this projection class
+            % Returns projection-specific AxesBlockBase class, built from the
+            % block ranges or the binning ranges.
+            %
+            % Usually overloaded for specific projection
+            % to add the particular axes_block properties, specific for the
+            % projection class.
+            %
+            % Inputs:
+            % default_bin_ranges --
+            %           cellarray of the binning ranges used as defaults
+            %           if requested binning ranges are undefined or
+            %           infinite. Usually it is the range of the existing
+            %           axes block, transformed into the system
+            %           coordinates, defined by cut projection using
+            %           dnd.get_targ_range(targ_proj) method.
+            % requested_bin_ranges --
+            %           cellarray of cut bin ranges, requested by user and
+            %           expressed in source coordinate system.
+            %
+            % Returns:
+            % ax_bl -- initialized, i.e. containing defined ranges and
+            %          numbers of  bins in each direction, AxesBlockBase
+            %          corresponding to the kf_sphere projection.
+            %
+            %          It differs from spherical projection by different
+            %          axes_block title, which highlights limited usage of
+            %          this projection.
+            ax_bl   = get_proj_axes_block@aProjectionBase(obj,default_bin_ranges,requested_bin_ranges);
+            ax_bl   = ax_bl.add_proj_description_function(@(x)sprintf('Instument view along beam direction'));
+        end
+
         %------------------------------------------------------------------
         function emode = get.emode(obj)
             emode = obj.emode_;
@@ -209,7 +242,7 @@ classdef kf_sphere_proj<sphere_proj
                 end
                 input_is_obj = false;
             end
-            % get indices of transformation martices per each run 
+            % get indices of transformation martices per each run
             run_id = obj.run_id_mapper_.get_values_for_keys(run_id,true,1);
 
             np = numel(run_id);
@@ -305,7 +338,7 @@ classdef kf_sphere_proj<sphere_proj
                     'which sets relationship between pixel''s run-id and number of spectrometer matrix.\n' ...
                     'Provided class is %s'], ...
                     class(val));
-            end            
+            end
             obj.run_id_mapper_ = val;
         end
 
