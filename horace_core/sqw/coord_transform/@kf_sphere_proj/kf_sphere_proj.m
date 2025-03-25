@@ -133,9 +133,9 @@ classdef kf_sphere_proj<sphere_proj
             % Returns projection-specific AxesBlockBase class, built from the
             % block ranges or the binning ranges.
             %
-            % Usually overloaded for specific projection
-            % to add the particular axes_block properties, specific for the
-            % projection class.
+            % Overloaded for kf_sphere_projection to add different
+            % axes_block title, which highlights limited usage of
+            % this projection.
             %
             % Inputs:
             % default_bin_ranges --
@@ -154,9 +154,6 @@ classdef kf_sphere_proj<sphere_proj
             %          numbers of  bins in each direction, AxesBlockBase
             %          corresponding to the kf_sphere projection.
             %
-            %          It differs from spherical projection by different
-            %          axes_block title, which highlights limited usage of
-            %          this projection.
             ax_bl   = get_proj_axes_block@aProjectionBase(obj,default_bin_ranges,requested_bin_ranges);
             ax_bl   = ax_bl.add_proj_description_function(@(x)sprintf('Instument view along beam direction'));
         end
