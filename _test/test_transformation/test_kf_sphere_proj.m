@@ -11,6 +11,7 @@ classdef test_kf_sphere_proj<TestCase
             end
             this=this@TestCase(name);
         end
+        %------------------------------------------------------------------        
         %------------------------------------------------------------------
         function test_coord_transf_PixData_plus_offset_not_implemented(~)
             proj = kf_sphere_proj('alatt',2*pi,'angdeg',90);
@@ -47,7 +48,6 @@ classdef test_kf_sphere_proj<TestCase
             proj = kf_sphere_proj('type','add');
             assertEqual(proj.u,[1,0,0]);
             assertEqual(proj.v,[0,1,0])
-
         end
     end
 end
