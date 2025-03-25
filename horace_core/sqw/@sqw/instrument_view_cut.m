@@ -48,4 +48,4 @@ kf_max = sqrt(efix/neutron_constants('c_k_to_emev'));
 
 sproj = kf_sphere_proj();
 sproj.disable_pix_preselection = true;
-dnd2d = cut_sqw(win,sproj,[0,kf_max],theta_bin,[-180,180],en_bin,'-nopix');
+dnd2d = cut_sqw(win,sproj,[0,1.1*kf_max],theta_bin,[-180,180],en_bin,'-nopix');
