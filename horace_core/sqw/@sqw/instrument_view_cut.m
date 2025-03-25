@@ -18,7 +18,7 @@ function dnd2d = instrument_view_cut(win,theta_bin,en_bin)
 
 % set up default theta binning if not provided
 if nargin<2 || (nargin>=2 && isempty(theta_bin))
-    theta_bin = [0,2,90]; % do we have inelastic instrument with coverage largerh then 90%?
+    theta_bin = [0,1,90]; % do we have inelastic instrument with coverage largerh then 90%?
 end
 
 img = win.data;

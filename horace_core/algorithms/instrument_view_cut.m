@@ -1,7 +1,7 @@
 function dnd2d = instrument_view_cut(filename,varargin)
-%INSTRUMENT_VIEW  cut input sqw file using special projection which
-%provides 2-dimensional Theta-dE view of input sqw file where Theta is the
-%angle between beam direction and a detector position in spherical coordinate
+%INSTRUMENT_VIEW_CUT cuts input sqw file using special projection which
+% provides 2-dimensional Theta-dE view of input sqw file where Theta is the
+% angle between beam direction and a detector position in spherical coordinate
 % system with centre at sample and dE is the energy transfer.
 %
 % Inputs:
