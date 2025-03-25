@@ -127,7 +127,7 @@ classdef sphere_axes < AxesBlockBase
                 data_plot_titles(obj)
             % Get titling and caption information for the sqw data
             % structure containing spherical projection
-            [title_pax, title_iax, display_pax, display_iax,energy_axis]=...
+            [title_pax, title_iax,title_main_pax,title_main_iax, display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj);
             % Main title
             title_main = obj.main_title(title_main_pax,title_main_iax);
