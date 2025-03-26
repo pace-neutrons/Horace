@@ -14,14 +14,15 @@ function dnd2d = instrument_view_cut(win,varargin)
 %    transfer values and y-axis -- module of energy transfer values. These
 %    values are connected by the relation
 %    kf = sqrt(dE/dEToKf_transformation_constant),
-%    so the correct image should be a line describing this relation.
+%    so the correct image should be a line reflecting this relation.
 %    If plot contains full picture in kf-dE coordinates, the relation
 %    between pixel indices and information, contained in the Experiment
-%    class is violated. Such sqw object and cuts from this sqw object can not
-%    be used for Tobyfitting.
+%    class is violated. Such sqw object and cuts from such sqw object are
+%    broken and can not be used for Tobyfitting.
 %
-% The indication that second type plot may be necessary is large fraction
-% of the pixels have been discarded while making the first type of plot.
+% The indication that second type plot may be necessary is the large fraction
+% of the pixels have been discarded while making the first type of plot in
+% full image range.
 %
 % Inputs:
 % win        -- initialized instance of the source sqw object.
@@ -31,7 +32,7 @@ function dnd2d = instrument_view_cut(win,varargin)
 % en_bin     -- binning range to use along energy transfer direction
 %
 % Optional:
-% '-check_coherence'
+% '-check_correspondence'
 %            -- if provided, indicates that second type of the plot,
 %               reresenting kf-dE dependence is requested.
 %
@@ -39,7 +40,7 @@ function dnd2d = instrument_view_cut(win,varargin)
 % dnd2d     -- d2d object, containing 2-dimensional instrument view of
 %              input sqw object
 
-[ok,mess,kf_de_plot,argi] = parse_char_options(varargin,'-check_coherence');
+[ok,mess,kf_de_plot,argi] = parse_char_options(varargin,'-check_correspondence');
 if ~ok
     error('HORACE:algorithms:invalid_argument',mess);
 end
@@ -64,13 +65,16 @@ if n_bins_arguments <3 || (n_bins_arguments>=3 && isempty(argi{2}))
     if n_en_bins == 1
         n_en_bins = 100;
         step = (en_range(2)-en_range(1))/(n_en_bins-1);
-        en_bin = [en_range(1)-0.5*step,step,en_range(2)+0.5*step];
+        en_bin = [en_range(1)+0.5*step,step,en_range(2)-0.5*step];
     else
         bin_range = img.axes.get_cut_range('-full');
         en_bin  = bin_range{4};
     end
 else
     en_bin = argi{2};
+    if numel(en_bin) == 1
+        en_bin = [en_range(1)+0.5*en_bin,en_bin,en_range(2)-0.5*en_bin];
+    end
 end
 % identify kf range
 efix = win.experiment_info.get_efix();

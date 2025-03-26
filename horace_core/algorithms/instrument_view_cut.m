@@ -17,11 +17,12 @@ function dnd2d = instrument_view_cut(filename,varargin)
 %    so the correct image should be a line describing this relation.
 %    If plot contains full picture in kf-dE coordinates, the relation
 %    between pixel indices and information, contained in the Experiment
-%    class is violated. Such sqw file and cuts from this sqw file can not
-%    be used for Tobyfitting.
+%    class is violated. Such sqw file and cuts from such sqw file are broken
+%    and can not be used for Tobyfitting.
 %
-% The indication that second type plot may be necessary is large fraction
-% of the pixels have been discarded while making the first type of plot.
+% The indication that second type plot may be necessary is the large fraction
+% of the pixels have been discarded while making the first type of plot in
+% full image range.
 %
 % Inputs:
 % filename  -- name of the file containing sqw object. Does not work for
@@ -32,9 +33,10 @@ function dnd2d = instrument_view_cut(filename,varargin)
 % en_bin     -- binning range to use along energy transfer direction
 %
 % Optional:
-% '-check_coherence'
-%            -- if provided, indicates that second type of the plot, 
-%               reresenting kf-dE dependence is requested.
+% '-check_correspondence'
+%            -- if provided, indicates that second type of the plot,
+%               reresenting kf-dE dependence is requested to check if information
+                in experiment corresponds to information, stored in pixels.
 %
 % Returns:
 % dnd2d     -- d2d object, containing 2-dimensional instrument view of
@@ -49,7 +51,7 @@ end
 ldr = sqw_formats_factory.instance().get_loader(filename);
 if ~ldr.sqw_type
     error('HORACE:instrument_view:invalid_argument', ...
-        'Instument_veiw input has to be an sqw file but input file %s does not contain sqw object', ...
+        'Instument_veiw input has to be the name of an sqw file but input file: "%s" does not contain sqw object', ...
         filename);
 end
 in = sqw(ldr);
