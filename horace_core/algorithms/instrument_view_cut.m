@@ -36,7 +36,7 @@ function dnd2d = instrument_view_cut(filename,varargin)
 % '-check_correspondence'
 %            -- if provided, indicates that second type of the plot,
 %               reresenting kf-dE dependence is requested to check if information
-                in experiment corresponds to information, stored in pixels.
+%               in experiment corresponds to information, stored in pixels.
 %
 % Returns:
 % dnd2d     -- d2d object, containing 2-dimensional instrument view of
