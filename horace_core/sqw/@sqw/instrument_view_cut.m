@@ -1,4 +1,4 @@
-function dnd2d = instrument_view_cut(win,theta_bin,en_bin,varargin)
+function dnd2d = instrument_view_cut(win,varargin)
 %INSTRUMENT_VIEW_CUT cuts input sqw object using special projection which
 % provides 2-dimensional views of input sqw object, used for diagnostics of
 % validity of this sqw object.
@@ -39,16 +39,27 @@ function dnd2d = instrument_view_cut(win,theta_bin,en_bin,varargin)
 % dnd2d     -- d2d object, containing 2-dimensional instrument view of
 %              input sqw object
 
+[ok,mess,kf_de_plot,argi] = parse_char_options(varargin,'-check_coherence');
+if ~ok
+    error('HORACE:algorithms:invalid_argument',mess);
+end
+
+n_bins_arguments = numel(argi);
 % set up default theta binning if not provided
-if nargin<2 || (nargin>=2 && isempty(theta_bin))
+if n_bins_arguments <2 || (n_bins_arguments >=2 && isempty(argi{1}))
     theta_bin = [0,1,140]; % do we have inelastic instrument with coverage larger then 140%?
+else
+    theta_bin = argi{1};
+    if numel(theta_bin) ==1
+        theta_bin = [0,theta_bin,140];
+    end
 end
 
 img = win.data;
 en_range = img.img_range(:,4);
 
 % set up default energy binning if not provided
-if nargin <3 || (nargin>=3 && isempty(en_bin))
+if n_bins_arguments <3 || (n_bins_arguments>=3 && isempty(argi{2}))
     n_en_bins= img.axes.nbins_all_dims(4);
     if n_en_bins == 1
         n_en_bins = 100;
@@ -58,6 +69,8 @@ if nargin <3 || (nargin>=3 && isempty(en_bin))
         bin_range = img.axes.get_cut_range('-full');
         en_bin  = bin_range{4};
     end
+else
+    en_bin = argi{2};
 end
 % identify kf range
 efix = win.experiment_info.get_efix();
@@ -71,4 +84,9 @@ kf_max = sqrt(efix/neutron_constants('c_k_to_emev'));
 
 sproj = kf_sphere_proj();
 sproj.disable_pix_preselection = true;
-dnd2d = cut_sqw(win,sproj,[0,1.1*kf_max],theta_bin,[-180,180],en_bin,'-nopix');
+if kf_de_plot
+    step = kf_max/100;
+    dnd2d = cut_sqw(win,sproj,[0,step,1.1*kf_max],[theta_bin(1),theta_bin(end)],[-180,180],en_bin,'-nopix');
+else
+    dnd2d = cut_sqw(win,sproj,[0,1.1*kf_max],theta_bin,[-180,180],en_bin,'-nopix');
+end
