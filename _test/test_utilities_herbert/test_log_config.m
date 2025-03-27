@@ -60,9 +60,9 @@ classdef test_log_config< TestCase
             tc = log_config();
             clOb = set_temporary_config_options(tc,'info_log_print_time',2);
             tc = tc.init_adaptive_logging();
-            pause(1);
+            pause(2);
             [tc,time] = tc.adapt_logging(1);
-            assertEqualToTol(time,1,'tol',[0.1,0.1]);
+            assertEqualToTol(time,2,'tol',[0.1,0.1]);
             slr = tc.info_log_split_ratio;
             assertEqual(slr,2);
         end
