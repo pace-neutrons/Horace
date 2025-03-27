@@ -139,7 +139,7 @@ classdef PageOp_split_sqw < PageOpBase
             for n_obj = 1:numel(unique_id) %
                 this_id    = unique_id(n_obj);
                 % number of current object in Experiment.IX_dataset array.
-                splitobj_num = obj.runid_map_(this_id);
+                splitobj_num = obj.runid_map_.get(this_id);
                 obj.run_contributes_(splitobj_num) = true;
                 obj.n_obj_contrib_to_page_(n_obj) = splitobj_num;
                 % extract data belonging to single split sqw
@@ -361,17 +361,20 @@ classdef PageOp_split_sqw < PageOpBase
             if obj.img_filebacked_ && pix_filebacked
                 obj.results_are_tmp_files_ = false;
             end
-            run_ids = obj.runid_map_.keys();
+            run_ids = obj.runid_map_.keys;
+            if iscell(run_ids)
+                run_ids  = [run_ids{:}]; 
+            end
             obj.targ_files_map_ = containers.Map( ...
                 'KeyType', 'uint64', 'ValueType', 'char');
             for i = 1:numel(run_ids)
-                filebase = sprintf('%s_runID%07d',file_in,run_ids{i});
+                filebase = sprintf('%s_runID%07d',file_in,run_ids(i));
                 if obj.results_are_tmp_files_
                     split_filename = build_tmp_file_name(filebase,obj.outfile);
                 else
                     split_filename = fullfile(obj.outfile,[filebase,'.sqw']);
                 end
-                obj.targ_files_map_(uint64(run_ids{i})) = split_filename;
+                obj.targ_files_map_(uint64(run_ids(i))) = split_filename;
             end
         end
         %
