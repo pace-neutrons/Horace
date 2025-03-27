@@ -69,7 +69,7 @@ classdef rundatah < rundata
             if present.transform_sqw
                 transf = opt.transform_sqw;
                 for i=1:numel(runfiles_list)
-                    if numel(transf) == 1
+                    if isscalar(transf)
                         runfiles_list{i}.transform_sqw = transf;
                     else % never tried, it looks wrong
                         runfiles_list{i}.transform_sqw = transf{i};
@@ -163,7 +163,7 @@ classdef rundatah < rundata
             if size(obj.S,1)+1 == numel(en)
                 en = 0.5*(en(1:end-1)+en(2:end));
             end
-            [qspec,en]=calc_qspec_(detdcn,obj.efix,en,obj.emode);
+            [qspec,en]=calc_qspec(detdcn,obj.efix,en,obj.emode);
         end
 
         function [pix_or_data_range,pix,obj] = calc_projections(obj,detdcn)

@@ -1,17 +1,31 @@
 function res = min_max(input)
 %MIN_MAX Ranges of matrix rows.
-% This function implements minmax procedure
-% defined in nnet toolbox of MATLAB if nnet is not available.
 %
-%  <a href="matlab:doc minmax">minmax</a>(X) takes a single matrix (or cell array of matrices) and returns
+%  <a href="matlab:doc minmax">min_max</a>(X) takes a single matrix of
+%  size NxM (or cell array of such matrices) and returns
 %  an Nx2 value of min and max values for each row of the matrix (or row
 %  of matrices).
 %
-%  Here min-max is calculated for a random matrix:
+%  Here min_max is calculated for a random matrix:
 %
-%    x = <a href="matlab:doc rands">rands</a>(4,5)
-%    mm = <a href="matlab:doc minmax">minmax</a>(x)
-
+%  >>xx = <a href="matlab:doc rands">rands</a>(4,5);
+%  >>mm = <a href="matlab:doc min_max">min_max</a>(xx);
+%  >><a href="matlab:doc size(mm)">size(mm)</a>
+%    ans=
+%    4   2
+%
+%  Other example:
+%  >>ma = [  1     2     3     4;
+%            5     6     7     8]
+%  >><a href="matlab:doc min_max">min_max</a>(ma)
+%  ans =
+%        1     4
+%        5     8
+%
+%  Note:
+%   This function implements minmax procedure
+%   defined in nnet toolbox or Deep learning toolbox of MATLAB
+%   (depending on version) if such toolbox is not available.
 %
 persistent use_toolbox
 

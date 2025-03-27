@@ -7,6 +7,9 @@ obj.pix_data_range_ = PixelDataBase.EMPTY_RANGE;
 %
 if ~obj.inplace
     obj.write_handle_ = in_obj.get_write_handle(obj.outfile);
+    if in_obj.is_filebacked
+        obj.init_filebacked_output = true;
+    end
 end
 
 if isa(in_obj ,'PixelDataBase')
