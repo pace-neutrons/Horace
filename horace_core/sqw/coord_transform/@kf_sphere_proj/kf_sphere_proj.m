@@ -2,9 +2,9 @@ classdef kf_sphere_proj<sphere_proj
     % Class defines spherical coordinate projection, used by cut_sqw
     % to make spherical cuts.
     %
-    % Unlike sphere_proj, which calculates spherical coordinates of scattrgint
-    % vector Q, kf_sphere_proj, calculates spherical coordinates of
-    % scattering vector kf, where Q = ki-kf;
+    % Unlike sphere_proj, which calculates spherical coordinates of
+    % scattrging vector Q, kf_sphere_proj calculates spherical coordinates
+    % of scattering vector kf, where Q = ki-kf;
     %
     % Usage (with positional parameters):
     %
@@ -71,7 +71,8 @@ classdef kf_sphere_proj<sphere_proj
     % 'e'-energy transfer in meV (no other scaling so may be missing)
     %
     properties(Dependent)
-        Ei  % incident for direct or analyzer for indirect energy.
+        Ei  % incident energy for direct spectrometer or analyzer energy 
+        % for indirect spectrometer.
         ki_mod % modulo of vector ki in A^-1. Used for debugging and easy
         % cut range estimation
         %
