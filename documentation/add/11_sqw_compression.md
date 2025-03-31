@@ -20,24 +20,24 @@ The best user experience of Horace is paramount. The goals are therefore to sati
 The 'master' sqw files created from experiments are typically c. 100GB to 500GB. The data is sorted into bins – 50 along each of the four axes (the three of wavevector, and energy transfer) – so that the data for all pixels within a given bin form a contiguous block. However, for a given bin, the pixels could be in any order. This coarse-grained sorting allows that when a cut is made, the bins that partially or wholly lie within the bounding surfaces of the cut can be computed, and then only the contents of those bins are read. This minimises the volume of data that needs to be read from the sqw file.
 
 The disk space of a 4D sqw file generated in an experiment is overwhelmingly dominated by the pixel data. Defining:
-- nrun = number of runs
-- ndet = number of detectors in each run
-- ne = number of energy bins for each detector
+- `nrun` = number of runs
+- `ndet` = number of detectors in each run
+- `ne` = number of energy bins for each detector
 
-then the total number of pixels will be N = (nrun * ndet * ne). Typically nrun = 100 – 500, ndet = 40,000 – 70,000, ne = 200 which results in N = 10^9 – 10^10 pixels.
+then the total number of pixels will be `N = (nrun * ndet * ne)`. Typically `nrun = 100 – 500`, `ndet = 40,000 – 100,000`, `ne = 200` which results in `N = 10^9` – `10^10` pixels.
 
 Note that each run that contributes to an sqw file could have different detector data, a different incident energy (the fixed energy for that run) and a different number of energy bins. The calculation above of the number of pixels is nevertheless representative, because in practice the differences between detector data from run to run will be because there was a recalibration of the detectors or loss of a limited number of detectors halfway through the set of runs, for example, but ndet will likely be similar. The number of energy bins might vary from run to run, but will always be similar because they will be likely about the same fraction of the corresponding fixed energy. In the case of Mushroom, the fixed energy is in fact the final neutron energy, and is different for each detector element.
 
 For each pixel, the following 9 pieces of information are stored, as a column in an array size [9,N]:
-- irun, idet, ien, qx, qy, qz, en, signal, error
+- `qx`, `qy`, `qz`,`irun`, `idet`, `ien`, `en`, `signal`, `error`
 
 where for that particular pixel:
-- irun: index of the run
-- idet: index of into the detector array corresponding to that run
-- ien: index into the list of the energy bin boundaries for that run
-- qx, qy, qz, en: coordinates of wavevector q in the orthonormal frame that is the crystal Cartesian frame (actually, in an orthonormal coordinate frame rotated with respect to that frame if the crystal has been realigned)
-- signal: intensity of data
-- error: variance on the signal
+- `irun`: index of the run
+- `idet`: index of into the detector array corresponding to that run
+- `ien`: index into the list of the energy bin boundaries for that run
+- `qx, qy, qz, en`: coordinates of wavevector q in the orthonormal frame that is the crystal Cartesian frame (actually, in an orthonormal coordinate frame rotated with respect to that frame if the crystal has been realigned)
+- `signal`: intensity of data
+- `error`: variance on the signal
 
 The array is presently stored as a float32 array i.e. 4 bytes per element. Thus, storing the data for each pixel requires 36 bytes.
 
@@ -49,17 +49,17 @@ The array is presently stored as a float32 array i.e. 4 bytes per element. Thus,
 ### The principles of the scheme
 
 The proposed compression scheme exploits the following two facts:
--	qx, qy, qz, en are completely determined by {irun, idet, ien}, because those indices point to the experiment information that enables the value of the fixed energy, the detector element location, the energy bin (and hence energy transfer) and crystal orientation and lattice parameters that enable qx, qy, qz, en to be calculated.
--	In most single crystal experiments, the fraction of pixels that contain non-zero signal is very small. For example:
+- `qx, qy, qz, en` are completely determined by {`irun, idet, ien`}, because those indices point to the experiment information that enables the value of the fixed energy, the detector element location, the energy bin (and hence energy transfer) and crystal orientation and lattice parameters that enable `qx, qy, qz, en` to be calculated.
+- In most single crystal experiments, the fraction of pixels that contain non-zero signal is very small. For example:
 	- Iron data: runs 15057 and 15097 (800 meV incident energy data): 0.13
 	- RbMnO3: a selection of runs: 0.010 – 0.012
 
 Accordingly, so long as we keep track of which pixels contain non-zero signal, we only need to keep the following information: 
--	irun, idet, ien: for all pixels			
--	signal, error: only for pixels with non-zero signal
+-	`irun, idet, ien`: for all pixels			
+-	`signal, error`: only for pixels with non-zero signal
 
 The trade-off is between
-- the overhead of recomputing qx,qy,qz,en on-the-fly when reading data, and 
+- the overhead of recomputing `qx,qy,qz,en` on-the-fly when reading data, and 
 - the reduced I/O time and the ability to cache entire sqw data on an IDAaaS node (as will be the case of a 200GB sqw file becoming a 50GB file – see explanation for the fourfold reduction in size in a later section).
 
 Preliminary testing by Jacob Wilkins *(results to be collated and confirmed as part of the benchmarking for this epic)* suggest a clear win for the compressed format, notwithstanding the capability gain from caching the entire sqw object.
@@ -80,17 +80,17 @@ Keeping only the unique information as described above results in the average st
 |  f = 0.25           |  14    | 39%
 |  f = 1 (worst case) |  20    | 56%
 		
-For small values of f, the storage is dominated by the space needed to hold {irun, idet, ien} for every pixel. For typical data, the storage requirement is reduced to about 1/3 that of the present sqw files. 
+For small values of f, the storage is dominated by the space needed to hold {`irun, idet, ien`} for every pixel. For typical data, the storage requirement is reduced to about 1/3 that of the present `sqw` files. 
 
 
 
 ### The proposed scheme and the achievable compression
 
-To improve on the above, special knowledge of the maximum values of the indices, namely {nrun, ndet, ne} can be used to reduce the space to hold {irun, idet, ien} for every pixel. With the typical values nrun = 500, ndet_max = 70,000, ne_max = 300 then N_max = 1.05e10. If {irun, idet, ien}  is converted into a linear index using the knowledge of nrun, ndet_max, ne_max, then the pixel indexing information can easily be held in a float64 (maximum integer 2^53 = 9e15) i.e. 8 bytes.
+To improve on the above, special knowledge of the maximum values of the indices, namely {`nrun, ndet, ne`} can be used to reduce the space to hold {`irun, idet, ien`} for every pixel. With the typical values `nrun = 500`, `ndet_max = 70,000`, `ne_max = 300` then `N_max = 1.05e10`. If {`irun, idet, ien`}  is converted into a linear index using the knowledge of `nrun, ndet_max, ne_max`, then the pixel indexing information can easily be held in a `float64` (maximum integer `2^53 = 9e15`) i.e. 8 bytes.
 
 In practice, 
--	With any feasible values for {nrun, ndet_max, ne_max} in the lifetime of ISIS and other facilities, 8 bytes is all that is needed (see additional notes below for details).
--	Because the overall storage requirement in practice is dominated by {irun,idet,ien}, we could store the signal and error as float64 with little penalty in disk space compared to storing as float32: only for f>0.21 does the penalty exceed 15%. Thie advantage is that the representation in memory and on disk are identical, with little penalty in overall storage in bytes. The following gives the storage needs for the two case (and percentage size compared to the current sqw format):
+-	With any feasible values for {`nrun, ndet_max, ne_max`} in the lifetime of ISIS and other facilities, 8 bytes is all that is needed (see additional notes below for details).
+-	Because the overall storage requirement in practice is dominated by {`irun,idet,ien`}, we could store the signal and error as `float64` with little penalty in disk space compared to storing as `float32`: only for f>0.21 does the penalty exceed 15%. The advantage is that the representation in memory and on disk are identical, with little penalty in overall storage in bytes. The following gives the storage needs for the two cases (and percentage size compared to the current sqw format):
 
 **Table 2**
 
@@ -108,10 +108,10 @@ In practice,
 
 
 ## Conclusion:
-- With linear indexing of pixels in a float64 and storing non-zero data only, the disk space required to hold an sqw object is in practice reduced to approximately 1/4 the present sqw file size.
-- Storing float64 signal and error only results in about a 10% increase in file size compared to float32 for typical datasets.
+- With linear indexing of pixels in a `float64` and storing non-zero data only, the disk space required to hold an sqw object is in practice reduced to approximately 1/4 the present sqw file size.
+- Storing `float64` signal and error only results in about a 10% increase in file size compared to `float32` for typical datasets.
 - With current hardware, entire sqw files can be cached on a single node in IDAaaS. See benchmarking by Alex for the speed advantage this gives.
-- The data access API to sqw files should hide any knowledge of the compression methodology, to eliminate any need to alter any of the code in the rest of Horace. This means it will be necessary to compute qx, qy, qz, en on-the-fly when reading data from a compressed sqw file. (Typically, in a Horace method, this is done a chunk of data at a time, with many chunks to be read from disk to perform the whole Horace operation.)
+- The data access API to sqw files should hide any knowledge of the compression methodology, to eliminate any need to alter any of the code in the rest of Horace. This means it will be necessary to compute `qx, qy, qz, en` on-the-fly when reading data from a compressed sqw file. (Typically, in a Horace method, this is done a chunk of data at a time, with many chunks to be read from disk to perform the whole Horace operation.)
 - Careful optimisation will need to be done to make this on-the-fly computation efficient.
 
 
@@ -120,14 +120,14 @@ In practice,
 
 ### Benchmarking that needs to be done in the analysis phase of the epic
 
-- Check the ratio of empty to non-empty bins for a wider range of nxspe files on LET, MERLIN and MAPS. This will give a more robust distribution of the fraction of non-zero signal. If there are a significant proportion of experiment with f > ~ 0.4 it will be preferable to hold non-zero signal and error as float32 rather than float64.
+- Check the ratio of empty to non-empty bins for a wider range of `nxspe` files on LET, MERLIN and MAPS. This will give a more robust distribution of the fraction of non-zero signal. If there are a significant proportion of experiment with f > ~ 0.4 it will be preferable to hold non-zero signal and error as float32 rather than float64.
 
 - Benchmarking and profiling of the time to make cuts
 	- Generate some  ‘real-world’ sized sqw files that can be used for benchmarking, varying the:
 		- size of sqw files
 		- single and multiple detector files and instrument components (to exercise the overheads of accessing via unique object stores)
 		- direct and inverse geometry instruments (i.e. Mushroom)
-		- Need to be able to generate these dummy data on demand using developmnet versions of the compressed format to test timing improvements during development.
+		- Need to be able to generate these dummy data on demand using development versions of the compressed format to test timing improvements during development.
 	- ‘real-world’ cuts from ‘real-world’ sqw files
 		- Benchmarking and profiling on IDAaaS and local machines
 		- Lots of small cuts 
@@ -141,7 +141,7 @@ Profiling is important because past experience with accessing unique object stor
 ### Why store the signal and variance as float64?
 The contents on disk and in memory will then be identical. A problem we have had is comparing data when debugging because pixels close to the edge of a bin can move from one bin to another, as well as the obvious 7 sig. fig. rounding that takes place on double to single conversion.
 
-The problem of pixel-to-bin mapping should disappear with on-the-fly computation of qx,qy,qz,en, as this will be done in memory from the run-detector-energy bin indices. That leaves just the question of the signal and error. Rounding to 7 sig fig may not be important. This should be considered further; particularly if the fraction of non-zero signal pixels is large for a significant proportion of experiments, then saving signal and error as float64 might result in a significant penalty (see Table 2). This will certainly be the case when simulating data with a model, when typically *all* pixels will have non-zero simulated signal. In this case the compressed format file will be 50% larger with float64 signal compared to float32 (and 2/3 the size of the current sqw file compared to 44% for float32).
+The problem of pixel-to-bin mapping should disappear with on-the-fly computation of `qx,qy,qz,en`, as this will be done in memory from the run-detector-energy bin indices. That leaves just the question of the signal and error. Rounding to 7 sig fig may not be important. This should be considered further; particularly if the fraction of non-zero signal pixels is large for a significant proportion of experiments, then saving signal and error as float64 might result in a significant penalty (see Table 2). This will certainly be the case when simulating data with a model, when typically *all* pixels will have non-zero simulated signal. In this case the compressed format file will be 50% larger with float64 signal compared to float32 (and 2/3 the size of the current sqw file compared to 44% for float32).
 
 
 ### The meaning of ‘non-zero signal’
