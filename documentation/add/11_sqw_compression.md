@@ -50,7 +50,7 @@ The array is presently stored as a float32 array i.e. 4 bytes per element. Thus,
 
 The proposed compression scheme exploits the following two facts:
 - `qx, qy, qz, en` are completely determined by {`irun, idet, ien`}, because those indices point to the experiment information that enables the value of the fixed energy, the detector element location, the energy bin (and hence energy transfer) and crystal orientation and lattice parameters that enable `qx, qy, qz, en` to be calculated.
-- In most single crystal experiments, the fraction of pixels that contain non-zero signal is very small. For example:
+-	In most single crystal experiments, the fraction of pixels that contain non-zero signal is very small. For example:
 	- Iron data: runs 15057 and 15097 (800 meV incident energy data): 0.13
 	- RbMnO3: a selection of runs: 0.010 – 0.012
 
@@ -95,7 +95,7 @@ In practice,
 **Table 2**
 
 | Fraction of non-zero signal | Bytes per pixel float32 signal | Percentage of current format | Bytes per pixel float64 signal | Percentage of current format
-|-----------------------------|-----------------|-----------------------------
+|---------------------|--------|-----|--------|---------------------------------
 |  f = 0  (best case) |  8     | 22% |  8     | 22%
 |  f = 0.011 (RbMnO3) |  8.09  | 22% |  8.18  | 23%
 |  f = 0.13 (Fe)      |  9.04  | 25% |  10.08 | 28%
@@ -138,10 +138,10 @@ Alex and Jacob have done some of benchmarking and profiling: Alex on total timin
 Profiling is important because past experience with accessing unique object storage, and of accessing detector and run information in Tobyfit, has shown that without careful optimisation these operations can become very time-consuming.
 
 
-### Why store the signal and variance as float64?
-The contents on disk and in memory will then be identical. A problem we have had is comparing data when debugging because pixels close to the edge of a bin can move from one bin to another, as well as the obvious 7 sig. fig. rounding that takes place on double to single conversion.
+### Do we need to store the signal and variance as float64?
+A problem we have had when comparing data during development and debugging arises because pixels close to the edge of a bin can move from one bin to another, and signal and error are rounded to 7 sig. fig. when these values are converted from double to single precision on saving to disk.
 
-The problem of pixel-to-bin mapping should disappear with on-the-fly computation of `qx,qy,qz,en`, as this will be done in memory from the run-detector-energy bin indices. That leaves just the question of the signal and error. Rounding to 7 sig fig may not be important. This should be considered further; particularly if the fraction of non-zero signal pixels is large for a significant proportion of experiments, then saving signal and error as float64 might result in a significant penalty (see Table 2). This will certainly be the case when simulating data with a model, when typically *all* pixels will have non-zero simulated signal. In this case the compressed format file will be 50% larger with float64 signal compared to float32 (and 2/3 the size of the current sqw file compared to 44% for float32).
+The problem of qx, qy, qz, en being rounded to single precision when an sqw object is saved to file is created should disappear with on-the-fly computation of qx,qy,qz,en on read, as this will be done reproducibly in double precision in memory from the stored run-detector-energy bin indices. That leaves just the question of the signal and error. Rounding these quantities to 7 sig fig may not be important. The disadvantage should be considered further] because there is a potential non-trivial disk space saving. If the fraction of non-zero signal pixels is large for a significant proportion of experiments, then saving signal and error as float64 might result in a significant penalty (see Table 2). This will certainly be the case when simulating data with a model for S(Q,w), when typically *all* pixels will have non-zero simulated signal. In this case the compressed format file will be 50% larger with float64 signal compared to float32 (and 2/3 the size of the current sqw file, compared to 44% for float32).
 
 
 ### The meaning of ‘non-zero signal’
@@ -151,11 +151,13 @@ By non-zero signal we actually mean zero signal and zero error: nothing was coun
 ### Values of nrun, ndet_max, ne_max
 In practice, we won’t always know the values of nrun, ndet_max, ne_max in advance of construction of an sqw file, for example, if the sqw file is built up during an experiment by accumulating the data of newly arrived nxspe files as they appear. In practice, however, we can use default values that will be larger than any feasible experiment in the lifetime of ISIS or other facilities:
 
+**Table 3**
+
 |          | Estimate of maximum value | Value | Comment
-|-----------------------------|-----------------|-----------------------------
+|----------|---------------------------|-------|--------
 | nrun     | 0.025 degree steps over 360 degrees (full rotation) | 1.44e4 |  x30 most ever done!
-| ndet_max | CSPEC at ESS if it gets the multigrid detectors | 1e6 | Very unlikely to get them!
-| ne_max   | Somebody once had 800 to my knowledge  | 1e3 | x20 finer than resolution
+| ndet_max | CSPEC at ESS if it gets the multigrid detectors     | 1e6    | Very unlikely to get them!
+| ne_max   | Somebody once had 800 to my knowledge               | 1e3    | x20 finer than resolution
 
 Result: N_max = 3.6e11
 
@@ -167,6 +169,8 @@ The largest integer that can be stored exactly in a float64 is 2^53 = 9e15. We s
 We can always hold [nrun_max, ndet_max, ne_max] in the sqw file itself, so that they can in principle set to any values beforehand (so long as their product is less than 9e15).
 
 Why limit the total number of pixels to 9e15? This product of nrun_max, ndet_max and ne_max gives the maximum number of pixels that Horace can handle. In practice it is more than any reasonable amount of computing resource can handle. It is in any case an implicit limit throughout the existing Horace code wherever there are loops over the number of pixels.
+
+[In the sqw file itself, we could just as well use uint64, but there may be an advantage in using float64 in the file simply because we might want to store [irun,idet,ien,signal,error] as a single array (or rather, [irun_idet_ien, signal, error] as a 3 x N array). The important points are that (i) float64 will be good enough to hold a linear index for any reasonable future needs, and (ii) in the rest of Horace the total number of pixels is limited to 2^53 anyway. as the default is for Matlab to hold all numerics as float64 and there will most likely be places where there are loops over pixel indicies (either explicitly, or implicitly as work is done on any array a chunk at a time)].
 
 
 ### Thoughts on format on disk for the compressed sqw object
@@ -199,3 +203,23 @@ Alternatively, we could store the pixel information as
 That way, all data for a given bin is in a single contiguous block, just as at present.
 
 Considerations of how data is physically stored needs to be part of the analysis phase of this epic. The above discussion is relevant if we have a file format with direct access to reading between start and end locations on disk (as we do with the present sqw file format). It may be irrelevant if we use the hdf format – but we need to be mindful of the speed of access however the data is stored.
+
+
+### Why we should store zero signal pixels
+
+In principle, we do not need to store any information about pixels with zero counts. The scheme then is:
+- Determine the set of coarse bins which are within the limits the user sets
+- Load those sets of pixels into memory from file
+- Find out which actual pixels are within the limits and discard the others
+- Determine zero bins:
+	- Loop through all runs and determine if the coarse bins for that run are within the limit
+	- Loop through all the possible pixels in those coarse bins and determine if 1) they are not in the non-zero list, and 2) are within the limits.
+	- If so add those zeros to the list of pixels loaded to memory
+	
+This has the potential to make a further disk space saving: for Fe is would be a further factor of 4 smaller than the proposed compression format above, and for smaller fractions of non-zero pixels the factor will be greater still.
+
+The disadvantage is that in practice the on-the-fly computational cost will go up dramatically. The final set of steps in the scheme listed above is effectively doing the computation that gen_sqw does, and would have to be repeated every time a cut is made. An optimised algorithm could be written, but would be non-trivial and still very CPU time-consuming: it would require determining which coarse bins might contribute for each detector of each run and over which energy ranges (an order nrun x ndet operation = 500 * 70000 = 3.5e7 number of determinations of the generally multiple sections of the trajectory in (Q,w)-space for each detector) every time a cut is made. For spherical or cylindrical cuts this will be particularly involved (it has proven difficult and developer time-consuming to get a reliable algorithm to solve the problem a bounding volume of a cut in the generalised projections implemented in Horace).
+
+It is recommended not to pursue this path because of the likely major computational overhead to perform the on-the-fly determination of the zero-signal pixels, and the amount of developer time needed to determine if an optimised algorithm is feasible and the likely amount of work to make a robust implementation.
+
+In contrast, the proposed compression method storing all pixels, and signal only for non-zero pixels, offers a quick win that will give a factor 4 reduction in file size, is circumscribed in scope, well-understood, and takes advantage of existing algorithms (particularly calculate_qw_pixels2.m). It tackles immediately the requirements of faster cutting that has been highlighted as an urgent priority for Horace. Furthermore, all the work to implement it is a pre-requisite for a 'non-zero only' algorithm anyway.
