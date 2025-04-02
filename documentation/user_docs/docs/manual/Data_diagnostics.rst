@@ -115,3 +115,86 @@ The inputs are:
 The output is:
 
 ``wout`` - an ``sqw`` object formed of from the ``w`` input.
+
+instrument_view_cut
+-------------------
+
+Normally Horace works with :math:`S(\vec{Q},\omega)` scattering function build in reciprocal coordinate system related to a crystal. If sample is not sufficiently large to allow neutrons thermalization or instrument have various problems with its detectors or background scattering, some scattering artefacts may add noise or unrelated signals to measured  :math:`S(\vec{Q},\omega)` function. 
+These artefacts will have spherical symmetry around the beam direction. To clearly identify such artefacts one may use
+``instrument_view_cut`` algorithm:
+
+::
+
+   wout = instrument_view_cut(sqw_source,[0,theta_step,theta_max],[En_min,En_step,En_max]);
+   
+Where *sqw_source* is an source ``sqw`` object with pixels, and two other arguments define binning in two directions. ``theta`` -- the angle between beam and detector directions and ``En`` are the energy transfer values.
+The algorithm makes the cut in the spherical coordinate system wich z-axis is aligned along the beam direction.
+According to Horace agreement, beam in Horace is directed along :math:`e_{x}` coordinate or direction :math:`\vec{u}` of the crystal (see Chapter on :ref:`Generating SQW files<manual/Generating_SQW_files:Generating SQW files>` for details):
+
+
+.. figure:: ../images/kf_sphere_coordinate_system.png
+   :align: center
+   :width: 500px
+
+   Spherical coordinate system aligned with the beam and used by ``instrument_view_cut``.
+
+The algorithm processes whole ``sqw`` source so takes a while to complete. Picture below shows the result
+of executing this algorithm on two old (2010) MAPS `sqw` file produced without diagnostics running over ``nxspe`` files.
+There are various instrument artefacts clearly observable on the images. The noisy ADC are not even identifiable by diagnostics. 
+
+
+ 
+There is another issue which can be identified by this algorithm usually while diagnosing old ``sqw`` data, as this issue have been hopefully fully fixed in Horace-4. You may notice, that cut applied over the whole sqw file suddenly start loosing substantial fraction of pixels. For example, normal cut log for a cut applied over whole ``sqw`` file will look like:
+
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Cutting file-backed sqw object; returning result in file --> ignored as cut contains no pixels      |
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 1 of 196; Read data for 20000000 pixels -- processing data... -----> included  20000000 pixels |
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 2 of 196; Read data for 20000000 pixels -- processing data... -----> included  20000000 pixels |
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 3 of 196; Read data for 20000000 pixels -- processing data... ----->  included  20000000 pixels|
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 4 of 196; Read data for 20000000 pixels -- processing data... ----->  included  20000000 pixels|
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 5 of 196; Read data for 20000000 pixels -- processing data... ----->  included  20000000 pixels|
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 6 of 196; Read data for 20000000 pixels -- processing data... ----->  included  20000000 pixels|
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 7 of 196; Read data for 20000000 pixels -- processing data... ----->  included  20000000 pixels|
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 8 of 196; Read data for 20000000 pixels -- processing data... ----->  included  20000000 pixels|
++------------------------------------------------------------------------------------------------------------+
+| \*\*\* Step 9 of 196; Read data for 20000000 pixels -- processing data... ----->  included  20000000 pixels|
++------------------------------------------------------------------------------------------------------------+
+| \.\.\.\.                                                                                                   |
++------------------------------------------------------------------------------------------------------------+
+
+Sometimes running cut on old Horace data, despite making ``instrument_view_cut`` over whole instrument ranges will produce log which look like:
+
++------------------------------------------------------------------------------------------------------------+
+|\*\*\* Cutting file-backed sqw object; returning result in file --> ignored as cut contains no pixels       |
++------------------------------------------------------------------------------------------------------------+
+|\*\*\* Step 1 of 264; Read data for 20000000 pixels -- processing data... ----->  included   5162352 pixels |
++------------------------------------------------------------------------------------------------------------+
+|\*\*\* Step 2 of 264; Read data for 20000000 pixels -- processing data... ----->  included  10791836 pixels |
++------------------------------------------------------------------------------------------------------------+
+|\*\*\* Step 3 of 264; Read data for 20000000 pixels -- processing data... ----->  included   5338109 pixels |
++------------------------------------------------------------------------------------------------------------+ 
+|\*\*\* Step 4 of 264; Read data for 20000000 pixels -- processing data... ----->  included         0 pixels |
++------------------------------------------------------------------------------------------------------------+ 
+|\*\*\* Step 5 of 264; Read data for 20000000 pixels -- processing data... ----->  included         0 pixels |
++------------------------------------------------------------------------------------------------------------+ 
+|\*\*\* Step 6 of 264; Read data for 20000000 pixels -- processing data... ----->  included    191651 pixels |
++------------------------------------------------------------------------------------------------------------+ 
+|\*\*\* Step 7 of 264; Read data for 20000000 pixels -- processing data... ----->  included   7974898 pixels |
++------------------------------------------------------------------------------------------------------------+ 
+|\*\*\* Step 8 of 264; Read data for 20000000 pixels -- processing data... ----->  included  12112223 pixels |
++------------------------------------------------------------------------------------------------------------+ 
+|\*\*\* Step 9 of 264; Read data for 20000000 pixels -- processing data... ----->  included   1943239 pixels |
++------------------------------------------------------------------------------------------------------------+
+| \.\.\.\.                                                                                                   |
++------------------------------------------------------------------------------------------------------------+
+
+despite the cut is performed over whole instrument ranges. This indicates subtle issue in Horace ``sqw`` files,
+where they lost synchronization between pixels information 
