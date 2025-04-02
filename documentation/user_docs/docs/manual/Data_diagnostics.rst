@@ -116,7 +116,7 @@ The output is:
 
 ``wout`` - an ``sqw`` object formed of from the ``w`` input.
 
-instrument_view_cut
+Instrument view cut
 -------------------
 
 Normally Horace works with :math:`S(\vec{Q},\omega)` scattering function build in reciprocal coordinate system related to a crystal. If sample is not sufficiently large to allow neutrons thermalization or instrument have various problems with its detectors or background scattering, some scattering artefacts may add noise or unrelated signals to measured  :math:`S(\vec{Q},\omega)` function. 
@@ -139,11 +139,19 @@ According to Horace agreement, beam in Horace is directed along :math:`e_{x}` co
    Spherical coordinate system aligned with the beam and used by ``instrument_view_cut``.
 
 The algorithm processes whole ``sqw`` source so takes a while to complete. Picture below shows the result
-of executing this algorithm on two old (2010) MAPS `sqw` file produced without diagnostics running over ``nxspe`` files.
+of executing this algorithm on two old (2010) MAPS `sqw` files produced without diagnostics running over contributing ``nxspe`` files.
 There are various instrument artefacts clearly observable on the images. The noisy ADC are not even identifiable by diagnostics. 
 
+.. figure:: ../images/InstrumentView_issues.png 
+   :align: center
+   :width: 1200px
 
- 
+   Various issues identified on instrument view.
+
+The best way of dealing with these kind of issues if they can not be clearly observable from a single run is to use Mantid 
+to add together all workspaces intended to use as Horace source data, display them on Mantid instrument view and create hard mask there.
+
+
 There is another issue which can be identified by this algorithm usually while diagnosing old ``sqw`` data, as this issue have been hopefully fully fixed in Horace-4. You may notice, that cut applied over the whole sqw file suddenly start loosing substantial fraction of pixels. For example, normal cut log for a cut applied over whole ``sqw`` file will look like:
 
 +------------------------------------------------------------------------------------------------------------+
@@ -197,4 +205,29 @@ Sometimes running cut on old Horace data, despite making ``instrument_view_cut``
 +------------------------------------------------------------------------------------------------------------+
 
 despite the cut is performed over whole instrument ranges. This indicates subtle issue in Horace ``sqw`` files,
-where they lost synchronization between pixels information 
+where they lost synchronization between pixels information and information about crystal orientation.
+To clarify this issue, one may run ``instrument_view_cut`` with ``-check_correspondence`` option.
+
+::
+
+   wout = instrument_view_cut(source_sqw,[0,0.2,140],2,'-check_correspondence');
+   plot(wout)
+   
+This option force 2D cut in :math:`|k_{f}|` - :math:`dE` coordinates. As these values are connected by 
+arithmetic relationship, the cut in these coordinates should represent a line. If one see a 2-dimensional image instead,
+the correspondence between pixel information describing neutron "pseudo-events" and experiment information describing 
+runs and crystal orientation is violated. The following figure represents two ``sqw`` datasets, where the first one
+was build with correct correspondence between experiment and pixels information and the second one -- where
+this correspondence have been broken.
+
+
+.. figure:: ../images/InstrumetViewCut_kf_dE_coordinates.png 
+   :align: center
+   :width: 1200px
+
+   Correct -- a) and broken -- b) relationship between experiment information and pixels information.
+   
+The dataset with broken pixel-experiment correspondence can be cut, sliced and multifitted, but Tobyfit would not 
+produce correct result on it. To use Tobyfit, one needs to rebuild such sqw file using Horace-4. If you do not 
+have original data to reproduce such ``sqw`` file and need to use Tobyfit, contact HoraceHelp@stfc.ac.uk. The team should
+be able to help you rebuilding such ``sqw`` dataset.
