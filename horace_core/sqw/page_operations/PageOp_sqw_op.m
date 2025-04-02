@@ -37,6 +37,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             obj.var_acc_ = zeros(numel(obj.npix),1);
             % pages should be split on bin edges. Most generic case
             obj.split_at_bin_edges = true;
+            obj.do_nopix = op_param.nopix;
 
             %
         end

@@ -29,6 +29,12 @@ classdef PageOpBase
         % Pixels only change in tests and in some pix-only operations
         % e.g. mask(Pixels)
         changes_pix_only;
+        % Almost opposite to change_pix_only as PageOp modifies image only.
+        % Pixels which may be modified by the operation are discarded and
+        % only image, calculated from modified pixels is returned. The
+        % operation itself would return dnd object constructed from sqw
+        % object modified by operation.
+        do_nopix
         % while page operations occur, not every page operation should be
         % reported, as it could print too many logs. The property defines
         % how many page operations should be omitted until operation progress
@@ -106,6 +112,8 @@ classdef PageOpBase
         % true if operation should not create the copy of a filebacked
         % object
         inplace_ = false;
+        % true if user wants to get only modified sqw object
+        do_nopix_ = false;
         % holder for the pixel object which is source and sometimes target
         % for the operation
         pix_ = PixelDataMemory();
@@ -271,7 +279,7 @@ classdef PageOpBase
                 obj.unique_run_id_ = unique([obj.unique_run_id_, ...
                     obj.page_data_(obj.run_idx_,:)]);
             end
-            if ~obj.inplace_
+            if ~(obj.inplace_ || obj.do_nopix_)
                 obj.pix_ = obj.pix_.store_page_data(obj.page_data_,obj.write_handle_);
             end
         end
@@ -445,7 +453,7 @@ classdef PageOpBase
                     'Pix can be an object of PixelDatBase class only');
             end
             obj.pix_ = val;
-        end        
+        end
         %------------------------------------------------------------------
         function fn = get.source_filename(obj)
             [~,fn,fe] = fileparts(obj.pix_.full_filename);
@@ -503,6 +511,14 @@ classdef PageOpBase
         function obj =  set.init_filebacked_output(obj,val)
             obj.init_filebacked_output_ = logical(val);
         end
+        %
+        function do = get.do_nopix(obj)
+            do = obj.do_nopix_;
+        end
+        function obj = set.do_nopix(obj,val)
+            obj.do_nopix_ = logical(val);
+        end
+
     end
     %======================================================================
     methods(Access=protected)

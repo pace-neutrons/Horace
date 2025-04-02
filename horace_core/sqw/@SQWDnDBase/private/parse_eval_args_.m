@@ -1,7 +1,7 @@
 function [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, varargin)
 %
-flags = {'-all', '-average', '-filebacked'};
-[~, ~, all_flag, ave_flag, filebacked_flag, args] = parse_char_options(varargin, flags);
+flags = {'-all', '-average', '-filebacked','-nopix'};
+[~, ~, all_flag, ave_flag, filebacked_flag,nopix_flag, args] = parse_char_options(varargin, flags);
 
 parser = inputParser();
 parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
@@ -9,6 +9,7 @@ parser.addRequired('pars');
 parser.addParameter('average', ave_flag, @islognumscalar);
 parser.addParameter('all', all_flag, @islognumscalar);
 parser.addParameter('filebacked', filebacked_flag, @islognumscalar);
+parser.addParameter('nopix', nopix_flag, @islognumscalar);
 parser.addParameter('outfile', {}, @(x) iscellstr(x) || istext(x));
 
 parser.parse(func_handle, pars, args{:});
