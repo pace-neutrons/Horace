@@ -210,10 +210,11 @@ To clarify this issue exactly, one may run ``instrument_view_cut`` with ``-check
 
 ::
 
-   wout = instrument_view_cut(source_sqw,[0,0.2,140],[],'-check_correspondence');
+   wout = instrument_view_cut(source_sqw,[0,140],[],'-check_correspondence');
    plot(wout)
    
-This option force 2D cut in :math:`|k_{f}|` - :math:`dE` coordinates. As these values are connected by 
+This option force 2D cut in :math:`|k_{f}|` - :math:`dE` coordinates. Binning in :math:`\theta` direction is ignored 
+but integration range in :math:`\theta` direction is respected. As  :math:`|k_{f}|` - :math:`dE` are connected by 
 arithmetic relationship, the cut in these coordinates should represent a line. If one see a 2-dimensional image instead,
 the correspondence between pixel information describing neutron "pseudo-events" and experiment information describing 
 runs and crystal orientation is violated. The following figure represents two ``sqw`` datasets, where the first one
