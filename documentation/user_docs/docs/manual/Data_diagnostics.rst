@@ -152,7 +152,7 @@ The best way of dealing with these kind of issues if they can not be clearly obs
 to add together all workspaces intended to use as Horace source data, display them on Mantid instrument view and create hard mask there.
 
 
-There is another issue which can be identified by this algorithm usually while diagnosing old ``sqw`` data, as this issue have been hopefully fully fixed in Horace-4. You may notice, that cut applied over the whole sqw file suddenly start loosing substantial fraction of pixels. For example, normal cut log for a cut applied over whole ``sqw`` file will look like:
+There is another issue which can be identified by this algorithm usually while diagnosing old ``sqw`` data, as this issue have been hopefully fully fixed in Horace-4. You may notice, that cut applied over the whole sqw file range suddenly start loosing substantial fraction of pixels. For example, normal cut log for a cut applied over whole ``sqw`` file range will look like:
 
 +------------------------------------------------------------------------------------------------------------+
 | \*\*\* Cutting file-backed sqw object; returning result in file --> ignored as cut contains no pixels      |
@@ -206,7 +206,7 @@ Sometimes running cut on old Horace data, despite making ``instrument_view_cut``
 
 despite the cut is performed over whole instrument ranges. This indicates subtle issue in Horace ``sqw`` files,
 where they lost synchronization between pixels information and information about crystal orientation.
-To clarify this issue, one may run ``instrument_view_cut`` with ``-check_correspondence`` option.
+To clarify this issue exactly, one may run ``instrument_view_cut`` with ``-check_correspondence`` option.
 
 ::
 
