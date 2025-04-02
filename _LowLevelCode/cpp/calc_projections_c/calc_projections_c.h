@@ -1,10 +1,7 @@
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently, but
 // are changed infrequently
-
-#ifndef H_CALC_PROJECTIONS_C
-#define H_CALC_PROJECTIONS_C
-
+#pragma once
 
 #include "../CommonCode.h"
 
@@ -33,4 +30,3 @@ void calc_projections_emode(double * const /*pMinMax */,
                              double const * const pDetPhi,double const * const pDetPsi, mwSize nDetectors,
                              double const * const pEfix, size_t nEfixed,
                double k_to_e,int nThreads);
-#endif

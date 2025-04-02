@@ -44,5 +44,5 @@ for i=frame_no
     clab=ylabel(cc,slab);
     set(clab,'Rotation',-90);
     title(sprintf('Frame: %d#%d; RunID: %d; Filename: %s; Psi = %4.1f',...
-        i,n_headers,run_id{1},w(i).header.filename,(180/pi)*w(i).header.psi),'Interpreter','none');
+        i,n_headers,run_id(1),w(i).header.filename,(180/pi)*w(i).header.psi),'Interpreter','none');
 end

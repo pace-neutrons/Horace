@@ -460,6 +460,7 @@ classdef AxesBlockBase < serializable
     end
     %======================================================================
     % Integration, interpolation and binning
+    %----------------------------------------------------------------------
     methods
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
@@ -821,13 +822,70 @@ classdef AxesBlockBase < serializable
             [in,in_details] = in_range(range,coord,nargout>1);
         end
     end
+    %======================================================================
+    % Bunch of properties and methods involved in construction of the
+    % plotted image titles
     %----------------------------------------------------------------------
+    properties(Access=protected)
+        % holder for a function which prints information about projection
+        % which is responsible for transformation into particular
+        % axes_block. Used in main_title generation.
+        proj_description_function_ = [];
+    end
     methods(Abstract)
-        %
+        % return all titles, plotted by axes
         [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
             data_plot_titles(obj,dnd_obj)
     end
-
+    methods
+        function title_main = main_title(obj,title_main_pax,title_main_iax)
+            %MAIN_TITLE method generates cellarray containing text to plot above
+            % standard 1-3D image of sqw/dnd object containing axes block.
+            %
+            % Inputs:
+            % obj            -- initialized instance of the line_axes object
+            % title_main_pax -- cellarray of titles to plot along projection axes.
+            %                   Number of elements must be equal to total number of
+            %                   projection axes in the object.           
+            % title_main_iax -- cellarray of titles to plot along integration axes.
+            %                   Number of elements must be equal to total number of
+            %                   integration axes in the object.
+            %
+            % Returns:
+            % title_main     -- cellarray, containing text to plot above
+            %                   1-3D image of the of the object containing line_axes.
+            %
+            title_main = main_title_(obj,title_main_pax,title_main_iax);
+        end
+        %
+        function obj = add_proj_description_function(obj,a_function_handle_to_proj_info)
+            % set function, which prints information about projection
+            % responsible for transforming pixels into image with this kind
+            % of axes_block
+            %
+            % Inputs:
+            % obj   -- initialized instance of a particular axes_block
+            % a_function_handle_to_proj_info
+            %       -- a function handle which would print requested
+            %          description. Should accept instance of particular
+            %          AxesBlockBase object and return string
+            %          Empty input clears previously set function if any.
+            % Returns:
+            %      instance of the class with set function handle provided.
+            %
+            if isempty(a_function_handle_to_proj_info)
+                obj.proj_description_function_ = [];
+                return;
+            end
+            if ~isa(a_function_handle_to_proj_info,'function_handle')
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                    'Input for projection description function add method should be a function handle. Provided: %s', ...
+                    class(a_function_handle_to_proj_info));
+            end
+            obj.proj_description_function_  = a_function_handle_to_proj_info;
+        end
+    end
+    %----------------------------------------------------------------------
     methods(Abstract,Access=protected)
         % main setter for image range. Overloadable for different kind
         % of axes blocks.
