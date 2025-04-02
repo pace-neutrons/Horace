@@ -39,7 +39,7 @@ where for that particular pixel:
 - `signal`: intensity of data
 - `error`: variance on the signal
 
-The array is presently stored as a float32 array i.e. 4 bytes per element. Thus, storing the data for each pixel requires 36 bytes.
+The array is presently stored as a `float32` array i.e. 4 bytes per element. Thus, storing the data for each pixel requires 36 bytes.
 
 
 
@@ -68,7 +68,7 @@ Preliminary testing by Jacob Wilkins *(results to be collated and confirmed as p
 
 ### First look at gains
 
-Keeping only the unique information as described above results in the average storage per pixel (assuming float32 for all data) reducing from 36 bytes to (12 + 8f) bytes, where f is the fraction of pixels with non-zero signal (f = 0.01 and 0.13 in the two examples quoted above). The mean storage requirement is therefore reduced to:
+Keeping only the unique information as described above results in the average storage per pixel (assuming `float32` for all data) reducing from 36 bytes to (12 + 8f) bytes, where f is the fraction of pixels with non-zero signal (f = 0.01 and 0.13 in the two examples quoted above). The mean storage requirement is therefore reduced to:
 
 **Table 1**
 
@@ -103,7 +103,7 @@ In practice,
 |  f = 0.5            |  12    | 33% |  16    | 44%
 |  f = 1 (worst case) |  16    | 44% |  24    | 67%
 	
-*Note: float32 signal and error: (8 + 8f) bytes per pixel; float64 signal and error: (8 + 16f) bytes per pixel*	
+*Note: `float32` signal and error: (8 + 8f) bytes per pixel; `float64` signal and error: (8 + 16f) bytes per pixel*	
 
 
 
@@ -120,7 +120,7 @@ In practice,
 
 ### Benchmarking that needs to be done in the analysis phase of the epic
 
-- Check the ratio of empty to non-empty bins for a wider range of `nxspe` files on LET, MERLIN and MAPS. This will give a more robust distribution of the fraction of non-zero signal. If there are a significant proportion of experiment with f > ~ 0.4 it will be preferable to hold non-zero signal and error as float32 rather than float64.
+- Check the ratio of empty to non-empty bins for a wider range of `nxspe` files on LET, MERLIN and MAPS. This will give a more robust distribution of the fraction of non-zero signal. If there are a significant proportion of experiment with f > ~ 0.4 it will be preferable to hold non-zero signal and error as `float32` rather than `float64`.
 
 - Benchmarking and profiling of the time to make cuts
 	- Generate some  ‘real-world’ sized sqw files that can be used for benchmarking, varying the:
@@ -133,7 +133,7 @@ In practice,
 		- Lots of small cuts 
 		- Large cuts
 
-Alex and Jacob have done some of benchmarking and profiling: Alex on total timings on IDAaaS and local machines, Jacob some testing of times for I/O .v. on-the-fly computation of qx,qy,qz,en using calculate_qw_pixels2.m. What is needed is definitive, documented, and reproducible test examples. 
+Alex and Jacob have done some of benchmarking and profiling: Alex on total timings on IDAaaS and local machines, Jacob some testing of times for I/O .v. on-the-fly computation of `qx, qy, qz, en` using `calculate_qw_pixels2.m`. What is needed is definitive, documented, and reproducible test examples. 
 
 Profiling is important because past experience with accessing unique object storage, and of accessing detector and run information in Tobyfit, has shown that without careful optimisation these operations can become very time-consuming.
 
@@ -141,7 +141,7 @@ Profiling is important because past experience with accessing unique object stor
 ### Do we need to store the signal and variance as float64?
 A problem we have had when comparing data during development and debugging arises because pixels close to the edge of a bin can move from one bin to another, and signal and error are rounded to 7 sig. fig. when these values are converted from double to single precision on saving to disk.
 
-The problem of qx, qy, qz, en being rounded to single precision when an sqw object is saved to file is created should disappear with on-the-fly computation of qx,qy,qz,en on read, as this will be done reproducibly in double precision in memory from the stored run-detector-energy bin indices. That leaves just the question of the signal and error. Rounding these quantities to 7 sig fig may not be important. The disadvantage should be considered further] because there is a potential non-trivial disk space saving. If the fraction of non-zero signal pixels is large for a significant proportion of experiments, then saving signal and error as float64 might result in a significant penalty (see Table 2). This will certainly be the case when simulating data with a model for S(Q,w), when typically *all* pixels will have non-zero simulated signal. In this case the compressed format file will be 50% larger with float64 signal compared to float32 (and 2/3 the size of the current sqw file, compared to 44% for float32).
+The problem of `qx, qy, qz, en` being rounded to single precision when an sqw object is saved to file is created should disappear with on-the-fly computation of qx,qy,qz,en on read, as this will be done reproducibly in double precision in memory from the stored run-detector-energy bin indices. That leaves just the question of the signal and error. Rounding these quantities to 7 sig fig may not be important. The disadvantage should be considered further] because there is a potential non-trivial disk space saving. If the fraction of non-zero signal pixels is large for a significant proportion of experiments, then saving signal and error as `float64` might result in a significant penalty (see Table 2). This will certainly be the case when simulating data with a model for `S(Q,w)`, when typically *all* pixels will have non-zero simulated signal. In this case the compressed format file will be 50% larger with `float64` signal compared to `float32` (and 2/3 the size of the current sqw file, compared to 44% for `float32`).
 
 
 ### The meaning of ‘non-zero signal’
@@ -149,48 +149,48 @@ By non-zero signal we actually mean zero signal and zero error: nothing was coun
 
 
 ### Values of nrun, ndet_max, ne_max
-In practice, we won’t always know the values of nrun, ndet_max, ne_max in advance of construction of an sqw file, for example, if the sqw file is built up during an experiment by accumulating the data of newly arrived nxspe files as they appear. In practice, however, we can use default values that will be larger than any feasible experiment in the lifetime of ISIS or other facilities:
+In practice, we won’t always know the values of `nrun, ndet_max, ne_max` in advance of construction of an sqw file, for example, if the sqw file is built up during an experiment by accumulating the data of newly arrived nxspe files as they appear. In practice, however, we can use default values that will be larger than any feasible experiment in the lifetime of ISIS or other facilities:
 
 **Table 3**
 
-|          | Estimate of maximum value | Value | Comment
-|----------|---------------------------|-------|--------
-| nrun     | 0.025 degree steps over 360 degrees (full rotation) | 1.44e4 |  x30 most ever done!
-| ndet_max | CSPEC at ESS if it gets the multigrid detectors     | 1e6    | Very unlikely to get them!
-| ne_max   | Somebody once had 800 to my knowledge               | 1e3    | x20 finer than resolution
+|            | Estimate of maximum value | Value | Comment
+|------------|---------------------------|-------|--------
+| `nrun`     | 0.025 degree steps over 360 degrees (full rotation) | 1.44e4 |  x30 most ever done!
+| `ndet_max` | CSPEC at ESS if it gets the multigrid detectors     | 1e6    | Very unlikely to get them!
+| `ne_max`   | Somebody once had 800 to my knowledge               | 1e3    | x20 finer than resolution
 
 Result: N_max = 3.6e11
 
-The largest integer that can be stored exactly in a float64 is 2^53 = 9e15. We still have two orders of magnitude in hand, so we can choose the defaults:
-- nrun_max = 9e4
-- ndet_max = 1e7
-- ne_max = 1e5
+The largest integer that can be stored exactly in a `float64` is 2^53 = 9e15. We still have two orders of magnitude in hand, so we can choose the defaults:
+- `nrun_max` = 9e4
+- `ndet_max` = 1e7
+- `ne_max` = 1e5
 
 We can always hold [nrun_max, ndet_max, ne_max] in the sqw file itself, so that they can in principle set to any values beforehand (so long as their product is less than 9e15).
 
 Why limit the total number of pixels to 9e15? This product of nrun_max, ndet_max and ne_max gives the maximum number of pixels that Horace can handle. In practice it is more than any reasonable amount of computing resource can handle. It is in any case an implicit limit throughout the existing Horace code wherever there are loops over the number of pixels.
 
-[In the sqw file itself, we could just as well use uint64, but there may be an advantage in using float64 in the file simply because we might want to store [irun,idet,ien,signal,error] as a single array (or rather, [irun_idet_ien, signal, error] as a 3 x N array). The important points are that (i) float64 will be good enough to hold a linear index for any reasonable future needs, and (ii) in the rest of Horace the total number of pixels is limited to 2^53 anyway. as the default is for Matlab to hold all numerics as float64 and there will most likely be places where there are loops over pixel indicies (either explicitly, or implicitly as work is done on any array a chunk at a time)].
+[In the sqw file itself, we could just as well use `uint64`, but there may be an advantage in using `float64` in the file simply because we might want to store [irun,idet,ien,signal,error] as a single array (or rather, [irun_idet_ien, signal, error] as a 3 x N array). The important points are that (i) `float64` will be good enough to hold a linear index for any reasonable future needs, and (ii) in the rest of Horace the total number of pixels is limited to 2^53 anyway. as the default is for Matlab to hold all numerics as `float64` and there will most likely be places where there are loops over pixel indicies (either explicitly, or implicitly as work is done on any array a chunk at a time)].
 
 
 ### Thoughts on format on disk for the compressed sqw object
 The current sqw file has two important arrays that locate pixels and bins in the file:
--	npix  	A multi-dimensional array with the number of pixels in each bin
--	pix 	A 9 x N array with the data for each pixel
+- `npix`  	A multi-dimensional array with the number of pixels in each bin
+- `pix` 	A 9 x N array with the data for each pixel
 
 npix enables the locations on disk of the start and end within pix to be computed for any block of data corresponding to one or more contiguous bins. Operations in Horace are typically done in chunks at a time. To minimise calls to disk when making a cut, the indices of bins that potentially could contribute pixels to the cuts are computed before any pixel data is read. The start and end of the data corresponding to contiguous ranges of bins are then computed.
 
 The pixel information held in the file needs to be modified for the proposed compression method:
 - We need to keep two lists of pixel data e.g.
-	- pix_nonzero == [irun,idet,ien,signal,error] for those pixels with a signal
-	- pix_zero == [irun,idet,ien] for those without signal. 
+	- `pix_nonzero` == `[irun,idet,ien,signal,error]` for those pixels with a signal
+	- `pix_zero` == `[irun,idet,ien]` for those without signal. 
 - We also need to keep track of how many pixels have zero counts in each bin, in addition to the total number of pixels in each bin e.g.
-	- npix_nonzero (array of the number of pixels in each bin with a signal)
-	- npix_zero (array of the number of pixels in each bin with no signal)  
+	- `npix_nonzero` (array of the number of pixels in each bin with a signal)
+	- `npix_zero` (array of the number of pixels in each bin with no signal)  
 	
-The two arrays npix_nonzero and npix_zero will need to be stored in the header portion of the file, alongside experiment information etc., just like npix in the current format sqw file.
+The two arrays `npix_nonzero` and `npix_zero` will need to be stored in the header portion of the file, alongside experiment information etc., just like `npix` in the current format sqw file.
 
-The most straightforward implementation would store pix_nonzero in its entirety in one contiguous stream (i.e. for all bins), followed by the whole of npix_zero. However, for each contiguous block of data that needs be read from pix in the current (uncompressed) implementation when making a cut, there would need to be two separate blocks of data read in the compressed implementation – one from pix_nonzero and one from pix_zero – with the associated access latency as the different locations are read.
+The most straightforward implementation would store `pix_nonzero` in its entirety in one contiguous stream (i.e. for all bins), followed by the whole of `npix_zero`. However, for each contiguous block of data that needs be read from pix in the current (uncompressed) implementation when making a cut, there would need to be two separate blocks of data read in the compressed implementation – one from `pix_nonzero` and one from `pix_zero` – with the associated access latency as the different locations are read.
 
 Alternatively, we could store the pixel information as 
 
@@ -222,4 +222,4 @@ The disadvantage is that in practice the on-the-fly computational cost will go u
 
 It is recommended not to pursue this path because of the likely major computational overhead to perform the on-the-fly determination of the zero-signal pixels, and the amount of developer time needed to determine if an optimised algorithm is feasible and the likely amount of work to make a robust implementation.
 
-In contrast, the proposed compression method storing all pixels, and signal only for non-zero pixels, offers a quick win that will give a factor 4 reduction in file size, is circumscribed in scope, well-understood, and takes advantage of existing algorithms (particularly calculate_qw_pixels2.m). It tackles immediately the requirements of faster cutting that has been highlighted as an urgent priority for Horace. Furthermore, all the work to implement it is a pre-requisite for a 'non-zero only' algorithm anyway.
+In contrast, the proposed compression method storing all pixels, and signal only for non-zero pixels, offers a quick win that will give a factor 4 reduction in file size, is circumscribed in scope, well-understood, and takes advantage of existing algorithms (particularly `calculate_qw_pixels2.m`). It tackles immediately the requirements of faster cutting that has been highlighted as an urgent priority for Horace. Furthermore, all the work to implement it is a pre-requisite for a 'non-zero only' algorithm anyway.
