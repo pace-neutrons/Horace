@@ -228,6 +228,6 @@ this correspondence have been broken.
    Correct -- a) and broken -- b) relationship between experiment information and pixels information.
    
 The dataset with broken pixel-experiment correspondence can be cut, sliced and multifitted, but Tobyfit would not 
-produce correct result on it. To use Tobyfit, one needs to rebuild such sqw file using Horace-4. If you do not 
-have original data to reproduce such ``sqw`` file and need to use Tobyfit, contact HoraceHelp@stfc.ac.uk. The team should
+produce correct result on it. To use Tobyfit, one needs to rebuild such ``sqw`` dataser using Horace-4. If you do not 
+have original data to reproduce such ``sqw`` dataset and need to use Tobyfit, contact HoraceHelp@stfc.ac.uk. The team should
 be able to help you rebuilding such ``sqw`` dataset.
