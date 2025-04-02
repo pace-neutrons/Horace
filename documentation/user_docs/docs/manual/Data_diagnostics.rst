@@ -210,7 +210,7 @@ To clarify this issue, one may run ``instrument_view_cut`` with ``-check_corresp
 
 ::
 
-   wout = instrument_view_cut(source_sqw,[0,0.2,140],2,'-check_correspondence');
+   wout = instrument_view_cut(source_sqw,[0,0.2,140],[],'-check_correspondence');
    plot(wout)
    
 This option force 2D cut in :math:`|k_{f}|` - :math:`dE` coordinates. As these values are connected by 
