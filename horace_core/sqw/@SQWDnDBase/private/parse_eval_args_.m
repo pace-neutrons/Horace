@@ -1,7 +1,18 @@
 function [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, varargin)
-%
+%PARSE_EVAL_ARGS -- parser function used by sqw_eval and sqw_op algorithms
+%to process their input parameters which fine-tune the calculation
+%parameters.
+% 
+thePageOp = [];
+if numel(varargin)> 0 && isa(varargin{1},'PageOp_sqw_op')
+    thePageOp = varargin{1};
+    argi= varargin(2:end);
+else
+    argi = varargin;
+end
+
 flags = {'-all', '-average', '-filebacked','-nopix'};
-[~, ~, all_flag, ave_flag, filebacked_flag,nopix_flag, args] = parse_char_options(varargin, flags);
+[~, ~, all_flag, ave_flag, filebacked_flag,nopix_flag, args] = parse_char_options(argi, flags);
 
 parser = inputParser();
 parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
@@ -14,6 +25,9 @@ parser.addParameter('outfile', {}, @(x) iscellstr(x) || istext(x));
 
 parser.parse(func_handle, pars, args{:});
 opts = parser.Results;
+% compartibility with various input algorithms
+opts.all_bins = opts.all;
+opts.pageop_processor = thePageOp;
 
 if ~iscell(opts.pars)
     opts.pars = {opts.pars};
@@ -31,7 +45,7 @@ if ~outfiles_empty && (numel(win) ~= numel(opts.outfile))
         numel(opts.outfile), numel(win) ...
         );
 end
-if outfiles_empty 
+if outfiles_empty
     if opts.filebacked
         opts.outfile = gen_unique_file_paths( ...
             numel(win), 'horace_eval', tmp_dir(), 'sqw' ...
