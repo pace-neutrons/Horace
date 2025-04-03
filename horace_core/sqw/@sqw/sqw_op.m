@@ -3,19 +3,25 @@ function obj = sqw_op(obj, sqwop_func, pars, varargin)
 % by user provided sqw_func.
 %
 %   >> wout = sqw_op(win, sqwfunc, p)
+%   >> wout = sqw_op(__,PageOp_processor)
 %   >> sqw_op(__, 'outfile', outfile, 'filebacked', true)
-%   >> wout = sqw_op(__, 'filebacked', true)
+%   >> wout = sqw_op(__, '-filebacked')
 %
 % Input:
 % ------
-%   obj        sqw object (or array of objects) used
-%              as the source of oordinates for sqwfunc:
-%              namely the pixel coordinates or their cell  average.
-%
-%  sqwop_func  Handle to function that calculates operation
-%   pars       Cellarray of arguments needed by the function.
+%   obj    --   sqw object (or array of objects) used
+%               as the source of coordinates and other information for
+%               sqwop_func
+% sqwop_func
+%          --  Handle to function that performs operation
+%   pars   --  Cellarray of arguments needed by the function.
 %              The function would have a form
 %              sqwop_func(PageOp_sqw_eval_obj_instance,pars{:});
+% Optional:
+% ------------------
+% PageOp_processor
+%          -- the instance of a class-child of PageOp_sqw_op class, which
+%             provides additional functionality to PageOp_sqw_op operation.
 %
 % Keyword Arguments:
 % ------------------
@@ -24,7 +30,9 @@ function obj = sqw_op(obj, sqwop_func, pars, varargin)
 %              If numel(win) > 1, outfile must either be omitted or be a cell
 %              array of file paths with equal number of elements as win.
 %
-%   filebacked  If true, the result of the function will be saved to file and
+%   filebacked with true/false value following or key '-filebacked'
+%               If true, or key '-filebacked' present,
+%               the result of the function will be saved to file and
 %               the output will be a file path. If no `outfile` is specified,
 %               a unique path within `tempdir()` will be generated.
 %               Default is false so resulting object intended to be put in
@@ -39,7 +47,7 @@ function obj = sqw_op(obj, sqwop_func, pars, varargin)
 %              Output argument must be specified if `outfile` not given.
 %
 %==========================================================================
-[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, varargin{:});
+[sqwop_func, pars, opts,thePageOpProcessor] = parse_eval_args(obj, sqwop_func, pars, varargin{:});
 if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
@@ -59,6 +67,6 @@ if  opts.average
 end
 
 for i=1:numel(obj)
-    obj(i) = sqw_op_single_(obj(i),sqwop_func,pars,opts,i);
+    obj(i) = sqw_op_single_(obj(i),sqwop_func,pars,opts,i,thePageOpProcessor);
 end
 end

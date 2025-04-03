@@ -1,4 +1,4 @@
-function obj = sqw_op_single_(obj, sqwfunc, pars, opts,i)
+function obj = sqw_op_single_(obj, sqwfunc, pars, opts,i,thePageOpProcessor)
 %==================================================================================================
 % SQW_OP_SINGLE_
 % Helper function for sqw_op executed on a full sqw object containing
@@ -8,21 +8,29 @@ function obj = sqw_op_single_(obj, sqwfunc, pars, opts,i)
 %
 % Input:
 % ------
-%   obj        Dataset that provides the axes and points
-%              for the calculation
+%   obj       --  Dataset that provides the axes and points
+%                for the calculation
 %
-%   sqwfunc    Handle to function that executes operation and modifies pixels
-%              (signals and errors as function of other parameters)
+%   sqwfunc   -- Handle to function that executes operation and modifies pixels
+%                (signals and errors as function of other parameters)
 %
-%   pars       Arguments needed by the function.
-%   outfile    The file used for outputting filebacked result
+%   pars     --  Arguments needed by the function.
+%   outfile  -- The file used for outputting filebacked result
+%   thePageOpProcessor
+%            -- if not empty, a child of PageOp_sqw_op class, which
+%               provides additional features to PageOp_sqw_op operations
+%               if empty, basic PageOp_sqw_op class will be used.
 %
 % Returns:
 % --------
 %  obj     sqw object or filebacked sqw object -- result sqw_op operation
 %==================================================================================================
 
-eval_op = PageOp_sqw_op();
+if isempty(thePageOpProcessor)
+    eval_op = PageOp_sqw_op();
+else
+    eval_op = thePageOpProcessor();    
+end
 % file have to be set first to account for the case infile == outfile
 if ~isempty(opts.outfile)
     eval_op.outfile = opts.outfile{i};
@@ -30,6 +38,6 @@ end
 if opts.filebacked
     eval_op.init_filebacked_output = true;
 end
-eval_op = eval_op.init(obj,sqwfunc,pars);
+eval_op = eval_op.init(obj,sqwfunc,pars,opts);
 
 obj = sqw.apply_op(obj,eval_op);

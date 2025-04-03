@@ -97,10 +97,11 @@ end
 
 for i=1:numel(obj)
     if has_pixels(obj(i))   % determine if object contains pixel data
-        obj(i) = obj(i).sqw_eval_pix(sqwfunc, opts.average, pars, ...
-            opts.outfile{i},opts.filebacked);
+        optl = opts;
+        optl.outfuile = opts.outfile{i};
+        obj(i) = obj(i).sqw_eval_pix(sqwfunc,pars,optl);
     else
-        obj(i) = obj(i).sqw_eval_nopix(sqwfunc, opts.all, pars);
+        obj(i) = obj(i).sqw_eval_nopix(sqwfunc, pars,opts);
     end
 end
 
