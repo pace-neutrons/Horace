@@ -1,5 +1,5 @@
 function obj = set_runid_map_(obj,val)
-%SET_RUNID_MAP_ Check and set runid_map, connecting run-id, describing the 
+%SET_RUNID_MAP_ Check and set runid_map, connecting run-id, describing the
 % experiment and the number of the experiment information header in the
 % list of all experiment descriptors
 %
@@ -8,6 +8,10 @@ if isa(val,'containers.Map')
     obj.runid_map_ = val;
     keys = val.keys;
     keys = [keys{:}];
+elseif isa(val,'fast_map')
+    keys = val.keys;
+    val  = val.values;
+    obj.runid_map_ = containers.Map(keys,val);
 elseif isnumeric(val) && numel(val) == obj.n_runs
     keys = val(:)';
 else

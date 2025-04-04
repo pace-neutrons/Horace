@@ -580,7 +580,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
 
         wout = cut_dnd_main (data_source, ndims, varargin);
         %------------------------------------------------------------------
-        wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate
+        wout = sqw_eval_nopix(win, sqwfunc, pars,options); % evaluate
         %                              % function on dnd object
         function wout = sqw_eval_pix(~, varargin)
             % Can not evaluate pixels function on a dnd object
