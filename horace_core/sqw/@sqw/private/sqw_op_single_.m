@@ -1,4 +1,4 @@
-function obj = sqw_op_single_(obj, sqwfunc, pars, opts,i,thePageOpProcessor)
+function obj = sqw_op_single_(obj, sqwfunc, pars, opts,i)
 %==================================================================================================
 % SQW_OP_SINGLE_
 % Helper function for sqw_op executed on a full sqw object containing
@@ -26,10 +26,10 @@ function obj = sqw_op_single_(obj, sqwfunc, pars, opts,i,thePageOpProcessor)
 %  obj     sqw object or filebacked sqw object -- result sqw_op operation
 %==================================================================================================
 
-if isempty(thePageOpProcessor)
+if isempty(opts.pageop_processor)
     eval_op = PageOp_sqw_op();
 else
-    eval_op = thePageOpProcessor();    
+    eval_op = opts.pageop_processor;    
 end
 % file have to be set first to account for the case infile == outfile
 if ~isempty(opts.outfile)

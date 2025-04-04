@@ -1,4 +1,4 @@
-function obj = sqw_op(obj, sqwop_func, pars, varargin)
+function wout = sqw_op(obj, sqwop_func, pars, varargin)
 % Perform an operation or set of operations over pixels defined
 % by user provided sqw_func.
 %
@@ -47,7 +47,7 @@ function obj = sqw_op(obj, sqwop_func, pars, varargin)
 %              Output argument must be specified if `outfile` not given.
 %
 %==========================================================================
-[sqwop_func, pars, opts,thePageOpProcessor] = parse_eval_args(obj, sqwop_func, pars, varargin{:});
+[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, varargin{:});
 if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
@@ -66,7 +66,9 @@ if  opts.average
         'Contact HoraceHelp@stfc.ac.uk if you need it'])
 end
 
+wout = cell(1,numel(obj));
 for i=1:numel(obj)
-    obj(i) = sqw_op_single_(obj(i),sqwop_func,pars,opts,i,thePageOpProcessor);
+    wout{i} = sqw_op_single_(obj(i),sqwop_func,pars,opts,i);
 end
+wout = [wout{:}];
 end

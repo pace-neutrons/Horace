@@ -82,7 +82,7 @@ classdef test_sqw_op < TestCaseWithSave
                 );
             assertTrue(fb_out_sqw.is_filebacked);
 
-            clear conf_cleanup; % clear small chunk config limit to avoid 
+            clear conf_cleanup; % clear small chunk config limit to avoid
             % warning about data chunk beeing too big to fit memory
             ref_out_sqw = sqw_op( ...
                 obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma);
@@ -117,6 +117,31 @@ classdef test_sqw_op < TestCaseWithSave
             assertEqualToTolWithSave(obj,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
+        function test_gauss_on_sqw_in_mem_with_nopix_is_equal_to_ref_dnd(obj)
+
+            out_dnd = sqw_op(obj.sqw_2d_obj, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,'-nopix');
+
+            assertTrue(isa(out_dnd,'DnDBase'));
+
+            % my custom function does not change variange, just
+            % recalculates it, so it should remain the same.
+            assertEqualToTol(obj.sqw_2d_obj.data.e,out_dnd.e);
+
+            if obj.save_output
+                %This test does not work in save mode as reference dataset
+                %may not be available.
+                return;
+            end
+            % get reference dataset obtained previously for different test
+            % which calculates and returns full sqw object
+            ref_sqw = obj.getReferenceDataset('test_gauss_on_sqw_in_mem_is_equal_to_reference','out_sqw');
+
+            assertEqualToTol(ref_sqw.data,out_dnd, ...
+                'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
+        end
+
+
         function test_gauss_on_sqw_in_mem_is_equal_to_reference(obj)
 
             out_sqw = sqw_op(obj.sqw_2d_obj, ...
@@ -131,6 +156,7 @@ classdef test_sqw_op < TestCaseWithSave
             assertEqualToTolWithSave(obj,out_sqw, ...
                 'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
+
     end
     %----------------------------------------------------------------------
     % DND tests or some undefined input -- test fails gracefully
