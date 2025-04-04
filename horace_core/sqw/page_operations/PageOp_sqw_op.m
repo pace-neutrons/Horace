@@ -7,7 +7,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             obj = obj@PageOp_sqw_eval(varargin{:});
             obj.op_name_ = 'sqw_op';
         end
-        function obj = init(obj,sqw_obj,operation,op_param,op_options)
+        function obj = init(obj,sqw_obj,operation,op_param,pop_options)
             % Initialize PageOp_sqw_op operation over input sqw file
             %
             % Inputs:
@@ -19,7 +19,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             % op_param  -- cellarray of operation parameters to be provided
             %              to operation in the form:
             %              operation(obj,op_param{:});
-            % op_options-- the structure, which provides information about 
+            % pop_options-- the structure, which provides information about 
             %              fine-tunning of PageOP operation
             % fields currently used:
             % .nopix    -- if true, return only dnd object build on the
@@ -43,7 +43,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             obj.var_acc_ = zeros(numel(obj.npix),1);
             % pages should be split on bin edges. Most generic case
             obj.split_at_bin_edges = true;
-            obj.do_nopix = op_options.nopix;
+            obj.do_nopix = pop_options.nopix;
 
             %
         end

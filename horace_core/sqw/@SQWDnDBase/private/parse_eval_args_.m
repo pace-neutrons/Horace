@@ -4,7 +4,7 @@ function [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, va
 %parameters.
 % 
 thePageOp = [];
-if numel(varargin)> 0 && isa(varargin{1},'PageOp_sqw_op')
+if numel(varargin)> 0 && isa(varargin{1},'PageOp_sqw_eval')
     thePageOp = varargin{1};
     argi= varargin(2:end);
 else
