@@ -1,11 +1,12 @@
-function s=neutron_constants
+function s=neutron_constants(constant_name)
 % Return a structure with constants for neutron units manipulation
 %
 %   >> s=neutron_constants      % return structure
 %   >> neutron_constants        % list constants
+%   >> val = neutron_constants(constant_name) % returns particular
+%            constant.
 
 
-mlock;  % for stability
 persistent structure
 
 if isempty(structure)
@@ -24,7 +25,17 @@ if isempty(structure)
 end
 
 if nargout>0
-    s=structure;
+    if nargin == 0
+        s=structure;
+    else
+        if isfield(structure,constant_name)
+            s = structure.(constant_name);
+        else
+            error('HERBERT:utilities:invalid_argument', ...
+                'name: "%s" is not a correct neutron constant name', ...
+                constant_name)
+        end
+    end
 else
     nam=fieldnames(structure);
     disp('Available constants:')
