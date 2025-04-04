@@ -1,4 +1,4 @@
-function obj = sqw_eval_pix(obj, sqwfunc, pars,options,varargin)
+function obj = sqw_eval_pix(obj, sqwfunc, pars,options)
 %==================================================================================================
 % SQW_EVAL_PIX
 %
@@ -32,11 +32,10 @@ eval_op = PageOp_sqw_eval();
 if ~isempty(options.outfile)
     eval_op.outfile = options.outfile;
 end
-if nargin > 4
-    eval_op.init_filebacked_output = obj.is_filebacked;
-else
-    eval_op.init_filebacked_output = varargin{1};
-end
-eval_op = eval_op.init(obj,sqwfunc,pars,options.ave_pix);
+
+eval_op.init_filebacked_output = (options.filebacked|| obj.is_filebacked);
+
+eval_op = eval_op.init(obj,sqwfunc,pars,options.average);
+eval_op.do_nopix = options.nopix;
 
 obj = sqw.apply_op(obj,eval_op);

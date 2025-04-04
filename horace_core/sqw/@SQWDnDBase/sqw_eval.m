@@ -1,4 +1,4 @@
-function obj = sqw_eval(obj, sqwfunc, pars, varargin)
+function wout = sqw_eval(obj, sqwfunc, pars, varargin)
 % Calculate sqw for a model scattering function
 %
 %   >> wout = sqw_eval(win, sqwfunc, p)
@@ -95,14 +95,16 @@ if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1}))
     end
 end
 
+wout = cell(1,numel(obj));
 for i=1:numel(obj)
     if has_pixels(obj(i))   % determine if object contains pixel data
         optl = opts;
-        optl.outfuile = opts.outfile{i};
-        obj(i) = obj(i).sqw_eval_pix(sqwfunc,pars,optl);
+        optl.outfile = opts.outfile{i};
+        wout{i} = obj(i).sqw_eval_pix(sqwfunc,pars,optl);
     else
-        obj(i) = obj(i).sqw_eval_nopix(sqwfunc, pars,opts);
+        wout{i} = obj(i).sqw_eval_nopix(sqwfunc, pars,opts);
     end
 end
+wout = [wout{:}];
 
 end
