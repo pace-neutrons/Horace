@@ -29,6 +29,12 @@ classdef PageOpBase
         % Pixels only change in tests and in some pix-only operations
         % e.g. mask(Pixels)
         changes_pix_only;
+        % Almost opposite to change_pix_only as PageOp modifies image only.
+        % Pixels which may be modified by the operation are discarded and
+        % only image, calculated from modified pixels is returned. The
+        % operation itself would return dnd object constructed from sqw
+        % object modified by operation.
+        do_nopix
         % while page operations occur, not every page operation should be
         % reported, as it could print too many logs. The property defines
         % how many page operations should be omitted until operation progress
@@ -97,12 +103,17 @@ classdef PageOpBase
         % if true, page_op completed on filebacked object prints the name
         % of the file backing this object.
         inform_about_target_file
+        % read-only. expose source pixels array object, cached by the
+        % operation
+        pix
     end
 
     properties(Access=protected)
         % true if operation should not create the copy of a filebacked
         % object
         inplace_ = false;
+        % true if user wants to get only modified sqw object
+        do_nopix_ = false;
         % holder for the pixel object which is source and sometimes target
         % for the operation
         pix_ = PixelDataMemory();
@@ -153,7 +164,7 @@ classdef PageOpBase
         % of the file backing this object.
         inform_about_target_file_ = true;
         % if true, intiialize filebacked output sqw object
-        init_filebacked_output_ = true;
+        init_filebacked_output_ = false;
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -210,11 +221,11 @@ classdef PageOpBase
                     'hor_config','mem_chunk_size','fb_scale_factor');
                 mb_max = mchs*fb;
                 if any(chunk_sizes>mb_max)
-                    warning('HORACE:runtime_error', ...
-                        ['*** The algorithm %s request input sqw object to be split on bin boundaries.\n' ...
+                    warning('HORACE:runtime_error', ['\n' ...
+                        '*** The algorithm %s request input sqw object to be split on bin boundaries.\n' ...
                         '*** Unfortunately input object contans bins that are so large,\n' ...
-                        '*** that even one bin may not fit to memory. ' ...
-                        '*** This algorithm will probably fail trying to process such bins.\n' ...
+                        '*** that even one bin may not fit to memory.\n' ...
+                        '*** This algorithm will try but probably fail processing such bins.\n' ...
                         '*** Rebin input sqw object to smaller grid to be able to use this algorithm\n'], ...
                         obj.op_name);
                 end
@@ -268,7 +279,7 @@ classdef PageOpBase
                 obj.unique_run_id_ = unique([obj.unique_run_id_, ...
                     obj.page_data_(obj.run_idx_,:)]);
             end
-            if ~obj.inplace_
+            if ~(obj.inplace_ || obj.do_nopix_)
                 obj.pix_ = obj.pix_.store_page_data(obj.page_data_,obj.write_handle_);
             end
         end
@@ -325,7 +336,21 @@ classdef PageOpBase
             % Complete image modifications which would happen only if you
             % were processing the image and using accumulators
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-
+            % transfer modifications of new image and pixels to the target object
+            [out_obj,obj] = obj.finish_core_op(in_obj);
+        end
+        function [out_obj,obj] = finish_core_op(obj,in_obj)
+            % The core part of finish_op
+            %
+            % Contains common code to transfer data changed by operation to
+            % out_obj.
+            %
+            % Finalize core of the page operations transferring the modifications
+            % of new image and pixels to the target object. Conatins major
+            % part of finis_op code except update_image
+            %
+            %
+            %
             % transfer modifications of new image and pixels to the target object
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
@@ -428,6 +453,21 @@ classdef PageOpBase
         function obj = set.page_num(obj,val)
             obj.pix_.page_num = val;
         end
+        %
+        function pixd = get.pix(obj)
+            pixd = obj.pix_;
+        end
+        function obj = set.pix(obj,val)
+            % Set target pix data explicitly.
+            %
+            % Intended for use in tests only so should not be used in
+            % production code.
+            if ~isa(val,'PixelDataBase')
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'Pix can be an object of PixelDatBase class only');
+            end
+            obj.pix_ = val;
+        end
         %------------------------------------------------------------------
         function fn = get.source_filename(obj)
             [~,fn,fe] = fileparts(obj.pix_.full_filename);
@@ -485,6 +525,14 @@ classdef PageOpBase
         function obj =  set.init_filebacked_output(obj,val)
             obj.init_filebacked_output_ = logical(val);
         end
+        %
+        function do = get.do_nopix(obj)
+            do = obj.do_nopix_;
+        end
+        function obj = set.do_nopix(obj,val)
+            obj.do_nopix_ = logical(val);
+        end
+
     end
     %======================================================================
     methods(Access=protected)
@@ -513,7 +561,7 @@ classdef PageOpBase
             do  = ~isempty(obj.img_);
         end
 
-        function obj = update_image(obj,sig_acc,var_acc)
+        function obj = update_image(obj,sig_acc,var_acc,varargin)
             % The piece of code which often but not always used at the end
             % of an operation when modified data get transformed from
             % accumulators to the final image finalizing the image
@@ -524,13 +572,20 @@ classdef PageOpBase
             %            operation(s)
             % var_acc -- array accumulating changed variance during
             %            operation(s)
+            % Optional
+            % npix   -- array containing number of pixels in each bin
+            %
             % Returns:
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
             if obj.changes_pix_only
                 return;
             end
-            npix_acc = obj.npix(:);
+            if nargin < 4
+                npix_acc = obj.npix(:);
+            else
+                npix_acc = varargin{1};
+            end
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
         %
@@ -551,7 +606,7 @@ classdef PageOpBase
         % Log frequency
         %------------------------------------------------------------------
         function rat = get_info_split_log_ratio(obj)
-            rat = obj.split_log_ratio_;            
+            rat = obj.split_log_ratio_;
         end
         function obj = set_info_split_log_ratio(obj,val)
             if ~isnumeric(val)

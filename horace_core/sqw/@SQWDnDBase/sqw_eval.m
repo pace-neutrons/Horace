@@ -1,4 +1,4 @@
-function obj = sqw_eval(obj, sqwfunc, pars, varargin)
+function wout = sqw_eval(obj, sqwfunc, pars, varargin)
 % Calculate sqw for a model scattering function
 %
 %   >> wout = sqw_eval(win, sqwfunc, p)
@@ -83,20 +83,28 @@ function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 %===============================================================
 
 [sqwfunc, pars, opts] = parse_eval_args(obj, sqwfunc, pars, varargin{:});
-if isempty(opts.outfile) || (numel(opts.outfile)==1 && isempty(opts.outfile{1})) || opts.filebacked
+if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is
     % generated. This is not much use to a user if it's not returned.
-    nargoutchk(1, 1);
-end
-
-for i=1:numel(obj)
-    if has_pixels(obj(i))   % determine if object contains pixel data
-        obj(i) = obj(i).sqw_eval_pix(sqwfunc, opts.average, pars, opts.outfile{i});
-    else
-        obj(i) = obj(i).sqw_eval_nopix(sqwfunc, opts.all, pars);
+    if nargout ~=1
+        error('HORACE:sqw_eval:invalid_argument', ...
+            'This method request single output argument. Got: %d', ...
+            nargout)
     end
 end
+
+wout = cell(1,numel(obj));
+for i=1:numel(obj)
+    if has_pixels(obj(i))   % determine if object contains pixel data
+        optl = opts;
+        optl.outfile = opts.outfile{i};
+        wout{i} = obj(i).sqw_eval_pix(sqwfunc,pars,optl);
+    else
+        wout{i} = obj(i).sqw_eval_nopix(sqwfunc, pars,opts);
+    end
+end
+wout = [wout{:}];
 
 end
