@@ -336,7 +336,21 @@ classdef PageOpBase
             % Complete image modifications which would happen only if you
             % were processing the image and using accumulators
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-
+            % transfer modifications of new image and pixels to the target object
+            [out_obj,obj] = obj.finish_core_op(in_obj);
+        end
+        function [out_obj,obj] = finish_core_op(obj,in_obj)
+            % The core part of finish_op
+            %
+            % Contains common code to transfer data changed by operation to
+            % out_obj.
+            %
+            % Finalize core of the page operations transferring the modifications
+            % of new image and pixels to the target object. Conatins major
+            % part of finis_op code except update_image
+            %
+            %
+            %
             % transfer modifications of new image and pixels to the target object
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
@@ -547,7 +561,7 @@ classdef PageOpBase
             do  = ~isempty(obj.img_);
         end
 
-        function obj = update_image(obj,sig_acc,var_acc)
+        function obj = update_image(obj,sig_acc,var_acc,varargin)
             % The piece of code which often but not always used at the end
             % of an operation when modified data get transformed from
             % accumulators to the final image finalizing the image
@@ -558,13 +572,20 @@ classdef PageOpBase
             %            operation(s)
             % var_acc -- array accumulating changed variance during
             %            operation(s)
+            % Optional
+            % npix   -- array containing number of pixels in each bin
+            %
             % Returns:
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
             if obj.changes_pix_only
                 return;
             end
-            npix_acc = obj.npix(:);
+            if nargin < 4
+                npix_acc = obj.npix(:);
+            else
+                npix_acc = varargin{1};
+            end
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
         %

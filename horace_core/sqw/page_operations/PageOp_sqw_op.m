@@ -86,11 +86,5 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
                 new_signal,variance);
         end
         %
-        function [out_obj,obj] = finish_op(obj,out_obj)
-            % Re-overload (return to basics) to override sqw_eval.
-            % transfer modifications to the underlying object. Return to
-            % generic behaviour
-            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
-        end
-    end
+   end
 end
