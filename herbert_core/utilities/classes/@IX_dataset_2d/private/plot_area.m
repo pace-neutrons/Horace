@@ -14,9 +14,3 @@ for i=1:nw
     patch(xv,yv,z,'facecolor','flat','cdatamapping','scaled','edgecolor','none');
     plotted=true;
 end
-
-% Make linear or log axes as required
-XScale = genieplot.get('XScale');
-YScale = genieplot.get('YScale');
-set (gca, 'XScale', XScale);
-set (gca, 'YScale', YScale);

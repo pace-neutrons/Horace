@@ -34,9 +34,3 @@ for i=1:nw
     plot(xtemp, w(i).signal, 'LineStyle', 'none', 'Color', colors{icol(i)}, ...
         'Marker', marker_types{ityp(i)}, 'MarkerSize', marker_sizes(isiz(i)));
 end
-
-% Make linear or log axes as required
-XScale = genieplot.get('XScale');
-YScale = genieplot.get('YScale');
-set (gca, 'XScale', XScale);
-set (gca, 'YScale', YScale);

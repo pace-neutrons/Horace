@@ -53,9 +53,3 @@ for i=1:nw
     plot(xb, yb, 'Color', colors{icol(i)}, ...
         'LineStyle', line_styles{ilin(i)}, 'LineWidth', line_widths(iwid(i)));
 end
-
-% Make linear or log axes as required
-XScale = genieplot.get('XScale');
-YScale = genieplot.get('YScale');
-set (gca, 'XScale', XScale);
-set (gca, 'YScale', YScale);

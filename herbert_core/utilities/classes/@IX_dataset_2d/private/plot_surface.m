@@ -25,9 +25,3 @@ for i=1:nw
         plotted=true;
     end
 end
-
-% Make linear or log axes as required
-XScale = genieplot.get('XScale');
-YScale = genieplot.get('YScale');
-set (gca, 'XScale', XScale);
-set (gca, 'YScale', YScale);

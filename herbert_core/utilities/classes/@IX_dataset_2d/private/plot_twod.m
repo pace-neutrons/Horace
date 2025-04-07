@@ -274,6 +274,12 @@ if ~keep_axes
             lz(zlims(1), zlims(2))
         end
     end
+
+    % Make linear or log axes as required
+    XScale = genieplot.get('XScale');
+    YScale = genieplot.get('YScale');
+    set (gca, 'XScale', XScale);
+    set (gca, 'YScale', YScale);
     
     % Add colorslider
     colorslider

@@ -218,6 +218,12 @@ if ~keep_axes
             lx(ylims(1), ylims(2))
         end
     end
+
+    % Make linear or log axes as required
+    XScale = genieplot.get('XScale');
+    YScale = genieplot.get('YScale');
+    set (gca, 'XScale', XScale);
+    set (gca, 'YScale', YScale);
 end
 
 % Get figure, axes and plot handles

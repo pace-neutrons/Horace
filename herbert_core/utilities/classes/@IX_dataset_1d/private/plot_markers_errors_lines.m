@@ -38,9 +38,3 @@ for i=1:nw
         line_styles{ilin(i)}, line_widths(iwid(i)), ...
         marker_types{ityp(i)}, marker_sizes(isiz(i)));
 end
-
-% Make linear or log axes as required
-XScale = genieplot.get('XScale');
-YScale = genieplot.get('YScale');
-set (gca, 'XScale', XScale);
-set (gca, 'YScale', YScale);
