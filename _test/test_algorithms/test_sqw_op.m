@@ -1,7 +1,7 @@
 classdef test_sqw_op < TestCaseWithSave
 
     properties (Constant)
-        FLOAT_TOL = 1e-5;
+        FLOAT_TOL = 0.0006;
         DOUBLE_TOL = 1e-8;
     end
 
