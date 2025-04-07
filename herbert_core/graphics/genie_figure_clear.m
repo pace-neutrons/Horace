@@ -50,7 +50,6 @@ else
         'Unrecognised option - check the number and/or type of input arguments')
 end
 
-
 % Clear the figure
 [is_genie, is_current, name] = is_genie_figure(fig_handle);
 

@@ -15,6 +15,8 @@ classdef genieplot < handle
     % functions. Ideally, we would not have it visible to users.
     
     properties (Access=private)
+        default_fig_name = []  % default name for plot
+        
         XScale = 'linear'       % x-axis scaling: 'linear' or 'log'
         YScale = 'linear'       % y-axis scaling: 'linear' or 'log'
         ZScale = 'linear'       % z-axis scaling: 'linear' or 'log'
@@ -45,6 +47,23 @@ classdef genieplot < handle
     methods
         %-----------------------------------------------------------------------
         % Check validity of properties on setting
+        %-----------------------------------------------------------------------
+        function set.default_fig_name(obj, val)
+            % The default name for a genie figure.
+            % - The empty character vector '' is a valid name.
+            % - If the figure name is [], this means that the default is to be
+            %   set to hard-wired values for the different plot types (one-
+            %   dimensional, area plot, surface plot etc.) will be used.  
+            if is_string(val)
+                % Strip leading and trailing whitespace
+                obj.default_fig_name = strtrim(val);  
+            elseif isnumeric(val) && isempty(val)
+                obj.default_fig_name = [];
+            else
+                error('HERBERT:genieplot:invalid_argument', ['The default ', ...
+                    'name can only be set to a character vector or []']);
+            end
+        end
         %-----------------------------------------------------------------------
         function set.XScale(obj, val)
             if is_string(val) && any(strcmp(val, {'linear', 'log'}))

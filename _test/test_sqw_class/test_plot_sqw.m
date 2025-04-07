@@ -32,11 +32,8 @@ classdef test_plot_sqw < TestCase
                 [tstd.d1d_methods(:);...
                 tstd.d1d_mthods_oveplot(:);...
                 tstd.d2d_methods(:);tstd.d3d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HORACE:d4d:invalid_argument'};
+            errors_list = {'HORACE:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(28) = 2;
-            err_ind(29) = 2;
 
             function thrower(obx,fmethod)
                 fmethod(obx);
@@ -69,7 +66,7 @@ classdef test_plot_sqw < TestCase
                 [tstd.d1d_methods(:);...
                 tstd.d1d_mthods_oveplot(:);...
                 tstd.d2d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented'};
+            errors_list = {'HORACE:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
 
 
@@ -96,32 +93,43 @@ classdef test_plot_sqw < TestCase
 
             end
         end
-        function test_sqw3d_plot3D_methods_work_on_array(obj)
+        
+        function test_sqw3d_plot3D_methods_does_not_work_on_array(obj)
             sqw3d_obj = obj.sqw_obj{3};
             sqw3d_ar = [sqw3d_obj,sqw3d_obj];
             tstd = obj.interface_tester;
             pl_methods = [{@plot};tstd.d3d_methods(:)];
 
-            prev_h = [];
+            function thrower(obx,fmethod)
+                fmethod(obx);
+            end
             for i=1:numel(pl_methods)
-                meth = pl_methods{i};
-
-                [objh,axh,plh] = meth(sqw3d_ar);
-
-                assertEqual(numel(objh),2)
-                assertTrue(isa(objh,'matlab.ui.Figure'));
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isstruct(plh));
-
-                if ~isempty(prev_h) && any(prev_h ~= objh)
-                    close(prev_h);
-                end
-                prev_h = objh;
+                assertExceptionThrown(@()thrower(sqw3d_ar,pl_methods{i}), ...
+                    'HORACE:graphics:invalid_argument');
             end
-            try
-                close(objh);
-            catch
-            end
+%             
+%             
+%             
+%             prev_h = [];
+%             for i=1:numel(pl_methods)
+%                 meth = pl_methods{i};
+% 
+%                 [objh,axh,plh] = meth(sqw3d_ar);
+% 
+%                 assertEqual(numel(objh),2)
+%                 assertTrue(isa(objh,'matlab.ui.Figure'));
+%                 assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
+%                 assertTrue(isstruct(plh));
+% 
+%                 if ~isempty(prev_h) && any(prev_h ~= objh)
+%                     close(prev_h);
+%                 end
+%                 prev_h = objh;
+%             end
+%             try
+%                 close(objh);
+%             catch
+%             end
         end
 
         %
@@ -155,11 +163,8 @@ classdef test_plot_sqw < TestCase
                 [tstd.d1d_methods(:);...
                 tstd.d1d_mthods_oveplot(:);...
                 tstd.d3d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HORACE:d2d:invalid_argument'};
+            errors_list = {'HORACE:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(19) = 2;
-            err_ind(20) = 2;
 
             function thrower(obx,fmethod)
                 fmethod(obx);
@@ -220,11 +225,8 @@ classdef test_plot_sqw < TestCase
             sqw1d_obj = obj.sqw_obj{1};
             tstd = obj.interface_tester;
             other_methods = [tstd.d2d_methods(:);tstd.d3d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HORACE:d1d:invalid_argument'};
+            errors_list = {'HORACE:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(10) = 2;
-            err_ind(11) = 2;
 
             function thrower(obx,fmethod)
                 fmethod(obx);

@@ -288,87 +288,8 @@ classdef (Abstract=true) data_plot_interface
                     error('HORACE:data_plot_interface:runtime_error', ...
                         'Can only overplot one or two-dimensional objects')
             end
-            
         end
     end
-    
-    
-    %---------------------------------------------------------------------------
-    % Static methods
-    %---------------------------------------------------------------------------
-    methods(Static)
-        %-----------------------------------------------------------------------
-        % Static utility methods
-        %
-        % They are defined as static methods rather than utility functions so
-        % that there is no danger whatever of a method of the first argument
-        % being called, with all the possible hard to track errors that may
-        % occur.
-        %-----------------------------------------------------------------------
-        function stored_name = default_name (name)
-            % Set the default name for a figure
-            %
-            % Set the name:
-            %   >> default_name (figure_name)  % set the name
-            %   >> default_name ()             % set to null
-            %   >> default_name ([])           % equivalent syntax to set to null
-            %
-            % Retrieve the name:
-            %   >> stored_figure_name = default_name()
-            %
-            % This is a utility method for use inside the plot interface for
-            % data classes other than those for IX_dataset_1d, _2d, _3D ...
-            %
-            % Use this function to set the name for a genie_figure different to
-            % the built-in defaults for the different plot types for a
-            % (one-dimensional, area plot, surface plot etc.) before calling the
-            % respective IX_dataset_*d plotting function (de, pl, da etc.) in
-            % the data class.
-            %
-            % It needs to be a static method as it will be used in all plotting
-            % methods that want to set a figure name that is not the built-in
-            % default name.
-            %
-            % Input:
-            % ------
-            %   name            Default name to be used for figures
-            %                   Note:
-            %                   - The empty character vector '' is a valid name.
-            %                   - If the figure name is not given, or is [], the
-            %                     default is set to the null name, which
-            %                     indicates that the hard-wired defaults for the
-            %                     different plot types (one-dimensional, area
-            %                     plot, surface plot etc.) will be used.
-            %
-            % Output:
-            % -------
-            %   stored_name     Stored default name (character vector).
-            %                   If the name has been set to null, then
-            %                   stored_name is set to [].
-            
-            persistent store
-            
-            if nargout==0
-                if nargin==0 || (isnumeric(name) && isempty(name))
-                    store = [];
-                elseif is_string(name)
-                    store = strtrim(name);  % strip leading and trailing whitespace
-                else
-                    error('HERBERT:data_plot_interface:invalid_argument', ...
-                        'The default name can only be set to a character vector')
-                end
-            elseif nargout>0
-                if nargin==0
-                    % Return stored name
-                    stored_name = store;
-                else
-                    error('HERBERT:data_plot_interface:invalid_argument', ...
-                        'Cannot have both input and output arguments')
-                end
-            end
-        end
-    end
-    %---------------------------------------------------------------------------
 end
 
 

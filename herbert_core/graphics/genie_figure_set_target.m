@@ -1,10 +1,14 @@
-function varargout = genie_figure_set_target (target, existing)
+function varargout = genie_figure_set_target (varargin)
 % Set the current figure and current axes according to the requested plot target
 %
-% >> genie_figure_set_target (target)
-% >> genie_figure_set_target (target, 'existing')
+% >> genie_figure_set_target ()             % current figure
+% >> genie_figure_set_target ([])           % current figure
+% >> genie_figure_set_target (target)       % indicated target (name, figure
+%                                           % number or handle, or axes handle
 %
-% >> new_figure = genie_figure_set_target (target)
+% >> genie_figure_set_target (..., '-existing') % only if it exists
+%
+% >> new_figure = genie_figure_set_target (...)
 %
 % Input:
 % ------
@@ -30,11 +34,15 @@ function varargout = genie_figure_set_target (target, existing)
 %               axes_handle: - Axes handle to be used as the target of the plot,
 %                              if the axes exist.
 %                              [If doesn't exist, throws an error]
+%
+%             missing or []: - If the current figure exists, set it as the
+%                              target
+%                            - Otherwise, create a nameless genie_figure
+%
 % Optional argument:
-%   'existing'  If present, then does not create a new figure, but instead
-%               throws an error. This only applies in the case of the target
-%               being a name; if the target is a figure or axes handle a new
-%               figure cannot be created anyway.
+%   'existing'  If present, the requested target must already exist.
+%               This is not relevant in the case of a figure or axes handle,
+%               as they have to exist anyway to be a valid plot target.
 %   
 %
 % Output:
@@ -47,27 +55,35 @@ function varargout = genie_figure_set_target (target, existing)
 %               that is: >> genie_figure_set_target;)
 
 
-% Determine if creation of a new figure is permitted
-if nargin==2
-    if is_string(existing) && ~isempty(existing) && ...
-            strncmpi(existing,'existing',numel(existing))
-        newfig_permitted = false;
-    else
-        error('Unrecognised option')
-    end
+% Get the requested target and determine if creation of a new figure is allowed
+narg = nargin;
+if narg>=1 && is_string(varargin{end}) && numel(varargin{end})>=2 &&...
+        strncmpi(varargin{end},'-existing',numel(varargin{end}))
+    newfig_permitted = false;
+    narg = narg - 1;
 else
     newfig_permitted = true;
 end
 
-% Define function to more strictly check graphics object
-isscalargraphics = @(val,Type)(isscalar(val) && isgraphics(val,Type));
+if narg==0
+    target = [];    % indicates current figure, if there is one
+elseif narg==1
+    target = varargin{1};
+else
+    error('HERBERT:graphics:invalid_argument', ...
+        'Check the number of input arguments and/or validity of options ')
+end
 
-if isscalargraphics(target, 'axes')
+% Define function to more strictly check graphics object
+isscalarGraphics = @(val,Type)(isscalar(val) && isgraphics(val,Type));
+
+% Set the target for plotting
+if isscalarGraphics(target, 'axes')
     % Valid axes handle (i.e. handle to axes that have not been deleted)
     axes(target)    % set the target as the current axes
     new_figure = false;
     
-elseif isscalargraphics(target, 'figure')
+elseif isscalarGraphics(target, 'figure')
     % Valid figure handle (i.e. handle to a figure that has not been deleted)
     % This captures both a figure handle and a figure number
     figure(target)  % set target as the current figure
@@ -103,7 +119,7 @@ elseif is_string(target)
             else
                 error('HERBERT:graphics:invalid_argument', ...
                     ['Forbidden from creating a new figure with the ', ...
-                    'requested name by the presence of the option ''existing'''])
+                    'requested name by the presence of the option ''-existing'''])
             end
         else
             figure(fig_handle_current);
@@ -115,6 +131,24 @@ elseif is_string(target)
         % for plotting.
         figure(fig_handle(1))   % most recently active figure has index 1.
         new_figure = false;
+    end
+    
+elseif isnumeric(target) && isempty(target)
+    % Set the target to the current figure, if it exists, or create a nameless
+    % genie_figure if it doesn't (if permitted).
+    fig = get(groot,'CurrentFigure');
+    if ~isempty(fig)
+        figure(fig)
+        new_figure = false;
+    else
+        if newfig_permitted
+            genie_figure_create('');
+            new_figure = true;
+        else
+            error('HERBERT:graphics:invalid_argument', ...
+                ['Forbidden from creating a new figure by the presence ', ...
+                'of the option ''-existing'''])
+        end
     end
     
 else

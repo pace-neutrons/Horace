@@ -1,9 +1,11 @@
-function [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
+function [new_figure, w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
     (newplot, force_current_axes, lims_type, default_fig_name, ...
     w, second_data_ok, w1_data_name, w2_data_name, varargin)
-% Parse the input arguments for plot functions and set target for plotting
+% Parse the input arguments for plot functions and set target for plotting.
+% On output the target is set as the current figure. A new figure window may or
+% may not have been created as the target.
 %
-%   >> [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
+%   >> [new_figure, w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %    (newplot, force_current_axes, lims_type, default_fig_name, ...
 %     w, w1_data_name, w2_data_name, second_data_ok)
 %
@@ -31,7 +33,10 @@ function [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %                     'name' or 'axes' options, or the default plot name if
 %                      neither option is given.
 %
-%   lims_type   Limits type: 
+%               NOTE: newplot is true then force_current_axes cannot be true.
+%                     This will throw an error.
+%
+%   lims_type   Limits type:
 %               'xy'    accept up to x-axis and y-axis limits
 %               'xyz'   accept up to x-axis, y-axis and z-axis limits
 %
@@ -51,10 +56,13 @@ function [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %   w2_data_name  Name of secondary data for error messages e.g. 'color data'
 %
 %
-% Optional input arguments:
-% 
-%   w2          Optional secondary data (only permitted if second_data_ok is
-%               true).
+%   Optional input arguments:
+%   -------------------------
+% - Only permitted if second_data_ok is true:
+%
+%   w2          Optional secondary data.
+%
+% - Only permitted if newplot is true:
 %
 %   xlo, xhi    x-axis lower and upper limits.
 %
@@ -63,7 +71,7 @@ function [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %   zlo, zhi    z-axis lower and upper limits.
 %
 %  'name', fig  Fig is a figure name, figure number or figure handle.
-%               
+%
 %               figure name: - If there is one or more genie_figures with the
 %                              name, set the one with 'current' status as the
 %                              target, or, if they all have 'keep' status,
@@ -81,14 +89,18 @@ function [w2, xlims, ylims, zlims] = genie_figure_parse_plot_args...
 %                            - If a figure with that number or handle already
 %                              exists, use it as the target for the plot.
 %                              [If doesn't exist, throws an error]
-%                           
-%  'axes', axes_handle  
+%
+%  'axes', axes_handle
 %               Axes handle to be used as the target of the plot, if the axes
 %               exist.
 %               [If doesn't exist, throws an error]
 %
 % Output:
 % -------
+%   new_figure  Logical scalar:
+%               - true: a new figure was created to take the target plot
+%               - false: the target is a previously existing window
+%
 %   w2_out      Secondry data
 %               - If none present: set to []
 %               - If some present: w2_out = w2
@@ -125,7 +137,7 @@ end
 % Check if secondary data is permitted, and if so, if it present.
 if second_data_ok
     if rem(numel(args),2)==1
-        % An odd number of postional arguments is present, which is only
+        % An odd number of positional arguments is present, which is only
         % possible if secondary data is provided
         ioffset = 1;
         w2 = check_data_size (w, args{1}, w1_data_name, w2_data_name);
@@ -135,8 +147,8 @@ if second_data_ok
     end
 else
     % No secondary data permitted
+    ioffset = 0;
     w2 = [];    % need to return a value
-    ioffset = 0;    
 end
 
 % Check the optional limits have correct format
@@ -155,13 +167,19 @@ else
         'Explicitly setting the plot limits if overplotting is not permitted')
 end
 
-% Select/create the plot target from the presence of 'name', 'axes', or neither
-% (in which case use the default_fig_name as the target)
-if present.name
-    target = opt.name;
-elseif present.axes
-    target = opt.axes;
+
+if force_current_axes
+    % Force target to be current figure, if it exists. Otherwise, throw an error
+    new_figure = genie_figure_set_target();
 else
-    target = default_fig_name;
+    % Select/create the plot target from the presence of 'name', 'axes', or
+    % neither (in which case use the default_fig_name as the target)
+    if present.name
+        target = opt.name;
+    elseif present.axes
+        target = opt.axes;
+    else
+        target = default_fig_name;
+    end
+    new_figure = genie_figure_set_target (target);
 end
-genie_figure_set_target (target);

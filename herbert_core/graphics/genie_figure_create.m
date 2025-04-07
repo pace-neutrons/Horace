@@ -1,25 +1,28 @@
-function genie_figure_create (varargin)
+function varargout = genie_figure_create (varargin)
 % Create a genie_figure with a given name and status ('current' or 'keep').
+% For details about the features of genie_figures, see notes below.
 %
 % Create new genie_figure with a given name:
 %   >> genie_figure_create (fig_name)
-%   >> genie_figure_create (fig_name, status)       % set chosen status
+%   >> genie_figure_create (fig_name, status)       % set to the requested status
 %
-% Convert an existing figure to a genie_figure, or update the name and status
-% if it already is a genie_figure:
+% Convert an existing figure to a genie_figure, or if it already is a
+% genie_figure, update the name and/or status:
 %   >> genie_figure_create (fig_handle)
-%   >> genie_figure_create (fig_handle, fig_name)   % change name
-%   >> genie_figure_create (..., status)            % set chosen status
+%   >> genie_figure_create (fig_handle, fig_name)   % Set to the requested name
+%   >> genie_figure_create (fig_handle, status)     % set to the requested status
+%   >> genie_figure_create (fig_handle, fig_name, status)   % set both
 %
+% With all the above:
+%   >> fig_handle = genie_figure_create (...)       % Return the figure handle
 %
-% For details about genie_figures, see notes below.
 %
 % Input:
 % ------
 %   fig_handle  Existing figure: Handle to existing figure
 %
-%   fig_name    New figure: Name of genie_figure to be created  e.g. 'Genie 1D'.
-%               Existing figure: Change name of window.
+%   fig_name    If new figure: Name of genie_figure to be created  e.g. 'Genie 1D'.
+%               If existing figure: Change name of window.
 %               (Note: the empty string '' is a valid figure name)
 %
 %   status      Status with which to create the window: 'current' or 'keep'
@@ -30,10 +33,16 @@ function genie_figure_create (varargin)
 %
 %               Default: 'current' status
 %
-% If a new figure with 'current' status is requested, then if there is already
-% one with the requested name that has 'current' status that figure will be
-% given 'keep' status.
+%               If a new figure with 'current' status is requested, then if
+%               there is already one with the requested name that has 'current'
+%               status that figure will be given 'keep' status.
 %
+% Output:
+% -------
+%   fig_handle  Handle to the figure.
+%               - Can be useful to have this returned if a new figure was created
+%               - If the input figure was defined by a handle, this is passed
+%                 back unchanged as the output.
 %
 %
 % Notes about genie_figures
@@ -86,7 +95,7 @@ narg = numel(varargin);
 
 % Read the value of the requested status, if given, else set default
 if narg>0
-    [ok, request_current] = is_argument_status (varargin{end});
+    [ok, request_current] = is_argument_status(varargin{end});
     if ok
         narg = narg - 1;        % remove last argument from further parsing of input
     else
@@ -94,11 +103,11 @@ if narg>0
     end
 end
 
-% Check the reat of the input arguments
+% Check the rest of the input arguments
 if narg==1 && (is_string(varargin{1}) || ...
         (isscalar(varargin{1}) && isgraphics(varargin{1}, 'figure')))
     if is_string(varargin{1})
-        fig_handle = [];    % we will be creating the figure
+        fig_handle = gobjects(0);   % we will be creating the figure
         request_name = varargin{1};
     else
         fig_handle = varargin{1};
@@ -124,7 +133,7 @@ if isempty(fig_handle)
         % has 'current' status, if there is one.
         genie_figure_keep(request_name)
     end
-    genie_figure_create_internal(fig_handle, request_name, request_current)
+    fig_handle = genie_figure_create_internal(fig_handle, request_name, request_current);
     
 else
     % We have requested to update an existing genie_figure, or convert a non-
@@ -150,7 +159,7 @@ else
         genie_figure_keep(fig_handle)   % does nothing if present status 'keep'
     end
     is_current = false;
-    genie_figure_create_internal(fig_handle, request_name, is_current)
+    fig_handle = genie_figure_create_internal(fig_handle, request_name, is_current);
     
     % Now set to the requested status
     if request_current
@@ -158,6 +167,11 @@ else
     else
         genie_figure_keep(fig_handle)
     end
+end
+
+% Output only if requested
+if nargout>0
+    varargout{1} = fig_handle;
 end
 
 
@@ -179,14 +193,23 @@ end
     
 
 %-------------------------------------------------------------------------------
-function genie_figure_create_internal (fig_handle, fig_name, request_current)
-% Create a genie_figure with the requested name snd status
+function fig_handle = genie_figure_create_internal (fig_handle_in, ...
+    fig_name, request_current)
+% Create a genie_figure with the requested name and status.
+%
+%   fig_handle_in   Figure handle of a figure to be converted, or genie_figure
+%                   to have name and/or status updated.
+%                   If empty, then a new genie_figure needs will be created.
+%
+%   fig_name        Name to give the genie_figure
+%   request_current If true, give 'current' stauts; if flas, give 'keep' status
+%           
+%
 % This internal function does not check consistency of the creation of a
 % 'current' status figure with any other genie_figures of the same name. That is
 % assumed to have been dealt with in the calling function.
 
 
-newfig = isempty(fig_handle);
 fig_name = strtrim(fig_name);
 
 % genie_figure tags for the 'current' and 'keep' status figures
@@ -205,8 +228,8 @@ else
 end
 
 % Create figure or reset properties on an existing figure
-if newfig
-    % New figure
+if isempty(fig_handle_in)
+    % New genie_figure needs to be created
     colordef white;
     fig_handle = figure;
     set(fig_handle, 'Name', fig_name, 'Tag', tag, 'PaperPositionMode', 'auto', ...
@@ -224,7 +247,8 @@ if newfig
     end
     
 else
-    % Existing figure
+    % Existing figure to be converted
+    fig_handle = fig_handle_in;
     set(fig_handle, 'Name', fig_name, 'Tag', tag, 'PaperPositionMode', 'auto')
 end
 

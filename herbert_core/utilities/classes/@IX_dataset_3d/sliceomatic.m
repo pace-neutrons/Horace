@@ -57,8 +57,8 @@ end
 % two points along each axis
 sz=size(w.signal);
 if any(sz==0)
-    fprintf(2, ['WARNING: Data not plotted.\n',...
-        'There is no data in the signal array.\n'])
+    error('HERBERT:IX_dataset_3d:invalid_argument', ...
+        'There is no data in the signal array')
 end
 
 % Set data ranges
@@ -68,8 +68,8 @@ reltol = 1e-4;  % relaxed tolerance on equal spacing as only plotting
 [uy, yuniform] = check_axis_values (w.y, point_data(2), reltol);
 [uz, zuniform] = check_axis_values (w.z, point_data(3), reltol);
 if ~xuniform || ~yuniform || ~zuniform
-    fprintf(2, ['WARNING: Data not plotted.\n',...
-        'Data points must be equally spaced for sliceomatic.\n'])
+    error('HERBERT:IX_dataset_3d:invalid_argument', ...
+        'Data points must be equally spaced for sliceomatic.')
 end
 
 % Permute axes 1 and 2 - usual weird Matlab thing
@@ -101,7 +101,7 @@ default_position = get(groot, 'DefaultFigurePosition');
 cleanup = onCleanup(@()set(groot, 'DefaultFigurePosition', default_position));
 
 set(groot, 'DefaultFigurePosition', [100, 100, round((3*default_position(3:4))/2)])
-genie_figure_set_target (keyword.name); % sets the target to the current figure
+genie_figure_set_target (keyword.name); % sets the target as the current figure
 set(groot, 'DefaultFigurePosition', default_position)
 
 

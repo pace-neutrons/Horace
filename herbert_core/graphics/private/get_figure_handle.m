@@ -68,7 +68,7 @@ function fig_handle = get_figure_handle (varargin)
 % Parse input arguments
 % ---------------------
 % Check if option '-single' has been given
-if nargin>0 && (is_string(varargin{end}) && ...
+if nargin>0 && (is_string(varargin{end}) && numel(varargin{end})>=2 && ...
         strncmpi(varargin{end}, '-single', numel(varargin{end})))
     single_figure_only = true;
     narg = nargin - 1;
@@ -89,8 +89,11 @@ end
 % -------------------
 if ~exist('fig','var') || (isnumeric(fig) && isempty(fig))
     % Case of no input - return the handle for the current figure, if it exists
-    if ~isempty(findobj(0, 'Type', 'figure'))
+    all_fig_handles = findobj(0, 'Type', 'figure');
+    if ~isempty(all_fig_handles)
         fig_handle = gcf; % current figure
+    else
+        fig_handle = all_fig_handles;
     end
     
 elseif isnumeric(fig)

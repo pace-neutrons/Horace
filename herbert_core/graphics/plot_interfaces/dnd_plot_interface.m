@@ -9,7 +9,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
     % Developer notes:
     % ----------------
     % The concrete implementations here perform conversion of the d1d, d2d and
-    % d3d objects to IX_dataset_1d, IX_dataset_2d and IX_dataset_1d 
+    % d3d objects to IX_dataset_1d, IX_dataset_2d and IX_dataset_1d
     % objects, and then call the plot methods of those objects.
     % There are also some d1d-, d2d- or d3d-specific actions performed before
     % and after in those methods, and/or further functionality specific to
@@ -46,8 +46,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dd(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dd')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = dd(IX_dataset_1d(w), varargin{:});
@@ -66,8 +70,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = de(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'de')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = de(IX_dataset_1d(w), varargin{:});
@@ -86,8 +94,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dh(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dh')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = dh(IX_dataset_1d(w), varargin{:});
@@ -105,8 +117,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dl(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dl')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = dl(IX_dataset_1d(w), varargin{:});
@@ -125,8 +141,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dm(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dm')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = dm(IX_dataset_1d(w), varargin{:});
@@ -146,8 +166,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dp(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dp')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = dp(IX_dataset_1d(w), varargin{:});
@@ -169,8 +193,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pd(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pd')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = pd(IX_dataset_1d(w), varargin{:});
@@ -184,9 +212,13 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             %
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pdoc(w)
+            
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pdoc')
 
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = pdoc(IX_dataset_1d(w), varargin{:});
@@ -205,8 +237,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pe(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pe')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = pe(IX_dataset_1d(w), varargin{:});
@@ -221,8 +257,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = peoc(w)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'peoc')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = peoc(IX_dataset_1d(w), varargin{:});
@@ -241,8 +281,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ph(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ph')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = ph(IX_dataset_1d(w), varargin{:});
@@ -257,8 +301,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = phoc(w)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'phoc')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = phoc(IX_dataset_1d(w), varargin{:});
@@ -276,8 +324,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pl(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pl')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = pl(IX_dataset_1d(w), varargin{:});
@@ -291,8 +343,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ploc(w)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ploc')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = ploc(IX_dataset_1d(w), varargin{:});
@@ -310,8 +366,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pm(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pm')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = pm(IX_dataset_1d(w), varargin{:});
@@ -325,8 +385,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pmoc(w)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pmoc')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = pmoc(IX_dataset_1d(w), varargin{:});
@@ -345,8 +409,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pp(w,...)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pp')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = pp(IX_dataset_1d(w), varargin{:});
@@ -361,8 +429,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ppoc(w)
             
-            data_plot_interface.default_name('Horace 1D plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 1;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ppoc')
+
+            genieplot.set('default_fig_name', 'Horace 1D plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = ppoc(IX_dataset_1d(w), varargin{:});
@@ -389,8 +461,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = da(w,...)
             
-            data_plot_interface.default_name('Horace area plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'da')
+
+            genieplot.set('default_fig_name', 'Horace area plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});
             
@@ -418,8 +494,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ds(w,...)
             
-            data_plot_interface.default_name('Horace surface plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ds')
+
+            genieplot.set('default_fig_name', 'Horace surface plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});
             
@@ -462,8 +542,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ds2(...)
             
-            data_plot_interface.default_name('Horace surface plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ds2')
+
+            genieplot.set('default_fig_name', 'Horace surface plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});
             
@@ -488,8 +572,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = pa(w,...)
             
-            data_plot_interface.default_name('Horace area plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pa')
+
+            genieplot.set('default_fig_name', 'Horace area plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = pa(IX_dataset_2d(w), varargin{:});
@@ -504,8 +592,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = paoc(w)
             
-            data_plot_interface.default_name('Horace area plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'poc')
+
+            genieplot.set('default_fig_name', 'Horace area plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = paoc(IX_dataset_2d(w), varargin{:});
@@ -523,8 +615,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ps(w,...)
             
-            data_plot_interface.default_name('Horace surface plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps')
+
+            genieplot.set('default_fig_name', 'Horace surface plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = ps(IX_dataset_2d(w), varargin{:});
@@ -539,8 +635,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = psoc(w)
             
-            data_plot_interface.default_name('Horace surface plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'psoc')
+
+            genieplot.set('default_fig_name', 'Horace surface plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = psoc(IX_dataset_2d(w), varargin{:});
@@ -560,8 +660,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ps2(w,...)
             
-            data_plot_interface.default_name('Horace surface plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps2')
+
+            genieplot.set('default_fig_name', 'Horace surface plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = ps2(IX_dataset_2d(w), varargin{:});
@@ -591,8 +695,12 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = ps2oc(w)
             
-            data_plot_interface.default_name('Horace surface plot');
-            cleanup = onCleanup(@()data_plot_interface.default_name());
+            ndim = 2;
+            scalar_only = false;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps2oc')
+
+            genieplot.set('default_fig_name', 'Horace surface plot');
+            cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
             
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = ps2oc(IX_dataset_2d(w), varargin{:});
@@ -631,11 +739,11 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % - To set the default for future Sliceomatic sessions -
             %      On the 'Object_Defaults' menu select 'Slice Color Texture'
             
-            if numel(w)~=1 || dimensions(w)~=3
-                error('HORACE:sliceomatic:invalid_argument', ...
-                    'Sliceomatic only works for a single 3D dataset')
-            end
-            [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});  
+            ndim = 3;
+            scalar_only = true;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'sliceomatic')
+
+            [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});
             
             fig_name = 'Horace sliceomatic';
             pax = w.pax;
@@ -684,11 +792,11 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             % - To set the default for future Sliceomatic sessions -
             %      On the 'Object_Defaults' menu select 'Slice Colour Texture'
             
-            if numel(w)~=1 || dimensions(w)~=3
-                error('HORACE:sliceomatic:invalid_argument', ...
-                    'Sliceomatic only works for a single 3D dataset')
-            end
-            [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});  
+            ndim = 3;
+            scalar_only = true;
+            dnd_plot_interface.check_data (w, ndim, scalar_only, 'sliceomatic')
+            
+            [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});
             
             fig_name = 'Horace sliceomatic';
             pax = w.pax;
@@ -718,6 +826,36 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         % being called, with all the possible hard to track errors that may
         % occur.
         %-----------------------------------------------------------------------
+        function check_data (w, ndim, scalar_only, func_name)
+            % Check that the incoming data has the correct dimensionality, and
+            % print an error message if not.
+            %
+            %   >> check_data (w, ndim, scalar_only, func_name)
+            %
+            % Input:
+            % ------
+            %   w           Data to be plotted.
+            %   ndim        Required data dimensionality.
+            %   scalar_only True if the data is required to be a scalar object;
+            %               False otherwise.
+            %   func_name   Name of plotting function required for construction
+            %               of an error messge, if one needs to be thrown.
+            
+            
+            if (scalar_only && ~isscalar(w)) || any(arrayfun(@dimensions, w(:))~=ndim)
+                nch = num2str(ndim);
+                if scalar_only
+                    string = ['a single ', nch, '-dimensional dataset'];
+                else
+                    string = ['a ', nch, '-dimensional dataset or array of datasets'];
+                end
+                error('HORACE:graphics:invalid_argument', ...
+                    ['Plot method ''', func_name, ''' only works for ', string], ndim)
+            end
+            
+        end
+        
+        %-----------------------------------------------------------------------
         function [args, adjust_aspect] = strip_aspect_option(varargin)
             % Find logical flag aspect or its negation in the argument list
             %
@@ -736,6 +874,11 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             %   adjust_aspect   True:  adjust aspect ratio
             %                   False: do not adjust the aspect ratio
             
+            % Strip out the keyword 'aspect' or its negation 'noaspect' (and
+            % the equivalent '-aspect' and '-noaspect') from anywhere in the
+            % argument list, if present. Do this by calling parse_arguments with
+            % the single negatable logical flag 'aspect', returning the value
+            % and all the remaining arguments.
             keyval_default = struct('aspect', 1);
             flagnames = {'aspect'};
             opt.keys_at_end = false;    % any position in arg list
@@ -743,7 +886,6 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             [args, keyval] = parse_arguments(varargin, keyval_default, flagnames, opt);
             adjust_aspect = keyval.aspect;
         end
-        
         
         %-----------------------------------------------------------------------
         function adjust_aspect_ratio(w)

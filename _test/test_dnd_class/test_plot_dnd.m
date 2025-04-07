@@ -1,28 +1,30 @@
 classdef test_plot_dnd < TestCase
     % Test plotting methods on sqw and dnd objects
     properties
-        sqw_1d_file = 'sqw_1d_1.sqw';
-        sqw_2d_file = 'sqw_2d_1.sqw';
-        sqw_3d_file = 'w3d_sqw.sqw';
-        sqw_4d_file = 'sqw_4d.sqw';
         dnd_obj
-
         interface_tester = data_plot_interface_tester();
     end
 
     methods
-
+        %------------------------------------------------------------------
         function obj = test_plot_dnd(varargin)
             obj = obj@TestCase('test_plot_dnd');
+            
+            % Load example 1D, 2D, 3D, 4D dnd objects
+            hp = horace_paths().test_common;    % common data location
 
-            hp = horace_paths();
-            tst_files = {fullfile(hp.test_common,obj.sqw_1d_file),...
-                fullfile(hp.test_common,obj.sqw_2d_file),...
-                fullfile(hp.test_common,obj.sqw_3d_file),...
-                fullfile(hp.test_common,obj.sqw_4d_file)};
+            sqw_1d_file = 'sqw_1d_1.sqw';
+            sqw_2d_file = 'sqw_2d_1.sqw';
+            sqw_3d_file = 'w3d_sqw.sqw';
+            sqw_4d_file = 'sqw_4d.sqw';
 
-            obj.dnd_obj = cellfun(@(x)read_dnd(x),tst_files, ...
-                'UniformOutput',false);
+            test_files = {fullfile(hp, sqw_1d_file),...
+                fullfile(hp, sqw_2d_file),...
+                fullfile(hp, sqw_3d_file),...
+                fullfile(hp, sqw_4d_file)};
+
+            obj.dnd_obj = cellfun(@(x)read_dnd(x), test_files, ...
+                'UniformOutput', false);
         end
         %------------------------------------------------------------------
         function test_spaghetti_default_labels(obj)
@@ -50,11 +52,8 @@ classdef test_plot_dnd < TestCase
                 [tstd.d1d_methods(:);...
                 tstd.d1d_mthods_oveplot(:);...
                 tstd.d2d_methods(:);tstd.d3d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HERBERT:graphics:invalid_argument','HORACE:d4d:invalid_argument'};
+            errors_list = {'HORACE:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(28) = 3;
-            err_ind(29) = 3;
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
@@ -74,8 +73,7 @@ classdef test_plot_dnd < TestCase
                 [tstd.d1d_methods(:);...
                 tstd.d1d_mthods_oveplot(:);...
                 tstd.d2d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HERBERT:graphics:invalid_argument'};
+            errors_list = {'HORACE:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
             function thrower(obx,fmethod)
                 fmethod(obx);
@@ -118,11 +116,8 @@ classdef test_plot_dnd < TestCase
                 [tstd.d1d_methods(:);...
                 tstd.d1d_mthods_oveplot(:);...
                 tstd.d3d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HORACE:d2d:invalid_argument'};
+            errors_list = {'HORACE:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(19) = 2;
-            err_ind(20) = 2;
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
@@ -155,16 +150,18 @@ classdef test_plot_dnd < TestCase
             end
             close(objh);
         end
+        
+        %------------------------------------------------------------------
+        % Test 1D plotting
         %------------------------------------------------------------------
         function test_d1d_other_plot_methods_throw(obj)
+            % Test that all plot methods for data with dimensionality other than
+            % unity throw an error.
             d1d_obj = obj.dnd_obj{1};
             tstd = obj.interface_tester;
             other_methods = [tstd.d2d_methods(:);tstd.d3d_methods(:)];
-            errors_list = {'HORACE:DnDBase:not_implemented',...
-                'HERBERT:graphics:invalid_argument','HORACE:d1d:invalid_argument'};
+            errors_list = {'HORACE:graphics:invalid_argument'};
             err_ind = ones(numel(other_methods),1);
-            err_ind(10) = 3;
-            err_ind(11) = 3;
             function thrower(obx,fmethod)
                 fmethod(obx);
             end
@@ -178,7 +175,9 @@ classdef test_plot_dnd < TestCase
             end
 
         end
+        
         function test_d1d_plot1D_methods_work(obj)
+            % Test that all methods 
             d1d_obj = obj.dnd_obj{1};
             tstd = obj.interface_tester;
             pl_methods = [tstd.dnd_methods(:);tstd.d1d_methods(:)];
@@ -211,6 +210,7 @@ classdef test_plot_dnd < TestCase
             end
             close(oboh);
         end
+        
         %------------------------------------------------------------------
         function test_SqwDnDPlotInterface_throws(obj)
             tstd = obj.interface_tester;

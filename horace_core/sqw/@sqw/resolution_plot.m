@@ -181,7 +181,7 @@ if ~present.noplot  % plotting is required
         % Plot on an existing figure with the provided name, figure
         % handle, figure number, or axes handle.
         try
-            genie_figure_set_target(key.name,'existing');
+            genie_figure_set_target(key.name,'-existing');
         catch
             fig_h = plot(w);
             genie_figure_create(fig_h, 'Horace resolution plot') % just changes name

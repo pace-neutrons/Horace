@@ -64,15 +64,14 @@ function [fig_h, axes_h, plot_h] = plot_oned (w, newplot, ...
 %               Axes handle to be used as the target of the plot, if the axes
 %               exist.
 %
-%   If neither 'name' nor 'axes' are given, then the user default figure name
-%   available through the static data_plot_interface method default_name is
-%   used. If no default has been given, the factory default hard-wired into this
-%   function is used.
+%   If neither 'name' nor 'axes' are given, then the default figure name
+%   is taken from the genieplot singleton property 'default_fig_name'. If that
+%   property is set to [], then figure name hard-wired into this function is used.
 
 
 lims_type = 'xy';
-maxspec = genieplot.get('maxspec_1D');  % maximum number of 2D datasets that can be plotted
-default_fig_name = data_plot_interface.default_name();
+maxspec = genieplot.get('maxspec_1D');  % max number of datasets that can be plotted
+default_fig_name = genieplot.get('default_fig_name');
 
 plot_types = {'errors', 'histogram', 'line', 'markers', 'data', 'points'};
 
@@ -124,18 +123,19 @@ end
 
 % Parse the optional arguments and set the plot target
 second_data_ok = false;
-[~, xlims, ylims] = genie_figure_parse_plot_args (newplot, ...
+[new_figure, ~, xlims, ylims] = genie_figure_parse_plot_args (newplot, ...
     force_current_axes, lims_type, default_fig_name, [], second_data_ok, ...
     varargin{:});
 
 
 % Perform plot
 % ------------
-% If newplot, delete any axes
-if newplot
-    delete(gca)     % not necessary if a new figure, but doesn't do any harm
-else
+% Keep existing axes if an existing figure and newplot not requested
+keep_axes = (~new_figure && ~newplot);
+if keep_axes
     hold on;        % hold the existing plot for overplotting
+else
+    delete(gca)     % not necessary if a new figure, but doesn't do any harm
 end
 
 % Plot data
@@ -173,8 +173,8 @@ end
 hold off    % release plot (could have been held for overplotting, for example)
 
 
-% If a newplot, add axes annotations, title, tick marks, change limits etc.
-if newplot
+% If a not keeping axes, add axes annotations, title, tick marks, change limits etc.
+if ~keep_axes
     % Add axes annotations and title
     [tx, ty] = make_label(w(1));    % Create axis annotations
     tt = w(1).title(:);
