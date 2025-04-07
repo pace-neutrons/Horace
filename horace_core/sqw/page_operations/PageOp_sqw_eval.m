@@ -9,6 +9,11 @@ classdef PageOp_sqw_eval < PageOpBase
         op_parms
         %
     end
+    properties(Dependent)
+        %Read-only Access to internal image holder to use in sqw_op
+        img
+    end
+    
 
     methods
         function obj = PageOp_sqw_eval(varargin)
@@ -83,6 +88,10 @@ classdef PageOp_sqw_eval < PageOpBase
 
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
+        end
+        %
+        function im = get.img(obj)
+            im = obj.img_;
         end
     end
     methods(Access=protected)
