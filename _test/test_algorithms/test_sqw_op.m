@@ -126,7 +126,7 @@ classdef test_sqw_op < TestCaseWithSave
 
             % my custom function does not change variange, just
             % recalculates it, so it should remain the same.
-            assertEqualToTol(obj.sqw_2d_obj.data.e,out_dnd.e);
+            assertEqualToTol(obj.sqw_2d_obj.data.e,out_dnd.e,obj.FLOAT_TOL);
 
             if obj.save_output
                 %This test does not work in save mode as reference dataset
@@ -151,7 +151,7 @@ classdef test_sqw_op < TestCaseWithSave
 
             % my custom function does not change variange, just
             % recalculates it, so it should remain the same.
-            assertEqualToTol(obj.sqw_2d_obj.data.e,out_sqw.data.e);
+            assertEqualToTol(obj.sqw_2d_obj.data.e,out_sqw.data.e,obj.FLOAT_TOL);
 
             assertEqualToTolWithSave(obj,out_sqw, ...
                 'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
