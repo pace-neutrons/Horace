@@ -1,9 +1,9 @@
-function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, newplot, ...
+function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, new_axes, ...
     force_current_axes, plot_type, varargin)
 % Make a plot of an IX_dataset_2d object or array of objects.
 %
-%   >> plot_twod (w, alternate_cdata_ok, newplot, force_current_axes, plot_type)
-%   >> plot_twod (w, alternate_cdata_ok, newplot, force_current_axes, plot_type, wcol)
+%   >> plot_twod (w, alternate_cdata_ok, new_axes, force_current_axes, plot_type)
+%   >> plot_twod (w, alternate_cdata_ok, new_axes, force_current_axes, plot_type, wcol)
 %
 % With either of the above:
 %   >> plot_twod (..., xlo, xhi)
@@ -18,9 +18,9 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, newplot, ..
 % Output the figure, axes and handles to plot objects:
 %   >> [fig_h, axes_h, plot_h] = plot_twod (...)
 %
-% The argument newplot and force_current_axes restrict which of the optional
+% The argument new_axes and force_current_axes restrict which of the optional
 % arguments are possible:
-% - if newplot is false, then the plot ranges cannot be given
+% - if new_axes is false, then the plot ranges cannot be given
 % - if force_current_axes is true, then 'name' or 'axes' cannot be given
 %
 %
@@ -39,7 +39,7 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, newplot, ..
 %                     is no second argument wcol or it is empty.
 %                   - The signal in wcol provides that data, if it is not empty.
 %
-%   newplot     True:  Draw the plot on new axes (replacing existing axes on the
+%   new_axes     True:  Draw the plot on new axes (replacing existing axes on the
 %                     target figure if necessary).
 %               False: Overplot on existing axes on the target figure, if they
 %                     are available.
@@ -113,12 +113,12 @@ if numel(w) > maxspec
         'Check the size of the input object array'], num2str(maxspec))
 end
 
-% Get newplot argument
-if islognumscalar(newplot)
-    newplot = logical(newplot);   % in case numeric 0 or 1
+% Get new_axes argument
+if islognumscalar(new_axes)
+    new_axes = logical(new_axes);   % in case numeric 0 or 1
 else
     error('HERBERT:graphics:invalid_argument', ...
-        'Input argument ''newplot'' must be logical true or false')
+        'Input argument ''new_axes'' must be logical true or false')
 end
 
 % Get force_current_axes argument
@@ -171,15 +171,15 @@ switch plot_type
 end
 
 % Parse the optional arguments and set the plot target
-[new_figure, wcol, xlims, ylims, zlims] = genie_figure_parse_plot_args (newplot, ...
-    force_current_axes, lims_type, default_fig_name, ...
-    w, alternate_cdata_ok, w1_data_name, w2_data_name, varargin{:});
+[new_figure, wcol, xlims, ylims, zlims] = genie_figure_parse_plot_args (...
+    default_fig_name, new_axes, force_current_axes, ...
+    w, w1_data_name, alternate_cdata_ok, w2_data_name, lims_type, varargin{:});
 
 
 % Perform plot
 % ------------
-% Keep existing axes if an existing figure and newplot not requested
-keep_axes = (~new_figure && ~newplot);
+% Keep existing axes if an existing figure and new_axes not requested
+keep_axes = (~new_figure && ~new_axes);
 if keep_axes
     hold on;        % hold the existing plot for overplotting
 else
@@ -194,15 +194,15 @@ switch plot_type
         set(gca, 'layer', 'top')    % puts axes layer on the top
         
     case 'surface'
-        if newplot
-            view(3)                 % default line of sight for 3D if newplot
+        if new_axes
+            view(3)                 % default line of sight for 3D if new_axes
         end        
         plot_surface (w);
         set(gca, 'layer', 'top')    % puts axes layer on the top
         
     case 'surface2'
-        if newplot
-            view(3)                 % default line of sight for 3D if newplot
+        if new_axes
+            view(3)                 % default line of sight for 3D if new_axes
         end
         plot_surface2 (w, wcol);
         set(gca, 'layer', 'top')    % puts axes layer on the top
@@ -215,7 +215,7 @@ end
 hold off    % release plot (could have been held for overplotting, for example)
 
 
-% If a newplot, add axes annotations, title, tick marks, change limits etc.
+% If a new_axes, add axes annotations, title, tick marks, change limits etc.
 if ~keep_axes
     % Add axes annotations and title
     [tx, ty, tz] = make_label(w(1));    % Create axis annotations

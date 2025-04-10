@@ -1,5 +1,5 @@
 function varargout = ph(w,varargin)
-% Overplot histogram for a spectrum or array of spectra on an existing plot
+% Overplot histogram of an IX_dataset_1d object or array of objects on an existing plot.
 %
 %   >> ph(w)
 %
@@ -10,8 +10,8 @@ function varargout = ph(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ph(w,...) 
 
-newplot = false;
+new_axes = false;
 force_current_axes = false;
 
 varargout = cell(1, nargout);   % output only if requested
-[varargout{:}] = plot_oned(w, newplot, force_current_axes, 'h', varargin{:});
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'h', varargin{:});

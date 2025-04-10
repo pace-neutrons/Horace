@@ -1,5 +1,5 @@
 function varargout = dh(w,varargin)
-% Draws a histogram plot of a spectrum or array of spectra
+% Draws a histogram plot of an IX_dataset_1d object or array of objects.
 %
 %   >> dh(w)
 %   >> dh(w,xlo,xhi)
@@ -11,8 +11,8 @@ function varargout = dh(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = dh(w,...) 
 
-newplot = true;
+new_axes = true;
 force_current_axes = false;
 
 varargout = cell(1, nargout);   % output only if requested
-[varargout{:}] = plot_oned(w, newplot, force_current_axes, 'h', varargin{:});
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'h', varargin{:});

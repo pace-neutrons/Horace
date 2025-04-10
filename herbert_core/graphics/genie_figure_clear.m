@@ -1,4 +1,4 @@
-function genie_figure_clear (varargin)
+function varargout = genie_figure_clear (varargin)
 % Clear a genie_figure except for the 'keep' and 'make_current' menus
 %
 %   >> genie_figure_clear               % clear current figure
@@ -10,20 +10,28 @@ function genie_figure_clear (varargin)
 % Equivalent to Matlab function clf except that the defining qualities of a
 % genie_figure are retained, namely the 'keep' and 'make_current' functionality.
 % 
+% With all the above:
+%   >> fig_handle = genie_figure_clear (...)       % Return the figure handle
+%
+%
 % Input:
 % ------
-%   fig_handle      Handle to a figure that currently exists
+%   fig_handle  Figure handle or figure number.
+%               If the figure is not a genie_figure, then performs exactly the
+%               same action as the matlab intrinsic function clf.
 %
-%   'reset'         If absent, then a clear is performed just as clf or
-%                   clf(fig_handle), that is delete all children of the figure
-%                   with visible handles (apart from the 'keep' and
-%                   'make_current' menus)
+% Optional argument:
+%   'reset'     If absent: clear figure just as clf or clf(fig_handle)
+%               Deletes all children of the figure with visible handles.
+%               (This is apart from the genie_figure 'keep' and 'make_current'
+%               menus.)
 %
-%                   If present, then a full reset of the figure is performed, in
-%                   which all children (visible handles or not) are deleted
-%                   except the 'keep' and 'make_current' menu items, and the
-%                   figure properties are set to the defaults except for the
-%                   genie_figure specific default settings.
+%               If present: equivalent to clf('reset') or clf(fig_handle, 'reset')
+%               A full reset of the figure is performed, in which all children
+%               whether otr not they have visible handles are deleted, and the
+%               figure properties are set to the defaults.
+%               (This is apart from the 'keep' and 'make_current' menu items and
+%               genie_figure specific default settings.)
 
 
 % Determine if a clear or reset is to be performed
@@ -68,4 +76,9 @@ if is_genie
     else
         genie_figure_create (fig_handle, name, '-keep')
     end
+end
+
+% Output only if requested
+if nargout>0
+    varargout{1} = fig_handle;
 end

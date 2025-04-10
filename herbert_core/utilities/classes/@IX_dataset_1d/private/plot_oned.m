@@ -1,8 +1,8 @@
-function [fig_h, axes_h, plot_h] = plot_oned (w, newplot, ...
+function [fig_h, axes_h, plot_h] = plot_oned (w, new_axes, ...
     force_current_axes, plot_type, varargin)
 % Make a plot of an IX_dataset_1d object or array of objects.
 %
-%   >> plot_oned (w, newplot, force_current_axes, plot_type)
+%   >> plot_oned (w, new_axes, force_current_axes, plot_type)
 %   >> plot_oned (..., xlo, xhi)
 %   >> plot_oned (..., xlo, xhi, ylo, yhi)
 %
@@ -14,9 +14,9 @@ function [fig_h, axes_h, plot_h] = plot_oned (w, newplot, ...
 % Output the figure, axes and handles to plot objects:
 %   >> [fig_h, axes_h, plot_h] = plot_oned (...)
 %
-% The argument newplot and force_current_axes restrict which of the optional
+% The argument new_axes and force_current_axes restrict which of the optional
 % arguments are possible:
-% - if newplot is false, then the plot ranges cannot be given
+% - if new_axes is false, then the plot ranges cannot be given
 % - if force_current_axes is true, then 'name' or 'axes' cannot be given
 %
 %
@@ -24,16 +24,17 @@ function [fig_h, axes_h, plot_h] = plot_oned (w, newplot, ...
 % ------
 %   w           IX_dataset_1d object, or array of IX_dataset_1d objects
 %
-%   newplot     True:  Draw the plot on new axes (replacing existing axes on the
-%                     target figure if necessary).
+%   new_axes    True:  Draw the plot on new axes (replacing the existing axes on
+%                     the target figure if necessary).
 %               False: Overplot on existing axes on the target figure, if they
-%                     are available.
+%                     are available; otherwise draw new axes.
 %
 %   force_current_axes
 %               True:  Plot on the current axes of the current figure.
-%               False: Plot on the current axes of the figure defined by the
-%                     'name' or 'axes' options, or the default plot name if
-%                      neither option is given.
+%               False: Plot target determined by new_axes, and keyword value of 
+%                      option 'name' or 'axes'.
+%
+%               (note: new_axes and force_current_axes cannot both be true)
 %
 %   plot_type   Type of plot to be drawn:
 %                   'e'     errors =  error bars
@@ -85,12 +86,12 @@ if numel(w) > maxspec
         'Check the size of the input object array'], num2str(maxspec))
 end
 
-% Get newplot argument
-if islognumscalar(newplot)
-    newplot = logical(newplot);   % in case numeric 0 or 1
+% Get new_axes argument
+if islognumscalar(new_axes)
+    new_axes = logical(new_axes);   % in case numeric 0 or 1
 else
     error('HERBERT:graphics:invalid_argument', ...
-        'Input argument ''newplot'' must be logical true or false')
+        'Input argument ''new_axes'' must be logical true or false')
 end
 
 % Get force_current_axes argument
@@ -122,16 +123,16 @@ if ~is_string(default_fig_name)
 end
 
 % Parse the optional arguments and set the plot target
-second_data_ok = false;
-[new_figure, ~, xlims, ylims] = genie_figure_parse_plot_args (newplot, ...
-    force_current_axes, lims_type, default_fig_name, [], second_data_ok, ...
-    varargin{:});
+w2_ok = false;
+[new_figure, ~, xlims, ylims] = genie_figure_parse_plot_args (...
+    default_fig_name, new_axes, force_current_axes, ...
+    w, '', w2_ok, '', lims_type, varargin{:});
 
 
 % Perform plot
 % ------------
-% Keep existing axes if an existing figure and newplot not requested
-keep_axes = (~new_figure && ~newplot);
+% Keep existing axes if an existing figure and new_axes not requested
+keep_axes = (~new_figure && ~new_axes);
 if keep_axes
     hold on;        % hold the existing plot for overplotting
 else

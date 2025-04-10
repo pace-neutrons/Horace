@@ -512,7 +512,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         
         function varargout= ds2(w, varargin)
             % Draw a surface plot of a d2d dataset or array of datasets
-            % with the possibility of providing second dataset as source of the
+            % with the possibility of providing a second dataset as the source of the
             % image colour scale.
             %
             %   >> ds2(w)       % Use error bars to set colour scale
@@ -648,7 +648,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         
         function varargout = ps2(w, varargin)
             % Overplot a surface plot of a d2d dataset or array of datasets
-            % with the possibility of providing second dataset as source of the
+            % with the possibility of providing a second dataset as the source of the
             % image colour scale.
             %
             %   >> ps2(w)
@@ -673,8 +673,8 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         
         function varargout = ps2oc(w, varargin)
             % Overplot a surface plot of a d2d dataset or array of datasets on
-            % the current figure with the possibility of providing second
-            % dataset as source of image colour scale.
+            % the current figure with the possibility of providing a second
+            % dataset as the source of image colour scale.
             %
             %
             %   >> ps2oc(w)     % Use error bars to set colour scale

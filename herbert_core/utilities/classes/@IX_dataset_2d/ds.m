@@ -1,5 +1,5 @@
 function varargout = ds(w, varargin)
-% Draw a surface plot of an IX_dataset_2d or array of IX_dataset_2d
+% Draw a surface plot of an IX_dataset_2d or array of IX_dataset_2d objects.
 %
 %   >> ds(w)
 %   >> ds(w,xlo,xhi)
@@ -12,10 +12,10 @@ function varargout = ds(w, varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ds(w,...) 
 
-newplot = true;
+new_axes = true;
 force_current_axes = false;
 alternate_cdata_ok = false;
 
 varargout = cell(1, nargout);   % output only if requested
-[varargout{:}] = plot_twod(w, alternate_cdata_ok, newplot, ...
+[varargout{:}] = plot_twod(w, alternate_cdata_ok, new_axes, ...
     force_current_axes, 'surface', varargin{:});

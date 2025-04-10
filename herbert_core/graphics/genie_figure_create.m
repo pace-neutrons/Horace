@@ -19,11 +19,12 @@ function varargout = genie_figure_create (varargin)
 %
 % Input:
 % ------
-%   fig_handle  Existing figure: Handle to existing figure
-%
-%   fig_name    If new figure: Name of genie_figure to be created  e.g. 'Genie 1D'.
+%   fig_name    Name of genie_figure e.g. 'Genie 1D'.
+%               If figure o
 %               If existing figure: Change name of window.
 %               (Note: the empty string '' is a valid figure name)
+%
+%   fig_handle  Handle to figure
 %
 %   status      Status with which to create the window: 'current' or 'keep'
 %                - 'current': Becomes the 'current' status genie_figure of those

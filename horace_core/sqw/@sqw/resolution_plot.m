@@ -263,7 +263,7 @@ end
 function resolution_plot_private (x0,C,iax,flip)
 % Plot resolution function on 2D axes
 %
-%   >> resolution_plot_private (x0,C,iax,flip,fig,newplot)
+%   >> resolution_plot_private (x0,C,iax,flip)
 %
 % Input:
 % ------

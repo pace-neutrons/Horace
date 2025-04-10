@@ -344,8 +344,8 @@ w3_2_hist.title = {'Title: w3_2_hist'};
 w3_hist = [w3_1_hist, w3_2_hist];
 
 
-% Small 3D dataset with uneual step sizes
-% THis should throw an error if try to plot it.
+% Small 3D dataset with unequal step sizes
+% This should throw an error if try to plot it.
 x3_unequal = [1,2,4];
 y3_unequal = [101,103,104,107];
 z3_unequal = [201,201.5,203,204,206];
