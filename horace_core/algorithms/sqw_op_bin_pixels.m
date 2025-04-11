@@ -1,15 +1,14 @@
-function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
-% Perform an operation or set of operations over pixels defined
-% by user-provided sqwop_func. Unlike cut, the operation is performed
-% within whole input sqw object piexls range and data which do not
+function wout = sqw_op_bin_pixels(win, sqw_opfunc, pars, varargin)
+% Apply operation or sequence of operations over input sqw files or sqw
+% objects packed in input cellarray.
 %
-%
-%   >> wout = sqw_op_bin_pixels(obj, sqwfunc, p)
+% The operations act on pixels and are defined in user provided
+% sqw_opfunc which should accept PageOp_sqw_op object as first argument
+%   >> wout = sqw_op_bin_pixels(win, sqwfunc, p)
 %      this form of call is equivalent to:
-%   >> wout = sqw_op_bin_pixels(obj, sqwfunc, p, [], [], [], [])
-%   >> wout = sqw_op_bin_pixels(obj, sqwfunc, p, p1_bin, p2_bin, p3_bin, p4_bin)
-%   >> wout = sqw_op_bin_pixels(obj, sqwfunc, p, proj, p1_bin, p2_bin, p3_bin, p4_bin)
-%
+%   >> wout = sqw_op_bin_pixels(win, sqwfunc, p, [], [], [], [])
+%   >> wout = sqw_op_bin_pixels(win, sqwfunc, p, p1_bin, p2_bin, p3_bin, p4_bin)
+%   >> wout = sqw_op_bin_pixels(win, sqwfunc, p, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %
 %   >> sqw_op(__, 'outfile', outfile, 'filebacked', true)
 %   >> wout = sqw_op(__, '-filebacked')
@@ -20,14 +19,14 @@ function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
 %               as the source of coordinates and other information for
 %               sqwop_func
 % sqwop_func
-%          --  Handle to function that performs operation.
+%          --  Handle to function that performs operation
 %   pars   --  Cellarray of arguments needed by the function.
 %              The function would have a form
 %              sqwop_func(PageOp_sqw_eval_obj_instance,pars{:});
 % Optional:
 % =========
 % Binning parameters: -- the input similar to the inputs of cut algorithm
-% -------------------    defining target projection binning. Unlike
+% -------------------    defining target projection binning. Unlike 
 %   proj           instance of aProjectionBase class (line_proj by default)
 %                  which describes the target coordinate system of the cut
 %                  or Data structure containing the projection class fields,
@@ -101,45 +100,22 @@ function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
 %
 % Output:
 % =======
-%   obj        If `filebacked` is false, an sqw object or array of sqw objects.
-%              If `filebacked` is true, a file path or cell array of file paths.
+%   wout     If `filebacked` is false, an sqw object or array of sqw objects.
+%             If `filebacked` is true, a file path or cell array of file paths.
 %              Output argument must be specified if `outfile` not given.
 %
-%==========================================================================
 
 
-return_cut = nargout > 0;
-%
-% Set up new projection properties, related to lattice. This together with
-% projection inputs defines pixels-to-image transformation.
-
-[targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
-    obj,return_cut, varargin{:});
-
-[targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin, sym);
-
-[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, opt);
-if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
-    % Make sure we have exactly one output argument if no outfile is specified,
-    % otherwise this function would do nothing.
-    % Even in filebacked mode, if no outfile is given, a random one is
-    % generated. This is not much use to a user if it's not returned.
-    if nargout ~=1
-        error('HORACE:sqw_op:invalid_argument',[ ...
-            'This method request single output argument unless output filename to save result is specified.\n' ...
-            'Filename is missing and got: %d output argumets'], ...
-            nargout)
+[n_inputs,ldrs,sqw_obj,wout] = init_sqw_obj_from_file_for_sqw_op_(win);
+for i=1:n_inputs
+    if sqw_obj(i)
+        win = ldrs{i};
+    else
+        win = sqw(ldrs{i});
+    end
+    if nargout > 0
+        wout(i) = sqw_op_bin_pixels(win,sqw_opfunc,pars,varargin{:});
     end
 end
-if  opts.average
-    error('HORACE:PageOp_sqw_op:not_implemented', [ ...
-        '"-average" option is not currently implemented for sqw_op.' ...
-        'Contact HoraceHelp@stfc.ac.uk if you need it'])
 end
 
-wout = cell(1,numel(obj));
-for i=1:numel(obj)
-    wout{i} = sqw_op_single_(obj(i),sqwop_func,pars,opts,i);
-end
-wout = [wout{:}];
-end
