@@ -6,7 +6,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
         function obj = PageOp_sqw_op(varargin)
             obj = obj@PageOp_sqw_eval(varargin{:});
             obj.op_name_ = 'sqw_op';
-            obj.op_holder_ = @(obj,varargin){};
+            obj.op_holder = @(obj,varargin){};
         end
         function obj = init(obj,sqw_obj,operation,op_param,pop_options)
             % Initialize PageOp_sqw_op operation over input sqw file

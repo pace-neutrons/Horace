@@ -7,10 +7,6 @@ classdef d2d < DnDBase
     %   >> w = d2d(filename)       % Create a D2D object from a file
     %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Hidden=true)
-        NUM_DIMS;
-    end
-
     methods
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
@@ -37,9 +33,7 @@ classdef d2d < DnDBase
         [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
 
         varargout = get(this, index);
-        function nd = get.NUM_DIMS(~)
-            nd =2;
-        end
+
         function [nd,sz] = dimensions(obj)
             nd = 2;
             sz = obj.axes_.data_nbins;
@@ -48,10 +42,16 @@ classdef d2d < DnDBase
             warning('HORACE:d2d:deprecated', ...
                 'combine_horace_2d is deprecated. Use combine instead');
             wout = combine(w1,w2,varargin{:});
-            
+
         end
     end
 
+    methods(Access=protected)
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object dimensions
+            nd =1;
+        end
+    end
     methods(Access = private)
         [irange, uoff]=calculate_integration_range(w1, w2);
         [ok, same_axes, mess]=check_rebinning_axes(w1, w2);

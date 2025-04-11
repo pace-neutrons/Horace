@@ -63,6 +63,8 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
         %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
+
+        NUM_DIMS;         % Number of DnD object dimensions.
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == line_axes.dims_as_ssize)
@@ -75,6 +77,10 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
         % The date when the object has been stored on hdd first time
         creation_date_;
         creation_date_defined_ = false;
+    end
+    methods(Abstract,Access=protected)
+        % return number of object dimensions
+        nd = get_NUM_DIMS(obj)
     end
     %======================================================================
     % OTHER DND METHODS
@@ -116,7 +122,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             % Optional:
             % 0 to 4 pairs containing [axis direction, binning parameters]
             % where
-            % axis_direction -- 4-element vector containing axis direction 
+            % axis_direction -- 4-element vector containing axis direction
             %                   in hklE coordinate system
             % binning parameters
             %                -- 3-element vector contaning min,step,max
@@ -209,7 +215,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
         % Change the crystal lattice and orientation of dnd object or
         % array of objects
         wout = change_crystal(win,al_info,varargin);
-          %------------------------------------------------------------------
+        %------------------------------------------------------------------
         %
         function varargout = IX_dataset_1d(obj)
             error('HORACE:DnDBase:not_implemented', ...
@@ -347,6 +353,10 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             val = obj.proj.transform_hkl_to_img(offset_(1:3)');
             val = [val;offset_(4)]';
         end
+        function nd = get.NUM_DIMS(obj)
+            nd = get_NUM_DIMS(obj);
+        end
+
     end
     %======================================================================
     % MODERN dnd interface + constructor
@@ -634,7 +644,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             %              more information on the reason behind the
             %              difference if iseq == false
             [iseq,mess]  = equal_to_tol_single_(obj,other_obj,opt,varargin{:});
-        end        
+        end
 
     end
     %======================================================================

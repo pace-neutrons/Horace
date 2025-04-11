@@ -106,15 +106,21 @@ function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
 %              Output argument must be specified if `outfile` not given.
 %
 %==========================================================================
+is_key = cellfun(@(x)istext(x),varargin);
+if any(is_key)
+    argi = varargin(~is_key);
+else
+    argi = varargin;
+end
+if numel(argi)<obj.data.num_dims
 
 
-return_cut = nargout > 0;
 %
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
-
+return_cut = nargout > 0;
 [targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
-    obj,return_cut, varargin{:});
+    obj,return_cut, argi{:});
 
 [targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin, sym);
 

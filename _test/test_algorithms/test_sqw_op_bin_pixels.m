@@ -28,7 +28,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             % when data_sqw_dnd_changes, these data should be used as input
             % to support loading the previous version
             this_folder = fileparts(mfilename("fullpath"));
-            obj = obj@TestCaseWithSave(opt,fullfile(this_folder,'test_sqw_op_ref_data.mat'));
+            obj = obj@TestCaseWithSave(opt,fullfile(this_folder,'test_sqw_op_bin_pix_ref.mat'));
 
 
             % 4D gaussian in the centre of pixel data block in 4 dimensions
@@ -144,7 +144,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
 
         function test_gauss_on_sqw_in_mem_is_equal_to_reference(obj)
 
-            out_sqw = sqw_op(obj.sqw_2d_obj, ...
+            out_sqw = sqw_op_bin_pixels(obj.sqw_2d_obj, ...
                 obj.gauss_sqw_fun,obj.gauss_sigma);
 
             assertTrue(isa(out_sqw.pix,'PixelDataMemory'));
@@ -164,22 +164,21 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
         function test_sqw_op_on_dnd_fails(obj)
             fake_dnd = {d4d()};
 
-            assertExceptionThrown(@()sqw_op(fake_dnd,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+            assertExceptionThrown(@()sqw_op_bin_pixels(fake_dnd,obj.gauss_sqw_fun,obj.gauss_sigma),...
+                'HORACE:algorithms:invalid_argument');
         end
         function test_sqw_op_on_dnd_file_fails(obj)
-            assertExceptionThrown(@()sqw_op(obj.dnd_file,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
-        end
-
-        function test_sqw_op_something_unknown_file_fails(obj)
-            assertExceptionThrown(@()sqw_op(10,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+            assertExceptionThrown(@()sqw_op_bin_pixels(obj.dnd_file,obj.gauss_sqw_fun,obj.gauss_sigma),...
+                'HORACE:algorithms:invalid_argument');
         end
         function test_sqw_op_wrong_mixture_fails(obj)
-            assertExceptionThrown(@()sqw_op({obj.sqw_2d_obj,obj.dnd_file},obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+            assertExceptionThrown(@()sqw_op_bin_pixels({obj.sqw_2d_obj,obj.dnd_file},obj.gauss_sqw_fun,obj.gauss_sigma),...
+                'HORACE:algorithms:invalid_argument');
         end
+        function test_sqw_op_something_unknown_file_fails(obj)
+            assertExceptionThrown(@()sqw_op_bin_pixels(10,obj.gauss_sqw_fun,obj.gauss_sigma),...
+                'HORACE:algorithms:invalid_argument');
+        end        
     end
 
     methods(Static,Access=protected)

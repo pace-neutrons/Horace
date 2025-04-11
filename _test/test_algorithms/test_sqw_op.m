@@ -165,20 +165,20 @@ classdef test_sqw_op < TestCaseWithSave
             fake_dnd = {d4d()};
 
             assertExceptionThrown(@()sqw_op(fake_dnd,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+                'HORACE:algorithms:invalid_argument');
         end
         function test_sqw_op_on_dnd_file_fails(obj)
             assertExceptionThrown(@()sqw_op(obj.dnd_file,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+                'HORACE:algorithms:invalid_argument');
         end
 
         function test_sqw_op_something_unknown_file_fails(obj)
             assertExceptionThrown(@()sqw_op(10,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+                'HORACE:algorithms:invalid_argument');
         end
         function test_sqw_op_wrong_mixture_fails(obj)
             assertExceptionThrown(@()sqw_op({obj.sqw_2d_obj,obj.dnd_file},obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+                'HORACE:algorithms:invalid_argument');
         end
     end
 

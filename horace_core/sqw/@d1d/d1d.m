@@ -7,10 +7,6 @@ classdef d1d < DnDBase
     %   >> w = d1d(filename)       % Create a D1D object from a file
     %   >> w = d1d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Hidden=true)
-        NUM_DIMS;
-    end
-
     methods
         function obj = d1d(varargin)
             obj = obj@DnDBase(varargin{:});
@@ -30,9 +26,6 @@ classdef d1d < DnDBase
         wout = rebin_horace_1d(win, varargin);
         wout = symmetrise_horace_1d(win, varargin);
 
-        function nd = get.NUM_DIMS(~)
-            nd =1;
-        end
         function [nd,sz] = dimensions(obj)
             nd = 1;
             sz = obj.axes_.data_nbins;
@@ -52,7 +45,10 @@ classdef d1d < DnDBase
             val = val(:);
             obj = set_senpix@DnDBase(obj,val,field);
         end
-
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object dimensions
+            nd =1;
+        end
     end
 
     methods(Access = private)
