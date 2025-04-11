@@ -49,7 +49,7 @@ classdef d2d < DnDBase
     methods(Access=protected)
         function  nd = get_NUM_DIMS(~)
             % NUM_DIMS getter. Return number of object dimensions
-            nd =1;
+            nd =2;
         end
     end
     methods(Access = private)

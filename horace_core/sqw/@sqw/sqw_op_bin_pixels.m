@@ -112,19 +112,26 @@ if any(is_key)
 else
     argi = varargin;
 end
-if numel(argi)<obj.data.num_dims
-
-
+if numel(argi)<obj.data.NUM_DIMS % not very reliable
+    binning = cell(1,obj.data.NUM_DIMS);
+    argi = [binning(:);argi(:)];
+end
 %
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
 return_cut = nargout > 0;
 [targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
     obj,return_cut, argi{:});
+if numel(sym)>1 || ~isa(sym{1},'SymopIdentity')
+    error('HORACE:sqw_op_bin_pixels:invalid_arguments',[ ...
+        'sqw_op_bin_pixels does not accepts Symop parameters.\n' ...
+        'Add necessary SymOp to custom operation yourself'])
+end
 
-[targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin, sym);
+[targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin{1}, sym);
 
-[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, opt);
+
+[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, argi);
 if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
