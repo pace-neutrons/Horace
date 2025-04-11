@@ -143,7 +143,11 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         wout = func_eval (win, func_handle, pars, varargin)
         
         % Apply operation or sequence of operations, defined by sqwfunc
+        % avoiding changes in pixels coordinates
         obj = sqw_op(obj, sqwfunc, pars, varargin)
+        % Apply operation or sequence of operations, defined by sqwfunc
+        % where pixels coordinates may change
+        obj = sqw_op_bin_pixels(obj, sqwfunc, pars, varargin)                
     end
     %======================================================================
     % Various sqw methods -- difficult to classify

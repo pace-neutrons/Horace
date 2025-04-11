@@ -1,4 +1,4 @@
-function wout = sqw_op(win, sqw_opfunc, pars, varargin)
+function wout = sqw_op_bin_pixels(win, sqw_opfunc, pars, varargin)
 % Apply operation or sequence of operations over input sqw files or sqw
 % objects packed in input cellarray.
 %
@@ -43,7 +43,8 @@ for i=1:n_inputs
         win = sqw(ldrs{i});
     end
     if nargout > 0
-        wout(i) = sqw_op(win,sqw_opfunc,pars,varargin{:});
+        wout(i) = sqw_op_bin_pixels(win,sqw_opfunc,pars,varargin{:});
     end
 end
 end
+

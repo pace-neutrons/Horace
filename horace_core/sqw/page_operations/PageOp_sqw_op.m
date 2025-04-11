@@ -6,6 +6,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
         function obj = PageOp_sqw_op(varargin)
             obj = obj@PageOp_sqw_eval(varargin{:});
             obj.op_name_ = 'sqw_op';
+            obj.op_holder_ = @(obj,varargin){};
         end
         function obj = init(obj,sqw_obj,operation,op_param,pop_options)
             % Initialize PageOp_sqw_op operation over input sqw file
@@ -71,7 +72,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             % for details), so npix_idx contains min/max indices of
             % currently processed image cells.
             page_data = obj.op_holder(obj, obj.op_parms{:});
-            obj.page_data_ = page_data;
+            obj.page_data_(5:end,:) = page_data(5:end,:);
             %
             obj = update_img_accumulators(obj,npix_block,npix_idx, ...
                 page_data(obj.signal_idx_,:),page_data(obj.var_idx_,:));
