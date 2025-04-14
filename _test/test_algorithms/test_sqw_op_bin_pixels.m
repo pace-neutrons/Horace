@@ -141,6 +141,34 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
                 'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
 
+        function test_input_binning_pars_accepted_with_outfile(obj)
+
+            lp = line_proj;
+            out_par = sqw_op_bin_pixels(obj.sqw_2d_obj, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,lp ,[0,1],[0,1],[0,2],[0,1,10], ...
+                'outfile','fake_test_file','-test_input_parsing');
+
+            assertTrue(isstruct(out_par));
+            assertTrue(out_par.test_input_parsing);
+            assertTrue(out_par.proj_given)
+            fldnms = {'all','average','filebacked','nopix','all_bins','parallel'};
+            for i=1:numel(fldnms)
+                assertFalse(out_par.(fldnms{i}));
+            end
+            assertEqual(out_par.func_handle,obj.gauss_sqw_fun)
+            assertEqual(out_par.pars{1},obj.gauss_sigma)
+            assertEqual(out_par.outfile{1},'fake_test_file');
+            assertTrue(isempty(out_par.pageop_processor));
+
+            lp.alatt = obj.sqw_2d_obj.data.alatt;
+            lp.angdeg = 90;
+            assertEqualToTol(out_par.targ_proj,lp)
+            assertEqualToTol(out_par.targ_ax_block.img_range,[0,0,0,-0.5;1,1,2,10.5]);
+            assertEqualToTol(out_par.targ_ax_block.nbins_all_dims,[1,1,1,11]);
+
+        end
+        
+
         function test_input_binning_pars_accepted(obj)
 
             lp = line_proj;

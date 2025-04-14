@@ -134,15 +134,9 @@ end
 argi = varargin(is_key);
 [sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, argi{:});
 if ~opt.keep_pix
-    opts.nopix = true;   
+    opts.nopix = true;
 end
-if ~isempty(opt.outfile)
-    if iscell(opt.outfile)
-        opts.outfile = opt.outfile;
-    else
-        opts.outfile = {opt.outfile};        
-    end
-end
+
 opt = rmfield(opt,{'keep_pix','outfile'});
 opt_names = fieldnames(opt);
 for i=1:numel(opt_names)
@@ -167,7 +161,7 @@ if  opts.average
         'Contact HoraceHelp@stfc.ac.uk if you really need it implemented which the explanation of its meaning in your case'])
 end
 % if test_input_parsing option provided among input keys, we are testing input
-% parameters parsing. 
+% parameters parsing.
 if opts.test_input_parsing
     wout = opts;
     wout.targ_proj     = targ_proj;
