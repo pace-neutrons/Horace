@@ -51,6 +51,14 @@ function varargout = acolor(varargin)
 %   >> acolor  gem
 %
 % 
+% Set the color cycle type: (more details below)
+%   >> acolor(..., '-fast') Cycle in order through all the set colors with the
+%                           same line and marker properties, before incrementing
+%                           each of those properties.
+%
+%   >> acolor(..., '-with') Increment the color and all the line and marker
+%                           properties in together. [Default behaviour]
+%
 % Display the current colour(s), and all available colours:
 %   >> acolor
 %
@@ -105,7 +113,7 @@ function varargout = acolor(varargin)
 % -----------------------
 % - If acolor is called with function syntax, then we can have either any number
 %   of character vectors, or a single cell array of character vectors possibly
-%   followed by a single character vector (the 'fast' or 'with' options).
+%   followed by a single character vector (the '-fast' or '-with' options).
 % - If called with command syntax, then all input arguments must be character
 %   vectors. We do not allow variable names to be passed, so do not evaluate any
 %   of these character vectors in the calling function workspace.
@@ -130,6 +138,8 @@ elseif any(nargin==[1,2]) && iscell(varargin{1}) && ~isempty(varargin{1}) && ...
             error('HERBERT:graphics:invalid_argument', ['The second ', ...
                 'argument is not a valid option']);
         end
+    else
+        cycle_type = '';
     end
     args = varargin{1}(:)'; % expand the cell array
     
@@ -147,43 +157,41 @@ end
 % If there are input arguments, set a new current colour or colours
 % -----------------------------------------------------------------
 if numel(args)>0
-    % Determine which elements of args are colour names, and the corresponding
-    % index for each into colorNames
-    icolor = cellfun(@(x)(stringmatchi(x, colorNames)), args, 'UniformOutput', false);
-    iscolor = cellfun(@(x)(isscalar(x)), icolor);
+    % By construction, the colorNames and paletteNames collectively are unique,
+    % but there can be ambiguous abbreviations e.g. colour 'green' and palette
+    % 'gem'. We must therefore search the concatenated list.
+    %(Note hexadecimal colour codes always start with # so cannot be confused
+    % with colorName or paletteName)
     
-    % Determine which elements of args are palette names, and the corresponding
-    % index for each into paletteNames
-    ipalette = cellfun(@(x)(stringmatchi(x, paletteNames)), args, 'UniformOutput', false);
-    ispalette = cellfun(@(x)(isscalar(x)), ipalette);
-    
-    % Determine which of the elements of args are hexadecimal colour codes
-    ishexcol = cellfun(@(x)(ishexcolor(x)), args);
-    
-    if ~all(iscolor + ispalette + ishexcol == 1)
-        error('HERBERT:graphics:invalid_argument', ['Each input argument ', ...
-            'must be a color name or a hexadecimal color code']);
+    new_colors = cell(size(args));  % to hold arrays of color codes, one per argument
+    combiNames = [colorNames, paletteNames];
+    for i=1:numel(args)
+        ind = stringmatchi(args{i}, combiNames);
+        if isscalar(ind)
+            % Argument is a unambiguous abbreviation of a colour name or a palette name
+            if ind > numel(colorNames)
+                % Argument is a palette; get the set of colour codes for the palette
+                ipalette = ind - numel(colorNames);
+                ind_colors = paletteColor_to_colorCode{ipalette};
+                new_colors{i} = colorCodes(ind_colors);
+            else
+                % Argument is a colour name; get the corresponding colour code
+                ind_color = colorName_to_colorCode(ind);
+                new_colors{i} = colorCodes(ind_color);
+            end
+        elseif isempty(ind) && ishexcolor(args{i})
+            % Argument is a hexadecimal colour code
+            new_colors{i} = args(i);
+        else
+            error('HERBERT:graphics:invalid_argument', ['Each input argument ', ...
+                'must be a unique color name or a hexadecimal color code']);
+        end
     end
-    
-    % Expand palettes into a vector of indices into colorCodes
-    indCode = cell(1, numel(args));
-    indCode(iscolor) = cellfun(@(x)(colorName_to_colorCode(x)), ...
-        icolor(iscolor), 'UniformOutput', false);
-    indCode(ispalette) = cellfun(@(x)(paletteColor_to_colorCode{x}), ...
-        ipalette(ispalette), 'UniformOutput', false); 
-    indCode(ishexcol) = {0};    % 0 indicates no reference into colorCode
-    
-    % Resolve colorCode indices into the primary (single character) colour codes
-    % or in the case of colour names and palettes into their hexadecimal color
-    % codes. Keep explicit hexadecimal codes that do not have colour names.
-    indCode = cell2mat(indCode);
-    current_colors = cell(1,numel(indCode));
-    current_colors(indCode>0) = colorCodes(indCode(indCode>0));
-    current_colors(indCode==0) = args(ishexcol);
+    new_colors = cat(2, new_colors{:}); % turn into a single cell array
     
     % Store the cell array of colour codes and hexadecimal codes in the geniplot
     % configuration
-    genieplot.set('colors', current_colors);
+    genieplot.set('colors', new_colors);
 end
 
 if ~isempty(cycle_type)
@@ -304,10 +312,10 @@ function cycle_type = cycle_option (arg)
 %               'fast' or 'with' respectively. Otherwise cycle_type is empty.
 
 cycle_type = '';    % assume the worst
-if is_string(arg)
-    if strcmpi(arg, '-fast')
+if is_string(arg) && numel(arg)>=2
+    if strncmpi(arg, '-fast', numel(arg))
         cycle_type = 'fast';
-    elseif strcmpi(arg, '-with')
+    elseif strncmpi(arg, '-with', numel(arg))
         cycle_type = 'with';
     end
 end

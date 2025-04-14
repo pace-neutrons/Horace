@@ -120,23 +120,6 @@ classdef test_plot_IX_dataset < TestCase
                     func2str(other_methods{i})));
             end
         end
-        
-%         %------------------------------------------------------------------
-%         function test_IX3D_plot3D_methods_work(obj)
-%             % Test all 3D plot methods produce a figure
-%             T = obj.interface_tester;
-%             methods = [T.methodsND_plot(:); T.methods3D_plot(:)];
-% 
-%             for i=1:numel(methods)
-%                 meth = methods{i};
-%                 [fig_h, axes_h, plot_h] = meth(obj.data3D);
-%                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
-%                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
-%                 assertTrue(isstruct(plot_h));
-%                 close(fig_h);
-%             end
-%         end
-
 
         %------------------------------------------------------------------
         % Two-dimensional data
@@ -386,6 +369,94 @@ classdef test_plot_IX_dataset < TestCase
         end
         
         %------------------------------------------------------------------
+        function test_IX1D_plot1D_methods_work_with_array(obj)
+            % Test that all 1D 'plot' methods plot arrays of data
+            % That is methods like dl, dm,... ('plot') that make fresh figures
+            cleanupObj = onCleanup(@clear_figures);
+
+            T = obj.interface_tester;
+            methods = [T.methodsND_plot(:); T.methods1D_plot(:)];
+            data1D_arr = [obj.data1D, 2*obj.data1D];
+
+            for i=1:numel(methods)
+                clear_figures()
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(data1D_arr);
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                assertEqual(numel(fig_h),1);
+                assertEqual(numel(axes_h),1);
+                assertEqual(numel(plot_h),2);
+            end
+        end
+        
+        %------------------------------------------------------------------
+        function test_IX1D_plotOver1D_methods_work_with_array(obj)
+            % Test that all 1D 'plot over' methods plot arrays of data
+            % That is methods like pl, pm,... ('plot over')
+            cleanupObj = onCleanup(@clear_figures);
+
+            T = obj.interface_tester;
+            methods = [T.methodsND_plotOver(:); T.methods1D_plotOver(:)];
+            data1D_arr = [obj.data1D, 2*obj.data1D];
+            
+            for i=1:numel(methods)
+                clear_figures()
+                % Create figure on which to overplot:
+                plot(0.5*obj.data1D);
+                
+                % Overplot
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(data1D_arr);
+                
+                all_fig_h = findobj(groot,'Type','Figure');
+                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                assertEqual(numel(fig_h),1);
+                assertEqual(numel(axes_h),1);
+                assertEqual(numel(plot_h),3);   % original and two overplotted
+            end
+        end
+        
+        %------------------------------------------------------------------
+        function test_IX1D_plotOverCurr1D_methods_work_with_array(obj)
+            % Test that all 1D 'plot over current' methods plot arrays of data
+            % That is methods like ploc, pmoc,... ('plot over current')
+            cleanupObj = onCleanup(@clear_figures);
+
+            T = obj.interface_tester;
+            methods = T.methods1D_plotOverCurr(:);
+            data1D_arr = [obj.data1D, 2*obj.data1D];
+            
+            for i=1:numel(methods)
+                clear_figures()
+                % Create figure on which to overplot:
+                plot([0,0.1],[1e4,2e4]);    % *not* a genie_figure
+                
+                % Overplot
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(data1D_arr);
+                
+                all_fig_h = findobj(groot,'Type','Figure');
+                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                assertEqual(numel(fig_h),1);
+                assertEqual(numel(axes_h),1);
+                assertEqual(numel(plot_h),3);   % original and two overplotted
+            end
+        end
+        
+        
+
+        
+        
+        
+        %------------------------------------------------------------------
         function test_IX1D_plot1D_all_types_on_array(obj)
             all_types = genieplot.get('marker_types');
             n_types = numel(all_types);
@@ -436,6 +507,7 @@ classdef test_plot_IX_dataset < TestCase
             close(objh);
         end
 
+        %================================
         function test_IX1D_overplot2_work_with_overlpot1(obj)
             IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
 
@@ -502,50 +574,9 @@ classdef test_plot_IX_dataset < TestCase
             close(objh);
         end
 
-        function test_IX1D_overplot1D_methods_work_on_array(obj)
-            IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
-            tstd = obj.interface_tester;
 
 
-            opl_methods = tstd.d1d_mthods_oveplot;
-            for i=1:numel(opl_methods)
-                figure;
-                meth = opl_methods{i};
 
-                [objh,axh,plh] = meth(IX1d_arr);
-
-                assertEqual(numel(objh),1);
-                assertEqual(numel(axh),1);
-                assertEqual(numel(plh),2);
-
-                assertTrue(isa(objh,'matlab.ui.Figure'));
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-                close(objh);
-            end
-
-        end
-
-        function test_IX1D_plot1D_methods_work_on_array(obj)
-            IX1d_arr = [obj.IX_data{1},2*obj.IX_data{1}];
-            tstd = obj.interface_tester;
-            pl_methods = [tstd.dnd_methods(:);tstd.d1d_methods(:)];
-
-            for i=1:numel(pl_methods)
-                meth = pl_methods{i};
-
-                [objh,axh,plh] = meth(IX1d_arr);
-                assertEqual(numel(objh),1);
-                assertEqual(numel(axh),1);
-                assertEqual(numel(plh),2);
-                assertTrue(isa(objh,'matlab.ui.Figure'));
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-                close(objh);
-            end
-        end
 
     end
 end

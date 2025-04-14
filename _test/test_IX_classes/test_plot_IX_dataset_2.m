@@ -30,9 +30,8 @@ classdef test_plot_IX_dataset_2 < TestCase
         end
         
         %------------------------------------------------------------------
-        function test_1D_plotOverCurrent_1D(obj)
-            % Plot a 1D IX_dataset over a plot of an IX_dataset_2d (so has a
-            % different genie_figure name
+        function test_1D_plotOverCurrent_on1D(obj)
+            % Plot a 1D IX_dataset over a plot of an IX_dataset_1d
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             
@@ -106,7 +105,7 @@ classdef test_plot_IX_dataset_2 < TestCase
         end
         
         %------------------------------------------------------------------
-        function test_1D_plotOverCurrent_2D(obj)
+        function test_1D_plotOverCurrent_on2D(obj)
             % Plot a 1D IX_dataset over a plot of an IX_dataset_2d (so has a
             % different genie_figure name
             clear_figures()
@@ -121,13 +120,25 @@ classdef test_plot_IX_dataset_2 < TestCase
         
         %------------------------------------------------------------------
         function test_3D_nonUniformBins_noFigurePlotted(obj)
-            % Sliceomatic requires uniform bins. No error will be thrown but
-            % there should be no figure window created
+            % Sliceomatic requires uniform bins. Error should be thrown.
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             assertExceptionThrown(...
                 @()function_caller(@sliceomatic, obj.w3_unequal), ...
                 'HERBERT:IX_dataset_3d:invalid_argument');
+        end
+        
+        %------------------------------------------------------------------
+        % 
+        %------------------------------------------------------------------
+        function test_colorName_paletteName_distinguished(~)
+            % Test of color and palette name is awkward case
+            % Color is unambigiously green, as this matches the colorCode
+            % The initial algorithm did not separate this from the abbreviation
+            % of the palette name 'gem'
+            acolor('g')
+            colorCode = genieplot.get('colors');
+            assertEqual(colorCode, {'g'});
         end
     end
 end

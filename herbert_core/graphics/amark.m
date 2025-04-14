@@ -60,8 +60,15 @@ function varargout = amark(varargin)
 
 % Valid style names accepted by this function, and their matching matlab style
 % codes, which are also accepted.
-marker_type_names = {'o','+','*','.','x','_','|','square','diamond', ...
-    '^','v','>','<','pentagram','hexagram'};
+% (The single letter codes are unambiguous abbreviations of the full names, so a
+% separate array of codes is not needed)
+if verLessThan('MATLAB','9.9')  % prior to R2020b
+    marker_type_names = {'o','+','*','.','x','square','diamond', ...
+        '^','v','>','<','pentagram','hexagram'};
+else
+    marker_type_names = {'o','+','*','.','x','_','|','square','diamond', ...
+        '^','v','>','<','pentagram','hexagram'};
+end
 
 
 % If there are input arguments, set new marker type(s) and/or marker size(s)
