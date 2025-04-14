@@ -141,20 +141,50 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
                 'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
 
+        function test_input_binning_pars_accepted(obj)
 
-        function test_gauss_on_sqw_in_mem_is_equal_to_reference(obj)
+            lp = line_proj;
+            out_par = sqw_op_bin_pixels(obj.sqw_2d_obj, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,lp ,[0,1],[0,1],[0,2],[0,1,10],'-test_input_parsing');
 
-            out_sqw = sqw_op_bin_pixels(obj.sqw_2d_obj, ...
-                obj.gauss_sqw_fun,obj.gauss_sigma);
+            assertTrue(isstruct(out_par));
+            assertTrue(out_par.test_input_parsing);
+            assertTrue(out_par.proj_given)
+            fldnms = {'all','average','filebacked','nopix','all_bins','parallel'};
+            for i=1:numel(fldnms)
+                assertFalse(out_par.(fldnms{i}));
+            end
+            assertEqual(out_par.func_handle,obj.gauss_sqw_fun)
+            assertEqual(out_par.pars{1},obj.gauss_sigma)
+            assertTrue(isempty(out_par.outfile{1}));
+            assertTrue(isempty(out_par.pageop_processor));
 
-            assertTrue(isa(out_sqw.pix,'PixelDataMemory'));
+            lp.alatt = obj.sqw_2d_obj.data.alatt;
+            lp.angdeg = 90;
+            assertEqualToTol(out_par.targ_proj,lp)
+            assertEqualToTol(out_par.targ_ax_block.img_range,[0,0,0,-0.5;1,1,2,10.5]);
+            assertEqualToTol(out_par.targ_ax_block.nbins_all_dims,[1,1,1,11]);
+            assertEqual(out_par.targ_ax_block.filename,obj.sqw_2d_obj.data.filename);
+        end
 
-            % my custom function does not change variange, just
-            % recalculates it, so it should remain the same.
-            assertEqualToTol(obj.sqw_2d_obj.data.e,out_sqw.data.e,obj.FLOAT_TOL);
+        function test_input_default_function_returns_default_binning(obj)
 
-            assertEqualToTolWithSave(obj,out_sqw, ...
-                'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
+            out_par = sqw_op_bin_pixels(obj.sqw_2d_obj, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,'-test_input_parsing');
+
+            assertTrue(isstruct(out_par));
+            assertTrue(out_par.test_input_parsing);
+            fldnms = {'all','average','filebacked','nopix','all_bins','proj_given','parallel'};
+            for i=1:numel(fldnms)
+                assertFalse(out_par.(fldnms{i}));
+            end
+            assertEqual(out_par.func_handle,obj.gauss_sqw_fun)
+            assertEqual(out_par.pars{1},obj.gauss_sigma)
+            assertTrue(isempty(out_par.outfile{1}));
+            assertTrue(isempty(out_par.pageop_processor));
+
+            assertEqualToTol(out_par.targ_proj,obj.sqw_2d_obj.data.proj,1.e-7)
+            assertEqualToTol(out_par.targ_ax_block,obj.sqw_2d_obj.data.axes,1.e-7,'-ignore_str')
         end
 
     end
@@ -178,7 +208,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
         function test_sqw_op_something_unknown_file_fails(obj)
             assertExceptionThrown(@()sqw_op_bin_pixels(10,obj.gauss_sqw_fun,obj.gauss_sigma),...
                 'HORACE:algorithms:invalid_argument');
-        end        
+        end
     end
 
     methods(Static,Access=protected)

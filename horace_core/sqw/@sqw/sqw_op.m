@@ -63,8 +63,17 @@ end
 if  opts.average
     error('HORACE:PageOp_sqw_op:not_implemented', [ ...
         '"-average" option is not currently implemented for sqw_op.' ...
-        'Contact HoraceHelp@stfc.ac.uk if you need it'])
+        'Contact HoraceHelp@stfc.ac.uk if you need it with the description of its meaning in your case'])
 end
+
+% if test_input_parsing option provided among input keys, we are testing input
+% parameters parsing so would exit returning input parameters
+if opts.test_input_parsing
+    wout = opts;
+    % return input parameters without processing them
+    return
+end
+
 
 wout = cell(1,numel(obj));
 for i=1:numel(obj)

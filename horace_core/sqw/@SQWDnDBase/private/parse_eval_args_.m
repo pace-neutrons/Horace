@@ -2,7 +2,7 @@ function [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, va
 %PARSE_EVAL_ARGS -- parser function used by sqw_eval and sqw_op algorithms
 %to process their input parameters which fine-tune the calculation
 %parameters.
-% 
+%
 thePageOp = [];
 if numel(varargin)> 0 && isa(varargin{1},'PageOp_sqw_eval')
     thePageOp = varargin{1};
@@ -11,8 +11,9 @@ else
     argi = varargin;
 end
 
-flags = {'-all', '-average', '-filebacked','-nopix'};
-[~, ~, all_flag, ave_flag, filebacked_flag,nopix_flag, args] = parse_char_options(argi, flags);
+flags = {'-all', '-average', '-filebacked','-nopix','-test_input_parsing'};
+[~, ~, all_flag, ave_flag, filebacked_flag,nopix_flag,test_inputs, args] =...
+    parse_char_options(argi, flags);
 
 parser = inputParser();
 parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
@@ -21,6 +22,7 @@ parser.addParameter('average', ave_flag, @islognumscalar);
 parser.addParameter('all', all_flag, @islognumscalar);
 parser.addParameter('filebacked', filebacked_flag, @islognumscalar);
 parser.addParameter('nopix', nopix_flag, @islognumscalar);
+parser.addParameter('test_input_parsing', test_inputs, @islognumscalar);
 parser.addParameter('outfile', {}, @(x) iscellstr(x) || istext(x));
 
 parser.parse(func_handle, pars, args{:});

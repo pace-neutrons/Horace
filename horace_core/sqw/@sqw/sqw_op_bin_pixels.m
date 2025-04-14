@@ -131,28 +131,54 @@ end
 [targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin{1}, sym);
 
 
-[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, argi);
+argi = varargin(is_key);
+[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, argi{:});
+if ~opt.keep_pix
+    opts.nopix = true;   
+end
+if ~isempty(opt.outfile)
+    if iscell(opt.outfile)
+        opts.outfile = opt.outfile;
+    else
+        opts.outfile = {opt.outfile};        
+    end
+end
+opt = rmfield(opt,{'keep_pix','outfile'});
+opt_names = fieldnames(opt);
+for i=1:numel(opt_names)
+    opts.(opt_names{i})= opt.(opt_names{i});
+end
+
 if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1})) || opts.filebacked
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is
     % generated. This is not much use to a user if it's not returned.
     if nargout ~=1
-        error('HORACE:sqw_op:invalid_argument',[ ...
+        error('HORACE:sqw_op_bin_pixels:invalid_argument',[ ...
             'This method request single output argument unless output filename to save result is specified.\n' ...
             'Filename is missing and got: %d output argumets'], ...
             nargout)
     end
 end
 if  opts.average
-    error('HORACE:PageOp_sqw_op:not_implemented', [ ...
-        '"-average" option is not currently implemented for sqw_op.' ...
-        'Contact HoraceHelp@stfc.ac.uk if you need it'])
+    error('HORACE:sqw_op_bin_pixels:not_implemented', [ ...
+        '"-average" option is not currently implemented for sqw_op_bin_pixels.' ...
+        'Contact HoraceHelp@stfc.ac.uk if you really need it implemented which the explanation of its meaning in your case'])
+end
+% if test_input_parsing option provided among input keys, we are testing input
+% parameters parsing. 
+if opts.test_input_parsing
+    wout = opts;
+    wout.targ_proj     = targ_proj;
+    wout.targ_ax_block = targ_ax_block;
+    % return input parameters without processing them
+    return
 end
 
 wout = cell(1,numel(obj));
 for i=1:numel(obj)
-    wout{i} = sqw_op_single_(obj(i),sqwop_func,pars,opts,i);
+    wout{i} = sqw_op_bin_pix_single_(obj(i),sqwop_func,pars,targ_ax_block,targ_proj,opts,i);
 end
 wout = [wout{:}];
 end
