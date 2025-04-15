@@ -197,23 +197,6 @@ classdef AxesBlockBase < serializable
             [any_within,is_within]=bins_in_1Drange_(bins,range);
         end
         %
-        function [npix,s,e,pix_cand,unique_runid,argi]=...
-                normalize_binning_input(grid_size,pix_coord_transf,n_argout,varargin)
-            % verify inputs of the bin_pixels function and convert various
-            % forms of the inputs of this function into a common form,
-            % where the missing inputs are returned as empty.
-            %
-            %Inputs:
-            % pix_coord_transf -- the array of pixels coordinates
-            %                     transformed into this AxesBlockBase
-            %                      coordinate system
-            % n_argout         -- number of argument, requested by the
-            %                     calling function
-            % Optional:
-
-            [npix,s,e,pix_cand,unique_runid,argi]=...
-                normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
-        end
     end
     %----------------------------------------------------------------------
     methods
@@ -821,6 +804,35 @@ classdef AxesBlockBase < serializable
             end
             [in,in_details] = in_range(range,coord,nargout>1);
         end
+
+        function [npix,s,e] = init_accumulators(obj,n_accum,force_3D)
+            % Initialize binning accumulators, used during bin_pixels
+            % process.
+            %
+            % Inputs:
+            % obj     -- initialized instance of AxesBlockBase class
+            % n_accum -- number of accumulator arrays to initialize.
+            %            may be 1 or 3 (2 transformed to 3)
+            % Returns:   Depending on n_accum, 1 or 3 empty arrays
+            %            if n_accum == 1, two other arrays are empty
+            % npix    -- empty npix array, used to accumulate pixels present
+            %            in a bin (size of obj.dims_as_ssize)
+            % s       -- empty signal array used to accumulate pixels signal
+            %            in a bin (size of obj.dims_as_ssize)
+            % e       -- empty error array used to accumulate pixels variance
+            %            in a bin (size of obj.dims_as_ssize)
+            %
+            if force_3D
+            else
+                npix = zeros(obj.dims_as_ssize());
+                if n_accum == 1
+                    s = []; e=[];
+                else
+                    s = zeros(obj.dims_as_ssize());
+                    e = zeros(obj.dims_as_ssize());
+                end
+            end
+        end
     end
     %======================================================================
     % Bunch of properties and methods involved in construction of the
@@ -846,7 +858,7 @@ classdef AxesBlockBase < serializable
             % obj            -- initialized instance of the line_axes object
             % title_main_pax -- cellarray of titles to plot along projection axes.
             %                   Number of elements must be equal to total number of
-            %                   projection axes in the object.           
+            %                   projection axes in the object.
             % title_main_iax -- cellarray of titles to plot along integration axes.
             %                   Number of elements must be equal to total number of
             %                   integration axes in the object.
@@ -927,15 +939,20 @@ classdef AxesBlockBase < serializable
             % n_argout         -- number of argument, requested by the
             %                     calling function
             % Optional:
-            %
-            grid_size = obj.dims_as_ssize();
+            % Optional:
+            % npix or nothing if mode == 1
+            % npix,s,e accumulators if mode is [4,5,6]
+            % pix_cand  -- if mode == [4,5,6], must be present as a PixelData class
+            %              instance, containing information about pixels
+            % unique_runid -- if mode == [5,6], input array of unique_runid-s
+            %                 calculated on the previous step.
+            force_3Dbinning = false;
             if size(pix_coord_transf,1) ==3  % Q(3D) binning only. Third axis is always missing
-                grid_size = obj.nbins_all_dims;
-                grid_size = grid_size(1:3);
+                force_3Dbinning = true;
             end
             [npix,s,e,pix_cand,unique_runid,argi]=...
-                AxesBlockBase.normalize_binning_input(...
-                grid_size,pix_coord_transf,n_argout,varargin{:});
+                normalize_bin_input_(obj,...
+                force_3Dbinning,pix_coord_transf,n_argout,varargin{:});
         end
         function obj = set_axis_bins(obj,ndims,p1,p2,p3,p4)
             % Calculates and sets plot and integration axes from binning information

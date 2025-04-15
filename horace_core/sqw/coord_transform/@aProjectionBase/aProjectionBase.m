@@ -533,7 +533,7 @@ classdef aProjectionBase < serializable
         % specific projection differences
         %------------------------------------------------------------------
         function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj, ...
-                axes,pix_cand,npix,s,e,varargin)
+                axes,pix_cand,varargin)
             % Convert pixels into the coordinate system defined by the
             % projection and bin them into the coordinate system defined
             % by the axes block, specified as input.
@@ -602,28 +602,43 @@ classdef aProjectionBase < serializable
             %              the pix_ok slot)
 
             pix_transformed = obj.transform_pix_to_img(pix_cand);
+            if nargin<4
+                argi = varargin;
+                [npix,s,e] = obj.init_accumulators(nargout,axes);
+            else
+                if ischar(varargin{1})
+                    argi = varargin;
+                    [npix,s,e] = obj.init_accumulators(nargout,axes);                    
+                else
+                    npix = varargin{1};
+                    s    = varargin{2};
+                    e    = varargin{3};
+                    argi = varargin(4:end);
+                end
+            end
+
             switch(nargout)
                 case(1)
                     npix=axes.bin_pixels(pix_transformed,...
-                        npix,varargin{:});
+                        npix,argi{:});
                 case(3)
                     [npix,s,e]=axes.bin_pixels(pix_transformed,...
-                        npix,s,e,pix_cand,varargin{:});
+                        npix,s,e,pix_cand,argi{:});
                 case(4)
                     [npix,s,e,pix_ok]=axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 case(5)
                     [npix,s,e,pix_ok,unique_runid]=...
                         axes.bin_pixels(pix_transformed,...
-                        npix,s,e,pix_cand,varargin{:});
+                        npix,s,e,pix_cand,argi{:});
                 case(6)
                     [npix,s,e,pix_ok,unique_runid,pix_indx]=...
                         axes.bin_pixels(pix_transformed,...
-                        npix,s,e,pix_cand,varargin{:});
+                        npix,s,e,pix_cand,argi{:});
                 case(7)
                     [npix,s,e,pix_ok,unique_runid,pix_indx,selected]=...
                         axes.bin_pixels(pix_transformed,...
-                        npix,s,e,pix_cand,varargin{:});
+                        npix,s,e,pix_cand,argi{:});
                 otherwise
                     error('HORACE:aProjectionBase:invalid_argument',...
                         'This function requests 1, 3, 4, 5, 6 or 7 output arguments');
@@ -947,6 +962,23 @@ classdef aProjectionBase < serializable
     end
     %
     methods(Static,Access=protected)
+        function    [npix,s,e] = init_accumulators(n_accum,axes)
+            % Initialize necessary numbers of binning accumulators
+            % which correspond to axes block provided
+            % Inputs:
+            % n_accum  -- number accumulators (1 or 3)
+            % access   -- instance of axes block class, which defines the
+            %             shape of the accomulators array
+            % Returns
+            % npix     -- npix accumulator
+            % s        -- signal accumulator. If n_accum == 1 it is empty
+            % e        -- error accunulator. If n_accum == 1 it is empty
+            if n_accum<2
+                [npix,s,e] = axes.init_accumulators(1,false);
+            else
+                [npix,s,e] = axes.init_accumulators(3,false);
+            end
+        end
         function [alignment_needed,alignment_mat] = check_alignment_needed(pixData)
             % verify if input argument contain alignment information and
             % return this information if it is available.
