@@ -127,13 +127,18 @@ if nargin==0 || nargout>0
     marker_sizes = genieplot.get('marker_sizes');
     marker_types = genieplot.get('marker_types');
     if nargout==0
-        % Display the current line width(s) and line style(s)
+        % Display the current marker types and sizes
         disp('Current marker_type(s):')
-        disp(['   ''', strjoin(marker_types, ''',   '), ''''])
+        disp(['   ''', strjoin(marker_types, '''  '''), ''''])
         disp('Current marker_size(s):')
         disp(marker_sizes)
+        % Display the available marker types
+        disp('Available marker_types:')
+        marker_types_available = cellfun(@(x)(x(1:1)), marker_type_names, ...
+            'UniformOutput', false);
+        disp(['   ''', strjoin(marker_types_available, '''  '''), ''''])
     else
-        % Return the current marker type(s) and marker size(s)
+        % Return the current marker types and marker sizes
         varargout{1} = marker_sizes;
         if nargout>=2
             if numel(marker_types)==1

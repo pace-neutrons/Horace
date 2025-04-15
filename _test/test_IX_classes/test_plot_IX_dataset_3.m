@@ -611,6 +611,78 @@ classdef test_plot_IX_dataset_3 < TestCase
         end
         
         %------------------------------------------------------------------
+        % Test cascade of 
+        %------------------------------------------------------------------
+        function test_cyclePlotProperties_colorsFast(obj)
+            % Cycle colors 'fast', so that all colors are cycled through before
+            % incrementing the line and mark styles/types and widths/sizes 
+            
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            acolor('-fast')
+            acolor ('r', 'b', 'y')
+            aline('-', '--', 0.5, 1, 2)
+            amark('o','*','x','s', 3, 6)
+            col_ref = {[1,0,0], [0,0,1], [1,1,0], [1,0,0], [0,0,1], [1,1,0], ...
+                [1,0,0], [0,0,1], [1,1,0], [1,0,0], [0,0,1], [1,1,0]};
+            lineStyle_ref = {'-', '-', '-', '--', '--', '--', '-', '-', '-', '--', '--', '--'};
+            lineWidth_ref = [0.5, 0.5, 0.5, 1, 1, 1, 2, 2, 2, 0.5, 0.5, 0.5];
+            markerType_ref = {'o','o','o','*','*','*','x','x','x','square','square','square'};
+            markerSize_ref = [3, 3, 3, 6, 6, 6, 3, 3, 3, 6, 6, 6];
+
+            nplot = 12;
+            data1D_arr = arrayfun(@mtimes, repmat(obj.data1D,1,12), 1:12);
+            [~, ~, plot_h] = dd(data1D_arr);
+            for i=1:12
+                j = nplot + 1 - i;  % plot handles in reverse order (1 was last plot etc.)
+                assertEqual(plot_h(j).Color, col_ref{i}, ...
+                    ['Color error, plot handle ', num2str(j)])
+                assertEqual(plot_h(j).LineStyle, lineStyle_ref{i}, ...
+                    ['lineStyle error, plot handle ', num2str(j)])
+                assertEqual(plot_h(j).LineWidth, lineWidth_ref(i), ...
+                    ['lineWidth error, plot handle ', num2str(j)])
+                assertEqual(plot_h(j).Marker, markerType_ref{i}, ...
+                    ['Marker error, plot handle ', num2str(j)])
+                assertEqual(plot_h(j).MarkerSize, markerSize_ref(i), ...
+                    ['MarkerSize error, plot handle ', num2str(j)])
+            end
+        end
+        
+        function test_cyclePlotProperties_colorsWith(obj)
+            % Cycle colors 'fast', so that all colors are cycled through before
+            % incrementing the line and mark styles/types and widths/sizes 
+            
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            acolor('-with')
+            acolor ('r', 'b', 'y')
+            aline('-', '--', 0.5, 1, 2)
+            amark('o','*','x','s', 3, 6)
+            col_ref = {[1,0,0], [0,0,1], [1,1,0], [1,0,0], [0,0,1], [1,1,0], ...
+                [1,0,0], [0,0,1], [1,1,0], [1,0,0], [0,0,1], [1,1,0]};
+            lineStyle_ref = {'-', '--', '-', '--', '-', '--', '-', '--', '-', '--', '-', '--'};
+            lineWidth_ref = [0.5, 1, 2, 0.5, 1, 2, 0.5, 1, 2, 0.5, 1, 2];
+            markerType_ref = {'o','*','x','square','o','*','x','square','o','*','x','square'};
+            markerSize_ref = [3, 6, 3, 6, 3, 6, 3, 6, 3, 6, 3, 6];
+
+            nplot = 12;
+            data1D_arr = arrayfun(@mtimes, repmat(obj.data1D,1,12), 1:12);
+            [~, ~, plot_h] = dd(data1D_arr);
+            for i=1:12
+                j = nplot + 1 - i;  % plot handles in reverse order (1 was last plot etc.)
+                assertEqual(plot_h(j).Color, col_ref{i}, ...
+                    ['Color error, plot handle ', num2str(j)])
+                assertEqual(plot_h(j).LineStyle, lineStyle_ref{i}, ...
+                    ['lineStyle error, plot handle ', num2str(j)])
+                assertEqual(plot_h(j).LineWidth, lineWidth_ref(i), ...
+                    ['lineWidth error, plot handle ', num2str(j)])
+                assertEqual(plot_h(j).Marker, markerType_ref{i}, ...
+                    ['Marker error, plot handle ', num2str(j)])
+                assertEqual(plot_h(j).MarkerSize, markerSize_ref(i), ...
+                    ['MarkerSize error, plot handle ', num2str(j)])
+            end
+        end
+        %------------------------------------------------------------------
     end
 end
 

@@ -451,61 +451,13 @@ classdef test_plot_IX_dataset < TestCase
             end
         end
         
-        
 
-        
         
         
         %------------------------------------------------------------------
-        function test_IX1D_plot1D_all_types_on_array(obj)
-            all_types = genieplot.get('marker_types');
-            n_types = numel(all_types);
-            IX1d_arr = repmat(obj.IX_data{1},1,n_types+2);
-            [objh,axh,plh] = dp(IX1d_arr);
+        % *****************************************************************
+        %------------------------------------------------------------------
 
-            assertEqual(numel(objh),1);
-            assertEqual(numel(axh),1);
-            assertEqual(numel(plh),n_types+2);
-            assertTrue(isa(objh,'matlab.ui.Figure'));
-            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-            assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-            close(objh);
-        end
-
-        function test_IX1D_plot1D_all_colour_on_array(obj)
-            all_col = genieplot.get('colors');
-            n_colours = numel(all_col);
-            IX1d_arr = repmat(obj.IX_data{1},1,n_colours+2);
-            [objh,axh,plh] = pl(IX1d_arr);
-
-            assertEqual(numel(objh),1);
-            assertEqual(numel(axh),1);
-            assertEqual(numel(plh),n_colours+2);
-            assertTrue(isa(objh,'matlab.ui.Figure'));
-            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-            assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-            close(objh);
-        end
-
-        function test_IX1D_plot1D_line_cycles_on_array(obj)
-            % there are 4 line styles defined. 5th line has the same line
-            % style as the first one
-            IX1d_arr = [obj.IX_data{1},1.1*obj.IX_data{1},...
-                1.2*obj.IX_data{1},1.3*obj.IX_data{1},1.4*obj.IX_data{1}];
-            [objh,axh,plh] = pl(IX1d_arr);
-
-            assertEqual(numel(objh),1);
-            assertEqual(numel(axh),1);
-            assertEqual(numel(plh),5);
-            assertTrue(isa(objh,'matlab.ui.Figure'));
-            assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-            assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-            assertEqual(plh(1).LineStyle,plh(5).LineStyle)
-            close(objh);
-        end
 
         %================================
         function test_IX1D_overplot2_work_with_overlpot1(obj)
