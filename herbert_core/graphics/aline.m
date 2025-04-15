@@ -11,23 +11,33 @@ function varargout = aline(varargin)
 % Syntax examples:
 %	>> aline(2)             % set line width to 2 points
 %   >> aline('-.')          % set line style to dash-dot
-%	>> aline(0.5, 'dot')    % set line width to 0.5, and line style to dotted
-%	>> aline('dot', 0.5)    % The same (the order of arguments doesn't matter)
+%	>> aline(0.5, 'ddot')   % set line width to 0.5, and line style to dash-dot
+%	>> aline('ddot', 0.5)   % The same (the order of arguments doesn't matter)
+%	>> aline('-.', 0.5)     % Can use linestyle code or name 
 %
 %   Equivalently, used in command mode:
 %   >> aline  2
-%   >> aline  -.
-%   >> aline  0.5  :
-%   >> aline  :  0.5
+%   >> aline  -.            % set line style to dash-dot
+%   >> aline  :             % set line style to dot (also see below)
+%   >> aline  0.5  ddot
+%   >> aline  ddot  0.5      
+%   >> aline  -.   0.5
+%   but note:
+%   >> aline  ':'   0.5     % Must use quotation marks for ':' and '-' because
+%                           % if they are followed by further characters, the 
+%                           % command can be ambiguous. For example, 
+%                           %       aline - 0.5
+%                           % is a valid arithmetic expression and is
+%                           % interpreted as such by the Matlab parser
 %
 % Set a sequence of line style and/or line width that is repeatedly cycled
 % through for a cascade of plots e.g.
-%   >> aline(1, 2, ':', '-', '-.')      % Linewidth repeats 1,2,1,2,...
+%   >> aline(1, 2, '--', '-', '-.')     % Linewidth repeats 1,2,1,2,...
 %                                       % Type repeats ':','-','-.'':','-','-.'...
 %   >> aline({'dot','sol'}, 1:0.5:4)    % Example with a cell array of line types
 %                                       % and implicit array of linewidths
 %   Equivalently:
-%   >> aline  1  2  :  -  -.
+%   >> aline  1  2  --  -  -.
 %   >> aline  dot  sol  1:0.5:4         % (note:a cell array is not readable in
 %                                       %  command mode)
 %
@@ -126,44 +136,51 @@ end
 
 %-------------------------------------------------------------------------------
 function val = parse_function_syntax (arg, str)
-% Determine if a non-empty argument is
-% - an array of non-negative reals
-% - a character vector that matches one of a cell array of character vectors
-% - a cell array of non-empty character vectors each of which satisfies the above
+% Determine if an argument is non-empty and is one of:
+% - An array of non-negative reals.
+% - A character vector that matches one and only one of a cell array of
+%   character vectors, or if not, is an unambiguous abbreviation of one of them.
+% - A cell array of non-empty character vectors each of which matches one and
+%   only one of a cell array of character vectors, or if not, is an unambiguous
+%   abbreviation of one of them.
 %
 % Input:
 % ------
 %   arg     Argument to be validated
-%           Can be a numeric array or a character vector.
-%   str     Cell array (assumed non-empty) of valid character vectors (all
+%           Can be a numeric array, a character vector, or a cell array of
+%           character vectors
+%   str     Row cell array (assumed non-empty) of valid character vectors (all
 %           assumed non-empty)
 %
 % Output:
 % -------
 %   val     If arg was valid:
 %           - row vector of non-negative reals, or
-%           - cell array of character vectors, all of which are members of input
-%             argument str
+%           - row cell array of character vectors, all of which are members of
+%             input argument str
 %           If not valid:
 %           - set to []
 
 nonEmptyCharVec = @(x)(is_string(x) && ~isempty(deblank(x)));
 
-if isnumeric(arg) && isreal(arg) && all(isfinite(arg)) && all(arg(:)>=0)
+if ~isempty(arg) && isnumeric(arg) && isreal(arg) && all(isfinite(arg)) && ...
+        all(arg(:)>=0)
     val = arg(:)';  % make val a row vector
 elseif nonEmptyCharVec(arg)
     arg = deblank(arg);
-    ind = find(strncmpi (arg, str, numel(arg)));
+    ind = stringmatchi (arg, str);
     if isscalar(ind)
         val = str(ind);
     else
         val = [];
     end
-elseif iscell(arg) && all(cellfun(nonEmptyCharVec, arg(:)))
+elseif ~isempty(arg) && iscell(arg) && all(cellfun(nonEmptyCharVec, arg(:)))
     arg = deblank(arg);
-    ok = cellfun(@(x)(any(strncmpi(x, str, numel(x)))), arg(:));
+    ind = cellfun(@(x)(stringmatchi(x, str)), arg(:)', 'UniformOutput', false);
+    ok = cellfun(@isscalar, ind);
     if all(ok)
-        val = arg(:)';  % make val a row vector
+        ind = cat(2, ind{:});   % make ind a row vector
+        val = str(ind);
     else
         val = [];
     end
@@ -173,13 +190,21 @@ end
 
 %-------------------------------------------------------------------------------
 function val = parse_command_syntax (arg, str)
-% Determine if a non-empty character vector can be parsed as an array of
+% Determine if a character vector is non-empty and can be parsed as one of:
+% - An array of non-negative reals.
+% - A character vector that matches one and only one of a cell array of
+%   character vectors, or if not, is an unambiguous abbreviation of one of them.
+% - A cell array of non-empty character vectors each of which matches one and
+%   only one of a cell array of character vectors, or if not, is an unambiguous
+%   abbreviation of one of them.
+
+
 % non-negative reals; if not, determine if it matches one of a cell array of
 % character strings.
 %
 % Input:
 % ------
-%   arg     Character vector to be validated (assumed non-empty)
+%   arg     Character vector to be validated
 %   str     Cell array (assumed non-empty) of valid character vectors (all
 %           assumed non-empty)
 %
@@ -187,7 +212,7 @@ function val = parse_command_syntax (arg, str)
 % -------
 %   val     If arg was valid:
 %           - row vector of non-negative reals, or
-%           - cell array of with the single character vector that was found in
+%           - cell array with the single character vector that was found in
 %             input argument str
 %           If not valid:
 %           - set to []
@@ -197,13 +222,13 @@ nonEmptyCharVec = @(x)(is_string(x) && ~isempty(deblank(x)));
 val = [];   % assume the worst
 if nonEmptyCharVec(arg)
     arg = deblank(arg);
-    [val, ok] = str2num(arg);  % NOT str2double, as we want to be able to read arrays
+    [val, ok] = str2num(arg);  % do not str2double, as need to be able to read arrays
     if ok
         if isreal(val) && all(isfinite(val(:))) && all(val(:)>=0)
             val = val(:)';  % make val a row vector
         end
     else
-        ind = find(strcmp (arg, str));
+        ind = stringmatchi (arg, str);
         if isscalar(ind)
             val = str(ind);
         end

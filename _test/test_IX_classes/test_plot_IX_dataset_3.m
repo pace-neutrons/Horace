@@ -62,12 +62,9 @@ classdef test_plot_IX_dataset_3 < TestCase
         %------------------------------------------------------------------
         % Test aline
         %------------------------------------------------------------------
-        function test_aline_setScalarWidth(~)
-            aline(2.718)
-            genie_line_properties_test([], 2.718);
-        end
-        
-        function test_aline_setScalarStyleName(obj)
+        function test_aline_loopSetScalarStyleName(obj)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             for i = 1:numel(obj.line_style_names)
                 line_style_name = obj.line_style_names{i};
                 line_style_code = obj.line_style_codes{i};
@@ -76,7 +73,9 @@ classdef test_plot_IX_dataset_3 < TestCase
             end
         end
         
-        function test_aline_setScalarStyleCode(obj)
+        function test_aline_loopSetScalarStyleCode(obj)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             for i = 1:numel(obj.line_style_codes)
                 line_style_code = obj.line_style_codes{i};
                 aline(line_style_code)
@@ -84,15 +83,201 @@ classdef test_plot_IX_dataset_3 < TestCase
             end
         end
         
+        function test_aline_setScalarWidth(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline (2.718)
+            genie_line_properties_test([], 2.718);
+        end
+        
+        function test_aline_setScalarStyleName(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline ('dot')
+            genie_line_properties_test({':'}, []);
+        end
+
+        function test_aline_setScalarStyleCode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline ('-.')
+            genie_line_properties_test({'-.'}, []);
+        end
+
+        function test_aline_setScalarWidthAndStyleName(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline (0.5, 'dot')
+            genie_line_properties_test({':'}, 0.5);
+        end
+
+        function test_aline_setScalarStyleNameAndWidth(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline ('dot', 0.5)
+            genie_line_properties_test({':'}, 0.5);
+        end
+
+        function test_aline_setScalarStyleCodeAndWidth(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline  (':', 0.5)
+            genie_line_properties_test({':'}, 0.5);
+        end
+        
+        function test_aline_setScalarWidth_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline 2.718
+            genie_line_properties_test([], 2.718);
+        end
+        
+        function test_aline_setScalarStyleCode_ddot_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline -.
+            genie_line_properties_test({'-.'}, []);
+        end
+
+        function test_aline_setScalarStyleCode_dot_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline :
+            genie_line_properties_test({':'}, []);
+        end
+
+        function test_aline_setScalarWidthAndStyleName_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            dot = {[14,15],'nog'};  % try to confuse command syntax parser in aline
+            aline 0.5 dot
+            genie_line_properties_test({':'}, 0.5);
+        end
+
+        function test_aline_setScalarStyleNameAndWidth_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline dot 0.5
+            genie_line_properties_test({':'}, 0.5);
+        end
+
+        function test_aline_setScalarStyleCodeAndWidth_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            % The cases of using a colon or minus sign as an argument with
+            % command syntax is ambiguous if there are further
+            % characters, as e.g. >> aline : 0.5 is seem as a syntax warning
+            % and >> aline - 0.5 is a valid arithmetic statement.
+            % Until we can find a way of changing Matlab behaviour in a robut
+            % way, catch this test.
+            % The following will be interpreted as >> aline
+            aline  :  0.5
+            styles = genieplot.get('line_styles');
+            widths = genieplot.get('line_widths');
+            assertFalse(isequal(styles, ':'), 'Mysteriously now working ???')
+            assertFalse(isequal(widths, '0.5'), 'Mysteriously now working ???')
+            
+            % This will work:
+            aline ':' 0.5
+            genie_line_properties_test({':'}, 0.5);
+        end
+
+        function test_aline_setVectorWidthAndStylecode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline (1, 2, '--', '-', '-.')
+            genie_line_properties_test({'--', '-', '-.'}, [1,2]);
+        end
+
+        function test_aline_setVectorStylecodeAndWidthAndStylecode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline (':', 1, 2, '--', '-', '-.')
+            genie_line_properties_test({':', '--', '-', '-.'}, [1,2]);
+        end
+
+        function test_aline_setVectorStylenameAndWidth(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline ({'dot','sol'}, 1:2:7)
+            genie_line_properties_test({':', '-'}, [1,3,5,7]);
+        end
+
+        function test_aline_setVectorStylenameCapsAndWidth(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline ({'DOT','SOL'}, 1:2:7)
+            genie_line_properties_test({':', '-'}, [1,3,5,7]);
+        end
+
+        function test_aline_setVectorStylecodeOrNameAndWidth(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline ({':','sol'}, 1:2:7)
+            genie_line_properties_test({':', '-'}, [1,3,5,7]);
+        end
+
+        function test_aline_setVectorStylecodeAndWidth(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline ({':','-'}, 1:2:7)
+            genie_line_properties_test({':', '-'}, [1,3,5,7]);
+        end
+
+        function test_aline_setVectorWidthAndStylecode_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline  1  2  --  -  -.
+            genie_line_properties_test({'--', '-', '-.'}, [1,2]);
+        end
+
+        function test_aline_setVectorStylenameAndWidth_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline  dot  sol  1:2:7
+            genie_line_properties_test({':', '-'}, [1,3,5,7]);
+        end
+
+        function test_aline_setVectorStylenameCapsAndWidth_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            aline  DOT  SOL  1:2:7
+            genie_line_properties_test({':', '-'}, [1,3,5,7]);
+        end
+
+        function test_aline_scalarStyle_output(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            [width_out, style_out] = aline('dot', '4.5');
+            assertEqual(width_out, 4.5)
+            assertEqual(style_out, ':')
+        end
+        
+        function test_aline_vectorStyle_output(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            [width_out, style_out] = aline('dot', [5,6,8], 'sol');
+            assertEqual(width_out, [5,6,8])
+            assertEqual(style_out, {':', '-'})
+        end
+        
+        
         %------------------------------------------------------------------
         % Test amark
         %------------------------------------------------------------------
-        function test_amark_setScalarSize(~)
-            amark(8.5)
-            genie_marker_properties_test([], 8.5);
+        function test_amark_loopSetScalarMarkerCode(obj)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            for i = 1:numel(obj.marker_type_names)
+                marker_type_code = obj.marker_type_codes{i};
+                amark(marker_type_code)
+                genie_marker_properties_test({marker_type_code}, [], i);
+            end
         end
-        
-        function test_amark_setScalarMarkerName(obj)
+                
+        function test_amark_loopSetScalarMarkerName(obj)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             for i = 1:numel(obj.marker_type_names)
                 marker_type_name = obj.marker_type_names{i};
                 marker_type_code = obj.marker_type_codes{i};
@@ -101,33 +286,190 @@ classdef test_plot_IX_dataset_3 < TestCase
             end
         end
         
-        function test_amark_setScalarMarkerCode(obj)
-            for i = 1:numel(obj.marker_type_codes)
-                marker_type_code = obj.marker_type_codes{i};
-                amark(marker_type_code)
-                genie_marker_properties_test({marker_type_code}, [], i);
-            end
+        function test_amark_setScalarSize(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark (9.5)
+            genie_marker_properties_test([], 9.5);
         end
+        
+        function test_amark_setScalarMarkerName(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark ('diam')
+            genie_marker_properties_test({'d'}, []);
+        end
+
+        function test_amark_setScalarMarkerCode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark ('D')
+            genie_marker_properties_test({'d'}, []);    % checks case insensitivity too
+        end
+
+        function test_amark_setScalarSizeAndMarkerName(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark (4.5, 'diam')
+            genie_marker_properties_test({'d'}, 4.5);
+        end
+
+        function test_amark_setScalarMarkerNameAndSize(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark ('diam', 4.5)
+            genie_marker_properties_test({'d'}, 4.5);
+        end
+
+        function test_amark_setScalarMarkerCodeAndSize(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark  ('+', 4.5)
+            genie_marker_properties_test({'+'}, 4.5);
+        end
+        
+        function test_amark_setScalarSize_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark 9.5
+            genie_marker_properties_test([], 9.5);
+        end
+        
+        function test_amark_setScalarMarkerCode_plus_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark +
+            genie_marker_properties_test({'+'}, []);
+        end
+
+        function test_amark_setScalarSizeAndMarkerName_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            diam = {[14,15],'nog'};  % try to confuse command syntax parser in amark
+            amark 4.5 diam
+            genie_marker_properties_test({'d'}, 4.5);
+        end
+
+        function test_amark_setScalarMarkerNameAndSize_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark diam 4.5
+            genie_marker_properties_test({'d'}, 4.5);
+        end
+
+        function test_amark_setScalarMarkerCodeAndSize_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            % The cases of using '+'   '*'   '^'   '>'   '<'   '|'  with
+            % command syntax is ambiguous if there are further
+            % characters, as e.g. >> amark + 4.5 is a valid arithmetic statement.
+            % Until we can find a way of changing Matlab behaviour in a robut
+            % way, catch this test.
+            % The following will be interpreted as >> aline
+            amark  +  4.5
+            types = genieplot.get('marker_types');
+            sizes = genieplot.get('marker_sizes');
+            assertFalse(isequal(types, ':'), 'Mysteriously now working ???')
+            assertFalse(isequal(sizes, '4.5'), 'Mysteriously now working ???')
+
+            % This will work:
+            amark '+' 4.5
+            genie_marker_properties_test({'+'}, 4.5);
+        end
+
+        function test_amark_setVectorSizeAndMarkerCode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark (5, 10, 'x', 'o', 'p')
+            genie_marker_properties_test({'x', 'o', 'p'}, [5,10]);
+        end
+
+        function test_amark_setVectorMarkerCodeAndSizeAndMarkerCode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark ('+', 5, 10, '*', 'diam', '>')
+            genie_marker_properties_test({'+', '*', 'd', '>'}, [5,10]);
+        end
+
+        function test_amark_setVectorMarkerNameAndSize(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark ({'v','p'}, 1:2:7)
+            genie_marker_properties_test({'v', 'p'}, [1,3,5,7]);
+        end
+
+        function test_amark_setVectorMarkerNameCapsAndSize(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark ({'V','P'}, 1:2:7)
+            genie_marker_properties_test({'v', 'p'}, [1,3,5,7]);
+        end
+
+        function test_amark_setVectorSizeAndMarkerCode_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark  5  10  x  o  p
+            genie_marker_properties_test({'x', 'o', 'p'}, [5,10]);
+        end
+
+        function test_amark_setVectorMarkerNameAndSize_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark  v  p  1:2:7
+            genie_marker_properties_test({'v', 'p'}, [1,3,5,7]);
+        end
+
+        function test_amark_setVectorMarkerNameCapsAndSize_commandMode(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            amark  V  P  1:2:7
+            genie_marker_properties_test({'v', 'p'}, [1,3,5,7]);
+        end
+
+        function test_amark_scalarMarkerName_output(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            [size_out, markerCode_out] = amark('pent', 4.5);
+            assertEqual(size_out, 4.5)
+            assertEqual(markerCode_out, 'p')
+        end
+        
+        function test_amark_vectorMarkerName_output(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
+            [size_out, markerCode_out] = amark('pent', [5,6,8], 'diam');
+            assertEqual(size_out, [5,6,8])
+            assertEqual(markerCode_out, {'p', 'd'})
+        end
+        
         
         %------------------------------------------------------------------
         % Test acolor
         %------------------------------------------------------------------
         function test_acolor_setScalarCycle_fast(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             acolor('-fast')
             genie_colors_test([], 'fast');
         end
         
         function test_acolor_setScalarCycle_with(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             acolor('-wi')
             genie_colors_test([], 'with');
         end
         
         function test_acolor_setScalarCycle_ERROR(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             f = @()acolor('wi');
             assertExceptionThrown(f, 'HERBERT:graphics:invalid_argument');
         end
         
-        function test_acolor_setScalarColorName(obj)
+        function test_acolor_loopSetScalarColorName(obj)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             for i = 1:numel(obj.colorNames)
                 color_name = obj.colorNames{i};
                 color_code = obj.colorCodes{i};
@@ -136,7 +478,9 @@ classdef test_plot_IX_dataset_3 < TestCase
             end
         end
         
-        function test_acolor_setScalarColorCode(obj)
+        function test_acolor_loopSetScalarColorCode(obj)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             for i = 1:numel(obj.colorCodes)
                 color_code = obj.colorCodes{i};
                 acolor(color_code)
@@ -145,24 +489,21 @@ classdef test_plot_IX_dataset_3 < TestCase
         end
         
         function test_acolor_setScalarColorCode_functionMode(~)
-            acolor('g')     % set to something other than what we are testing
-            genie_colors_test({'g'}, []);   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor('re')
             genie_colors_test({'r'}, []);
         end
         
         function test_acolor_setScalarColorCode_commandMode(~)
-            acolor('g')     % set to something other than what we are testing
-            genie_colors_test({'g'}, []);   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor re
             genie_colors_test({'r'}, []);
         end
         
         function test_acolor_setScalarColorCode_commandMode_evalTest(~)
-            acolor('g')     % set to something other than what we are testing
-            genie_colors_test({'g'}, []);   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             re = 15;        % try to confuse command syntax parser in acolor
             acolor re
@@ -170,68 +511,56 @@ classdef test_plot_IX_dataset_3 < TestCase
         end
         
         function test_acolor_setScalarColorCode_commandMode_blackAbbrev(~)
-            acolor('g')     % set to something other than what we are testing
-            genie_colors_test({'g'}, []);   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor('bla')
             genie_colors_test({'k'}, []);
         end
         
         function test_acolor_setScalarColorCode_commandMode_blackAbbrevr(~)
-            acolor('g')     % set to something other than what we are testing
-            genie_colors_test({'g'}, []);   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor bla
             genie_colors_test({'k'}, []);
         end
         
         function test_acolor_setVectorColorCode_functionMode(~)
-            acolor('g')     % set to something other than what we are testing
-            genie_colors_test({'g'}, []);   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor('r', 'b', 'bla', 'g')
             genie_colors_test({'r', 'b', 'k', 'g'}, []);
         end
         
         function test_acolor_setVectorColorCode_and_cycle_functionMode(~)
-            acolor('g')     % set to something other than what we are testing
-            acolor('-fast')
-            genie_colors_test({'g'}, 'fast');   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor('r', 'b', 'bla', 'g', '-wi')
             genie_colors_test({'r', 'b', 'k', 'g'}, []);
         end
         
         function test_acolor_setVectorColorCode_and_cycle_functionMode_ERROR(~)
-            acolor('g')     % set to something other than what we are testing
-            acolor('-fast')
-            genie_colors_test({'g'}, 'fast');   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             f = @()acolor('r', 'b', 'bla', '-wi', 'g'); % error: cycle set in middle of colours
             assertExceptionThrown(f, 'HERBERT:graphics:invalid_argument');
         end
         
         function test_acolor_setVectorColorCode_commandMode(~)
-            acolor('g')     % set to something other than what we are testing
-            genie_colors_test({'g'}, []);   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor r  b  bla  g
             genie_colors_test({'r', 'b', 'k', 'g'}, []);
         end
         
         function test_acolor_setVectorColorCode_and_cycle_commandMode(~)
-            acolor('g')     % set to something other than what we are testing
-            acolor('-fast')
-            genie_colors_test({'g'}, 'fast');   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor r  b  bla  g -with
             genie_colors_test({'r', 'b', 'k', 'g'}, 'with');
         end
         
         function test_acolor_setVectorColorCode_and_cycle_commandMode_ERROR(~)
-            acolor('g')     % set to something other than what we are testing
-            acolor('-fast')
-            genie_colors_test({'g'}, 'fast');   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             try
                 acolor r  b  bla -with  g  % error: cycle set in middle of colours
@@ -243,35 +572,38 @@ classdef test_plot_IX_dataset_3 < TestCase
         end
         
         function test_acolor_setCellVectorColorCode_functionMode(~)
-            acolor('g')     % set to something other than what we are testing
-            genie_colors_test({'g'}, []);   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor({'r', 'y', 'bla'})
             genie_colors_test({'r', 'y', 'k'}, []);
         end
         
         function test_acolor_setCellVectorColorCode_and_cycle_functionMode(~)
-            acolor('g')     % set to something other than what we are testing
-            acolor('-fast')
-            genie_colors_test({'g'}, 'fast');   % check it is set
+            genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
             acolor({'r', 'y', 'bla'}, '-wi')
             genie_colors_test({'r', 'y', 'k'}, 'with');
         end
         
         function test_acolor_singleColor_output(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             [col_out, cycle_out] = acolor('g', '-fa');
             assertEqual(col_out, 'green')
             assertEqual(cycle_out, 'fast')
         end
         
         function test_acolor_vectorColor_output(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             [col_out, cycle_out] = acolor('r', 'y', 'bla', '-wi');
             assertEqual(col_out, {'red', 'yellow', 'black'})
             assertEqual(cycle_out, 'with')
         end
         
         function test_acolor_vectorColorAndPalette_output(~)
+            genieplot_initialise('fast')    % initialise to some unlikely values
+            % Test proper:
             [col_out, cycle_out] = acolor('r', 'gem', 'bla', '-wi');
             assertEqual(col_out, {'red', 'denim', 'carrot', 'marigold', ...
                 'purple', 'grass', 'babyblue', 'brickred', 'black'})
@@ -282,6 +614,21 @@ classdef test_plot_IX_dataset_3 < TestCase
     end
 end
 
+
+%--------------------------------------------------------------------------
+function genieplot_initialise(color_cycle)
+% Set genieplot parameters so that we always start the tests with the same setup
+% for line, mark and color.
+% Set to something we'll never likely set in the tests.
+% However, color_cycle can only take one of two values, so this is taken as an
+% input argument.
+genieplot.set('color_cycle',color_cycle)
+genieplot.set('colors',{'#0071BA','#D75319','#EDB113'})
+genieplot.set('line_styles', {'-.',':','-.',':','-.',':','-.',':'})
+genieplot.set('line_widths', [1.3,6,34,36,5.3368,3.7,5.4,7.5,5,15,14,6,66,56,5])
+genieplot.set('marker_types',{'x','<','*','x','<','+','x','<','*','x','^','*'})
+genieplot.set('marker_sizes',[1.3,6.34327,3.35784,36,5.3368,3.1856377,5.4,7])
+end
 
 %--------------------------------------------------------------------------
 function genie_line_properties_test(styles_ref, widths_ref, suffix)
