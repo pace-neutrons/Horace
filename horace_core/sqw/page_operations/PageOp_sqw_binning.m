@@ -179,8 +179,8 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         %
         %
         function [out_obj,obj] = finish_op(obj,out_obj)
-            % Overload finish op to do operations, specific to pixels
-            % binning
+            % Overloaded to do operations, specific to pixels binning
+            % The coude roughly repeats the one deployed by cut_sqw
             %
             % transfer image modifications to the underlying object.
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc_);
@@ -190,24 +190,24 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             else
                 combine_pixels = false;
             end
-            % if filebacked, this will create sqw object combine_pixel_data
-            % obj in place of pixels
+            % if filebacked, this will create sqw object with
+            % combine_pixel_data object in sqw_obj.pix_ field
             [out_obj,obj] = obj.finish_core_op(out_obj);
             %
             if ~combine_pixels
                 return
             end
-
+            %ask configuration on selected way of combining pixels together.
             hpc = hpc_config;
             hc = hor_config;
             use_mex = hc.use_mex && strcmp(hpc.combine_sqw_using,'mex_code');
+            %
             % combine partial pixel data together to obtain fully fledged
-            % sqw object
+            % filebacked sqw object.
             page_op         = PageOp_join_sqw;
             page_op.outfile = obj.outfile;
             [page_op,out_obj] = page_op.init(out_obj,[],use_mex);
             out_obj           = sqw.apply_op(out_obj,page_op);
-
         end
         %------------------------------------------------------------------
     end

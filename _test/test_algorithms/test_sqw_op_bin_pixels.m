@@ -52,18 +52,6 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
         end
 
         %------------------------------------------------------------------
-        % Argument validation tests -- Majority are the same as for test_sqw_eval
-        % so look there for missing checks
-        function test_notEnoughOutputs_error_if_no_ret_value_and_filebacked(obj)
-            f = @() sqw_op( ...
-                obj.sqw_2d_obj, ...
-                obj.gauss_sqw_fun, ...
-                obj.gauss_sigma, ...
-                'filebacked', true ...
-                );
-            assertExceptionThrown(f, 'HORACE:sqw_op:invalid_argument');
-        end
-        %------------------------------------------------------------------
         % SQW file tests
         function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
             % change source configuration to make source object filebacked
@@ -141,6 +129,19 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
                 'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
 
+        %------------------------------------------------------------------
+        % Argument validation tests -- Majority are the same as for test_sqw_eval
+        % so look there for missing checks
+        function test_notEnoughOutputs_error_if_no_ret_value_and_filebacked(obj)
+            f = @() sqw_op_bin_pixels( ...
+                obj.sqw_2d_obj, ...
+                obj.gauss_sqw_fun, ...
+                obj.gauss_sigma, ...
+                'filebacked', true ...
+                );
+            assertExceptionThrown(f, 'HORACE:sqw_op:invalid_argument');
+        end        
+
         function test_input_binning_pars_accepted_with_outfile(obj)
 
             lp = line_proj;
@@ -168,7 +169,6 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
 
         end
         
-
         function test_input_binning_pars_accepted(obj)
 
             lp = line_proj;
@@ -261,6 +261,9 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             center = 0.5*(pix_range(1,:)+pix_range(2,:));
             signal = exp(-sum(((coord-center(:))./gauss_sigma(:)).^2,1))/(prod(gauss_sigma)*pi*pi);
             page(op.signal_idx,:) = signal;
+            % fold pixels x-axis pasing trough center above
+            do_fold = page(1,:)<center(1);
+            page(1,do_fold)=2*center(1)-page(1,do_fold);
         end
     end
 end

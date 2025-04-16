@@ -7,7 +7,8 @@ classdef PageOp_sqw_eval < PageOpBase
         average = false;
         proj
         op_parms
-        %
+        % indices of signal and variance arrays within the page
+        sigvar_idx
     end
     properties(Dependent)
         %Read-only Access to internal image holder to use in sqw_op
@@ -20,6 +21,7 @@ classdef PageOp_sqw_eval < PageOpBase
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'sqw_eval';
             obj.split_at_bin_edges = true;
+            obj.sigvar_idx = PixelDataBase.field_index('sig_var');
         end
         function obj = init(obj,sqw_obj,operation,op_param,average)
             obj           = init@PageOpBase(obj,sqw_obj);
