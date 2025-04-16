@@ -137,6 +137,7 @@ if keep_axes
     hold on;        % hold the existing plot for overplotting
 else
     delete(gca)     % not necessary if a new figure, but doesn't do any harm
+    box on          % plot default axes
 end
 
 % Plot data

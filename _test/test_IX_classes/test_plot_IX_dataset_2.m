@@ -29,6 +29,9 @@ classdef test_plot_IX_dataset_2 < TestCase
                 obj.w3_unequal] = make_data;
         end
         
+        
+        %------------------------------------------------------------------
+        %  1D tests
         %------------------------------------------------------------------
         function test_1D_plotOverCurrent_on1D(obj)
             % Plot a 1D IX_dataset over a plot of an IX_dataset_1d
@@ -111,13 +114,51 @@ classdef test_plot_IX_dataset_2 < TestCase
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             
-            [fig_h_ref, axes_h_ref, plot_h_ref] = da(obj.w2_point(1));
+            [fig_h_ref, axes_h_ref, plot_h_ref] = da(obj.w2_point(1));  % 2D plot
             [fig_h, axes_h, plot_h] = phoc(obj.w1_hist(1));
             assertTrue(fig_h==fig_h_ref, 'New figure created');
             assertTrue(axes_h==axes_h_ref, 'New axes created');
             assertTrue(numel(plot_h)==numel(plot_h_ref)+1, 'Plot missing');
         end
         
+        
+        %------------------------------------------------------------------
+        %  2D tests
+        %------------------------------------------------------------------
+        function test_2D_areaAndsurfacePlotsDifferentFigures(obj)
+            % Attempt to overplot a surface plot on an area plot.
+            % Because these have different figure names, the overplot will
+            % actually be seen as not having a genie_window of the required name
+            % and so a new window will be opened
+            clear_figures()
+            cleanupObj = onCleanup(@clear_figures);
+            
+            fig_h_ref = da(obj.w2_point(1)); % area plot
+            assertEqual(fig_h_ref.Name, 'Herbert area plot')
+            
+            fig_h = ps(obj.w2_point(2));
+            assertEqual(fig_h.Name, 'Herbert surface plot')
+            
+            assertFalse(isequal(fig_h_ref, fig_h))
+        end
+        
+        %------------------------------------------------------------------
+        function test_2D_plotOverCurrent_on2D(obj)
+            % Plot a 2D area plot over the current figure created by a surface
+            % plot. Even though they have different figure types, the 'plot over
+            % current' forces the area plot onto the surface plot.
+            clear_figures()
+            cleanupObj = onCleanup(@clear_figures);
+            
+            [fig_h_ref, axes_h_ref, plot_h_ref] = ds(obj.w2_point(1));
+            [fig_h, axes_h, plot_h] = paoc(obj.w2_point(2));
+            assertTrue(fig_h==fig_h_ref, 'New figure created');
+            assertTrue(axes_h==axes_h_ref, 'New axes created');
+            assertTrue(numel(plot_h)==numel(plot_h_ref)+1, 'Plot missing');
+        end
+        
+        %------------------------------------------------------------------
+        %  3D tests
         %------------------------------------------------------------------
         function test_3D_nonUniformBins_noFigurePlotted(obj)
             % Sliceomatic requires uniform bins. Error should be thrown.
