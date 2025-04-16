@@ -1,22 +1,31 @@
 classdef PageOp_sqw_binning < PageOp_sqw_eval
-    % Single pixel page operation used by sqw_op algorithm
+    % Single pixel page operation used by sqw_op_bin_pixels algorithm
     %
-    properties
-        new_binning;
-        new_range;
-        %
-    end
     properties(Access=protected)
+        % accumulator for number of pixels contributing to each cell.
+        % unlike other PageOp, this operation changes this number so source
+        % npix arry is not appropriate for this purpose and additional
+        % accumulator is requested.
         npix_acc_
+        % storage for PixelDataMemory class used as target for page of
+        % pixel data. Allocated to avoid reallcating it in each page
+        % operation.
         pix_page_;
+        % properly contains information about pre-processed pixels
+        % cache used to write bunch of data to file or store in memory
+        % if it is still possible.
+        pix_combine_info_;
+        % holder for target access property
+        targ_axes_
     end
 
     methods
         function obj = PageOp_sqw_binning(varargin)
             obj = obj@PageOp_sqw_eval(varargin{:});
-            obj.op_name_ = 'sqw_binning';
+            obj.op_name_ = 'sqw_op_bin_pixels';
         end
-        function obj = init(obj,sqw_obj,operation,op_param,pop_options)
+        function obj = init(obj,sqw_obj,operation,op_param, ...
+                targ_ax_block,targ_proj,pop_options)
             % Initialize PageOp_sqw_op operation over input sqw file
             %
             % Inputs:
@@ -28,23 +37,84 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % op_param  -- cellarray of operation parameters to be provided
             %              to operation in the form:
             %              operation(obj,op_param{:});
+            % targ_ax_block
+            %           -- Properly initialized axes block used as part of
+            %              target image obtained from binned pixels.
+            % targ_proj -- Properly initialized projection, part of target
+            %              image used for transforming modified pixels into image
+            %              coordinate system defined by input projection
+            %              and input target block
+            %
             % Returns:
             % obj      --  PageOp_sqw_op instance initialized to run
             %              operation over it
             %
             obj = init@PageOp_sqw_eval(obj,sqw_obj,operation,op_param,false);
             obj.img_.do_check_combo_arg = false;
-            obj.img_.axes.img_range = obj.new_range;
-            obj.img_.axes.nbins_all_dims = obj.new_binning;
+
+            obj.proj = targ_proj;
+            obj.img_.axes = targ_ax_block;
+            obj.img_.proj = targ_proj;
+
+            % clear existing image npix,s,e array to save memory. They will
+            % be set up from the accumulators at the end of calculations
+            obj.img_.npix = [];
+            obj.img_.s = [];
+            obj.img_.e = [];
 
             obj.split_at_bin_edges = true;
             obj.do_nopix = pop_options.nopix;
-
-            obj.sig_acc_  = zeros(obj.new_binning);
-            obj.var_acc_  = zeros(obj.new_binning);
-            obj.npix_acc_ = zeros(obj.new_binning);
+            [obj.npix_acc_,obj.sig_acc_,obj.var_acc_] = targ_ax_block.init_accumulators(3,false);
+            %
             obj.pix_page_ = PixelDataMemory();
         end
+        function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
+            % Method used to split input npix array into pages
+            % Inputs:
+            % npix  -- image npix array, which defines the number of pixels
+            %           contributing into each image bin and the pixels
+            %           ordering in the linear array
+            % chunk_size
+            %       -- sized of chunks to split pixels
+            % Returns:
+            % npix_chunks -- cellarray, containing the npix parts
+            % npix_idx    -- [2,n_chunks] array of indices of the chunks in
+            %                the npix array.
+            % See split procedure for more details
+            [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
+            if obj.do_nopix_
+                return;
+            end
+            % intialize pix_combine_info to store pixel data if one wants to
+            % store modified pixels
+            wk_dir = get(parallel_config, 'working_directory');
+            n_files = numel(npix_idx_chunks);
+            tmp_file_names = gen_unique_file_paths(n_files, 'horace_cut', wk_dir);
+
+            nbins = numel(obj.npix_accum_);
+            obj.pix_combine_info_ = pixfile_combine_info(tmp_file_names, nbins);
+        end
+        function obj = common_page_op(obj)
+            % Overloaded code which runs for every page_op_bin_pixels
+            % operation.
+            %
+            % Input:
+            % obj   -- pageOp object, containing modified pixel_data page
+            %          to analyse.
+            %
+            % Returns:
+            % obj   -- modified PageOp class, containing:
+            %      a)  updated pix_data_range_ field, containing pixel data
+            %          range (min/max values ) calculated accounting for
+            %          recent page data
+            %
+            % Unlike parent operation this one does not store page data,
+            % as page data storage works differently with binning and,
+            % if necessary, perforemed in apply_op
+            obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
+                obj.pix_data_range_);
+        end
+
         function obj = apply_op(obj,varargin)
             % Apply user-defined operation over page of pixels located in
             % memory. Pixels have to be split on bin edges
@@ -74,9 +144,29 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             end
             pix = obj.pix_page_;
             pix = pix.set_raw_data(page_data);
-            [obj.npix_acc_,obj.sig_acc_,obj.var_acc_] = obj.proj.bin_pixels(...
-                obj.img_.axes,pix, ...
-                obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
+            if obj.do_nopix_
+                [obj.npix_acc_,obj.sig_acc_,obj.var_acc_] = obj.proj.bin_pixels(...
+                    obj.img_.axes,pix, ...
+                    obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
+            else
+                [obj.npix_acc_,obj.sig_acc_,obj.var_acc_, pix_ok,...
+                    unique_runid_l, pix_indx] = ...
+                    obj.proj.bin_pixels(targ_axes, pix, obj.npix_acc_, s, e);
+
+                if obj.exp_modified
+                    obj.unique_run_id_ = unique([obj.unique_run_id_, ...
+                        unique_runid_l(:)']);
+                end
+                % Store produced data in cache, and when the cache is full
+                % generate tmp files. Return pixfile_combine_info object to manage
+                % the files - this object then used to recombine the files within
+                % PageOp_sqw_join operation.
+                obj.pix_combine_info_ = cut_data_from_file_job.accumulate_pix( ...
+                    obj.pix_combine_info_, false, ...
+                    pix_ok, pix_indx, obj.npix_acc_, ...
+                    buf_size,ll);
+
+            end
         end
         %
         %
@@ -84,7 +174,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % Overload finish op to do operations, specific to pixels
             % binning
             %
-            % transfer modifications to the underlying object.
+            % transfer image modifications to the underlying object.
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc_);
             %
             [out_obj,obj] = obj.finish_core_op(out_obj);

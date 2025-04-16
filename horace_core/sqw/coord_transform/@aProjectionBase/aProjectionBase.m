@@ -548,6 +548,7 @@ classdef aProjectionBase < serializable
             %         in any format accepted by the particular projection,
             %         which does transformation from pix_to_img
             %         coordinate system
+            % Optional:
             % npix -- the array, containing the numbers of pixels
             %         contributing into each axes grid cell, calculated
             %         during the previous iteration step. zeros(size(npix))
@@ -560,6 +561,8 @@ classdef aProjectionBase < serializable
             %         axes grid cell calculated during the previous
             %         iteration step. zeros(size(npix)) if this is the
             %         first step.
+            % If these parameters are missing, they will be regenerated
+            % according to axes.
             %
             % Outputs:
             % npix    -- the npix array
@@ -608,7 +611,7 @@ classdef aProjectionBase < serializable
             else
                 if ischar(varargin{1})
                     argi = varargin;
-                    [npix,s,e] = obj.init_accumulators(nargout,axes);                    
+                    [npix,s,e] = obj.init_accumulators(nargout,axes);
                 else
                     npix = varargin{1};
                     s    = varargin{2};
