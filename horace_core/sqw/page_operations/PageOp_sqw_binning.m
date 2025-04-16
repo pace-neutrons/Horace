@@ -82,7 +82,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %                the npix array.
             % See split procedure for more details
             [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
-            if obj.do_nopix_
+            if obj.do_nopix_ || ~obj.init_filebacked_output_
                 return;
             end
             % intialize pix_combine_info to store pixel data if one wants to
@@ -113,6 +113,13 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % if necessary, perforemed in apply_op
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
+            % criteria for saving result here are different. Only
+            % memory-based output should be stored in pix_, as filebacked would be
+            % put in cashe to be combined later.
+            if ~(obj.init_filebacked_output_ || obj.do_nopix_)
+                obj.pix_ = obj.pix_.store_page_data(obj.page_data_,obj.write_handle_);
+            end
+
         end
 
         function obj = apply_op(obj,varargin)
@@ -157,15 +164,16 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     obj.unique_run_id_ = unique([obj.unique_run_id_, ...
                         unique_runid_l(:)']);
                 end
-                % Store produced data in cache, and when the cache is full
-                % generate tmp files. Return pixfile_combine_info object to manage
-                % the files - this object then used to recombine the files within
-                % PageOp_sqw_join operation.
-                obj.pix_combine_info_ = cut_data_from_file_job.accumulate_pix( ...
-                    obj.pix_combine_info_, false, ...
-                    pix_ok, pix_indx, obj.npix_acc_, ...
-                    buf_size,ll);
-
+                if obj.init_filebacked_output_
+                    % Store produced data in cache, and when the cache is full
+                    % generate tmp files. Return pixfile_combine_info object to manage
+                    % the files - this object then used to recombine the files within
+                    % PageOp_sqw_join operation.
+                    obj.pix_combine_info_ = cut_data_from_file_job.accumulate_pix( ...
+                        obj.pix_combine_info_, false, ...
+                        pix_ok, pix_indx, obj.npix_acc_, ...
+                        buf_size,ll);
+                end
             end
         end
         %
@@ -176,8 +184,30 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %
             % transfer image modifications to the underlying object.
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc_);
-            %
+            if ~isempty(obj.pix_combine_info_)
+                obj.pix_ = cut_data_from_file_job.accumulate_pix(obj.pix_comb_info_, true,[],[],obj.npix_acc_);
+                combine_pixels = true;
+            else
+                combine_pixels = false;
+            end
+            % if filebacked, this will create sqw object combine_pixel_data
+            % obj in place of pixels
             [out_obj,obj] = obj.finish_core_op(out_obj);
+            %
+            if ~combine_pixels
+                return
+            end
+
+            hpc = hpc_config;
+            hc = hor_config;
+            use_mex = hc.use_mex && strcmp(hpc.combine_sqw_using,'mex_code');
+            % combine partial pixel data together to obtain fully fledged
+            % sqw object
+            page_op         = PageOp_join_sqw;
+            page_op.outfile = obj.outfile;
+            [page_op,out_obj] = page_op.init(out_obj,[],use_mex);
+            out_obj           = sqw.apply_op(out_obj,page_op);
+
         end
         %------------------------------------------------------------------
     end
