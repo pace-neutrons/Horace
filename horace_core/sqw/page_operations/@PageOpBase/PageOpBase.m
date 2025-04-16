@@ -112,12 +112,13 @@ classdef PageOpBase
         % true if operation should not create the copy of a filebacked
         % object
         inplace_ = false;
-        % true if user wants to get only modified sqw object
+        % true if user wants to get only modified dnd object, ignoring
+        % changes in pixels
         do_nopix_ = false;
         % holder for the pixel object which is source and sometimes target
         % for the operation
         pix_ = PixelDataMemory();
-        % holder for the image, being modified by the operation(s).
+        % holder for the target image, being modified by the operation(s).
         img_;
         % initial pixel range, recalculated according to the operation
         pix_data_range_ = PixelDataBase.EMPTY_RANGE;
@@ -416,6 +417,9 @@ classdef PageOpBase
         end
         function idx = get.coord_idx(obj)
             idx = obj.coord_idx_;
+        end
+        function idx = get.run_idx(obj)
+            idx = obj.run_idx_;
         end
         %
         function in = get.inplace(obj)

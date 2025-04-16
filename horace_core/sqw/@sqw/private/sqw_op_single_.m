@@ -11,19 +11,24 @@ function obj = sqw_op_single_(obj, sqwfunc, pars, opts,i)
 %   obj       --  Dataset that provides the axes and points
 %                for the calculation
 %
-%   sqwfunc   -- Handle to function that executes operation and modifies pixels
-%                (signals and errors as function of other parameters)
+%   sqwfunc   -- Handle to function that executes operation and modifies
+%                pixels, namely changs signal and error as function of
+%                function parameters and pixels coordinates.
 %
-%   pars     --  Arguments needed by the function.
-%   outfile  -- The file used for outputting filebacked result
-%   thePageOpProcessor
+%   pars      --  Arguments and parameters used by the function.
+%   opts        The structure, containing parameters, used to change
+%               algorithm behaviour. The used properties of these
+%               parameters (fields of the structure) are@
+%   .outfile  -- The file used for outputting filebacked result
+%   .thePageOpProcessor 
 %            -- if not empty, a child of PageOp_sqw_op class, which
 %               provides additional features to PageOp_sqw_op operations
 %               if empty, basic PageOp_sqw_op class will be used.
 %
 % Returns:
 % --------
-%  obj     sqw object or filebacked sqw object -- result sqw_op operation
+%  obj       -- sqw object or filebacked sqw object -- result of sqw_op
+%               operation
 %==================================================================================================
 
 if isempty(opts.pageop_processor)
