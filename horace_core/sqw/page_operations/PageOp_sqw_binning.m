@@ -6,7 +6,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % unlike other PageOp, this operation changes this number so source
         % npix arry is not appropriate for this purpose and additional
         % accumulator is requested.
-        npix_acc_
+        npix_acc_;
         % storage for PixelDataMemory class used as target for page of
         % pixel data. Allocated to avoid reallcating it in each page
         % operation.
@@ -16,7 +16,10 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % if it is still possible.
         pix_combine_info_;
         % holder for target access property
-        targ_axes_
+        targ_axes_;
+        % maximal size of pixel array to keep in memory until it should
+        % be stored in file
+        buf_size_;
     end
 
     methods
@@ -50,23 +53,41 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %              operation over it
             %
             obj = init@PageOp_sqw_eval(obj,sqw_obj,operation,op_param,false);
-            obj.img_.do_check_combo_arg = false;
+            obj.do_nopix = pop_options.nopix;            
+            %
+            if pop_options.nopix && obj.init_filebacked_output
+                % This is because sqw_eval does not support filebacked
+                % output. Until it does not support it, here we should deal
+                % with it
+                obj.init_filebacked_output = false;
+                if ~isempty(obj.write_handle_)
+                    obj.write_handle_.delete();
+                    obj.write_handle_ = [];
+                end
+            end
 
-            obj.proj = targ_proj;
-            obj.img_.axes = targ_ax_block;
-            obj.img_.proj = targ_proj;
+            %local target access block holder
+            obj.targ_axes_ = targ_ax_block;
+            % define new target image
+            obj.img_  = DnDBase.dnd(targ_ax_block,targ_proj);
 
-            % clear existing image npix,s,e array to save memory. They will
+            % clear image's npix,s,e array to save memory. They will
             % be set up from the accumulators at the end of calculations
+            % TODO: possibility of optimization. Not to allocate them from
+            % beginning
+            obj.img_.do_check_combo_arg = false;
             obj.img_.npix = [];
             obj.img_.s = [];
             obj.img_.e = [];
 
             obj.split_at_bin_edges = true;
-            obj.do_nopix = pop_options.nopix;
+
             [obj.npix_acc_,obj.sig_acc_,obj.var_acc_] = targ_ax_block.init_accumulators(3,false);
             %
             obj.pix_page_ = PixelDataMemory();
+            [chunk_size,fb_size] = config_store.instance().get_value( ...
+                'hor_config','mem_chunk_size','fb_scale_factor');
+            obj.buf_size_ = chunk_size*fb_size;
         end
         function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
             % Method used to split input npix array into pages
@@ -88,11 +109,21 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % intialize pix_combine_info to store pixel data if one wants to
             % store modified pixels
             wk_dir = get(parallel_config, 'working_directory');
-            n_files = numel(npix_idx_chunks);
+            n_files = numel(npix_chunks);
             tmp_file_names = gen_unique_file_paths(n_files, 'horace_cut', wk_dir);
 
-            nbins = numel(obj.npix_accum_);
+            nbins = numel(obj.npix_acc_);
             obj.pix_combine_info_ = pixfile_combine_info(tmp_file_names, nbins);
+            % disable standard filebacked output used by PageOp,
+            % as it will be performed by cut write algorithm, used by cut.
+            if isempty(obj.outfile)
+                obj.outfile_ = obj.write_handle_.write_file_name;
+            end
+            % this will delete existing tmp file if any is there
+            obj.write_handle_.delete();
+            obj.write_handle_ = [];
+
+
         end
         function obj = common_page_op(obj)
             % Overloaded code which runs for every page_op_bin_pixels
@@ -146,11 +177,13 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % for details), so npix_idx contains min/max indices of
             % currently processed image cells.
             page_data = obj.op_holder(obj, obj.op_parms{:});
+            obj.page_data_ = page_data;            
             if isempty(page_data)
                 return;
             end
             pix = obj.pix_page_;
             pix = pix.set_raw_data(page_data);
+
             if obj.do_nopix_
                 [obj.npix_acc_,obj.sig_acc_,obj.var_acc_] = obj.proj.bin_pixels(...
                     obj.img_.axes,pix, ...
@@ -158,13 +191,15 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             else
                 [obj.npix_acc_,obj.sig_acc_,obj.var_acc_, pix_ok,...
                     unique_runid_l, pix_indx] = ...
-                    obj.proj.bin_pixels(targ_axes, pix, obj.npix_acc_, s, e);
-
+                    obj.proj.bin_pixels(obj.targ_axes_, pix, ...
+                    obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
+                % pix_ok have probably lost some pixels after rebinning
+                obj.page_data_ = pix_ok.data;
                 if obj.exp_modified
                     obj.unique_run_id_ = unique([obj.unique_run_id_, ...
                         unique_runid_l(:)']);
                 end
-                if obj.init_filebacked_output_
+                if obj.init_filebacked_output_ && ~obj.do_nopix_
                     % Store produced data in cache, and when the cache is full
                     % generate tmp files. Return pixfile_combine_info object to manage
                     % the files - this object then used to recombine the files within
@@ -172,7 +207,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     obj.pix_combine_info_ = cut_data_from_file_job.accumulate_pix( ...
                         obj.pix_combine_info_, false, ...
                         pix_ok, pix_indx, obj.npix_acc_, ...
-                        buf_size,ll);
+                        obj.buf_size_,-1);
                 end
             end
         end
@@ -185,7 +220,9 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % transfer image modifications to the underlying object.
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc_);
             if ~isempty(obj.pix_combine_info_)
-                obj.pix_ = cut_data_from_file_job.accumulate_pix(obj.pix_comb_info_, true,[],[],obj.npix_acc_);
+                % finalize pixel combining procedure
+                obj.pix_ = cut_data_from_file_job.accumulate_pix( ...
+                    obj.pix_combine_info_, true,[],[],obj.npix_acc_);
                 combine_pixels = true;
             else
                 combine_pixels = false;
@@ -210,5 +247,12 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             out_obj           = sqw.apply_op(out_obj,page_op);
         end
         %------------------------------------------------------------------
+    end
+    methods(Access=protected)
+        function  do = get_exp_modified(~)
+            % bining would likely remove some pixels so we need to check
+            % consistence between pixels and experiment data
+            do = true;
+        end
     end
 end

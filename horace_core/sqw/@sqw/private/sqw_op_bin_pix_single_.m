@@ -41,7 +41,7 @@ end
 if ~isempty(opts.outfile)
     rebin_op.outfile = opts.outfile{i};
 end
-if opts.filebacked
+if opts.filebacked && ~opts.nopix
     rebin_op.init_filebacked_output = true;
 end
 rebin_op = rebin_op.init(obj,sqwfunc,pars,targ_ax_block,targ_proj,opts);

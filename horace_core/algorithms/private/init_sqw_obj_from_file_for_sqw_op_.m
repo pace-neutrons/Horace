@@ -1,4 +1,4 @@
-function [n_inputs,ldrs,sqw_obj,wout] = init_sqw_obj_from_file_for_sqw_op_(win)
+function [n_inputs,ldrs,sqw_obj] = init_sqw_obj_from_file_for_sqw_op_(win)
 % method parses input cellarray of files/sqw objects or single file
 % and conters it into the form, acceptable for sqw_op/sqw_op_bin_pixels
 % functions
@@ -13,10 +13,6 @@ function [n_inputs,ldrs,sqw_obj,wout] = init_sqw_obj_from_file_for_sqw_op_(win)
 %             themselves if input cellarray contains input objects
 % sqw_obj  -- logical array containing true if input element in win is sqw
 %             object and false if it is filename.
-% wout     -- array of empty output sqw objects, to be used as the
-%             resulting array for operation.
-%  
-
 if ~iscell(win)
     win = {win};
 end
@@ -40,8 +36,5 @@ for i=1:n_inputs
             'Input object N:%d is not an sqw object. Its class is: %s',...
             i,class(win{i}));
     end
-end
-if nargout>0
-    wout = repmat(sqw(),size(win));
 end
 end

@@ -35,7 +35,8 @@ function wout = sqw_op(win, sqw_opfunc, pars, varargin)
 %              of applying sqw_opfunc to them.
 %
 %
-[n_inputs,ldrs,sqw_obj,wout] = init_sqw_obj_from_file_for_sqw_op_(win);
+[n_inputs,ldrs,sqw_obj] = init_sqw_obj_from_file_for_sqw_op_(win);
+wout = cell(1,n_inputs);
 for i=1:n_inputs
     if sqw_obj(i)
         win = ldrs{i};
@@ -46,4 +47,5 @@ for i=1:n_inputs
         wout(i) = sqw_op(win,sqw_opfunc,pars,varargin{:});
     end
 end
+wout = [wout{:}];
 end

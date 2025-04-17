@@ -106,7 +106,8 @@ function wout = sqw_op_bin_pixels(win, sqw_opfunc, pars, varargin)
 %
 
 
-[n_inputs,ldrs,sqw_obj,wout] = init_sqw_obj_from_file_for_sqw_op_(win);
+[n_inputs,ldrs,sqw_obj] = init_sqw_obj_from_file_for_sqw_op_(win);
+wout = cell(1,n_inputs);
 for i=1:n_inputs
     if sqw_obj(i)
         win = ldrs{i};
@@ -114,8 +115,9 @@ for i=1:n_inputs
         win = sqw(ldrs{i});
     end
     if nargout > 0
-        wout(i) = sqw_op_bin_pixels(win,sqw_opfunc,pars,varargin{:});
+        wout{i} = sqw_op_bin_pixels(win,sqw_opfunc,pars,varargin{:});
     end
 end
+wout = [wout{:}];
 end
 

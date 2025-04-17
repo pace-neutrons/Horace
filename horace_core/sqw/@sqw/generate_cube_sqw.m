@@ -27,7 +27,7 @@ function out = generate_cube_sqw(shape,varargin)
 %     The function must obey the requests for the function used by sqw_eval
 %     and accept no external parameters. (all parameters are inside the
 %     function)
-%     If no handle is provided the signal will be initialised to `1`
+%     If handle is not provided the signal will be initialised to `1`
 % func_param
 % -- array of parameters to transfer to the function, described by handle
 %

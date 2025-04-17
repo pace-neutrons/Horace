@@ -6,11 +6,12 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
     end
 
     properties
+        sqw_4d_test_obj
         sqw_2d_obj;
         sqw_2d_file = 'sqw_2d_2.sqw';
         dnd_file    = 'w3d_d3d.sqw';
-        sqw_2d_pix_pg_size = floor(3e5/36); % Gives us 6 pages used in filebacked operations
 
+        fold_dataX_fun
         gauss_sqw_fun;
         gauss_sigma;
     end
@@ -38,97 +39,76 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             % almost constant in qz,dE directions. Centre defined by
             % function
 
+            obj.fold_dataX_fun = @(op,pars)...
+                test_sqw_op_bin_pixels.fold_data_around_x(op,pars);
+
             hps = horace_paths;
             obj.sqw_2d_file= fullfile(hps.test_common,obj.sqw_2d_file);
             obj.dnd_file   = fullfile(hps.test_common,obj.dnd_file);
 
             obj.sqw_2d_obj = read_sqw(obj.sqw_2d_file);
             % Binning is more accurate now, so pixels are distributed into
-            % sligtly different bins. Reference data are not entirely
+            % slightly different bins. Reference data are not entirely
             % accurate due to binning errors. To compare operations,
             % recalculate according to modern standards
             obj.sqw_2d_obj  = obj.sqw_2d_obj.recompute_bin_data();
+
+            ab = line_axes('nbins_all_dims',[40,40,10,60],'img_range',[-2,-2,-1,-5;2,2,1,55]);
+
+            obj.sqw_4d_test_obj = sqw.generate_cube_sqw(ab,line_proj, ...
+                @sqw_bcc_hfm_testfunc,[1,1,1,1,1]);
             obj.save();
         end
 
         %------------------------------------------------------------------
         % SQW file tests
-        function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
-            % change source configuration to make source object filebacked
-            conf_cleanup = set_temporary_config_options( ...
-                hor_config, 'mem_chunk_size', obj.sqw_2d_pix_pg_size, ...
-                'fb_scale_factor',5 ...
-                );
+        function test_fold_data_works_on_sqw_and_dnd_filebacked(obj)
+            sqw_in = obj.sqw_2d_obj;
 
-            % In this function we just test equivalence between in-memory and
-            % file-backed.
-            % We test that the in-memory is correct in:
-            % test_calling_with_average_flag_sets_each_pix_signal_to_average
-            fb_out_sqw = sqw_op( ...
-                obj.sqw_2d_file, obj.gauss_sqw_fun, obj.gauss_sigma, ...
-                'filebacked', true ...
-                );
-            assertTrue(fb_out_sqw.is_filebacked);
+            ref_sqw = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, []);
 
-            clear conf_cleanup; % clear small chunk config limit to avoid
-            % warning about data chunk beeing too big to fit memory
-            ref_out_sqw = sqw_op( ...
-                obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma);
-            assertFalse(ref_out_sqw.is_filebacked);
+            n_pixels = sqw_in.npixels;
+            mcs = floor(n_pixels)/6; % define 6 pages, 3 pages in memory -- 
+            % will make object filebacked
+            clOb =set_temporary_config_options(hor_config, ...
+                'mem_chunk_size',mcs,'fb_scale_factor',3);
 
-            assertEqualToTol(fb_out_sqw, ref_out_sqw, ...
-                'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
-        end
-        %------------------------------------------------------------------
-        % SQW object tests
-        function test_gauss_on_array_of_sqw_objects_matches_reference_file(obj)
-            sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
+            out_sqw = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, []);
+            out_dnd = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, [],'-nopix');
+            assertEqualToTol(out_sqw.data,out_dnd,'-ignore_str','-ignore_date');
 
-            out_sqw = sqw_op(sqws_in, obj.gauss_sqw_fun, obj.gauss_sigma);
-
-            assertEqual(size(out_sqw), size(sqws_in));
-            assertEqualToTolWithSave(obj,out_sqw(1),...
+            clear clOb; % filebacked and memory based pixels can not be compared if 
+            % page size is different
+            assertEqualToTol(ref_sqw,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
-            assertEqualToTol(out_sqw(1),out_sqw(2),obj.FLOAT_TOL)
-
         end
-        %
-        function test_output_filebacked_ignored_if_fb_true_and_pix_in_memory(obj)
-            clWa = set_temporary_warning('off','HORACE:filebacked_ignored');
-            out_sqw = sqw_op( ...
-                obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma,...
-                'filebacked', true);
-            assertFalse(out_sqw.is_filebacked)
-            [~,lw] = lastwarn;
-            assertEqual(lw,'HORACE:filebacked_ignored')
+        function test_fold_data_works_on_sqw_and_dnd_with_bins(obj)
+            sqw_in = obj.sqw_4d_test_obj;
+
+            out_sqw = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, [], ...
+                [0,0.1,2],[-2,0.1,2],[-0.1,0.1],[-5,5]);
+            out_dnd = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, [], ...
+                [0,0.1,2],[-2,0.1,2],[-0.1,0.1],[-5,5],'-nopix');
+
+            assertEqualToTol(out_sqw.data,out_dnd);
 
             assertEqualToTolWithSave(obj,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
-        function test_gauss_on_sqw_in_mem_with_nopix_is_equal_to_ref_dnd(obj)
 
-            out_dnd = sqw_op(obj.sqw_2d_obj, ...
-                obj.gauss_sqw_fun,obj.gauss_sigma,'-nopix');
+        function test_fold_data_works_on_sqw_and_dnd_out(obj)
+            sqw_in = obj.sqw_4d_test_obj;
 
-            assertTrue(isa(out_dnd,'DnDBase'));
+            out_sqw = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, []);
+            out_dnd = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, [],'-nopix');
 
-            % my custom function does not change variange, just
-            % recalculates it, so it should remain the same.
-            assertEqualToTol(obj.sqw_2d_obj.data.e,out_dnd.e,obj.FLOAT_TOL);
+            assertEqualToTol(out_sqw.data,out_dnd);
 
-            if obj.save_output
-                %This test does not work in save mode as reference dataset
-                %may not be available.
-                return;
-            end
-            % get reference dataset obtained previously for different test
-            % which calculates and returns full sqw object
-            ref_sqw = obj.getReferenceDataset('test_gauss_on_sqw_in_mem_is_equal_to_reference','out_sqw');
-
-            assertEqualToTol(ref_sqw.data,out_dnd, ...
-                'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
+            assertEqualToTolWithSave(obj,out_sqw,...
+                obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
-
+    end
+    methods
         %------------------------------------------------------------------
         % Argument validation tests -- Majority are the same as for test_sqw_eval
         % so look there for missing checks
@@ -139,8 +119,8 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
                 obj.gauss_sigma, ...
                 'filebacked', true ...
                 );
-            assertExceptionThrown(f, 'HORACE:sqw_op:invalid_argument');
-        end        
+            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
+        end
 
         function test_input_binning_pars_accepted_with_outfile(obj)
 
@@ -168,7 +148,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             assertEqualToTol(out_par.targ_ax_block.nbins_all_dims,[1,1,1,11]);
 
         end
-        
+
         function test_input_binning_pars_accepted(obj)
 
             lp = line_proj;
@@ -240,6 +220,24 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
     end
 
     methods(Static,Access=protected)
+        function page = fold_data_around_x(op,varargin)
+            % function-sample used to calculate function of interest over
+            % pixels page.
+            page = op.page_data;
+            pix_range = op.pix.pix_range;
+            if any(isinf(pix_range(:))) % this is test file and we use
+                % horace_v2 reference file to get test reference data.
+                % Filebacked data of this kind do not contain image range.
+                % To simplify test architecture, let's specify correct
+                % ranges for this reference file here
+                pix = op.pix.recalc_data_range('all');
+                pix_range = pix.pix_range;
+            end
+            center = 0.5*(pix_range(1,:)+pix_range(2,:));
+            do_fold = page(1,:)<center(1);
+            page(1,do_fold)=2*center(1)-page(1,do_fold);
+        end
+
         function page = page_gauss(op,gauss_sigma)
             % function-sample used to calculate function of interest over
             % pixels page.
