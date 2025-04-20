@@ -251,8 +251,9 @@ classdef (Abstract=true) data_plot_interface
                 case 3
                     [varargout{:}] = sliceomatic(w, varargin{:});
                 otherwise
-                    error('HORACE:data_plot_interface:runtime_error', ...
-                        'Can only plot one, two or three-dimensional objects')
+                    error(['HORACE:graphics:invalid_argument'], ...
+                        ['Method ''plotover'' is not available for ', ...
+                        '%d-dimensional objects'], nd)
             end
         end
         
@@ -285,8 +286,9 @@ classdef (Abstract=true) data_plot_interface
                 case 2
                     [varargout{:}] = pa(w, varargin{:});
                 otherwise
-                    error('HORACE:data_plot_interface:runtime_error', ...
-                        'Can only overplot one or two-dimensional objects')
+                    error(['HORACE:graphics:invalid_argument'], ...
+                        ['Method ''plotover'' is not available for ', ...
+                        '%d-dimensional objects'], nd)
             end
         end
     end

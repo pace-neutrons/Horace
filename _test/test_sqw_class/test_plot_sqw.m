@@ -1,319 +1,288 @@
 classdef test_plot_sqw < TestCase
     % Test plotting methods on sqw and dnd objects
     properties
-        sqw_1d_file = 'sqw_1d_1.sqw';
-        sqw_2d_file = 'sqw_2d_1.sqw';
-        sqw_3d_file = 'w3d_sqw.sqw';
-        sqw_4d_file = 'sqw_4d.sqw';
-        sqw_obj
-
+        data1D
+        data2D
+        data3D
+        data4D
         interface_tester = data_plot_interface_tester();
     end
 
     methods
-
         function obj = test_plot_sqw(varargin)
             obj = obj@TestCase('test_plot_sqw');
-            test_folder = fileparts(fileparts(mfilename('fullpath')));
-            tst_files = {fullfile(test_folder,'common_data',obj.sqw_1d_file),...
-                fullfile(test_folder,'common_data',obj.sqw_2d_file),...
-                fullfile(test_folder,'common_data',obj.sqw_3d_file),...
-                fullfile(test_folder,'common_data',obj.sqw_4d_file)};
-            obj.sqw_obj = cell(4,1);
-            for i = 1:4
-                obj.sqw_obj{i} = read_sqw(tst_files{i});
-            end
-        end
-        %------------------------------------------------------------------
-        function test_sqw4d_all_plot_methods_throw(obj)
-            sqw4d_obj = obj.sqw_obj{4};
-            tstd = obj.interface_tester;
-            other_methods = ...
-                [tstd.d1d_methods(:);...
-                tstd.d1d_mthods_oveplot(:);...
-                tstd.d2d_methods(:);tstd.d3d_methods(:)];
-            errors_list = {'HORACE:graphics:invalid_argument'};
-            err_ind = ones(numel(other_methods),1);
+            
+            % Load example 1D, 2D, 3D, 4D sqw objects
+            hp = horace_paths().test_common;    % common data location
 
-            function thrower(obx,fmethod)
-                fmethod(obx);
-            end
-            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
-            for i=1:numel(other_methods)
-                curr_meth_name = func2str(other_methods{i});
-                is_overplot = ismember(curr_meth_name,overplot_names);
-
-                if is_overplot
-                    plot(obj.sqw_obj{2})
-                    fh = gcf;
-                else
-                    fh = [];
-                end
-                assertExceptionThrown(@()thrower(sqw4d_obj,other_methods{i}), ...
-                    errors_list{err_ind(i)});
-
-                if ~isempty(fh)
-                    close(fh);
-                end
-            end
+            sqw_1d_file = fullfile(hp, 'sqw_1d_1.sqw');
+            sqw_2d_file = fullfile(hp, 'sqw_2d_1.sqw');
+            sqw_3d_file = fullfile(hp, 'w3d_sqw.sqw');
+            sqw_4d_file = fullfile(hp, 'sqw_4d.sqw');
+            
+            obj.data1D = read_sqw(sqw_1d_file);
+            obj.data2D = read_sqw(sqw_2d_file);
+            obj.data3D = read_sqw(sqw_3d_file);   
+            obj.data4D = read_sqw(sqw_4d_file);           
         end
 
+
         %------------------------------------------------------------------
-        function test_sqw3d_other_plot_methods_throw(obj)
-            sqw3d_obj =obj.sqw_obj{3};
-            tstd = obj.interface_tester;
-            other_methods = ...
-                [tstd.d1d_methods(:);...
-                tstd.d1d_mthods_oveplot(:);...
-                tstd.d2d_methods(:)];
-            errors_list = {'HORACE:graphics:invalid_argument'};
-            err_ind = ones(numel(other_methods),1);
+        % Four-dimensional data
+        %------------------------------------------------------------------
+        function test_sqw4D_all_plot_methods_throw(obj)
+            % Test all 1D, 2D, 3D plot methods throw an error
+            cleanupObj = onCleanup(@clear_figures);
+            
+            T = obj.interface_tester;
+            all_methods = [ ...
+                T.methodsND_plot(:); T.methodsND_plotOver(:); ...
+                T.methods1D_plot(:); T.methods1D_plotOver(:); ...
+                T.methods1D_plotOverCurr(:); ...
+                T.methods2D_plot(:); T.methods2D_plotOver(:); ...
+                T.methods2D_plotOverCurr(:); ...
+                T.methods3D_plot(:)];
 
-
-            function thrower(obx,fmethod)
-                fmethod(obx);
-            end
-            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
-            for i=1:numel(other_methods)
-                curr_meth_name = func2str(other_methods{i});
-                is_overplot = ismember(curr_meth_name,overplot_names);
-                if is_overplot
-                    plot(obj.sqw_obj{2})
-                    fh = gcf;
-                else
-                    fh = [];
-                end
-
-                assertExceptionThrown(@()thrower(sqw3d_obj,other_methods{i}), ...
-                    errors_list{err_ind(i)});
-
-                if ~isempty(fh)
-                    close(fh);
-                end
-
+            clear_figures()
+            for i=1:numel(all_methods)
+                assertExceptionThrown(...
+                    @()function_caller(all_methods{i}, obj.data4D), ...
+                    'HORACE:graphics:invalid_argument', ...
+                    sprintf('error for method number %d: %s',i, ...
+                    func2str(all_methods{i})));
             end
         end
         
-        function test_sqw3d_plot3D_methods_does_not_work_on_array(obj)
-            sqw3d_obj = obj.sqw_obj{3};
-            sqw3d_ar = [sqw3d_obj,sqw3d_obj];
-            tstd = obj.interface_tester;
-            pl_methods = [{@plot};tstd.d3d_methods(:)];
-
-            function thrower(obx,fmethod)
-                fmethod(obx);
-            end
-            for i=1:numel(pl_methods)
-                assertExceptionThrown(@()thrower(sqw3d_ar,pl_methods{i}), ...
-                    'HORACE:graphics:invalid_argument');
-            end
-%             
-%             
-%             
-%             prev_h = [];
-%             for i=1:numel(pl_methods)
-%                 meth = pl_methods{i};
-% 
-%                 [objh,axh,plh] = meth(sqw3d_ar);
-% 
-%                 assertEqual(numel(objh),2)
-%                 assertTrue(isa(objh,'matlab.ui.Figure'));
-%                 assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-%                 assertTrue(isstruct(plh));
-% 
-%                 if ~isempty(prev_h) && any(prev_h ~= objh)
-%                     close(prev_h);
-%                 end
-%                 prev_h = objh;
-%             end
-%             try
-%                 close(objh);
-%             catch
-%             end
-        end
-
-        %
-        function test_sqw3d_plot3D_methods_work(obj)
-            sqw3d_obj = obj.sqw_obj{3};
-            tstd = obj.interface_tester;
-            pl_methods = [{@plot};tstd.d3d_methods(:)];
-
-            prev_h = [];
-            for i=1:numel(pl_methods)
-                meth = pl_methods{i};
-
-                [objh,axh,plh] = meth(sqw3d_obj);
-
-                assertTrue(isa(objh,'matlab.ui.Figure'));
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isstruct(plh));
-
-                if ~isempty(prev_h) && prev_h ~= objh
-                    close(prev_h)
-                end
-                prev_h = objh;
-            end
-            close(objh);
-        end
+        
         %------------------------------------------------------------------
-        function test_sqw2d_other_plot_methods_throw(obj)
-            sqw2d_obj = obj.sqw_obj{2};
-            tstd = obj.interface_tester;
-            other_methods = ...
-                [tstd.d1d_methods(:);...
-                tstd.d1d_mthods_oveplot(:);...
-                tstd.d3d_methods(:)];
-            errors_list = {'HORACE:graphics:invalid_argument'};
-            err_ind = ones(numel(other_methods),1);
-
-            function thrower(obx,fmethod)
-                fmethod(obx);
-            end
-            for i=1:numel(other_methods)
-                assertExceptionThrown(@()thrower(sqw2d_obj ,other_methods{i}), ...
-                    errors_list{err_ind(i)});
-            end
-        end
-        %
-        function test_sqw2d_plot2D_methods_work_on_array(obj)
-            sqw2d_obj = obj.sqw_obj{2};
-            sqw2d_arr = [sqw2d_obj,sqw2d_obj];
-            tstd = obj.interface_tester;
-            pl_methods = [tstd.dnd_methods(:);tstd.d2d_methods(:)];
-            need_overplot = [false;false;tstd.overplot_requested(:)];
-
-            for i=1:numel(pl_methods)
-                meth = pl_methods{i};
-                if need_overplot(i)
-                    fig = figure;
-                end
-
-                [objh,axh,plh] = meth(sqw2d_arr);
-
-                assertTrue(isa(objh,'matlab.ui.Figure'));
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-                close(objh);
-            end
-
-        end
-
-        function test_sqw2d_plot2D_methods_work(obj)
-            sqw2d_obj = obj.sqw_obj{2};
-            tstd = obj.interface_tester;
-            pl_methods = [tstd.dnd_methods(:);tstd.d2d_methods(:)];
-
-            prev_h = [];
-            for i=1:numel(pl_methods)
-                meth = pl_methods{i};
-
-                [objh,axh,plh] = meth(sqw2d_obj);
-
-                assertTrue(isa(objh,'matlab.ui.Figure'));
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-                if ~isempty(prev_h) && prev_h ~= objh
-                    close(prev_h)
-                end
-                prev_h = objh;
-            end
-            close(objh);
-        end
+        % Three-dimensional data
         %------------------------------------------------------------------
-        function test_sqw1d_other_plot_methods_throw(obj)
-            sqw1d_obj = obj.sqw_obj{1};
-            tstd = obj.interface_tester;
-            other_methods = [tstd.d2d_methods(:);tstd.d3d_methods(:)];
-            errors_list = {'HORACE:graphics:invalid_argument'};
-            err_ind = ones(numel(other_methods),1);
-
-            function thrower(obx,fmethod)
-                fmethod(obx);
+        function test_sqw3D_plot3D_methods_work(obj)
+            % Test all 3D plot methods produce a figure
+            cleanupObj = onCleanup(@clear_figures);
+            
+            T = obj.interface_tester;
+            methods = [T.methodsND_plot(:); T.methods3D_plot(:)];
+            
+            clear_figures()
+            for i=1:numel(methods)
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(obj.data3D);
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isstruct(plot_h));
+                if i>1  % Must have cleared existing figure window and reused it
+                    assertTrue(fig_h==fig_h_ref);
+                else    
+                    fig_h_ref = fig_h;  % store fig handle first time through loop
+                end
             end
-            overplot_names = cellfun(@func2str,tstd.d2d_methods,'UniformOutput',false);
+        end
+
+        %------------------------------------------------------------------
+        function test_sqw3D_other_plot_methods_throw(obj)
+            % Test all plot methods for 1D and 2D throw an error with 3D data
+            cleanupObj = onCleanup(@clear_figures);
+            
+            T = obj.interface_tester;
+            other_methods = [ ...
+                T.methods1D_plot(:); T.methods1D_plotOver(:); ...
+                T.methods1D_plotOverCurr(:); ...
+                T.methods2D_plot(:); T.methods2D_plotOver(:); ...
+                T.methods2D_plotOverCurr(:)];
+
+            clear_figures()
             for i=1:numel(other_methods)
-                curr_meth_name = func2str(other_methods{i});
-                is_overplot = ismember(curr_meth_name,overplot_names);
-
-                if is_overplot
-                    plot(obj.sqw_obj{2})
-                    fh = gcf;
-                else
-                    fh = [];
-                end
-                assertExceptionThrown(@()thrower(sqw1d_obj,other_methods{i}), ...
-                    errors_list{err_ind(i)} );
-
-                if ~isempty(fh)
-                    close(fh);
-                end
+                assertExceptionThrown(...
+                    @()function_caller(other_methods{i}, obj.data3D), ...
+                    'HORACE:graphics:invalid_argument', ...
+                    sprintf('error for method number %d: %s',i, ...
+                    func2str(other_methods{i})));
             end
         end
-        function test_sqw1d_plot1D_methods_work_on_array(obj)
-            sqw1d_obj = obj.sqw_obj{1};
-            sqw1d_arr = [sqw1d_obj,sqw1d_obj];
-            tstd = obj.interface_tester;
-            pl_methods = [tstd.dnd_methods(:);tstd.d1d_methods(:)];
+        
+        %------------------------------------------------------------------
+        function test_sqw3D_plot3D_methods_do_not_work_with_array(obj)
+            % Test that all 3D 'plot' methods do not plot arrays of data
+            cleanupObj = onCleanup(@clear_figures);
 
-            prev_h = [];
-            for i=1:numel(pl_methods)
-                meth = pl_methods{i};
+            T = obj.interface_tester;
+            methods = [T.methodsND_plot(:); T.methods3D_plot(:)];
+            data3D_arr = [obj.data3D, 2*obj.data3D];
 
-                [objh,axh,plh] = meth(sqw1d_arr);
-
-                assertTrue(isa(objh,'matlab.ui.Figure'));
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-                if ~isempty(prev_h) && all(prev_h ~= objh)
-                    close(prev_h)
-                end
-                prev_h = objh;
+            clear_figures()
+            for i=1:numel(methods)
+                assertExceptionThrown(...
+                    @()function_caller(methods{i}, data3D_arr), ...
+                    'HORACE:graphics:invalid_argument', ...
+                    sprintf('error for method number %d: %s',i, ...
+                    func2str(methods{i})));
             end
-            opl_methods = tstd.d1d_mthods_oveplot;
-            for i=1:numel(opl_methods)
-                meth = opl_methods{i};
-
-                oboh = meth(sqw1d_arr);
-                assertEqual(oboh,objh)
+        end
+        
+        
+        %------------------------------------------------------------------
+        % Two-dimensional data
+        %------------------------------------------------------------------
+        function test_sqw2D_plot2D_methods_work(obj)
+            % Test all 2D plot methods produce a figure
+            cleanupObj = onCleanup(@clear_figures);
+            
+            T = obj.interface_tester;
+            methods = [...
+                T.methodsND_plot(:); T.methods2D_plot(:); ...
+                T.methodsND_plotOver(:); T.methods2D_plotOver(:); ...
+                T.methods2D_plotOverCurr(:)];
+            
+            clear_figures()
+            for i=1:numel(methods)
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(obj.data2D);
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plot_h, 'matlab.graphics.primitive.Data'));
             end
-            close(oboh);
         end
 
-        function test_sqw1d_plot1D_methods_work(obj)
-            sqw1d_obj = obj.sqw_obj{1};
-            tstd = obj.interface_tester;
-            pl_methods = [tstd.dnd_methods(:);tstd.d1d_methods(:)];
+        %------------------------------------------------------------------
+        function test_sqw2D_other_plot_methods_throw(obj)
+            % Test all plot methods for 1D and 3D throw an error with 2D data
+            cleanupObj = onCleanup(@clear_figures);
+            
+            T = obj.interface_tester;
+            other_methods = [ ...
+                T.methods1D_plot(:); T.methods1D_plotOver(:); ...
+                T.methods1D_plotOverCurr(:); ...
+                T.methods3D_plot(:)];
 
-            prev_h = [];
-            for i=1:numel(pl_methods)
-                meth = pl_methods{i};
-
-                [objh,axh,plh] = meth(sqw1d_obj);
-                assertTrue(isa(objh,'matlab.ui.Figure'));
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-
-                if ~isempty(prev_h) && prev_h ~= objh
-                    close(prev_h)
-                end
-                prev_h = objh;
+            clear_figures()
+            for i=1:numel(other_methods)
+                assertExceptionThrown(...
+                    @()function_caller(other_methods{i}, obj.data2D), ...
+                    'HORACE:graphics:invalid_argument', ...
+                    sprintf('error for method number %d: %s',i, ...
+                    func2str(other_methods{i})));
             end
-            opl_methods = tstd.d1d_mthods_oveplot;
-            for i=1:numel(opl_methods)
-                meth = opl_methods{i};
-
-                oboh = meth(sqw1d_obj);
-                [objh,axh,plh] = meth(sqw1d_obj);
-
-                assertEqual(oboh,objh)
-                assertTrue(numel(plh)>1);
-                assertTrue(isa(axh,'matlab.graphics.axis.Axes'));
-                assertTrue(isa(plh,'matlab.graphics.primitive.Data'));
-            end
-            close(oboh);
         end
+        
+        %------------------------------------------------------------------
+        function test_sqw2D_plot2D_methods_work_with_array(obj)
+            % Test that all 2D 'plot' methods plot arrays of data
+            % That is methods like da, ds,... ('plot') that make fresh figures
+            cleanupObj = onCleanup(@clear_figures);
+
+            T = obj.interface_tester;
+            methods = [T.methodsND_plot(:); T.methods2D_plot(:)];
+            data2D_arr = [obj.data2D, 2*obj.data2D];
+
+            for i=1:numel(methods)
+                clear_figures()
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(data2D_arr);
+                all_fig_h = findobj(groot,'Type','Figure');
+                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                assertEqual(numel(fig_h),1);
+                assertEqual(numel(axes_h),1);
+                assertEqual(numel(plot_h),2);
+            end
+        end
+        
+        
+        %------------------------------------------------------------------
+        % One-dimensional plot methods
+        %------------------------------------------------------------------
+        function test_sqw1D_all_plot1D_methods_work(obj)
+            % Test that all 1D methods produce a figure
+            % Methods like dl, dm,... ('plot') that make fresh figures
+            % Methods like pl, pm,... ('plot over') make fresh figures if none exist
+            % Methods like ploc, pmoc,... ('plot over current') make fresh figures if none exist
+            cleanupObj = onCleanup(@clear_figures);
+
+            T = obj.interface_tester;
+            methods = [...
+                T.methodsND_plot(:); T.methods1D_plot(:); ...
+                T.methodsND_plotOver(:); T.methods1D_plotOver(:); ...
+                T.methods1D_plotOverCurr(:)];
+
+            for i=1:numel(methods)
+                clear_figures()
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(obj.data1D);
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+            end
+        end
+        
+        %------------------------------------------------------------------
+        function test_sqw1D_other_plot_methods_throw(obj)
+            % Test all plot methods for 2D and 3D throw an error with 1D data
+            cleanupObj = onCleanup(@clear_figures);
+            
+            T = obj.interface_tester;
+            other_methods = [ ...
+                T.methods2D_plot(:); T.methods2D_plotOver(:); ...
+                T.methods2D_plotOverCurr(:); ...
+                T.methods3D_plot(:)];
+            
+            clear_figures()
+            for i=1:numel(other_methods)
+                assertExceptionThrown(...
+                    @()function_caller(other_methods{i}, obj.data1D), ...
+                    'HORACE:graphics:invalid_argument', ...
+                    sprintf('error for method number %d: %s',i, ...
+                    func2str(other_methods{i})));
+            end
+        end
+        
+        %------------------------------------------------------------------
+        function test_sqw1D_plot1D_methods_work_with_array(obj)
+            % Test that all 1D 'plot' methods plot arrays of data
+            % That is methods like dl, dm,... ('plot') that make fresh figures
+            cleanupObj = onCleanup(@clear_figures);
+
+            T = obj.interface_tester;
+            methods = [T.methodsND_plot(:); T.methods1D_plot(:)];
+            data1D_arr = [obj.data1D, 2*obj.data1D];
+
+            for i=1:numel(methods)
+                clear_figures()
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(data1D_arr);
+                all_fig_h = findobj(groot,'Type','Figure');
+                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                assertEqual(numel(fig_h),1);
+                assertEqual(numel(axes_h),1);
+                assertEqual(numel(plot_h),2);
+            end
+        end
+        
         %------------------------------------------------------------------
     end
+end
+
+
+%--------------------------------------------------------------------------
+% Utility functions
+%--------------------------------------------------------------------------
+function clear_figures
+% Delete all existing figures for a clean graphics test
+fig_handles = findobj(0, 'Type', 'figure');
+if ~isempty(fig_handles)
+    delete(fig_handles)
+end
+end
+
+%--------------------------------------------------------------------------
+function function_caller(function_handle, varargin)
+% Run a method or a function
+% Wraps the method or function handle so that the call can be run as an argument
+% in e.g. assertErrorThrown within a loop that loops over function handles
+function_handle(varargin{:});
 end
