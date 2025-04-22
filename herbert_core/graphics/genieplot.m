@@ -8,30 +8,42 @@ classdef genieplot < handle
     % To set a property
     %   >> genieplot.set(<property_name>, <value>)
     %
+    %   EXAMPLE: >> genieplot.set('colors',{'b','r','g'})
+    %
     % To retrieve a property:
-    %   >> genieplot.get(<property_name>)
+    %   >> value = genieplot.get(<property_name>)
+    %
+    %   EXAMPLE: >> val = genieplot.get('marker_sizes')
+    %           val =
+    %                6
+    %
+    % Structure with all properties:
+    %   >> S = genieplot.get
+    %
+    % To reset all properties to the defaults
+    %   >> genieplot.reset
     %
     % This singleton class is only expected to be used by the graphics
     % functions. Ideally, we would not have it visible to users.
     
     properties (Access=private)
-        default_fig_name = []  % default name for plot
+        % General graph proprties
+        default_fig_name
+        XScale
+        YScale
+        ZScale
         
-        XScale = 'linear'       % x-axis scaling: 'linear' or 'log'
-        YScale = 'linear'       % y-axis scaling: 'linear' or 'log'
-        ZScale = 'linear'       % z-axis scaling: 'linear' or 'log'
-        
-        maxspec_1D = 1000;      % Maximum number of 1D datasets in a plottable array
-        colors = {'k'}          % Row cell array of default colors
-        color_cycle = 'with'    % 'fast' or 'with': colours cycle faster or with
-                                % line and marker properties in a plot of
-                                % dataset arrays
-        line_styles = {'-'};    % Row cell array of default line styles
-        line_widths = 0.5;      % Row vector of default line widths
-        marker_types = {'o'};   % Row cell array of default marker types
-        marker_sizes = 6;       % Row vector of default marker sizes
+        % One-dimensional graph properties
+        maxspec_1D
+        colors
+        color_cycle
+        line_styles
+        line_widths
+        marker_types
+        marker_sizes
 
-        maxspec_2D = 1000;      % Maximum number of 2D datasets in a plottable array
+        % Two-dimensional graph properties
+        maxspec_2D
     end
     
     methods (Access=private)
@@ -39,8 +51,8 @@ classdef genieplot < handle
         % Only a single instance of this class is created. This is
         % ensured by getInstance() calling the constructor only once.
         function newObj = genieplot()
-            % Initialize here if setting values in the properties block is not
-            % feasible
+            % Initialize here
+            initialise(newObj)
         end
     end
     
@@ -218,10 +230,15 @@ classdef genieplot < handle
                 % Turn off a warning about heavy-handed use of struct but
                 % cleanup to turn back on when exit
                 state = warning('query','MATLAB:structOnObject');
-                reset_warning = onCleanup(@()warning(state));
+                cleanupObj = onCleanup(@()warning(state));
                 warning('off','MATLAB:structOnObject')
                 data = orderfields(structIndep(obj));
             end
+        end
+        
+        function reset()
+            obj = getInstance();
+            initialise(obj);
         end
     end
     
@@ -239,6 +256,26 @@ else
     obj = uniqueInstance;
 end
 end
+
+
+function initialise(obj)
+obj.default_fig_name = [];  % default name for plot
+
+obj.XScale = 'linear';      % x-axis scaling: 'linear' or 'log'
+obj.YScale = 'linear';      % y-axis scaling: 'linear' or 'log'
+obj.ZScale = 'linear';      % z-axis scaling: 'linear' or 'log'
+
+obj.maxspec_1D = 1000;      % Maximum number of 1D datasets in a plottable array
+obj.colors = {'k'};         % Row cell array of default colors
+obj.color_cycle = 'with';   % 'fast' or 'with': colours cycle faster or with
+obj.line_styles = {'-'};    % Row cell array of default line styles
+obj.line_widths = 0.5;      % Row vector of default line widths
+obj.marker_types = {'o'};   % Row cell array of default marker types
+obj.marker_sizes = 6;       % Row vector of default marker sizes
+
+obj.maxspec_2D = 1000;      % Maximum number of 2D datasets in a plottable array
+end
+
 
 %-------------------------------------------------------------------------------
 function status = ishexcolor(str)

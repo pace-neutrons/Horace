@@ -31,10 +31,56 @@ classdef test_plot_IX_dataset_2 < TestCase
         
         
         %------------------------------------------------------------------
+        %  genieplot tests
+        %------------------------------------------------------------------
+        % Tests of the singleton object that holds plot parameters
+        
+        function test_genieplot_setAndGet(~)
+            genieplot.set('colors', {'r','b','g'})
+            val = genieplot.get('colors');
+            assertEqual(val, {'r','b','g'})
+            % Set and get a different et of values, just in case the current
+            % values were the same as the ones we just set
+            genieplot.set('colors', {'k','#121314','y'})
+            val = genieplot.get('colors');
+            assertEqual(val, {'k','#121314','y'})            
+        end
+        
+        function test_genieplot_resets(~)
+            % Default values
+            S_def.XScale = 'linear';
+            S_def.YScale = 'linear';
+            S_def.ZScale = 'linear';
+            S_def.color_cycle = 'with';
+            S_def.colors = {'k'};
+            S_def.default_fig_name = [];
+            S_def.line_styles = {'-'};
+            S_def.line_widths = 0.5000;
+            S_def.marker_sizes = 6;
+            S_def.marker_types = {'o'};
+            S_def.maxspec_1D = 1000;
+            S_def.maxspec_2D = 1000;
+            
+            % Change some values and check those properties have changed
+            genieplot.set('colors', {'r','b','g'})
+            genieplot.set('line_widths', [3,4,5])
+            S = genieplot.get;
+            assert(~isequal(S,S_def), 'Properties unchanged from defaults')
+
+            % Check reset returns properties to the defaults
+            genieplot.reset;
+            S = genieplot.get;
+            assert(isequal(S,S_def), 'Properties were not reset to the defaults')
+        end
+        
+
+        
+        %------------------------------------------------------------------
         %  1D tests
         %------------------------------------------------------------------
         function test_1D_plotOverCurrent_on1D(obj)
             % Plot a 1D IX_dataset over a plot of an IX_dataset_1d
+            genieplot.reset
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             
@@ -53,6 +99,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % then make the first genie_figure have 'current' status (in the 
             % genie_figure sense, using >> make_current) and overplotting,
             % the x-axis should remain linear.
+            genieplot.reset
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             
@@ -83,6 +130,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % then make the first figure current (using Matlab function: figure,
             % but not the geni_figure function make_current) and overplotting,
             % the x-axis should remain linear.
+            genieplot.reset
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             
@@ -111,6 +159,7 @@ classdef test_plot_IX_dataset_2 < TestCase
         function test_1D_plotOverCurrent_on2D(obj)
             % Plot a 1D IX_dataset over a plot of an IX_dataset_2d (so has a
             % different genie_figure name
+            genieplot.reset
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             
@@ -130,6 +179,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Because these have different figure names, the overplot will
             % actually be seen as not having a genie_window of the required name
             % and so a new window will be opened
+            genieplot.reset
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             
@@ -147,6 +197,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Plot a 2D area plot over the current figure created by a surface
             % plot. Even though they have different figure types, the 'plot over
             % current' forces the area plot onto the surface plot.
+            genieplot.reset
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             
@@ -162,6 +213,7 @@ classdef test_plot_IX_dataset_2 < TestCase
         %------------------------------------------------------------------
         function test_3D_nonUniformBins_noFigurePlotted(obj)
             % Sliceomatic requires uniform bins. Error should be thrown.
+            genieplot.reset
             clear_figures()
             cleanupObj = onCleanup(@clear_figures);
             assertExceptionThrown(...
@@ -177,6 +229,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Color is unambigiously green, as this matches the colorCode
             % The initial algorithm did not separate this from the abbreviation
             % of the palette name 'gem'
+            genieplot.reset
             acolor('g')
             colorCode = genieplot.get('colors');
             assertEqual(colorCode, {'g'});

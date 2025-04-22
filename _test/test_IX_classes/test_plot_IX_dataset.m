@@ -31,6 +31,7 @@ classdef test_plot_IX_dataset < TestCase
         % Spaghetti_plot tests
         %------------------------------------------------------------------
         function test_spaghetti_plot_noplot(obj)
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             %
             wdisp = [obj.data2D, obj.data2D*2, obj.data2D*0.5];
@@ -43,6 +44,7 @@ classdef test_plot_IX_dataset < TestCase
         end
 
         function test_spaghetti_plot_set_labels(obj)
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             %
             wdisp = [obj.data2D, obj.data2D*2, obj.data2D*0.5];
@@ -60,6 +62,7 @@ classdef test_plot_IX_dataset < TestCase
         end
 
         function test_spaghetti_plot_default_labels(obj)
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             %
             wdisp = [obj.data2D, obj.data2D*2, obj.data2D*0.5];
@@ -82,6 +85,7 @@ classdef test_plot_IX_dataset < TestCase
         %------------------------------------------------------------------
         function test_IX3D_plot3D_methods_work(obj)
             % Test all 3D plot methods produce a figure
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -105,6 +109,7 @@ classdef test_plot_IX_dataset < TestCase
         %------------------------------------------------------------------
         function test_IX3D_other_plot_methods_throw(obj)
             % Test all plot methods for 1D and 2D throw an error with 3D data
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -127,6 +132,7 @@ classdef test_plot_IX_dataset < TestCase
         %------------------------------------------------------------------
         function test_IX3D_plot3D_methods_do_not_work_with_array(obj)
             % Test that all 3D 'plot' methods do not plot arrays of data
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -152,6 +158,7 @@ classdef test_plot_IX_dataset < TestCase
         %------------------------------------------------------------------
         function test_IX2D_plot2D_methods_work(obj)
             % Test all 2D plot methods produce a figure
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -173,6 +180,7 @@ classdef test_plot_IX_dataset < TestCase
         %------------------------------------------------------------------
         function test_IX2D_other_plot_methods_throw(obj)
             % Test all plot methods for 1D and 3D throw an error with 2D data
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -195,6 +203,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX2D_plot2D_methods_reuseFig_newAxes(obj)
             % Test that all 2D 'plot' (as opposed to 'plot over' and 'plot over
             % curr') methods reuse a 2D figure, but erase the axes and plots
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -221,6 +230,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX2D_plotOver2D_methods_reuseFigAndAxes(obj)
             % Test that all 2D 'plot over' (as opposed to 'plot' and 'plot over
             % current') methods add plots to a 2D figure
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -256,6 +266,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX2D_plotOverCurr2D_methods_work(obj)
             % Test that all 2D 'plot over current' add to any current figure
             % regardless of the type of figure
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -295,6 +306,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX2D_plot2D_methods_work_with_array(obj)
             % Test that all 2D 'plot' methods plot arrays of data
             % That is methods like da, ds,... ('plot') that make fresh figures
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -323,6 +335,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX2D_plotOver2D_methods_work_with_array(obj)
             % Test that all 2D 'plot over' methods plot arrays of data
             % That is methods like pa, ps,... ('plot over')
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -366,6 +379,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX2D_plotOverCurr2D_methods_work_with_array(obj)
             % Test that all 2D 'plot over current' methods plot arrays of data
             % That is methods like paoc, psoc,... ('plot over current')
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -414,6 +428,7 @@ classdef test_plot_IX_dataset < TestCase
             % Methods like dl, dm,... ('plot') that make fresh figures
             % Methods like pl, pm,... ('plot over') make fresh figures if none exist
             % Methods like ploc, pmoc,... ('plot over current') make fresh figures if none exist
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -435,6 +450,7 @@ classdef test_plot_IX_dataset < TestCase
         %------------------------------------------------------------------
         function test_IX1D_other_plot_methods_throw(obj)
             % Test all plot methods for 2D and 3D throw an error with 1D data
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -457,6 +473,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX1D_plot1D_methods_reuseFig_newAxes(obj)
             % Test that all 1D 'plot' (as opposed to 'plot over' and 'plot over
             % curr') methods reuse a 1D figure, but erase the axes and plots
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -483,6 +500,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX1D_plotOver1D_methods_reuseFigAndAxes(obj)
             % Test that all 1D 'plot over' (as opposed to 'plot' and 'plot over
             % current') methods add plots to a 1D figure
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -513,6 +531,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX1D_plotOverCurr1D_methods_work(obj)
             % Test that all 1D 'plot over current' add to any current figure
             % regardless of the type of figure
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -546,6 +565,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX1D_plot1D_methods_work_with_array(obj)
             % Test that all 1D 'plot' methods plot arrays of data
             % That is methods like dl, dm,... ('plot') that make fresh figures
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -571,6 +591,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX1D_plotOver1D_methods_work_with_array(obj)
             % Test that all 1D 'plot over' methods plot arrays of data
             % That is methods like pl, pm,... ('plot over')
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -601,6 +622,7 @@ classdef test_plot_IX_dataset < TestCase
         function test_IX1D_plotOverCurr1D_methods_work_with_array(obj)
             % Test that all 1D 'plot over current' methods plot arrays of data
             % That is methods like ploc, pmoc,... ('plot over current')
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -641,6 +663,7 @@ classdef test_plot_IX_dataset < TestCase
             % moved to a test suite for the IX_dataset_*d class as it in fact makes
             % no reference to dnd or sqw objects, whereas IX_dataset_*d underpin
             % the implementation of plot methods.
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;

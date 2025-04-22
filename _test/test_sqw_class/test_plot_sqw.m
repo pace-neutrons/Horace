@@ -32,6 +32,7 @@ classdef test_plot_sqw < TestCase
         %------------------------------------------------------------------
         function test_sqw4D_all_plot_methods_throw(obj)
             % Test all 1D, 2D, 3D plot methods throw an error
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -59,6 +60,7 @@ classdef test_plot_sqw < TestCase
         %------------------------------------------------------------------
         function test_sqw3D_plot3D_methods_work(obj)
             % Test all 3D plot methods produce a figure
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -82,6 +84,7 @@ classdef test_plot_sqw < TestCase
         %------------------------------------------------------------------
         function test_sqw3D_other_plot_methods_throw(obj)
             % Test all plot methods for 1D and 2D throw an error with 3D data
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -104,6 +107,7 @@ classdef test_plot_sqw < TestCase
         %------------------------------------------------------------------
         function test_sqw3D_plot3D_methods_do_not_work_with_array(obj)
             % Test that all 3D 'plot' methods do not plot arrays of data
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -126,6 +130,7 @@ classdef test_plot_sqw < TestCase
         %------------------------------------------------------------------
         function test_sqw2D_plot2D_methods_work(obj)
             % Test all 2D plot methods produce a figure
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -147,6 +152,7 @@ classdef test_plot_sqw < TestCase
         %------------------------------------------------------------------
         function test_sqw2D_other_plot_methods_throw(obj)
             % Test all plot methods for 1D and 3D throw an error with 2D data
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -169,6 +175,7 @@ classdef test_plot_sqw < TestCase
         function test_sqw2D_plot2D_methods_work_with_array(obj)
             % Test that all 2D 'plot' methods plot arrays of data
             % That is methods like da, ds,... ('plot') that make fresh figures
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -199,6 +206,7 @@ classdef test_plot_sqw < TestCase
             % Methods like dl, dm,... ('plot') that make fresh figures
             % Methods like pl, pm,... ('plot over') make fresh figures if none exist
             % Methods like ploc, pmoc,... ('plot over current') make fresh figures if none exist
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
@@ -220,6 +228,7 @@ classdef test_plot_sqw < TestCase
         %------------------------------------------------------------------
         function test_sqw1D_other_plot_methods_throw(obj)
             % Test all plot methods for 2D and 3D throw an error with 1D data
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
             
             T = obj.interface_tester;
@@ -242,6 +251,7 @@ classdef test_plot_sqw < TestCase
         function test_sqw1D_plot1D_methods_work_with_array(obj)
             % Test that all 1D 'plot' methods plot arrays of data
             % That is methods like dl, dm,... ('plot') that make fresh figures
+            genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
 
             T = obj.interface_tester;
