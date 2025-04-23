@@ -135,7 +135,7 @@ if numel(argi) > 0  && isa(argi{1},'function_handle')
     % out_err = sqw_eval(out,@(h,k,l,e,p)ones(numel(h),1),[]);
     % out.pix.variance = out_err.pix.signal;    
     % simple equal variance 
-    out.pix.variance = ones(1,numel(h)); 
+    out.pix.variance = ones(1,out.pix.num_pixels); 
     out.data.e = out_err.data.s;
 end
 
