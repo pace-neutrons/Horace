@@ -130,8 +130,12 @@ if numel(argi) > 0  && isa(argi{1},'function_handle')
     else
         out = sqw_eval(out,argi{:},[]);        
     end
-    out_err = sqw_eval(out,@(h,k,l,e,p)ones(numel(h),1),[]);
-    out.pix.variance = out_err.pix.signal;
+    % uncomment this and provide errors to be more complex function if we
+    % need this behaviour
+    % out_err = sqw_eval(out,@(h,k,l,e,p)ones(numel(h),1),[]);
+    % out.pix.variance = out_err.pix.signal;    
+    % simple equal variance 
+    out.pix.variance = ones(1,numel(h)); 
     out.data.e = out_err.data.s;
 end
 
