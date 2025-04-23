@@ -65,19 +65,20 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
         function test_fold_data_works_on_sqw_and_dnd_filebacked(obj)
             sqw_in = obj.sqw_2d_obj;
 
-            ref_sqw = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, []);
+            ref_sqw = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, 0);
 
             n_pixels = sqw_in.npixels;
-            mcs = floor(n_pixels)/6; % define 6 pages, 3 pages in memory -- 
+            mcs = floor(n_pixels)/6; % define 6 pages, 3 pages in memory --
             % will make object filebacked
             clOb =set_temporary_config_options(hor_config, ...
                 'mem_chunk_size',mcs,'fb_scale_factor',3);
 
-            out_sqw = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, []);
-            out_dnd = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, [],'-nopix');
+            out_sqw = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, 0);
+            out_dnd = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, 0,'-nopix');
             assertEqualToTol(out_sqw.data,out_dnd,'-ignore_str','-ignore_date');
+            assertEqualToTol(ref_sqw.data,out_dnd,1.e-7,'-ignore_str','-ignore_date');
 
-            clear clOb; % filebacked and memory based pixels can not be compared if 
+            clear clOb; % filebacked and memory based pixels can not be compared if
             % page size is different
             assertEqualToTol(ref_sqw,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
@@ -224,16 +225,21 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             % function-sample used to calculate function of interest over
             % pixels page.
             page = op.page_data;
-            pix_range = op.pix.pix_range;
-            if any(isinf(pix_range(:))) % this is test file and we use
-                % horace_v2 reference file to get test reference data.
-                % Filebacked data of this kind do not contain image range.
-                % To simplify test architecture, let's specify correct
-                % ranges for this reference file here
-                pix = op.pix.recalc_data_range('all');
-                pix_range = pix.pix_range;
+            if isempty(varargin)
+
+                pix_range = op.pix.pix_range;
+                if any(isinf(pix_range(:))) % this is test file and we use
+                    % horace_v2 reference file to get test reference data.
+                    % Filebacked data of this kind do not contain image range.
+                    % To simplify test architecture, let's specify correct
+                    % ranges for this reference file here
+                    pix = op.pix.recalc_data_range('all');
+                    pix_range = pix.pix_range;
+                end
+                center = 0.5*(pix_range(1,:)+pix_range(2,:));
+            else
+                center = varargin{1};
             end
-            center = 0.5*(pix_range(1,:)+pix_range(2,:));
             do_fold = page(1,:)<center(1);
             page(1,do_fold)=2*center(1)-page(1,do_fold);
         end
