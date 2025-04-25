@@ -53,7 +53,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %              operation over it
             %
             obj = init@PageOp_sqw_eval(obj,sqw_obj,operation,op_param,false);
-            obj.do_nopix = pop_options.nopix;            
+            obj.do_nopix = pop_options.nopix;
             %
             if pop_options.nopix && obj.init_filebacked_output
                 % This is because sqw_eval does not support filebacked
@@ -68,13 +68,15 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
 
             %local target access block holder
             obj.targ_axes_ = targ_ax_block;
+            % and projection, which responsible for building target image
+            obj.proj       = targ_proj;
             % define new target image
             obj.img_  = DnDBase.dnd(targ_ax_block,targ_proj);
 
             % clear image's npix,s,e array to save memory. They will
             % be set up from the accumulators at the end of calculations
             % TODO: possibility of optimization. Not to allocate them from
-            % beginning
+            % the start
             obj.img_.do_check_combo_arg = false;
             obj.img_.npix = [];
             obj.img_.s = [];
@@ -106,6 +108,13 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             if obj.do_nopix_ || ~obj.init_filebacked_output_
                 return;
             end
+            % we create new target file with correct ranges. No range
+            % warning is needed.
+            obj.issue_range_warning = false;
+            % clear internal accumulators for cut_data_from_file_job job,
+            % used to accumulate pixels.
+            cut_data_from_file_job.accumulate_pix('cleanup');
+
             % intialize pix_combine_info to store pixel data if one wants to
             % store modified pixels
             wk_dir = get(parallel_config, 'working_directory');
@@ -177,10 +186,12 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % for details), so npix_idx contains min/max indices of
             % currently processed image cells.
             page_data = obj.op_holder(obj, obj.op_parms{:});
-            obj.page_data_ = page_data;            
+            obj.page_data_ = page_data;
             if isempty(page_data)
                 return;
             end
+            % retrieve pixelDataMemory class cached in property for
+            % performance and not to run constructor at each page call.
             pix = obj.pix_page_;
             pix = pix.set_raw_data(page_data);
 
@@ -207,7 +218,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     obj.pix_combine_info_ = cut_data_from_file_job.accumulate_pix( ...
                         obj.pix_combine_info_, false, ...
                         pix_ok, pix_indx, obj.npix_acc_, ...
-                        obj.buf_size_,-1);
+                        obj.buf_size_);
                 end
             end
         end
@@ -220,7 +231,10 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % transfer image modifications to the underlying object.
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc_);
             if ~isempty(obj.pix_combine_info_)
-                % finalize pixel combining procedure
+                % finalize pixel combining procedure; write all pixels
+                % still in memory into appropriate tmp files. set up output
+                % object pixels into pix_combine_info object, which have
+                % information about object combining
                 obj.pix_ = cut_data_from_file_job.accumulate_pix( ...
                     obj.pix_combine_info_, true,[],[],obj.npix_acc_);
                 combine_pixels = true;
@@ -245,6 +259,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             page_op.outfile = obj.outfile;
             [page_op,out_obj] = page_op.init(out_obj,[],use_mex);
             out_obj           = sqw.apply_op(out_obj,page_op);
+            cut_data_from_file_job.accumulate_pix('cleanup');
         end
         %------------------------------------------------------------------
     end

@@ -47,7 +47,7 @@ npix = zeros(sz1);
 sproj = obj.data.proj;
 saxes = obj.data.axes;
 
-if numel(obj.data.npix) == 1 % single bin original grid
+if isscalar(obj.data.npix) % single bin original grid
     block_starts = 1;
     block_sizes = obj.data.npix;
 else

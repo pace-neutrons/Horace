@@ -38,7 +38,7 @@ else
     rebin_op = opts.pageop_processor;    
 end
 % file have to be set first to account for the case infile == outfile
-if ~isempty(opts.outfile)
+if ~isempty(opts.outfile{i})
     rebin_op.outfile = opts.outfile{i};
 end
 if opts.filebacked && ~opts.nopix
