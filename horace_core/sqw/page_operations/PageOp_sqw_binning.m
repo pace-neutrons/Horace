@@ -197,17 +197,28 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     obj.img_.axes,pix, ...
                     obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
             else
-                [obj.npix_acc_,obj.sig_acc_,obj.var_acc_, pix_ok,...
-                    unique_runid_l, pix_indx] = ...
-                    obj.proj.bin_pixels(obj.targ_axes_, pix, ...
-                    obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
-                % pix_ok have probably lost some pixels after rebinning
+                filebacked_processing = obj.init_filebacked_output_ && ~obj.do_nopix_;
+                if filebacked_processing
+                    % pixel_idx requested means that pixels have not been
+                    % sorted over bins. Sorting will occur later
+                    [obj.npix_acc_,obj.sig_acc_,obj.var_acc_, pix_ok,...
+                        unique_runid_l, pix_indx] = ...
+                        obj.proj.bin_pixels(obj.targ_axes_, pix, ...
+                        obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
+                    % pix_ok have probably lost some pixels after rebinning
+                else
+                    % here pixels are sorted over bins
+                    [obj.npix_acc_,obj.sig_acc_,obj.var_acc_, pix_ok,...
+                        unique_runid_l] = ...
+                        obj.proj.bin_pixels(obj.targ_axes_, pix, ...
+                        obj.npix_acc_,obj.sig_acc_,obj.var_acc_);                    
+                end
                 obj.page_data_ = pix_ok.data;
                 if obj.exp_modified
                     obj.unique_run_id_ = unique([obj.unique_run_id_, ...
                         unique_runid_l(:)']);
                 end
-                if obj.init_filebacked_output_ && ~obj.do_nopix_
+                if filebacked_processing
                     % Store produced data in cache, and when the cache is full
                     % generate tmp files. Return pixfile_combine_info object to manage
                     % the files - this object then used to recombine the files within
@@ -234,7 +245,11 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 % information about object combining
                 obj.pix_ = cut_data_from_file_job.accumulate_pix( ...
                     obj.pix_combine_info_, true,[],[],obj.npix_acc_);
-                combine_pixels = true;
+                if isa(obj.pix_,'MultipixBase')
+                    combine_pixels = true;
+                else
+                    combine_pixels = false;                    
+                end
             else
                 combine_pixels = false;
             end
@@ -244,6 +259,11 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %
             if ~combine_pixels
                 return
+            end
+            if isa(out_obj.pix,'PixelDataMemory') % source filebacked object 
+                % have been loaded in memory and no further combining is
+                % necessary.
+                return;
             end
             %ask configuration on selected way of combining pixels together.
             hpc = hpc_config;

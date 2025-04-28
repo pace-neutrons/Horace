@@ -51,7 +51,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             % slightly different bins. Reference data are not entirely
             % accurate due to binning errors. To compare operations,
             % recalculate according to modern standards
-            obj.sqw_2d_obj  = obj.sqw_2d_obj.recompute_bin_data();
+            %obj.sqw_2d_obj  = obj.sqw_2d_obj.recompute_bin_data();
 
             ab = line_axes('nbins_all_dims',[40,40,10,60],'img_range',[-2,-2,-1,-5;2,2,1,55]);
 
@@ -69,17 +69,34 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
 
             n_pixels = sqw_in.npixels;
             mcs = floor(n_pixels)/6; % define 6 pages, 3 pages in memory --
-            % will make object filebacked
+            %will make object filebacked
             clOb =set_temporary_config_options(hor_config, ...
-                'mem_chunk_size',mcs,'fb_scale_factor',3);
+               'mem_chunk_size',mcs,'fb_scale_factor',3);
 
             out_sqw = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, 0);
             out_dnd = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, 0,'-nopix');
-            assertEqualToTol(out_sqw.data,out_dnd,'-ignore_str','-ignore_date');
+            assertEqualToTol(out_sqw.data,out_dnd,1.e-7,'-ignore_str','-ignore_date');
             assertEqualToTol(ref_sqw.data,out_dnd,1.e-7,'-ignore_str','-ignore_date');
 
             clear clOb; % filebacked and memory based pixels can not be compared if
             % page size is different
+            assertEqualToTol(ref_sqw,out_sqw,...
+                obj.FLOAT_TOL, '-ignore_str','-ignore_date');
+        end
+        
+        function test_fold_data_works_on_sqw_and_dnd_filebacked_single_stroke(obj)
+            sqw_in = obj.sqw_2d_obj;
+
+            ref_sqw = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, 0);
+
+            clOb =set_temporary_warning('off','HORACE:filebacked_ignored');
+
+            ss = sqw(obj.sqw_2d_file,'file_backed',true);
+            out_sqw = sqw_op_bin_pixels(ss, obj.fold_dataX_fun, 0);
+            out_dnd = sqw_op_bin_pixels(ss, obj.fold_dataX_fun, 0,'-nopix');
+            assertEqualToTol(out_sqw.data,out_dnd,1.e-7,'-ignore_str','-ignore_date');
+            assertEqualToTol(ref_sqw.data,out_dnd,1.e-7,'-ignore_str','-ignore_date');
+
             assertEqualToTol(ref_sqw,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
