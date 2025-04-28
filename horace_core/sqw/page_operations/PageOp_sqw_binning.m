@@ -108,9 +108,6 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             if obj.do_nopix_ || ~obj.init_filebacked_output_
                 return;
             end
-            % we create new target file with correct ranges. No range
-            % warning is needed.
-            obj.issue_range_warning = false;
             % clear internal accumulators for cut_data_from_file_job job,
             % used to accumulate pixels.
             cut_data_from_file_job.accumulate_pix('cleanup');
@@ -269,5 +266,13 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % consistence between pixels and experiment data
             do = true;
         end
+        function do = get_do_missing_range_warning(~)
+            % Overloadable core of get.do_missing_range_warning method.
+            %
+            % This algorithm creates new target file with its own range so
+            % message about missing range should not be issued.
+            do  = false;
+        end
+        
     end
 end
