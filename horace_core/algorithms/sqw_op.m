@@ -44,7 +44,7 @@ for i=1:n_inputs
         win = sqw(ldrs{i});
     end
     if nargout > 0
-        wout(i) = sqw_op(win,sqw_opfunc,pars,varargin{:});
+        wout{i} = sqw_op(win,sqw_opfunc,pars,varargin{:});
     end
 end
 wout = [wout{:}];
