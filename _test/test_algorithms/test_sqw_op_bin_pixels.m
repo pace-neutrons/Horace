@@ -71,7 +71,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             mcs = floor(n_pixels)/6; % define 6 pages, 3 pages in memory --
             %will make object filebacked
             clOb =set_temporary_config_options(hor_config, ...
-               'mem_chunk_size',mcs,'fb_scale_factor',3);
+                'mem_chunk_size',mcs,'fb_scale_factor',3);
 
             out_sqw = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, 0);
             out_dnd = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, 0,'-nopix');
@@ -83,7 +83,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             assertEqualToTol(ref_sqw,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
-        
+
         function test_fold_data_works_on_sqw_and_dnd_filebacked_single_stroke(obj)
             sqw_in = obj.sqw_2d_obj;
 
@@ -100,6 +100,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             assertEqualToTol(ref_sqw,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
+
         function test_fold_data_works_on_sqw_and_dnd_with_bins(obj)
             sqw_in = obj.sqw_4d_test_obj;
 
@@ -242,7 +243,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             % function-sample used to calculate function of interest over
             % pixels page.
             page = op.page_data;
-            if isempty(varargin)
+            if isempty(varargin{1})
 
                 pix_range = op.pix.pix_range;
                 if any(isinf(pix_range(:))) % this is test file and we use
