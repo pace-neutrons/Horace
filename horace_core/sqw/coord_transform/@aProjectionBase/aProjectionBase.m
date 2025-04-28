@@ -532,7 +532,7 @@ classdef aProjectionBase < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj, ...
+        function [npix,s,e,pix_ok,unique_runid,pix_idx,selected] = bin_pixels(obj, ...
                 axes,pix_cand,varargin)
             % Convert pixels into the coordinate system defined by the
             % projection and bin them into the coordinate system defined
@@ -580,10 +580,10 @@ classdef aProjectionBase < serializable
             %
             % unique_runid -- the run-id (tags) for the runs, which
             %           contributed into the cut
-            % pix_indx--indexes of the pix_ok coordinates according to the
-            %           bin. If this index is requested, the pix_ok object
-            %           remains unsorted according to the bins and the
-            %           follow up sorting of data by the bins is expected
+            % pix_idx -- indexes of the pix_ok coordinates according to the
+            %            bin. If this index is requested, the pix_ok object
+            %            remains unsorted according to the bins and the
+            %            follow up sorting of data by the bins is expected
             % selected  -- numerical array of indices of selected pixels after
             %            binning
             %
@@ -603,6 +603,10 @@ classdef aProjectionBase < serializable
             % '-return_selected' -- returns `selected` in `pix_ok`
             %             (For DnD only cuts fewer arguments are returned this uses
             %              the pix_ok slot)
+            % NOTE:
+            % if pix_idx array is requested, pix_ok are returned unsorted!!!
+            % Correct order of pixels in bins is stored in pix_idx and have
+            % to be used later.
 
             pix_transformed = obj.transform_pix_to_img(pix_cand);
             if nargin<4
@@ -635,11 +639,11 @@ classdef aProjectionBase < serializable
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,argi{:});
                 case(6)
-                    [npix,s,e,pix_ok,unique_runid,pix_indx]=...
+                    [npix,s,e,pix_ok,unique_runid,pix_idx]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,argi{:});
                 case(7)
-                    [npix,s,e,pix_ok,unique_runid,pix_indx,selected]=...
+                    [npix,s,e,pix_ok,unique_runid,pix_idx,selected]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,argi{:});
                 otherwise
