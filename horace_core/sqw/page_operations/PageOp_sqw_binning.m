@@ -56,9 +56,9 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             obj.do_nopix = pop_options.nopix;
             %
             if pop_options.nopix && obj.init_filebacked_output
-                % This is because sqw_eval does not support filebacked
-                % output. Until it does not support it, here we should deal
-                % with it
+                % This is because sqw_eval does not support -nopix
+                % Until it does not support it, we should deal
+                % with it here.
                 obj.init_filebacked_output = false;
                 if ~isempty(obj.write_handle_)
                     obj.write_handle_.delete();
@@ -211,7 +211,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     [obj.npix_acc_,obj.sig_acc_,obj.var_acc_, pix_ok,...
                         unique_runid_l] = ...
                         obj.proj.bin_pixels(obj.targ_axes_, pix, ...
-                        obj.npix_acc_,obj.sig_acc_,obj.var_acc_);                    
+                        obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
                 end
                 obj.page_data_ = pix_ok.data;
                 if obj.exp_modified
@@ -242,13 +242,18 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 % finalize pixel combining procedure; write all pixels
                 % still in memory into appropriate tmp files. set up output
                 % object pixels into pix_combine_info object, which have
-                % information about object combining
+                % information about tmp files combining
                 obj.pix_ = cut_data_from_file_job.accumulate_pix( ...
                     obj.pix_combine_info_, true,[],[],obj.npix_acc_);
                 if isa(obj.pix_,'MultipixBase')
                     combine_pixels = true;
                 else
-                    combine_pixels = false;                    
+                    % if all resulting objects were held in memory and nothing
+                    % was stored in tmp files yet, the operation above have
+                    % combined them without storing data
+                    % in tmp files. in this case, all have been already done.
+
+                    combine_pixels = false;
                 end
             else
                 combine_pixels = false;
@@ -260,7 +265,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             if ~combine_pixels
                 return
             end
-            if isa(out_obj.pix,'PixelDataMemory') % source filebacked object 
+            if isa(out_obj.pix,'PixelDataMemory') % source filebacked object
                 % have been loaded in memory and no further combining is
                 % necessary.
                 return;
@@ -293,6 +298,6 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % message about missing range should not be issued.
             do  = false;
         end
-        
+
     end
 end

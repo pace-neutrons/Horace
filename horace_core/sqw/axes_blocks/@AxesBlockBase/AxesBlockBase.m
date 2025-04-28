@@ -896,9 +896,6 @@ classdef AxesBlockBase < serializable
     end
     %----------------------------------------------------------------------
     methods(Abstract,Access=protected)
-        % main setter for image range. Overloadable for different kind
-        % of axes blocks.
-        obj = check_and_set_img_range(obj,val);
         % defines bins used when default constructor with dimensions only is called.
         pbin = default_pbin(obj,ndim)
         % calculate bin volume from the  axes of the axes block or input
@@ -910,6 +907,13 @@ classdef AxesBlockBase < serializable
     end
     %======================================================================
     methods(Access=protected)
+        function  obj = check_and_set_img_range(obj,val)
+            % main setter for orthogonal image range.
+            % Overloadable for different kind
+            % of axes blocks.
+            obj = check_and_set_img_range_(obj,val);
+        end
+
         function  [range,nbin,ok,mess]=pbin_parse(obj,p,p_defines_bin_centers,range_limits)
             % take binning parameters and converts them into axes bin ranges
             % and number of bins defining this axes block
