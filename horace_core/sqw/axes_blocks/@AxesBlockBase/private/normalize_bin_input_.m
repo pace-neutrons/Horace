@@ -78,6 +78,8 @@ if ~(size(pix_coord,1) == 4 || (mode == 1 && size(pix_coord,1) == 3))
     error('HORACE:AxesBlockBase:invalid_argument',...
         'first argument of the routine have to be 4xNpix or 3xNpix array of pixel coordinates')
 end
+s = [];
+e = [];
 unique_runid = [];
 % extract possible character keys
 is_key = cellfun(@istext,varargin);
@@ -115,7 +117,7 @@ switch narg
         [npix,s,e] = obj.init_accumulators(1,force_3Dbinning);
     case 4
         npix = varargin{1};
-        check_size(grid_size,npix);
+        check_size(obj,npix);
     case {5, 6}
         error('HORACE:AxesBlockBase:invalid_argument',...
             'Can not request signal or signal and variance accumulation arrays without providing pixels source')
@@ -138,11 +140,17 @@ end
 end
 
 function [npix,s,e]=check_and_alloc_accum(obj,npix,s,e,n_case,force_3Dbinning)
+empty_s = isempty(s);
+empty_n = isempty(npix);
 
-alloc_space = isempty(npix) || isempty(s);
-
-if alloc_space
+alloc_all =  empty_n && empty_s;
+alloc_se  = ~empty_n && empty_s;
+if alloc_all
     [npix,s,e] = obj.init_accumulators(n_case,force_3Dbinning);
+elseif alloc_se
+    s = obj.init_accumulators(1,force_3Dbinning);
+    e = obj.init_accumulators(1,force_3Dbinning);
+    check_size(obj,npix,s,e);
 else
     check_size(obj,npix,s,e);
 end
