@@ -86,9 +86,9 @@ classdef test_cut_data_from_file_job < TestCase
             axes = dat.axes;
             pix = obj.test_sqw.pix;
             [npix,s,e,pix_ok,unique_runid,pix_indx] = ...
-                proj.bin_pixels(axes,pix);
+                proj.bin_pixels(axes,pix,[],[],[]);
             [npix1,s1,e1,pix_ok1,unique_runid1,pix_indx1] = ...
-                proj.bin_pixels(axes,pix,'-force_double');
+                proj.bin_pixels(axes,pix,[],[],[],'-force_double');
             assertEqual(npix,npix1);
             assertEqual(s,s1);
             assertEqual(e,e1);
