@@ -105,9 +105,9 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             sqw_in = obj.sqw_4d_test_obj;
 
             out_sqw = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, [], ...
-                [0,0.1,2],[-2,0.1,2],[-0.1,0.1],[-5,5]);
+                [0,0.05,2],[-2,0.05,2],[-0.1,0.1],[-5,5]);
             out_dnd = sqw_op_bin_pixels(sqw_in, obj.fold_dataX_fun, [], ...
-                [0,0.1,2],[-2,0.1,2],[-0.1,0.1],[-5,5],'-nopix');
+                [0,0.05,2],[-2,0.05,2],[-0.1,0.1],[-5,5],'-nopix');
 
             assertEqualToTol(out_sqw.data,out_dnd);
 
