@@ -63,11 +63,11 @@ classdef test_main_mex < TestCase
             clObPar = set_temporary_config_options(parallel_config, 'threads', 1);
 
             [npix_1,s_1,e_1,pix_ok_1,unique_runid_1] = ...
-                data.proj.bin_pixels(data.axes,pix);
+                data.proj.bin_pixels(data.axes,pix,[],[],[]);
 
             par.threads = 8;
             [npix_8,s_8,e_8,pix_ok_8,unique_runid_8] = ...
-                data.proj.bin_pixels(data.axes,pix);
+                data.proj.bin_pixels(data.axes,pix,[],[],[]);
 
             assertEqual(npix_1,npix_8)
             assertEqual(s_1,s_8)
@@ -91,12 +91,12 @@ classdef test_main_mex < TestCase
             %check matlab-part
             hc.use_mex = false;
             [npix_m,s_m,e_m,pix_ok_m,unique_runid_m] = ...
-                data.proj.bin_pixels(data.axes,pix);
+                data.proj.bin_pixels(data.axes,pix,[],[],[]);
 
             %check C-part
             hc.use_mex = true;
             [npix_c,s_c,e_c,pix_ok_c,unique_runid_c] = ...
-                data.proj.bin_pixels(data.axes,pix);
+                data.proj.bin_pixels(data.axes,pix,[],[],[]);
 
 
             % verify results against each other.
