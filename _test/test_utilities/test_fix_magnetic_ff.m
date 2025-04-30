@@ -25,6 +25,13 @@ classdef test_fix_magnetic_ff< TestCase
         function obj = setUp(obj)
             obj.sample_sqw = copy(obj.sample_sqw_const);
         end
+        function  test_get_formFactor_fh(~)
+            mff = MagneticIons('Fe1');
+            [J0,J2,J4,J6] = mff.getInterpolant('Fe1');
+            fh = mff.get_fomFactor_fh();
+
+            assertEqual(fh,{J0,J2,J4,J6});
+        end
 
         % tests themself
         function test_MagFF_with_sphere(obj)

@@ -28,5 +28,5 @@ function  [fh,self] = get_fomFactor_fh(self,varargin)
 if nargin>1
     self.currentIon = varargin{1};
 end
-fh = {obj.J0_ff_,obj.J2_ff_,obj.J4_ff_,obj.J6_ff_};
+fh = {self.J0_ff_,self.J2_ff_,self.J4_ff_,self.J6_ff_};
 end

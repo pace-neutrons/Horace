@@ -27,6 +27,6 @@ end
 q = proj.transform_hkl_to_pix([h';k';l']);
 
 q2 = (q(1,:).*q(1,:)+q(2,:).*q(2,:)+q(3,:).*q(3,:))/(16*pi*pi);
-FF=self.J0_ff_(q2)+self.J2_ff_(q2)+self.J4_ff_(q2)+self.J6_ff_(q2);
+FF=self.J0_ff_(q2).^2+self.J2_ff_(q2).^2+self.J4_ff_(q2).^2+self.J6_ff_(q2).^2;
 
 
