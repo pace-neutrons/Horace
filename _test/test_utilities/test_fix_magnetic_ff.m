@@ -25,12 +25,43 @@ classdef test_fix_magnetic_ff< TestCase
         function obj = setUp(obj)
             obj.sample_sqw = copy(obj.sample_sqw_const);
         end
+        function  test_get_formFactor_fh_withIon(~)
+            mff = MagneticIons('Fe0');
+            [J0,J2,J4,J6] = mff.getInterpolant('Fe3');
+            [fh,mff] = mff.get_fomFactor_fh('Fe3');
+            fh_strr = cellfun(@(x)func2str(x),fh,'UniformOutput',false);
+            Js_strr = {func2str(J0),func2str(J2),func2str(J4),func2str(J6)};
+            assertEqual(fh_strr ,Js_strr );
+            source =rand(1,200);
+
+            res1 = J0(source).^2+J2(source).^2+J4(source).^2+J6(source).^2;
+            res2  = fh{1}(source).^2+fh{2}(source).^2+fh{3}(source).^2+fh{4}(source).^2;
+            assertEqual(res1,res2);
+
+            assertEqual(mff.currentIon,'Fe3');
+        end
+        
         function  test_get_formFactor_fh(~)
             mff = MagneticIons('Fe1');
             [J0,J2,J4,J6] = mff.getInterpolant('Fe1');
             fh = mff.get_fomFactor_fh();
-
-            assertEqual(fh,{J0,J2,J4,J6});
+            fh_strr = cellfun(@(x)func2str(x),fh,'UniformOutput',false);
+            Js_strr = {func2str(J0),func2str(J2),func2str(J4),func2str(J6)};
+            assertEqual(fh_strr ,Js_strr );
+            source =rand(1,200);
+            %tic
+            res1 = J0(source).^2+J2(source).^2+J4(source).^2+J6(source).^2;
+            %toc
+            %tic
+            res2  = fh{1}(source).^2+fh{2}(source).^2+fh{3}(source).^2+fh{4}(source).^2;
+            %toc
+            % tic
+            % res3= fh{1}(source).^2;
+            % for i=2:4
+            %     res3 = res3+fh{i}(source).^2;
+            % end
+            % toc
+            assertEqual(res1,res2);
         end
 
         % tests themself
