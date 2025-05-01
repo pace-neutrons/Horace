@@ -5,7 +5,11 @@ function  [fh,self] = get_fomFactor_fh(self,varargin)
 % form factor of a specific magnetic ion. The functions depend on
 % Q2 = q^2/(16*pi^2) where q is the modulo of momentum transfer expressed
 % in Horace Crystal Cartesian coordinate system. The magnetic form factor
-% is calculated in the form: MFF = fh{1}(Q2)+fh{2}(Q2)+fh{3}(Q2)+fh{4}(Q2);
+% is calculated in the form: 
+% MFF = fh{1}(Q2).^2+fh{2}(Q2).^2+fh{3}(Q2).^2+fh{4}(Q2).^2;
+% (assuming state with 0 orbital and unit spin momentum)
+% See https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html and A.T.Boothroyd
+% for full computational formulas based on polynomials provided.
 %
 % Usage:
 % >>fh = mi.get_formFactor_fh();
