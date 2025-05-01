@@ -86,7 +86,7 @@ else
         obj.tmp_file_holder_ = [];
         obj.full_filename = sqw_ldr.full_filename;
     end
-    % otherwise, write have occured into the target file and filename
+    % otherwise, write have occurred into the target file and filename
     % have been already modified and stored in target file
 end
 %

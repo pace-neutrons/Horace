@@ -9,6 +9,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     %
     properties(Dependent)
+        %exposes number of dimensions in the underlying image
+        NUM_DIMS;
         % common with loaders interface to pix.num_pixels property
         % describing number of pixels (neutron events) stored
         % in sqw object
@@ -42,8 +44,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     end
 
     properties(Dependent,Hidden=true)
-        %exposes number of dimensions in the underlying image
-        NUM_DIMS;
         % the same as npixels, but allows to use the same interface on sqw
         % object or pixels
         num_pixels;
@@ -141,13 +141,13 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
         %Evaluate a function at the plotting bin centres of sqw object
         wout = func_eval (win, func_handle, pars, varargin)
-        
+
         % Apply operation or sequence of operations, defined by sqwfunc
         % avoiding changes in pixels coordinates
         obj = sqw_op(obj, sqwfunc, pars, varargin)
         % Apply operation or sequence of operations, defined by sqwfunc
         % where pixels coordinates may change
-        obj = sqw_op_bin_pixels(obj, sqwfunc, pars, varargin)                
+        obj = sqw_op_bin_pixels(obj, sqwfunc, pars, varargin)
     end
     %======================================================================
     % Various sqw methods -- difficult to classify

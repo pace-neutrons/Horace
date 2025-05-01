@@ -259,7 +259,7 @@ for iter = 1:num_chunks
     end
 end  % loop over pixel blocks
 
-% store partial pixel_blocks remaining memory to tmp files if some files
+% store partial pixel_blocks remaining in memory to tmp files if some files
 % were written or collect together data stored in memory.
 % return pix_out which is either pixfile_combine_info or PixelDataMemory
 % depending on how many pixels were extracted.
