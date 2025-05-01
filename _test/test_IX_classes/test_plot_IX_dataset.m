@@ -1,8 +1,6 @@
 classdef test_plot_IX_dataset < TestCase
     % Test plotting of IX_dataset_1d, IX_dataset_2d and IX_dataset_3d objects
-    %
-    % The tests are for 
-    % - the validity of 
+    
     properties
         data1D
         data2D
@@ -421,6 +419,183 @@ classdef test_plot_IX_dataset < TestCase
 
         
         %------------------------------------------------------------------
+        % Tests of setting and getting limits
+        
+        function test_IX2D_change_limits_areaPlot(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = da(obj.data2D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+            ZLim_ref = axes_h.CLim;     % area plot: colour scale as z-axis
+            
+
+            % Set new limits
+            XLim_new = XLim_ref + [-0.53, 0.53].*abs(XLim_ref);
+            YLim_new = YLim_ref + [-0.13, 0.13].*abs(YLim_ref);
+            ZLim_new = ZLim_ref + [-0.113, 0.633].*abs(ZLim_ref);
+            lx (XLim_new)
+            ly (YLim_new)
+            lz (ZLim_new)
+            
+            assertTrue(all(xlim()==XLim_new), 'x-limits not correctly changed')
+            assertTrue(all(ylim()==YLim_new), 'y-limits not correctly changed')
+            assertTrue(all(caxis()==ZLim_new), 'z-limits not correctly changed')
+            
+            % Reset limits
+            lx
+            ly
+            lz
+            assertTrue(all(xlim()==XLim_ref), 'x-limits not correctly reset')
+            assertTrue(all(ylim()==YLim_ref), 'y-limits not correctly reset')
+            assertTrue(all(caxis()==ZLim_ref), 'z-limits not correctly reset')
+        end
+        
+
+        function test_IX2D_get_limits_areaPlot(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = da(obj.data2D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+            ZLim_ref = axes_h.CLim;     % area plot: colour scale as z-axis
+
+            % Get limits using Herbert routine
+            [xlo, xhi] = lx;
+            [ylo, yhi] = ly;
+            [zlo, zhi] = lz;
+            assertTrue(all([xlo,xhi]==XLim_ref), 'x-limits not correctly returned')
+            assertTrue(all([ylo,yhi]==YLim_ref), 'y-limits not correctly returned')
+            assertTrue(all([zlo,zhi]==ZLim_ref), 'z-limits not correctly returned')
+        end
+        
+
+        function test_IX2D_change_limits_areaPlot_commandMode(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = da(obj.data2D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+            ZLim_ref = axes_h.CLim;     % area plot: colour scale as z-axis
+
+            % Set new limits
+            XLim_new = XLim_ref + [-0.53, 0.53].*abs(XLim_ref);
+            YLim_new = YLim_ref + [-0.13, 0.13].*abs(YLim_ref);
+            ZLim_new = ZLim_ref + [-0.113, 0.633].*abs(ZLim_ref);
+            lx XLim_new(1) XLim_new(2)
+            ly YLim_new(1) YLim_new(2)
+            lz ZLim_new(1) ZLim_new(2)
+            
+            assertTrue(all(xlim()==XLim_new), 'x-limits not correctly changed')
+            assertTrue(all(ylim()==YLim_new), 'y-limits not correctly changed')
+            assertTrue(all(caxis()==ZLim_new), 'z-limits not correctly changed')
+        end
+        
+        
+        function test_IX2D_change_limits_surfacePlot(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = ds2(obj.data2D, pi*obj.data2D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+            ZLim_ref = axes_h.ZLim;
+            CLim_ref = axes_h.CLim;
+            assertEqualToTol(pi*ZLim_ref, CLim_ref, 1e-12)   % Check different!
+            
+
+            % Set new limits
+            XLim_new = XLim_ref + [-0.53, 0.53].*abs(XLim_ref);
+            YLim_new = YLim_ref + [-0.13, 0.13].*abs(YLim_ref);
+            ZLim_new = ZLim_ref + [-0.113, 0.633].*abs(ZLim_ref);
+            CLim_new = CLim_ref + [-0.23, 0.2633].*abs(CLim_ref);
+            lx (XLim_new)
+            ly (YLim_new)
+            lz (ZLim_new)
+            lc (CLim_new)
+            
+            assertTrue(all(xlim()==XLim_new), 'x-limits not correctly changed')
+            assertTrue(all(ylim()==YLim_new), 'y-limits not correctly changed')
+            assertTrue(all(zlim()==ZLim_new), 'z-limits not correctly changed')
+            assertTrue(all(caxis()==CLim_new), 'c-limits not correctly changed')
+            
+            % Reset limits
+            lx
+            ly
+            lz
+            lc
+            assertTrue(all(xlim()==XLim_ref), 'x-limits not correctly reset')
+            assertTrue(all(ylim()==YLim_ref), 'y-limits not correctly reset')
+            assertTrue(all(zlim()==ZLim_ref), 'z-limits not correctly reset')
+            assertTrue(all(caxis()==CLim_ref), 'c-limits not correctly reset')
+        end
+        
+
+        function test_IX2D_get_limits_surfacePlot(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = ds2(obj.data2D, pi*obj.data2D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+            ZLim_ref = axes_h.ZLim;
+            CLim_ref = axes_h.CLim;
+
+            % Get limits using Herbert routine
+            [xlo, xhi] = lx;
+            [ylo, yhi] = ly;
+            [zlo, zhi] = lz;
+            [clo, chi] = lc;
+            assertTrue(all([xlo,xhi]==XLim_ref), 'x-limits not correctly returned')
+            assertTrue(all([ylo,yhi]==YLim_ref), 'y-limits not correctly returned')
+            assertTrue(all([zlo,zhi]==ZLim_ref), 'z-limits not correctly returned')
+            assertTrue(all([clo,chi]==CLim_ref), 'c-limits not correctly returned')
+        end
+        
+
+        function test_IX2D_change_limits_surfacePlot_commandMode(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = ds2(obj.data2D, pi*obj.data2D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+            ZLim_ref = axes_h.ZLim;
+            CLim_ref = axes_h.CLim;
+
+            % Set new limits
+            XLim_new = XLim_ref + [-0.53, 0.53].*abs(XLim_ref);
+            YLim_new = YLim_ref + [-0.13, 0.13].*abs(YLim_ref);
+            ZLim_new = ZLim_ref + [-0.113, 0.633].*abs(ZLim_ref);
+            CLim_new = CLim_ref + [-0.23, 0.2633].*abs(CLim_ref);
+            lx XLim_new(1) XLim_new(2)
+            ly YLim_new(1) YLim_new(2)
+            lz ZLim_new(1) ZLim_new(2)
+            lc CLim_new(1) CLim_new(2)
+            
+            assertTrue(all(xlim()==XLim_new), 'x-limits not correctly changed')
+            assertTrue(all(ylim()==YLim_new), 'y-limits not correctly changed')
+            assertTrue(all(zlim()==ZLim_new), 'z-limits not correctly changed')
+            assertTrue(all(caxis()==CLim_new), 'c-limits not correctly changed')
+        end
+        
+        
+        %------------------------------------------------------------------
         % One-dimensional plot methods
         %------------------------------------------------------------------
         function test_IX1D_all_plot1D_methods_work(obj)
@@ -650,6 +825,75 @@ classdef test_plot_IX_dataset < TestCase
         end 
         
         
+        %------------------------------------------------------------------
+        % Tests of setting and getting limits
+        
+        function test_IX1D_change_limits(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = dd(obj.data1D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+
+            % Set new limits
+            XLim_new = XLim_ref .* [0.8, 1.3] + [-0.5, 0.5];
+            YLim_new = YLim_ref .* [0.3, 2.5] + [-500, 2000];
+            lx (XLim_new)
+            ly (YLim_new)
+            
+            assertTrue(all(xlim()==XLim_new), 'x-limits not correctly changed')
+            assertTrue(all(ylim()==YLim_new), 'y-limits not correctly changed')
+            
+            % Reset limits
+            lx
+            ly
+            assertTrue(all(xlim()==XLim_ref), 'x-limits not correctly reset')
+            assertTrue(all(ylim()==YLim_ref), 'y-limits not correctly reset') 
+        end
+        
+
+        function test_IX1D_get_limits(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = dd(obj.data1D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+
+            % Get limits using Herbert routine
+            [xlo, xhi] = lx;
+            [ylo, yhi] = ly;
+            assertTrue(all([xlo,xhi]==XLim_ref), 'x-limits not correctly returned')
+            assertTrue(all([ylo,yhi]==YLim_ref), 'y-limits not correctly returned')
+        end
+        
+
+        function test_IX1D_change_limits_commandMode(obj)
+            % Test that the plot limits are changed
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+            
+            % Make plot
+            [~, axes_h] = dd(obj.data1D);
+            XLim_ref = axes_h.XLim;
+            YLim_ref = axes_h.YLim;
+
+            % Set new limits
+            XLim_new = XLim_ref .* [0.8, 1.3] + [-0.5, 0.5];
+            YLim_new = YLim_ref .* [0.3, 2.5] + [-500, 2000];
+            lx XLim_new(1) XLim_new(2)
+            ly YLim_new(1) YLim_new(2)
+            
+            assertTrue(all(xlim()==XLim_new), 'x-limits not correctly changed')
+            assertTrue(all(ylim()==YLim_new), 'x-limits not correctly changed')
+        end
+        
+
         %------------------------------------------------------------------
         % Interface test
         %------------------------------------------------------------------

@@ -4,7 +4,7 @@ function colorslider(varargin)
 % A colorslider is a colorbar (as created by the Matlab colorbar function)
 % together with (1) boxes to edit the minimum and maximum values for the
 % colorscale and (2) a slider adjacent to each of those boxes to enable those
-% values up or down by clicking on those arrows.
+% values to be increased or decreased by clicking on those arrows.
 %
 % Syntax:
 % -------

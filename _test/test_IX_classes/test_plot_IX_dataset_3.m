@@ -1,8 +1,5 @@
 classdef test_plot_IX_dataset_3 < TestCase
-    % Test plotting of IX_dataset_1d, IX_dataset_2d and IX_dataset_3d objects
-    %
-    % The tests are for 
-    % - the validity of 
+    % Test of marker, lines and colours control (functions amark, aline, acolor)
     properties
         data1D
         data2D
@@ -679,7 +676,7 @@ classdef test_plot_IX_dataset_3 < TestCase
         end
         
         %------------------------------------------------------------------
-        % Test cascade of plots with different colors, linstyles etc
+        % Test cascade of plots with different colors, linestyles etc
         %------------------------------------------------------------------
         function test_cyclePlotProperties_colorsFast(obj)
             % Cycle colors 'fast', so that all colors are cycled through before

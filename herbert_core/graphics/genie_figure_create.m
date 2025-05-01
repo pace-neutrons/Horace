@@ -231,7 +231,7 @@ end
 % Create figure or reset properties on an existing figure
 if isempty(fig_handle_in)
     % New genie_figure needs to be created
-    colordef white;
+    colordef_suppressedDeprecationWarning white;
     fig_handle = figure;
     set(fig_handle, 'Name', fig_name, 'Tag', tag, 'PaperPositionMode', 'auto', ...
         'Color', 'white', 'toolbar', 'figure');
@@ -266,3 +266,18 @@ uimenu(h, 'Label', 'Keep figure', 'Callback', 'genie_figure_keep(gcf);');
 h = uimenu(fig_handle, 'Tag', 'make_cur', 'Label', 'Make Current', ...
     'Enable', enable_current_menu);
 uimenu(h, 'Label', 'Make Figure Current', 'Callback', 'genie_figure_make_cur(gcf);');
+
+
+%-------------------------------------------------------------------------------
+function colordef_suppressedDeprecationWarning(varargin)
+% As of R2024a, Matlab prints a warning message that colordef will be removed in
+% a future release. There is no simple replacement for it, and there is no
+% information on the Matlab help for colordef.
+% Apparently in R2025a there will be some features to make a conversion easier,
+% but until then, just suppress the warning message as colordef continues to
+% work.
+
+S = warning('query', 'MATLAB:colordef:ColordefWillBeRemoved');
+cleanupObj = onCleanup(@()warning(S));
+warning('off', 'MATLAB:colordef:ColordefWillBeRemoved');
+colordef(varargin{:})

@@ -107,7 +107,7 @@ function varargout=sliceomatic(U1,U2,U3,S,xlabel,ylabel,zlabel,xaxis,yaxis,zaxis
 %           the name will be Sliceomatic
 
 
-colordef white  % to avoid screw-up that earlier 'colordef none' produces
+colordef_suppressedDeprecationWarning white  % to avoid screw-up that earlier 'colordef none' produces
 
 if nargin==0
     help sliceomatic
@@ -1463,3 +1463,19 @@ end
 
 disp(['Working...' onoff]);
 set([ax get(ax,'children')],'vis',onoff);
+
+
+
+%-------------------------------------------------------------------------------
+function colordef_suppressedDeprecationWarning(varargin)
+% As of R2024a, Matlab prints a warning message that colordef will be removed in
+% a future release. There is no simple replacement for it, and there is no
+% information on the Matlab help for colordef.
+% Apparently in R2025a there will be some features to make a conversion easier,
+% but until then, just suppress the warning message as colordef continues to
+% work.
+
+S = warning('query', 'MATLAB:colordef:ColordefWillBeRemoved');
+cleanupObj = onCleanup(@()warning(S));
+warning('off', 'MATLAB:colordef:ColordefWillBeRemoved');
+colordef(varargin{:})
