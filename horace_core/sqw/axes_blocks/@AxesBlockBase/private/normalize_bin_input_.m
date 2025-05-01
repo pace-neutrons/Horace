@@ -1,5 +1,5 @@
 function [npix,s,e,pix_cand,unique_runid,argi]=...
-    normalize_bin_input_(grid_size,pix_coord,mode,varargin)
+    normalize_bin_input_(obj,force_3Dbinning,pix_coord,mode,varargin)
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
 % inputs are presented as empty outputs or zero-values arrays of the
@@ -7,9 +7,10 @@ function [npix,s,e,pix_cand,unique_runid,argi]=...
 %
 % Inputs:
 % ------------
-% grid_size -- the size of the grid, the pixels will be rebinned on
+% force_3Dbinning -- if true, always neglect energy dimension in the
+%              binning array
 %
-% pix_coord -- [3,npix] or [4,npix] or [43] numeric array of the pixel
+% pix_coord -- [3,npix] or [4,npix] or [4x3] numeric array of the pixel
 %               coordinates. If
 % mode       -- operation mode specifying what the following routine should
 %              process. The mode is defined by number of output arguments.
@@ -77,9 +78,9 @@ if ~(size(pix_coord,1) == 4 || (mode == 1 && size(pix_coord,1) == 3))
     error('HORACE:AxesBlockBase:invalid_argument',...
         'first argument of the routine have to be 4xNpix or 3xNpix array of pixel coordinates')
 end
-unique_runid = [];
 s = [];
 e = [];
+unique_runid = [];
 % extract possible character keys
 is_key = cellfun(@istext,varargin);
 argi = varargin(is_key);
@@ -112,54 +113,52 @@ end
 
 % Analyze the number of input arguments
 switch narg
-  case 3
-    npix = squeeze(zeros(grid_size));
-  case 4
-    npix = varargin{1};
-    check_size(grid_size,npix);
-  case {5, 6}
-    error('HORACE:AxesBlockBase:invalid_argument',...
-        'Can not request signal or signal and variance accumulation arrays without providing pixels source')
-  case 7
-    [npix,s,e] = check_and_alloc_accum(varargin{1:3},grid_size);
-  case 8
-    [npix,s,e] = check_and_alloc_accum(varargin{1:3},grid_size);
-    unique_runid = varargin{5};
-  otherwise
-    [npix,s,e] = check_and_alloc_accum(varargin{1:3},grid_size);
-    unique_runid = varargin{5};
-    argi = varargin{6:end};
+    case 3
+        [npix,s,e] = obj.init_accumulators(1,force_3Dbinning);
+    case 4
+        npix = varargin{1};
+        check_size(obj,npix);
+    case {5, 6}
+        error('HORACE:AxesBlockBase:invalid_argument',...
+            'Can not request signal or signal and variance accumulation arrays without providing pixels source')
+    case 7
+        [npix,s,e] = check_and_alloc_accum(obj,varargin{1:3},3,force_3Dbinning);
+    case 8
+        [npix,s,e] = check_and_alloc_accum(obj,varargin{1:3},3,force_3Dbinning);
+        unique_runid = varargin{5};
+    otherwise
+        [npix,s,e] = check_and_alloc_accum(obj,varargin{1:3},3,force_3Dbinning);
+        unique_runid = varargin{5};
+        argi = varargin{6:end};
 end
 
 % initiate accumulators to 0, as no input value is provied
 if mode>1 && isempty(npix)
-    npix = squeeze(zeros(grid_size));
-    s = squeeze(zeros(grid_size));
-    e = squeeze(zeros(grid_size));
+    [npix,s,e] = obj.init_accumulators(3,force_3Dbinning);
 end
 
 end
 
-function [npix,s,e]=check_and_alloc_accum(npix,s,e,bin_size)
+function [npix,s,e]=check_and_alloc_accum(obj,npix,s,e,n_case,force_3Dbinning)
+empty_s = isempty(s);
+empty_n = isempty(npix);
 
-space_alloc = isempty(npix) || isempty(s);
-
-if isempty(npix)
-    npix = squeeze(zeros(bin_size));
+alloc_all =  empty_n && empty_s;
+alloc_se  = ~empty_n && empty_s;
+if alloc_all
+    [npix,s,e] = obj.init_accumulators(n_case,force_3Dbinning);
+elseif alloc_se
+    s = obj.init_accumulators(1,force_3Dbinning);
+    e = obj.init_accumulators(1,force_3Dbinning);
+    check_size(obj,npix,s,e);
+else
+    check_size(obj,npix,s,e);
 end
 
-if isempty(s) % err is also empty
-    s = squeeze(zeros(bin_size));
-    e = squeeze(zeros(bin_size));
 end
 
-if ~space_alloc
-    check_size(bin_size,npix,s,e);
-end
-
-end
-
-function check_size(sze,varargin)
+function check_size(obj,varargin)
+sze = obj.dims_as_ssize();
 for i=1:numel(varargin)
     if any(size(varargin{i}) ~=sze)
         error('HORACE:AxesBlockBase:invalid_argument',...

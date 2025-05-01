@@ -196,9 +196,7 @@ expdata = IX_experiment(header);
 lat.angular_units  = 'rad';
 expdata.goniometer = lat;
 
-[~, ~,spec_to_rlu] = lat.calc_proj_matrix();
-%[~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
-%[~, header.u_to_rlu(1:3,1:3)] = lat.calc_proj_matrix();
+spec_to_rlu = lat.calc_proj_matrix(3);
 
 
 if ~(isa(instrument,'IX_inst') && isscalar(instrument))

@@ -1,8 +1,11 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
+function [title_pax, title_iax,title_main_pax,title_main_iax,...
+    display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
 % Get titling and caption information for the axes sqw data structure
 %
 % Syntax:
-%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (obj,proj)
+%   >> [title_pax, title_iax, title_main_pax, title_main_iax,
+%       display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
+
 %
 % Input:
 % ------
@@ -15,6 +18,10 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %   title_main      Main title (cell array of character strings)
 %   title_pax       Cell array containing axes annotations for each of the plot axes
 %   title_iax       Cell array containing annotations for each of the integration axes
+%   title_main_pax  Cell array containing general information for each the
+%                   projectin axes used in titles
+%   title_main_iax  Cell array containing general information for each the
+%                   integration axes used in titles
 %   display_pax     Cell array containing axes annotations for each of the plot axes suitable
 %                  for printing to the screen
 %   display_iax     Cell array containing axes annotations for each of the integration axes suitable
@@ -28,11 +35,8 @@ small = 1.0e-10;    % tolerance for rounding numbers to zero or unity in titling
 
 
 % Prepare input arguments
-file  = obj.full_filename;
-title = obj.title;
-%
 img_scales  = obj.img_scales;
-label = obj.label;
+label       = obj.label;
 
 
 pax   = obj.pax;
@@ -84,7 +88,7 @@ for j=1:4
     end
     if ismember(j,pax) % pax
         ipax = find(j==pax(dax));
-        if angular_unit 
+        if angular_unit
             if ax_type == 'd'
                 title_pax{ipax} = sprintf('%s%s',label{j},obj.capt_units(ax_type));
             else
@@ -107,39 +111,5 @@ for j=1:4
         title_main_iax{iiax} = title_iax{iiax};
         display_iax{iiax}    = sprintf('%.3g =< %s =< %.3g %s', ...
             iint(1,iiax),label{j},iint(2,iiax),in_totvector{j});
-    end
-end
-
-% Main title
-iline = 1;
-if ~isempty(file)
-    title_main{iline}=avoidtex(file);
-else
-    title_main{iline}='';
-end
-iline = iline + 1;
-
-if ~isempty(title)
-    title_main{iline}=title;
-    iline = iline + 1;
-end
-title_main{iline}=sprintf('Spherical projection at centre: %s(hklE)',mat2str(offset));
-iline = iline + 1;
-
-if ~isempty(iax)
-    title_main{iline}=title_main_iax{1};
-    if length(title_main_iax)>1
-        for i=2:length(title_main_iax)
-            title_main{iline}=[title_main{iline},' , ',title_main_iax{i}];
-        end
-    end
-    iline = iline + 1;
-end
-if ~isempty(pax)
-    title_main{iline}=title_main_pax{1};
-    if length(title_main_pax)>1
-        for i=2:length(title_main_pax)
-            title_main{iline}=[title_main{iline},' , ',title_main_pax{i}];
-        end
     end
 end

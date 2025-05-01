@@ -22,7 +22,8 @@ classdef test_cut_inputs < TestCase
 
             ex = assertExceptionThrown(@checker,...
                 'HORACE:cut:invalid_argument');
-            assertTrue(strncmp(ex.message,'Unrecognised additional input(s): ',34));
+            assertTrue(strncmp(ex.message, ...
+                'Object has 2 dimensions but cutting with 3 binning ',40));
         end
 
         function test_extra_arg_throws(obj)
@@ -34,7 +35,8 @@ classdef test_cut_inputs < TestCase
 
             ex = assertExceptionThrown(@checker,...
                 'HORACE:cut:invalid_argument');
-            assertTrue(strncmp(ex.message,'Unrecognised additional input(s): ',34));
+            assertTrue(strncmp(ex.message, ...
+                'Object has 2 dimensions but cutting with 3 binning ',40));
         end
 
 
