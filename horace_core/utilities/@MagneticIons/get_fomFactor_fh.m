@@ -9,7 +9,7 @@ function  [fh,self] = get_fomFactor_fh(self,varargin)
 % MFF = fh{1}(Q2).^2+fh{2}(Q2).^2+fh{3}(Q2).^2+fh{4}(Q2).^2;
 % (assuming state with 0 orbital and unit spin momentum)
 % See https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html and A.T.Boothroyd
-% for full computational formulas based on polynomials provided.
+% for full computational formulas based on interpolation functions provided.
 %
 % Usage:
 % >>fh = mi.get_formFactor_fh();
