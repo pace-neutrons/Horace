@@ -27,7 +27,7 @@ classdef genieplot < handle
     % functions. Ideally, we would not have it visible to users.
     
     properties (Access=private)
-        % General graph proprties
+        % General graph properties
         default_fig_name
         XScale
         YScale
