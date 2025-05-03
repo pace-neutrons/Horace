@@ -1,5 +1,8 @@
 classdef test_plot_IX_dataset < TestCase
     % Test plotting of IX_dataset_1d, IX_dataset_2d and IX_dataset_3d objects
+    %
+    % This test suite mainly exercises the plot interface, plotting of arrays of
+    % data, and some tests of altering plot ranges.
     
     properties
         data1D

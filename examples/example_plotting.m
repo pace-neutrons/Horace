@@ -1,6 +1,9 @@
 %% =============================================================================
 %   Initialise for running plot examples
 % ==============================================================================
+% Whatever plotting display and manipulation you can do for IX_dataset_*d, d*d
+% and sqw - the interface are the same.
+
 
 % Load data
 [w1_point, w1_hist, w2_point, w2_hist, w3_point, w3_hist, ...
@@ -58,4 +61,19 @@ ds(w2_hist)     % array of two datasets
 ds2(w2_hist)
 
 
+%% =============================================================================
+%   IX_dataset_3d plotting
+% ==============================================================================
+
+% Sliceomatic slice-n-dice tool
+sliceomatic(w3_hist(1))     % Can only look at one dataset - so fails with array
+
+% Now with just one IX_dataset_3d in that array of length 2:
+sliceomatic(w3_hist(1))
+
+% Keep that figure
+keep_figure
+
+% Open another sliceomatic, but this time looking down one of the axes
+sliceomatic_overview(w3_hist(2))
 

@@ -74,10 +74,12 @@ classdef test_plot_IX_dataset_2 < TestCase
         end
         
 
-        
-        %------------------------------------------------------------------
-        %  1D tests
-        %------------------------------------------------------------------
+        %==================================================================
+        %==================================================================
+        %                           1D tests
+        %==================================================================
+        %==================================================================
+
         function test_1D_plotOverCurrent_on1D(obj)
             % Plot a 1D IX_dataset over a plot of an IX_dataset_1d
             genieplot.reset
@@ -170,10 +172,151 @@ classdef test_plot_IX_dataset_2 < TestCase
             assertTrue(numel(plot_h)==numel(plot_h_ref)+1, 'Plot missing');
         end
         
+        %------------------------------------------------------------------
+        %   Limits tests
+        %------------------------------------------------------------------
+        function test_default_plot_limits_1D(obj)
+            % Check plot limits are the joint full range of x and y data
+            genieplot.reset
+            clear_figures()
+            
+            % Plot a pair of 1D line plots
+            dl(obj.w1_point(1))
+            pl(obj.w1_point(2))
+            
+            % Test plot limits
+            xlim=get(gca,'XLim');
+            ylim=get(gca,'YLim');
+            assertEqual(xlim,[1,14])
+            assertEqual(ylim,[40,240])
+        end
         
-        %------------------------------------------------------------------
-        %  2D tests
-        %------------------------------------------------------------------
+        %--------------------------------------------------------------------------
+        function test_lx_1D_reduced_ylims(obj)
+            % Check y-range is altered if reduce x-axis range
+            genieplot.reset
+            clear_figures()
+            
+            % Plot a pair of 1D line plots
+            dl(obj.w1_point(1))
+            pl(obj.w1_point(2))
+
+            % Reduce x-axis range; y range should be reduced
+            lx 3 8
+            xlim=get(gca,'XLim');
+            ylim=get(gca,'YLim');
+            assertEqual(xlim,[3,8])
+            assertEqual(ylim,[60,180])
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_lx_1D_expanded_ylims(obj)
+            % Check y-range is altered if increase x-axis range
+            genieplot.reset
+            clear_figures()
+            
+            % Plot a pair of 1D line plots
+            dl(obj.w1_point(1))
+            pl(obj.w1_point(2))
+
+            % Reduce x-axis range (tested above to correctly reduce y range)
+            lx 3 8
+            
+            % Increase x range; y range should be increased
+            lx 2 12
+            xlim=get(gca,'XLim');
+            ylim=get(gca,'YLim');
+            assertEqual(xlim,[2,12])
+            assertEqual(ylim,[50,220])
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_lx_1D_default_xylims(obj)
+            % Check ranges if x-axis range is altered to default
+            genieplot.reset
+            clear_figures()
+            
+            % Plot a pair of 1D line plots
+            dl(obj.w1_point(1))
+            pl(obj.w1_point(2))
+
+            % Reduce x-axis range (tested above to correctly reduce y range)
+            lx 3 8
+            
+            % Increase x range to default; y range should also increase default
+            lx
+            xlim=get(gca,'XLim');
+            ylim=get(gca,'YLim');
+            assertEqual(xlim,[1,14])
+            assertEqual(ylim,[40,240])
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_ly_1D_reduced_xlims(obj)
+            % Check x-range is altered if reduce y-axis range
+            genieplot.reset
+            clear_figures()
+            
+            % Plot a pair of 1D line plots
+            dl(obj.w1_point(1))
+            pl(obj.w1_point(2))
+
+            % Reduce y-axis range; x range should be reduced
+            ly 70 210
+            xlim=get(gca,'XLim');
+            ylim=get(gca,'YLim');
+            assertEqual(xlim,[4,11])
+            assertEqual(ylim,[70,210])
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_ly_1D_expanded_xlims(obj)
+            % Check x-range is altered if increase y-axis range
+            genieplot.reset
+            clear_figures()
+            
+            % Plot a pair of 1D line plots
+            dl(obj.w1_point(1))
+            pl(obj.w1_point(2))
+
+            % Reduce y-axis range (tested above to correctly reduce x range)
+            ly 70 210
+            
+            % Increase y range; x range should be increased
+            ly 60 220
+            xlim=get(gca,'XLim');
+            ylim=get(gca,'YLim');
+            assertEqual(xlim,[3,12])
+            assertEqual(ylim,[60,220])
+        end
+        
+        %--------------------------------------------------------------------------
+        function test_ly_1D_default_xylims(obj)
+            % Check ranges if y-axis range is altered to default
+            genieplot.reset
+            clear_figures()
+            
+            % Plot a pair of 1D line plots
+            dl(obj.w1_point(1))
+            pl(obj.w1_point(2))
+
+            % Reduce y-axis range (tested above to correctly reduce x range)
+            ly 70 210
+            
+            % Increase y range to default; x range should also increase default
+            ly
+            xlim=get(gca,'XLim');
+            ylim=get(gca,'YLim');
+            assertEqual(xlim,[1,14])
+            assertEqual(ylim,[40,240])
+        end
+        
+        
+        %==================================================================
+        %==================================================================
+        %                           2D tests
+        %==================================================================
+        %==================================================================
         function test_2D_areaAndsurfacePlotsDifferentFigures(obj)
             % Attempt to overplot a surface plot on an area plot.
             % Because these have different figure names, the overplot will
@@ -208,9 +351,13 @@ classdef test_plot_IX_dataset_2 < TestCase
             assertTrue(numel(plot_h)==numel(plot_h_ref)+1, 'Plot missing');
         end
         
-        %------------------------------------------------------------------
-        %  3D tests
-        %------------------------------------------------------------------
+        
+        %==================================================================
+        %==================================================================
+        %                           3D tests
+        %==================================================================
+        %==================================================================
+
         function test_3D_nonUniformBins_noFigurePlotted(obj)
             % Sliceomatic requires uniform bins. Error should be thrown.
             genieplot.reset
@@ -221,9 +368,13 @@ classdef test_plot_IX_dataset_2 < TestCase
                 'HERBERT:IX_dataset_3d:invalid_argument');
         end
         
-        %------------------------------------------------------------------
-        % 
-        %------------------------------------------------------------------
+        
+        %==================================================================
+        %==================================================================
+        %                       Miscellaneous tests
+        %==================================================================
+        %==================================================================
+
         function test_colorName_paletteName_distinguished(~)
             % Test of color and palette name is awkward case
             % Color is unambigiously green, as this matches the colorCode
