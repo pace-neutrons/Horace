@@ -258,6 +258,11 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % if filebacked, this will create sqw object with
             % combine_pixel_data object in sqw_obj.pix_ field
             [out_obj,obj] = obj.finish_core_op(out_obj);
+            if ~isempty(obj.outfile)
+                % set up target filename if it is present regardless
+                % of was file saved on disk or not
+                out_obj.full_filename = obj.outfile;
+            end
             %
             if isempty(pix_cmbn_info)
                 return
