@@ -84,7 +84,7 @@ classdef test_dummy_sqw < TestCase
             %                  % with dE = 0 (elastic mode)
             assertEqual(sum(de0),96);
 
-            q_range = pix(1:3,de0); % this is q-range in crystal catresizan
+            q_range = pix(1:3,de0); % this is q-range in crystal Cartesian
             bmat = bmatrix(obj.gen_sqw_par{3},obj.gen_sqw_par{4});
             q_range = (bmat\q_range)' ; % convert q into hkl
             % verify the fact that the detector positions, processed from

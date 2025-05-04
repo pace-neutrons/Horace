@@ -21,6 +21,8 @@ classdef pixfile_combine_info < MultipixBase
         %                   and containing cumsum of npix array
         %                   where npix is the common npix image array for
         %                   all contributing files.
+        keep_precision = true;  % helper property used to satisfy pix
+        %                   interface in PageOp family of operations.
     end
     %
     properties(Access = protected)
@@ -36,6 +38,18 @@ classdef pixfile_combine_info < MultipixBase
         binary_access_ = false;
     end
     methods
+        function obj = set_data_range(obj,varargin)
+            % method to satisfy pix interface in PageOp family of
+            % algorithms. At the moment doing nothing. It looks like it
+            % should not do anything.
+            %
+        end
+        function obj = clear_alignment(obj)
+            % method to satisfy pix interface in PageOp family of
+            % algorithms. At the moment doing nothing. It looks like it
+            % should not do anything.
+            %
+        end
         %
         function obj = pixfile_combine_info(varargin)
             % Build instance of the class, which provides the information
@@ -91,7 +105,7 @@ classdef pixfile_combine_info < MultipixBase
             [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                 flds, false, remains{:});
             if ~isempty(remains)
-                if numel(remains)==1
+                if isscalar(remains)
                     obj.filenum_ = remains{1};
                 else
                     error('HORACE:pixfile_combine_info:invalid_argument',[ ...
@@ -235,7 +249,7 @@ classdef pixfile_combine_info < MultipixBase
             end
             obj.loaders_list_ = {};
         end
-        
+
     end
     %----------------------------------------------------------------------
     methods(Access=protected)

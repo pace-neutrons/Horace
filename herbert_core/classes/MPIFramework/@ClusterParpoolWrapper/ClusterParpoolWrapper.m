@@ -79,7 +79,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
 
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % Method to initiate/reinitiate empty Parpool class wrapper.
-            % The method to initate the cluster wrapper
+            % The method to initiate the cluster wrapper
             %
             % Inputs:
             % n_workers -- number of independent Matlab workers to execute
@@ -137,8 +137,8 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 cjob.NumWorkersRange  = obj.n_workers;
             end
             cjob.AutoAttachFiles = false;
-            % set enviromental variables. This certainly works for local
-            % variables, but if the cluster is remote, the envriomental
+            % set environmental variables. This certainly works for local
+            % variables, but if the cluster is remote, the environmental
             % variables transfer should be investigated
             obj.set_env();
             h_worker = str2func(obj.worker_name_);

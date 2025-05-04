@@ -78,8 +78,11 @@ classdef line_axes < AxesBlockBase
         function [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis] =...
                 data_plot_titles(obj)
             % Get titling and caption information for an sqw data structure
-            [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
+            [title_pax, title_iax,title_main_pax,title_main_iax,...
+                display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj);
+            % Main title
+            title_main = obj.main_title(title_main_pax,title_main_iax);
         end
         %
         function mat = get.hkle_axes_directions(obj)
@@ -185,10 +188,6 @@ classdef line_axes < AxesBlockBase
             volume = calc_bin_volume_(obj,varargin{:});
         end
 
-        function  obj = check_and_set_img_range(obj,val)
-            % main setter for orthogonal image range.
-            obj = check_and_set_img_range_(obj,val);
-        end
         function pbin = default_pbin(~,ndim)
             % method is called when default constructor with dimensions is invoked
             % and defines default binning in this situation

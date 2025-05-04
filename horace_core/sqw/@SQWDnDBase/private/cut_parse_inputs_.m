@@ -151,7 +151,6 @@ end
 
 % Get leading projection, if present, and strip from parameter list
 % -----------------------------------------------------------------
-
 opt.proj_given = ~isempty(par) && ...
     (isstruct(par{1}) || isa(par{1},'aProjectionBase'));
 
@@ -165,7 +164,11 @@ if opt.proj_given
     % all components of Q and energy
     npbin_expected = 4;
 else
-    proj = obj.proj;
+    if isa(obj,'sqw')
+        proj  = obj.data.proj;
+    else
+        proj = obj.proj;
+    end
     % must match the number of plot axes
     npbin_expected = ndims_in;
 end
@@ -199,9 +202,10 @@ if numel(par) < npbin_expected
     end
 
 elseif numel(par) > npbin_expected
-    error('HORACE:cut:invalid_argument',...
-        'Unrecognised additional input(s): "%s" were provided to cut',...
-        disp2str(par(npbin_expected+1:end)));
+    error('HORACE:cut:invalid_argument',[...
+        'Object has %d dimensions but cutting with %d binning parameters\n',...
+        'Unrecognised additional input(s): "%s" were provided to cut'],...
+        npbin_expected,numel(par),disp2str(par(npbin_expected+1:end)));
 end
 
 pbin = par(1:npbin_expected);
@@ -234,14 +238,19 @@ if opt.proj_given
 else % it may be fewer parameters then actual dimensions and
     % if no projection is given, we would like to append missing binning
     % parameters with their default values.
+    if isa(obj,'sqw')
+        img = obj.data;
+    else
+        img = obj;
+    end
     pbin_tmp = pbin;
     pbin = cell(4,1);
     % run checks on given pbin, and if given pbin is empty, take pbin from
     % existing projection axis
-    paxis = cellfun(@select_pbin,pbin_tmp,obj.p,'UniformOutput',false);
-    pbin(obj.pax) = paxis(:);
+    paxis = cellfun(@select_pbin,pbin_tmp,img.p,'UniformOutput',false);
+    pbin(img.pax) = paxis(:);
     % set other limits to integration axis
-    pbin(obj.iax) = num2cell(obj.iint,1);
+    pbin(img.iax) = num2cell(img.iint,1);
     % ensure row vectors
     [pbin,pbin_expanded] = cellfun(@make_row_check_expansion,pbin,'UniformOutput',false);
     pbin = pbin';
