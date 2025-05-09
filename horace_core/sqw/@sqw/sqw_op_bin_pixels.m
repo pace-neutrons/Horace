@@ -97,13 +97,19 @@ function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
 %               Default is false so resulting object intended to be put in
 %               memory but if the resulting object is too big to
 %               be stored in memory, result will be filebacked.
+%  combine with true/false value folloving key or option '-combine'
+%               if true or option '-combine' present, input sqw objects are
+%               treated as parts of a single sqw object and the result is
+%               build from the image of the first object, pixels of all
+%               objects in input list and input binning parameters.
 %
 %
 % Output:
 % =======
-%   obj        If `filebacked` is false, an sqw object or array of sqw objects.
-%              If `filebacked` is true, a file path or cell array of file paths.
-%              Output argument must be specified if `outfile` not given.
+%   wout     If `filebacked` is false, an sqw object or array of sqw objects
+%            depending on input and algorithm control options.
+%            If `filebacked` is true, a file path or cell array of file paths.
+%            Output argument must be specified if `outfile` not given.
 %
 %==========================================================================
 is_key = cellfun(@(x)istext(x),varargin);
