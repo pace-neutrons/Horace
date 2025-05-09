@@ -82,17 +82,12 @@ classdef pixfile_combine_info < MultipixBase
             %             should be kept as provided within contributing
             %             files
             %      or:
-            %         -  'fileno' the string stating that the pixels id-s
+            %         -  'filenum' the string stating that the pixels id-s
             %             should be modified and be equal
             %               to the numbers of contributing files
             %      or:
             %         -   array of unique numbers, providing run_id for each
             %             contributing run(file)
-            % OPTIONAL:
-            % filenum   -- array, defining the numbers for each
-            %              contributing file. If not present, the contributing
-            %              files are numbered by integers running from 1 to
-            %              n-files
             obj = obj@MultipixBase();
             if nargin == 0
                 return
@@ -100,19 +95,17 @@ classdef pixfile_combine_info < MultipixBase
             obj = obj.init(varargin{:});
         end
         function obj = init(obj,varargin)
+            %
             [obj,remains] = init@MultipixBase(obj,varargin{:});
-            flds = {'pos_npixstart','pos_pixstart','run_label','filenum'};
+            flds = {'pos_npixstart','pos_pixstart','run_label'};
             [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                 flds, false, remains{:});
             if ~isempty(remains)
-                if isscalar(remains)
-                    obj.filenum_ = remains{1};
-                else
-                    error('HORACE:pixfile_combine_info:invalid_argument',[ ...
-                        'pixfile_combine_info accepts up to 7 input arguments.\n' ...
-                        'got: %d arguments. Last have not been recognized: %s\n'], ...
-                        numel(varargin),disp2str(remains))
-                end
+                error('HORACE:pixfile_combine_info:invalid_argument',[ ...
+                    'pixfile_combine_info accepts up to 7 input arguments.\n' ...
+                    'got: %d arguments. Last have not been recognized: %s\n'], ...
+                    numel(varargin),disp2str(remains))
+
             end
         end
         %------------------------------------------------------------------
@@ -196,7 +189,6 @@ classdef pixfile_combine_info < MultipixBase
 
             parts_holder = cell(1,n_workers);
             pnbins = obj.nbins;
-            filenums = 1:n_tasks;
             for i=1:n_workers
                 part_files    = files(split_ind(1,i):split_ind(2,i));
                 ppos_npixstart = obj.pos_npixstart(split_ind(1,i):split_ind(2,i));
@@ -207,9 +199,8 @@ classdef pixfile_combine_info < MultipixBase
                     prun_label     = obj.run_label(split_ind(1,i):split_ind(2,i));
                 end
                 pnpixtot   = obj.npix_each_file(split_ind(1,i):split_ind(2,i));
-                pfilenums  = filenums(split_ind(1,i):split_ind(2,i));
                 %
-                parts_holder{i} = pixfile_combine_info(part_files,pnbins,pnpixtot,ppos_npixstart,ppos_pixstart,prun_label,pfilenums);
+                parts_holder{i} = pixfile_combine_info(part_files,pnbins,pnpixtot,ppos_npixstart,ppos_pixstart,prun_label);
             end
         end
         %
@@ -258,7 +249,7 @@ classdef pixfile_combine_info < MultipixBase
         end
         function obj = set_npix_each_file(obj,val)
             % accepts the numeric array which defines number of pixels
-            % in each file or signle value if total number of pixels
+            % in each file or single value if total number of pixels
             % in each file is the same
             obj = set_npix_each_file_(obj,val);
         end
@@ -278,14 +269,14 @@ classdef pixfile_combine_info < MultipixBase
             end
         end
         %==================================================================
-        % BLOCKS supporing future Re #1436 operations
+        % BLOCKS supporting future Re #1436 operations
         function pix_data = get_raw_pix(obj,n_file,pix_pos_start,pix_pos_end)
             % read pixel block of the appropriate size located at the
             % specified position in the binary file
             %Inputs:
             % n_file       -- the number of object to read
             % pos_pixstart -- the initial position of the pix block to read
-            % pix_pos_end  -- final poistion of pixels to read
+            % pix_pos_end  -- final position of pixels to read
 
             pix_data = get_raw_pix_(obj,n_file,pix_pos_start,pix_pos_end);
         end
@@ -319,7 +310,7 @@ classdef pixfile_combine_info < MultipixBase
         function  flds = saveableFields(obj)
             fld1 = saveableFields@MultipixBase(obj);
             flds = {'pos_npixstart','pos_pixstart',...
-                'filenum','npix_cumsum'};
+                'npix_cumsum'};
             flds = [fld1(:);flds(:)];
         end
 

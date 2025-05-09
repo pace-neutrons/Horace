@@ -21,7 +21,7 @@ classdef MultipixBase < serializable
         data_range   % Global range of all pixel data, i.e. coordinates, signal error and other pixel parameters
 
         %   run_label   Indicates how to re-label the run index (pix(5,...)
-        %          'fileno'      relabel run index as the index of the file
+        %          'filenum'      relabel run index as the index of the file
         %                        in the list infiles
         %          'nochange'    use the run index as in the input file
         %                        numeric array  offset run numbers for ith
@@ -35,9 +35,6 @@ classdef MultipixBase < serializable
         %          be offset to give the run indices into the collective list of run parameters
         run_label;
 
-        % numbers of files used as run_label for pixels if relabel_with_fnum
-        % and change_fileno are set to true
-        filenum
         %
         % true if pixel id from each contributing file should be replaced by contributing file number
         relabel_with_fnum;
@@ -83,8 +80,6 @@ classdef MultipixBase < serializable
         full_filename_;
         %
         run_label_ = 'nochange';
-        %
-        filenum_ = [];
     end
     methods
         %
@@ -146,8 +141,9 @@ classdef MultipixBase < serializable
             npix_tot = obj.npix_each_file_;
         end
         function obj= set.npix_each_file(obj,val)
-            % If defined, accepts a numeric array which defines number
-            % of pixels in each file or single value if total number of
+            % If defined, accepts a numeric array which defines pixel
+            % distribution over image bin per each file 
+            % or single value if total number of
             % pixels in each file is the same
             obj = set_npix_each_file(obj,val);
         end
@@ -218,7 +214,7 @@ classdef MultipixBase < serializable
             % true if pixel id from each contributing file
             % should be replaced by contributing file number
             if istext(obj.run_label)
-                if strcmpi(obj.run_label,'fileno')
+                if strncmpi(obj.run_label,'filen',5)
                     is  = true;
                 else
                     is = false;
@@ -234,24 +230,27 @@ classdef MultipixBase < serializable
             is = get_change_fileno_(obj);
         end
         %
-        function fn = get.filenum(obj)
-            if isempty(obj.filenum_)
-                fn = 1:obj.nfiles;
-            else
-                fn = obj.filenum_;
-            end
-        end
-        function obj = set.filenum(obj,val)
-            if ~isnumeric(val)
-                error('HORACE:MultipixBase:invalid_argument', ...
-                    'filenum property should be numeric array with number of elements equal to number of files')
-            end
-            obj.filenum_ = val(:)';
-        end
         function rl= get.run_label(obj)
             rl = obj.run_label_;
         end
         function obj = set.run_label(obj,val)
+            % Sets the value describing the way to treat run_id (run_index)
+            % of input pixels datasets while combining them together.
+            %
+            % Acceptable values may be:
+            % 1) string containing 'nochange' or 'fileno' keys. Any other strings are not
+            %    acceptable.
+            % "nochage" -- means that runlabels present in input pixels data do not
+            %              change
+            % "filenum"  -- runlables present in input pixels data change to the number
+            %              of the file (dataset) in the list of input datasets(files)
+            %              used by the class
+            % 2) array of numbers, with numel equal to the number of input
+            %    datasets(files)
+            %              in this case, run_id-s of input datasets will be changed to
+            %              the numbers provided in this array.
+            %
+            % DEFAULT: "nochange"
             obj = set_runlabel_(obj,val);
         end
         function obj=clean_up_tmp_files(obj)
@@ -274,8 +273,6 @@ classdef MultipixBase < serializable
             obj.data_range_ = PixelDataBase.EMPTY_RANGE;
             %
             obj.run_label_ = 'nochange';
-            %
-            obj.filenum_ = [];
         end
 
     end

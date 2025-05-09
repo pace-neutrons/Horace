@@ -21,10 +21,14 @@ classdef pixobj_combine_info < MultipixBase
             %
             % Inputs:
             % inobj   -- cellarray of PixelData objects containing pixels
+            %
             % pix_distr
-            %         -- cellarray of distribution of pixels within the
-            %            image bins (distribution is npix(:) value of npix
-            %            property of DnD image)
+            %         -- single distribution or cellarray of distributions
+            %            of pixels within the image bins (distribution is
+            %            npix(:) value of npix property of DnD image)
+            %            if single value provided, this value is applied
+            %            to all pixels datasets.
+            % OPTIONAL:
             %run_label
             %     either:
             %          - the string containing information on the
@@ -35,35 +39,49 @@ classdef pixobj_combine_info < MultipixBase
             %             should be kept as provided within contributing
             %             files
             %      or:
-            %         -  'fileno' the string stating that the pixels id-s
+            %         -  'filenum' the string stating that the pixels id-s
             %             should be modified and be equal
             %               to the numbers of contributing files
             %      or:
             %         -   array of unique numbers, providing run_id for each
             %             contributing run(file)
-            % OPTIONAL:
-            % filenum  -- array, defining the numbers for each
-            %              contributing file. If not present, the contributing
-            %              files are numbered by integers running from 1 to
-            %              n-files
             if nargin == 0
                 return
             end
             obj = obj.init(varargin{:});
         end
         function obj = init(obj,varargin)
-            flds = {'infiles','npix_list','run_label','filenum'};
+            % Initialize pixobj_combine_info class.
+            % Inputs:
+            % infiles -- cellarray of full names of the files or objects to combine
+            % npix_list
+            %         -- single npix array or cellarry of npix arrays,
+            %            describing distribution of pixels within bins.
+            % Optional:
+            %run_label
+            %     either:
+            %          - the string or array containing information on the
+            %            treatment of the run_ids, identifying each
+            %            pixel of the PixelData. It may be equal
+            %      equal to:
+            %          - 'nochange' the string stating that the pixel id-s
+            %             should be kept as provided within contributing
+            %             files
+            %      or:
+            %         -  'filenum' the string stating that the pixels id-s
+            %             should be modified and be equal
+            %               to the numbers of contributing files
+            %      or:
+            %         -   array of unique numbers, providing run_id for each
+            %             contributing run(file)
+            flds = {'infiles','npix_list','run_label'};
             [obj, remains] = set_positional_and_key_val_arguments (obj, ...
                 flds, false, varargin{:});
             if ~isempty(remains)
-                if numel(remains)==1
-                    obj.filenum_ = remains{1};
-                else
-                    error('HORACE:pixobj_combine_info:invalid_argument',[ ...
-                        'pixobj_combine_info accepts up to 4 input arguments.\n' ...
-                        'got: %d arguments. Last have not been recognized: %s\n'], ...
-                        numel(varargin),disp2str(remains))
-                end
+                error('HORACE:pixobj_combine_info:invalid_argument',[ ...
+                    'pixobj_combine_info accepts up to 3 input arguments.\n' ...
+                    'got: %d arguments. Last have not been recognized: %s\n'], ...
+                    numel(varargin),disp2str(remains))
             end
         end
         %------------------------------------------------------------------
@@ -71,7 +89,7 @@ classdef pixobj_combine_info < MultipixBase
             % initialize access to contributing pixels.
 
             % as we normally read data and immediately dump them back, what
-            % is the point of converting them to double and back to sinlge?
+            % is the point of converting them to double and back to single?
             % Keep precision.
             for i=1:numel(obj.infiles_)
                 obj.infiles_{i}.keep_precision = true;
@@ -148,7 +166,7 @@ classdef pixobj_combine_info < MultipixBase
             ver = 1;
         end
         function  flds = saveableFields(~)
-            flds = {'infiles','npix_list','run_label','filenum'};
+            flds = {'infiles','npix_list','run_label'};
         end
         function obj = check_combo_arg(obj)
             % validate consistency of cellarray of pixels data and
