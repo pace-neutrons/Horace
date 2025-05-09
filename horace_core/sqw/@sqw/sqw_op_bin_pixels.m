@@ -118,8 +118,9 @@ if any(is_key)
 else
     argi = varargin;
 end
-if numel(argi)<obj.data.NUM_DIMS % not very reliable
-    binning = cell(1,obj.data.NUM_DIMS);
+if numel(argi)<obj(1).data.NUM_DIMS % not very reliable but if even combine, 
+    % the resulting object comes from first object
+    binning = cell(1,obj(1).data.NUM_DIMS);
     argi = [binning(:);argi(:)];
 end
 %
@@ -127,18 +128,18 @@ end
 % projection inputs defines pixels-to-image transformation.
 return_cut = nargout > 0;
 [targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
-    obj,return_cut, argi{:});
+    obj(1),return_cut, argi{:});
 if numel(sym)>1 || ~isa(sym{1},'SymopIdentity')
     error('HORACE:sqw_op_bin_pixels:not_implemented',[ ...
         'sqw_op_bin_pixels does not yet accepts Symop parameters.\n' ...
         'Add necessary SymOp to custom operation yourself'])
 end
 
-[targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin{1}, sym);
+[targ_ax_block, targ_proj] = obj(1).define_target_axes_block(targ_proj, pbin{1}, sym);
 
 
 argi = varargin(is_key);
-[sqwop_func, pars, opts] = parse_eval_args(obj, sqwop_func, pars, argi{:});
+[sqwop_func, pars, opts] = parse_eval_args(obj(1), sqwop_func, pars, argi{:});
 if ~opt.keep_pix
     opts.nopix = true;
 end
@@ -168,17 +169,54 @@ if  opts.average
 end
 % if test_input_parsing option provided among input keys, we are testing input
 % parameters parsing.
+if opts.combine
+    win=check_and_prepare_combine(obj);
+else
+    win = copy(obj);
+end
 if opts.test_input_parsing
     wout = opts;
     wout.targ_proj     = targ_proj;
     wout.targ_ax_block = targ_ax_block;
+    wout.input_objects = win;
     % return input parameters without processing them
     return
 end
 
-wout = cell(1,numel(obj));
-for i=1:numel(obj)
-    wout{i} = sqw_op_bin_pix_single_(obj(i),sqwop_func,pars,targ_ax_block,targ_proj,opts,i);
+wout = cell(1,numel(win));
+for i=1:numel(win)
+    wout{i} = sqw_op_bin_pix_single_(win(i),sqwop_func,pars,targ_ax_block,targ_proj,opts,i);
 end
 wout = [wout{:}];
+
 end
+
+%--------------------------------------------------------------------------
+function wout=check_and_prepare_combine(win)
+% Prepare input object for pixel combining
+wout = copy(win(1));
+if isscalar(win)
+    return
+end
+n_inputs = numel(win);
+% get access
+pix = cell(1,n_inputs);
+npix = zeros(1,n_inputs);
+pix{1} = win.pix;
+npix(1)= wout.pix.num_pixels;
+for i=2:n_inputs
+    pix{i} = win(i).pix;
+    npix(i)= win(i).pix.num_pixels;
+end
+% Build target output sqw object containing combine information
+% and other sqw object information on the basis of first sqw object
+pix_all = pixobj_combine_info(pix,num2cell(npix));
+wout.data.do_check_combo_arg = false;
+wout.data.npix = npix;
+wout.data.s = zeros(1,numel(npix));
+wout.data.e = zeros(1,numel(npix));
+wout.pix = pix_all;
+wout.data.do_check_combo_arg = true;
+
+end
+

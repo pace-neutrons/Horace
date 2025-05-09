@@ -142,7 +142,7 @@ classdef MultipixBase < serializable
         end
         function obj= set.npix_each_file(obj,val)
             % If defined, accepts a numeric array which defines pixel
-            % distribution over image bin per each file 
+            % distribution over image bin per each file
             % or single value if total number of
             % pixels in each file is the same
             obj = set_npix_each_file(obj,val);
@@ -274,7 +274,13 @@ classdef MultipixBase < serializable
             %
             obj.run_label_ = 'nochange';
         end
-
+        function wout = copy(win)
+            % satisty pixels interface and copy pixel data object
+            %
+            % It looks like cow works in this case, though need to
+            % think about more complicated cases
+            wout = win;
+        end
     end
     %----------------------------------------------------------------------
     methods(Static)
