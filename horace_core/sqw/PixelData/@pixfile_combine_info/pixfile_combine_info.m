@@ -21,8 +21,6 @@ classdef pixfile_combine_info < MultipixBase
         %                   and containing cumsum of npix array
         %                   where npix is the common npix image array for
         %                   all contributing files.
-        keep_precision = true;  % helper property used to satisfy pix
-        %                   interface in PageOp family of operations.
     end
     %
     properties(Access = protected)

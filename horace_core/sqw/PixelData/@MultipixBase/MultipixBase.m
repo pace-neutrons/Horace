@@ -61,6 +61,12 @@ classdef MultipixBase < serializable
         % from components during join/combine operation.
         is_corrected
         %------------------------------------------------------------------
+        % Part of PixelData interface, not very important on multipix but
+        % need to be defined to use multipix alongside with pixelData
+        % if operation shoud conserve pixel dataset precision. Part of
+        % pixel_data interface.
+        keep_precision
+        old_file_format
     end
     %
     %
@@ -80,6 +86,8 @@ classdef MultipixBase < serializable
         full_filename_;
         %
         run_label_ = 'nochange';
+        %------------------------------------------------------------------
+        keep_precision_ = true;
     end
     methods
         %
@@ -207,6 +215,16 @@ classdef MultipixBase < serializable
             is = get_is_filebacked(obj);
         end
         function is = get.is_corrected(~)
+            is = false;
+        end
+        %
+        function do = get.keep_precision(obj)
+            do = obj.keep_precision_;
+        end
+        function obj = set.keep_precision(obj,val)
+            obj.keep_precision_ = logical(val);
+        end
+        function is = get.old_file_format(~)
             is = false;
         end
         %

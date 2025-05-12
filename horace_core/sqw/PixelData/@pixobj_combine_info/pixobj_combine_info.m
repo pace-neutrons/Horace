@@ -94,6 +94,7 @@ classdef pixobj_combine_info < MultipixBase
             for i=1:numel(obj.infiles_)
                 obj.infiles_{i}.keep_precision = true;
             end
+            obj.keep_precision_ = true;
         end
 
         function [data,npix_chunk] = get_dataset_page(obj, ...
@@ -111,6 +112,10 @@ classdef pixobj_combine_info < MultipixBase
             % npix_idx  -- two-element array containing first and last
             %              indices of bins containing
             %              distribution of pixels over bins.
+            % Returns:
+            % data       -- page of data retrieved from pixels dataset
+            % npix_chunk -- part of npix array, responsible for pixels stored
+            %               in data page. sum(npix_chun) == size(data,2);
             %
             npix          = obj.npix_list_{n_dataset};
             npix_chunk    = npix(npix_idx(1):npix_idx(2));
@@ -147,7 +152,7 @@ classdef pixobj_combine_info < MultipixBase
         end
     end
     methods(Access=protected)
-        function is = get_is_filebacked(~)
+        function is = get_is_filebacked(obj)
             is = any(cellfun(@(x)x.is_filebacked,obj.infiles_));
         end
 
