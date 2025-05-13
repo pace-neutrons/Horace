@@ -118,7 +118,7 @@ if any(is_key)
 else
     argi = varargin;
 end
-if numel(argi)<obj(1).data.NUM_DIMS % not very reliable but if even combine, 
+if numel(argi)<obj(1).data.NUM_DIMS % not very reliable but if even combine,
     % the resulting object comes from first object
     binning = cell(1,obj(1).data.NUM_DIMS);
     argi = [binning(:);argi(:)];
@@ -199,14 +199,18 @@ if isscalar(win)
     return
 end
 n_inputs = numel(win);
-% get access
-pix = cell(1,n_inputs);
-npix = zeros(1,n_inputs);
-pix{1} = win.pix;
-npix(1)= wout.pix.num_pixels;
+% 
+pix   = cell(1,n_inputs);
+npix  = zeros(1,n_inputs);
+exper = cell(1,n_inputs);
+%
+pix{1}   = wout.pix;
+exper{1} = wout.experiment_info;
+npix(1)  = wout.pix.num_pixels;
 for i=2:n_inputs
-    pix{i} = win(i).pix;
-    npix(i)= win(i).pix.num_pixels;
+    pix{i}   = win(i).pix;
+    npix(i)  = win(i).pix.num_pixels;
+    exper{i} = win(i).experiment_info;
 end
 % Build target output sqw object containing combine information
 % and other sqw object information on the basis of first sqw object
@@ -215,8 +219,8 @@ wout.data.do_check_combo_arg = false;
 wout.data.npix = npix;
 wout.data.s = zeros(1,numel(npix));
 wout.data.e = zeros(1,numel(npix));
+wout.experiment_info = exper{1}.combine_experiments(exper(2:end),true,true);
 wout.pix = pix_all;
 wout.data.do_check_combo_arg = true;
 
 end
-

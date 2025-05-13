@@ -302,6 +302,13 @@ classdef MultipixBase < serializable
     end
     %----------------------------------------------------------------------
     methods(Static)
+        function obj_out = apply_op(obj_in,page_op)
+            % Until paging interface is fully implemented on PixelDataBase
+            % here we are working with PixelDataFilebacked algorithm as it
+            % has advanced paging operations
+            obj_out = PixelDataFileBacked.apply_op(obj_in,page_op);
+
+        end
         function data_range = recalc_data_range_from_loaders(ldrs,keep_runid)
             % Recalculate pixels range using list of defined loaders
             if nargin == 1

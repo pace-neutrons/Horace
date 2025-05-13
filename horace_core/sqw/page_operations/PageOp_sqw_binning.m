@@ -120,6 +120,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 npix_idx    = cat(2,idx_cell);
                 all_idx = [npix_idx{:}];
                 obj.pix_dataset_idx_array_ = all_idx(1,:);
+                obj.init_filebacked_output_ = true;
             else
                 [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
             end
@@ -142,6 +143,9 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % disable standard filebacked output used by PageOp,
             % as it will be performed by cut write algorithm, used by cut.
             if isempty(obj.outfile)
+                if isempty(obj.write_handle_)
+                    return;
+                end
                 obj.outfile_ = obj.write_handle_.write_file_name;
             end
             % this will delete existing tmp file if any is there
@@ -157,7 +161,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
 
                 pix_ = obj.pix_.infiles{n_dataset};
                 pix_idx_0 = obj.pix_idx_start_(n_dataset);
-                pix_idx_1 = obj.pix_idx_start_(n_dataset)+npix_blocks-1;
+                pix_idx_1 = obj.pix_idx_start_(n_dataset)+npix_blocks{idx}-1;
 
                 obj.page_data_ = pix_.get_pixels( ...
                     pix_idx_0:pix_idx_1,'-raw','-align');

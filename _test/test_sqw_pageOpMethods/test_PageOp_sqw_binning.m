@@ -13,6 +13,8 @@ classdef test_PageOp_sqw_binning < TestCase
             hc = horace_paths;
             obj.test_dir = hc.test_common;
             obj.sample_obj = read_sqw(fullfile(obj.test_dir,'sqw_2d_1.sqw'));
+            % old data were binned slightly differently
+            obj.sample_obj = recompute_bin_data(obj.sample_obj);
 
             obj.sqw_to_join = obj.sample_obj.split();
             n_parts = numel(obj.sqw_to_join);
@@ -42,12 +44,16 @@ classdef test_PageOp_sqw_binning < TestCase
 
 
         %------------------------------------------------------------------
-        function test_collect_metadata_works_on_files(obj)
+        function test_op_on_objects_equal_to_combine_without_par(obj)
+            mobj = sqw_op_bin_pixels(obj.sqw_to_join, ...
+                @(x,varargin)null_op_(obj,x,varargin{:}),[],'-combine');
+
+            assertEqualToTol(mobj,obj.sample_obj,[1.e-7,1.e-7],'-ignore_str','-ignore_date');
         end
         function test_split_multipix_data_get_multipix_pages(obj)
             [tds,npix,pix_data]= obj.get_test_multipix_ds(4,10);
             pop_obj = PageOp_sqw_binning();
-            pop_obj = pop_obj.init(tds,@(x)unit_op_(obj,x),[], ...
+            pop_obj = pop_obj.init(tds,@(x,varargin)null_op_(obj,x,varargin{:}),[], ...
                 tds.data.axes,tds.data.proj, ...
                 struct('combine',true,'nopix',false));
 
@@ -71,7 +77,7 @@ classdef test_PageOp_sqw_binning < TestCase
             num_pixels = pix_data{ds_num}.num_pixels;            
             pix_idx0 = 0;
             for i= 1:numel(npix_chunks)
-                pop_obj = pop_obj.get_page_data(i,npix_chunks{i});
+                pop_obj = pop_obj.get_page_data(i,npix_chunks);
                 %
                 if ds_num ~= all_idx(i)
                     ds_num = all_idx(i);
@@ -89,7 +95,7 @@ classdef test_PageOp_sqw_binning < TestCase
         end
     end
     methods(Access=private)
-        function data = unit_op_(~,pop)
+        function data = null_op_(~,pop,varargin)
             data = pop.page_data;
         end
         function [multipix_ds,npix,pix_list] = get_test_multipix_ds(~,n_datasets,n_pixels)

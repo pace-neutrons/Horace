@@ -175,16 +175,19 @@ if combine_inputs && n_inputs > 1
         wout = sqw(ldr_or_sqw{1});
     end
     % get access
-    pix = cell(1,n_inputs);
-    npix = zeros(1,n_inputs);
+    pix   = cell(1,n_inputs);
+    exper = cell(1,n_inputs);        
+    npix  = zeros(1,n_inputs);
     pix{1} = wout.pix;
     npix(1)= wout.pix.num_pixels;
+    exper{1} = wout.experiment_info;
     for i=2:n_inputs
         if is_sqw(i)
             twin = ldr_or_sqw{i};
         else
             twin = sqw(ldr_or_sqw{i});
         end
+        exper{i} = twn.experiment_info;
         pix{i} = twin.pix;
         npix(i)= twin.pix.num_pixels;
     end
@@ -196,6 +199,7 @@ if combine_inputs && n_inputs > 1
     wout.data.s = zeros(1,numel(npix));
     wout.data.e = zeros(1,numel(npix));
     wout.pix = pix_all;
+    wout.experiment_info = exper{1}.combine_experiments(exper(2:end),true,true);
     wout.data.do_check_combo_arg = true;
     is_sqw   = true; % single sqw object containing combine information
     wout = {wout};   % further code expects cellarray
