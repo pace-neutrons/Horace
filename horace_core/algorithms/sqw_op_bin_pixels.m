@@ -187,7 +187,7 @@ if combine_inputs && n_inputs > 1
         else
             twin = sqw(ldr_or_sqw{i});
         end
-        exper{i} = twn.experiment_info;
+        exper{i} = twin.experiment_info;
         pix{i} = twin.pix;
         npix(i)= twin.pix.num_pixels;
     end

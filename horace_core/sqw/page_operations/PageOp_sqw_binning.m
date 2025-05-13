@@ -20,8 +20,9 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % maximal size of pixel array to keep in memory until it should
         % be stored in file
         buf_size_;
-        % cache for pix dataset index as function of page number
-        pix_dataset_idx_array_;
+        % cahce for npix indices, defined here to access it from npix_data
+        % which does not have then as a standard input
+        npix_idx_;
     end
 
     methods
@@ -118,12 +119,13 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 end
                 npix_chunks = [chunks_cell{:}];
                 npix_idx    = cat(2,idx_cell);
-                all_idx = [npix_idx{:}];
-                obj.pix_dataset_idx_array_ = all_idx(1,:);
+                npix_idx    = [npix_idx{:}];
+
                 obj.init_filebacked_output_ = true;
             else
                 [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
             end
+            obj.npix_idx_ = npix_idx;
 
             if obj.do_nopix_ || ~obj.init_filebacked_output_
                 return;
@@ -157,7 +159,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %
             if isa(obj.pix_,'MultipixBase')
                 % knowlege of all pixel coordinates in a cell.
-                n_dataset = obj.pix_dataset_idx_array_(idx);
+                n_dataset = obj.npix_idx_(1,idx);
 
                 pix_ = obj.pix_.infiles{n_dataset};
                 pix_idx_0 = obj.pix_idx_start_(n_dataset);
