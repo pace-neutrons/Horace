@@ -62,8 +62,9 @@ The defining features of genie_figures are:
 
 ### Genie_figure management functions
 
-| Function | Description
-|-----------------------
+
+| Function | Description|
+|----------| ------------|
 |`genie_figure_create`          | Create a named genie_figure, or convert any matlab figure window into a named genie_window
 |`genie_figure_clear`           | Clear a genie_figure (same functionality and options as the Matlab function `clf`, except that the defining genie_figure menus `Keep` and `Make Current` are retained
 |`genie_figure_keep`            | Keep the indicated genie_figure (also: has the alternative user-facing synonym `keep_figure`)
@@ -80,9 +81,9 @@ The functions are publically visible as they can be used by methods of other cla
 
 By default genie_figure figure window names depend on the type of plot (see the following table). The different figure names mean that by default 1D line plots are created in different windows to those of 2D area plots, for example.
 
-| Dimension<br><br> | Plot type<br><br> | Default genie_figure name<br>(Used by `IX_dataset_*d`, `*` = 1,2,3) | Used by `d1d`,`d2d`,`d3d`,`sqw`<br><br>
-|----------------------------------------------------
-|1D data| line plots, histogram plots etc.| 'Herbert 1D plot' | 'Horace 1D plot'
+| Dimension<br><br> | Plot type<br><br> | Default genie_figure name<br>(Used by `IX_dataset_*d`, `*` = 1,2,3) | Used by `d1d`,`d2d`,`d3d`,`sqw`<br><br> |
+|-------------------|-------------------|--------------|--------|
+|1D data| line plots, histogram plots etc.| 'Herbert 1D plot' | 'Horace 1D plot'|
 |2D data| area plot<br> surface plot      | 'Herbert area plot' <br>'Herbert surface plot' | 'Horace area plot' <br>'Horace surface plot'
 |3D data| volume plot                     | 'Sliceomatic' | 'Horace sliceomatic'
 
@@ -110,15 +111,15 @@ The inheritance of an abstract classdef defining a plot interfaces (see next sec
 
 
 | **One-dimensional data** | **Description**
-|----------------------------------------------
+|--------------------------|--------------------
 |Draw a fresh genie_figure<br>`dl`<br> `dh`<br> `dm`<br> `de`<br> `dp`<br> `dd`          | <br>"draw line"<br> "draw histogram"<br> "draw markers"<br> "draw errorbars"<br> "draw points" *(markers and errorbars)*<br> "draw data" *(lines, markers and errorbars)*
 |Plot on existing genie_figure<br>`pl`<br> `ph`<br> `pm`<br> `pe`<br> `pp`<br> `pd`       | <br>"plot line"<br> "plot histogram"<br> "plot markers"<br> "plot errorbars"<br> "plot points" *(markers and errorbars)*<br> "plot data" *(lines, markers and errorbars)*
 |Plot on current Matlab figure<br>`ploc`<br> `phoc`<br> `pmoc`<br> `peoc`<br> `ppoc`<br> `pdoc`       | <br>"plot line on current"<br> "plot histogram on current"<br> "plot markers on current"<br> "plot errorbars on current"<br> "plot points on current" *(markers and errorbars)*<br> "plot data on current" *(lines, markers and errorbars)*
-| **Two-dimensional data** | 
+| **Two-dimensional data** | |
 |Draw a fresh genie_figure<br>`da`<br> `ds`<br> `ds2`<br> <br>       | <br>"draw area"<br> "draw surface" *(z-axis is signal; colour scale is also signal)*<br> "draw surface, two datasets"<br>*(z-axis is signal of dataset 1; colour scale is errors, or signal of dataset 2 if given)*<br> 
 |Plot on existing genie_figure<br>`pa`<br> `ps`<br><br> `ps2`<br><br>        | <br>"plot area"<br> "plot surface"<br> *(z-axis is signal; colour scale is also signal)*<br> "plot surface, two datasets"<br>*(z-axis is signal of dataset 1; colour scale is errors, or signal of dataset 2 if given)*
 |Plot on current Matlab figure<br>`paoc`<br> `psoc`<br><br> `ps2oc`<br><br>        | <br>"plot area on current"<br> "plot surface on current"<br> *(z-axis is signal; colour scale is also signal)*<br> "plot surface, two datasets, on current"<br>*(z-axis is signal of dataset 1; colour scale is errors, or signal of dataset 2 if given)*
-| **Three-dimensional data** | 
+| **Three-dimensional data** | |
 |Draw a fresh genie_figure<br>`sliceomatic`<br> `sliceomatic_overview`       | <br>3D slicing tool; perspective view of data<br> 3D slicing tool, view down axis of choice<br> 
 
 
@@ -181,10 +182,10 @@ Objects of class `sqw` can have dimensionality 0, 1, 2, 3 or 4. The plot interfa
 ## Functions that alter plot properties
 
 |Function |Description
-|----------------------
+|---------|-------------
 |**Lines, markers and colours**<br> `acolor`<br> `aline`<br> `amark`<br><br> | <br>Alter colour of lines and markers \* <br> Alter line styles and widths \* <br> Alter marker types and sizes and style(s) \* <br>  \* *Changes apply to subsequent line and marker plots* <br>
 |**Axes properties**<br>`aspect`<br> `lx`<br> `ly`<br> `lz`<br> `lc`<br> `linx`<br> `liny`<br> `linz`<br> `logx`<br> `logy`<br> `logz`<br><br>      | <br>Alter aspect ratio<br> Change limits along x-axis<br> Change limits along y-axis<br> Change limits along z-axis<br> Change limits along colour axis<br> set linear x-axis \* <br> set linear y-axis \* <br> set linear z-axis \* <br> set logarithmic x-axis \* <br> set logarithmic y-axis \* <br> set logarithmic z-axis \* <br> \* *Applies to the current and subsequent plots*
-|**Figure window functions**<br>`clearfigs`<br> `keep_figure`<br> `make_cur`<br> `colorskider`<br> `meta`<br><br>| Delete figure or figures<br> Lock a genie_figure from future plotting<br> Make a genie_figure current for plot output<br> Create, refresh or delete a colorslider *(see notes below)*<br> Make a metafile copy of a figure (in Windows copies to the clipboard)<br> 
+|**Figure window functions**<br>`clearfigs`<br> `keep_figure`<br> `make_cur`<br> `colorskider`<br> `meta`<br><br>| Delete figure or figures<br> Lock a genie_figure from future plotting<br> Make a genie_figure current for plot output<br> Create, refresh or delete a colorslider *(see notes below)*<br> Make a metafile copy of a figure (in Windows copies to the clipboard)<br>
 |**Get coordinates of points**<br>`xycursor`<br> `xyselect`<br> `xyzselect`   | <br>Select point with cross-hairs; on mouse click, draw coordinates on plot<br> Select point with cross-hairs; on mouse click, print to command window<br> Select point on volume plot; on mouse click, print to command window<br>
 
 
