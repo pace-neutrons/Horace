@@ -151,8 +151,10 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 obj.outfile_ = obj.write_handle_.write_file_name;
             end
             % this will delete existing tmp file if any is there
-            obj.write_handle_.delete();
-            obj.write_handle_ = [];
+            if ~isempty(obj.write_handle_)
+                obj.write_handle_.delete();
+                obj.write_handle_ = [];
+            end
         end
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation

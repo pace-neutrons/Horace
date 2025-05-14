@@ -47,6 +47,25 @@ classdef test_PageOp_sqw_binning < TestCaseWithSave
             end
         end
         %------------------------------------------------------------------
+        function test_op_on_objects_equal_to_combine_in_memory_with_par_and_file(obj)
+            proj = obj.sample_obj.data.proj;
+            bins = obj.sample_obj.data.axes.get_cut_range('-full_range');
+
+            mobj = sqw_op_bin_pixels(obj.sqw_to_join, ...
+                @(x,varargin)null_op_(obj,x,varargin{:}),[], ...
+                proj,bins{:},...
+                '-combine','outfile','MyTestFile.sqw');
+            assertEqual(mobj.full_filename,'MyTestFile.sqw')
+            if obj.save_output
+                return;
+            end
+            sample = obj.getReferenceDataset( ...
+                'test_op_on_objects_equal_to_combine_in_memory_without_par','mobj');
+
+            assertEqualToTol(mobj,sample,[1.e-7,1.e-7], ...
+                '-ignore_str','-ignore_date');
+        end
+        
         function test_op_on_objects_equal_to_combine_in_memory_with_par(obj)
             proj = obj.sample_obj.data.proj;
             bins = obj.sample_obj.data.axes.get_cut_range('-full_range');
