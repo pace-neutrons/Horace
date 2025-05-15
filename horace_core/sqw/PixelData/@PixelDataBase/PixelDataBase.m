@@ -821,7 +821,11 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
                     'full_filename must be a string. Received: %s', ...
                     class(val));
             end
-            obj.full_filename_ = val;
+            [fp,fn,fe] = fileparts(val);
+            if strlength(fe)==0
+                fe = '.sqw';
+            end
+            obj.full_filename_ = char(fullfile(fp,sprintf("%s%s",fn,fe)));
         end
         %
         function obj =  set_metadata(obj,val)

@@ -297,8 +297,11 @@ classdef AxesBlockBase < serializable
                     disp2str(fn));
             end
             [fp,fn,fe] = fileparts(fn);
-            obj.filename_ = [fn,fe];
-            obj.filepath_ = fp;
+            if strlength(fe)==0
+                fe = '.sqw';
+            end
+            obj.filename_ = char(sprintf("%s%s",fn,fe));
+            obj.filepath_ = char(fp);
         end
         %
         %------------------------------------------------------------------

@@ -246,8 +246,11 @@ classdef main_header_cl < serializable
                     disp2str(val));
             end
             [fp,fn,fe] = fileparts(val);
-            obj.filepath_ = fp;
-            obj.filename_ = [fn,fe];
+            obj.filepath_ = char(fp);
+            if strlength(fe)==0
+                fe = '.sqw';
+            end
+            obj.filename_ = char(sprintf("%s%s",fn,fe));
         end
 
     end
