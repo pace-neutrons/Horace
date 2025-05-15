@@ -298,6 +298,11 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 if isa(obj.pix_,'MultipixBase')
                     pix_cmbn_info = obj.pix_;
                 end
+                % HACK. Here we set it to true to suppress "filebacked in memory"
+                % issued by finish_core_op method
+                % warning which does not make sence in case when we
+                % combine multiple input datasets
+                obj.init_filebacked_output_ = false;
             end
             % if filebacked, this will create sqw object with
             % combine_pixel_data object in sqw_obj.pix_ field
