@@ -1,7 +1,7 @@
 classdef genieplot < handle
-    % Singleton class to hold configuration of graphics options
+    % Singleton class to hold configuration of graphics options.
     % This is a very lean implementation of a singleton. It permits the setting
-    % and getting of values but without any checks on values
+    % and getting of values but without any checks on values.
     %
     % Use:
     % ----
@@ -17,8 +17,11 @@ classdef genieplot < handle
     %           val =
     %                6
     %
-    % Structure with all properties:
-    %   >> S = genieplot.get
+    % Get a structure with all properties:
+    %   >> S = genieplot.get()
+    %
+    % Set all properties from a structure:
+    %   >> genieplot.set(S)
     %
     % To reset all properties to the defaults
     %   >> genieplot.reset
@@ -218,21 +221,40 @@ classdef genieplot < handle
     
     methods (Static)
         function set(property, newData)
+            % Set a single property, or set all properties from a structure
             obj = getInstance();
-            obj.(property) = newData;
+            if ~isstruct(property)
+                obj.(property) = newData;
+            else
+                % Set properties from a structure. The structure must have all
+                % and only fieldnames corresponding to properties of genieplot.
+                S = genieplot.get();    % store current properties
+                try
+                    names = fieldnames(property);
+                    for i = 1:numel(names)
+                        obj.(names{i}) = property.(names{i});
+                    end
+                catch ME
+                    genieplot.set(S);   % recover incoming settings
+                    rethrow(ME)
+                end
+            end
         end
         
         function data = get(property)
+            % Get a single property, or a structure with all properties 
             obj = getInstance();
             if nargin>0
                 data = obj.(property);
             else
-                % Turn off a warning about heavy-handed use of struct but
-                % cleanup to turn back on when exit
-                state = warning('query','MATLAB:structOnObject');
-                cleanupObj = onCleanup(@()warning(state));
-                warning('off','MATLAB:structOnObject')
-                data = orderfields(structIndep(obj));
+                % Fill a structure with all the properties
+                mc = metaclass(obj);
+                names = arrayfun(@(x)(x.Name), mc.PropertyList, ...
+                    'UniformOutput', false);
+                for i = 1:numel(names)
+                    data.(names{i}) = obj.(names{i});
+                end
+                data = orderfields(data);
             end
         end
         

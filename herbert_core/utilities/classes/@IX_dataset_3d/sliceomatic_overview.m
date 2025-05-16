@@ -1,7 +1,7 @@
 function varargout = sliceomatic_overview (w, varargin)
 % Plots an IX_dataset_3d object using sliceomatic viewed straight down one of the axes
 % When the slider for that axis is moved we get a series of what appear to be
-% two-dimensioonal slices.
+% two-dimensional slices.
 %
 %   >> sliceomatic_overview (w)         % down the third (i.e. vertical) axis
 %   >> sliceomatic_overview (w, axis)   % down the axis of choice (axis=1,2 or 3)

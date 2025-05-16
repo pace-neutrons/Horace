@@ -42,7 +42,7 @@ flags={'isonormals'};
 
 if ~isempty(par)
     error('HERBERT:IX_dataset_3d:invalid_argument', ...
-        'Invalid sliceomatic arguments given. Only keyword arguments are permitted')
+        'Invalid sliceomatic arguments given:\n %s',disp2str(par))
 end
 
 if numel(w)~=1

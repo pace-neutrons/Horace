@@ -1,6 +1,6 @@
 function [w1_point, w1_hist, w2_point, w2_hist, w3_point, w3_hist, ...
     w2oneD_point_xy, w2oneD_point_x_hist_y, w3_unequal,...
-    sqw1d, sqw2d, sqw3d, sqw4d, im1d, im2d, im3d, im4d] = data_for_plots
+    sqw1d, sqw2d, sqw3d, sqw4d, im1d, im2d, im3d, im4d] = data_for_plotting
 % DATA_FOR_PLOTS Make a selection of datasets for testing plot methods
 %
 % IX_dataset_*d (*=1,2,3):

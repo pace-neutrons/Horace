@@ -26,16 +26,20 @@ function varargout = set_limits (axName, varargin)
 %
 %   The default automatic limit method is to exactly match the range of the data.
 %   Automatic limits can be set and the default behaviour altered for all
-%   subsequent overplotting to the current figure withone of the options:
+%   subsequent overplotting to the current figure with one of the options:
 %
-%   >> set_limits (axName, 'padded')    % Add a thin margin of padding each side
-%                                       % of the full data range
-%   >> set_limits (axName, 'rounded')   % Equivalent syntax
-%   >> set_limits (axName, 'tickaligned') % Align to tick marks while still
-%                                       % encompassing the full data range
 %   >> set_limits (axName, 'tight')     % [Default] Fit the limits to tightly
 %                                       % match the full data range
-%       :
+%   >> set_limits (axName, 'tickaligned') % Align to tick marks while still
+%                                       % encompassing the full data range
+%   >> set_limits (axName, 'padded')    % Add a thin margin of padding each side
+%                                       % of the full data range
+%                                       %    [NOTE: 'padded' has the same effect
+%                                       %     as 'tickaligned' for Matlab R2020b
+%                                       %     and earlier, as 'padded' is not
+%                                       %     supported]
+%   >> set_limits (axName, 'rounded')   % Equivalent syntax to 'padded'
+%
 %
 % Return current limits (without changing range):
 %   >> [xlo, xhi] = set_limits (axName)
@@ -60,8 +64,13 @@ function varargout = set_limits (axName, varargin)
 
 narg = numel(varargin);     % number of optional arguments
 
+% Limits methods
 LimitMethod_opt = {'padded','rounded','tickaligned','tight'};
 LimitMethod = {'padded','padded','tickaligned','tight'};
+%  Limit methods were limited and fully accessible only via the undocumented
+%  properties XLimSpec, YLimSpec and ZLimSpec. Only 'tight' and 'stretch' are
+%  (equivalent to 'tickaligned') are available in those earlier versions.
+LimSpec = {'stretch','stretch','stretch','tight'};
 
 % Check there is a current figure
 % Query without creating a figure if there is no current figure
@@ -144,8 +153,13 @@ if narg==0 || (narg==1 && ~isempty(varargin{1}) && is_string(varargin{1}))
         % no property called CLimitMethod - so print an information message
         if strcmpi(axName, 'C')
             disp('Limits padding options do not apply here. Autoscaling to the data range.')
+        else
+            if verLessThan('MATLAB','9.10')
+                set(gca, [axName,'LimSpec'], LimSpec{ind});
+            else
+                set(gca, [axName,'LimitMethod'], LimitMethod{ind});
+            end
         end
-        set(gca, [axName,'LimitMethod'], LimitMethod{ind});
     end
     % Sets limit mode to 'auto', so further plotting to the same figure results
     % in expansion of the axis range if needed to display the additional data

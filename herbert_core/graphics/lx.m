@@ -14,16 +14,18 @@ function varargout = lx (varargin)
 %
 %   The default automatic limit method is to exactly match the range of the data.
 %   Automatic limits can be set and the default behaviour altered for all
-%   subsequent overplotting to the current figure withone of the options:
+%   subsequent overplotting to the current figure with one of the options:
 %
-%   >> lx ('padded')    % Add a thin margin of padding each side of the full data range
-%   >> lx ('rounded')   % Equivalent syntax
-%   >> lx ('tickaligned') % Align to tick marks while still encompassing the full data range
 %   >> lx ('tight')     % [Default] Fit the limits to tightly match the full data range
+%   >> lx ('tickaligned') % Align to tick marks while still encompassing the full data range
+%   >> lx ('padded')    % Add a thin margin of padding each side of the full data range
+%                       %    [NOTE: 'padded' has the same effect as 'tickaligned' for Matlab
+%                       %     R2020b and earlier, as 'padded' is not supported]
+%   >> lx ('rounded')   % Equivalent syntax to 'padded'
 %
 %   Equivalently:
-%   >> lx  padded       % limit method set without parentheses
-%   >> lx  rounded
+%   >> lx  tight        % limit method set without parentheses
+%   >> lx  tickaligned
 %       :
 %
 % Return current limits (without changing range):

@@ -143,16 +143,10 @@ return_plots = nargout > 0;
 return_cuts = nargout > 1;
 
 if numel(args) == 1 && (isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d'))
-    out = plot_dispersion(args{1}, opt,nargout);
-    if return_plots
-        varargout = set_argout(nargout,out{:});
-    end
+    varargout = plot_dispersion(args{1}, opt,nargout);
     return
 elseif numel(args) > 1 && isa(args{2}(1), 'd2d')
-    out = plot_dispersion(args{2}, opt,nargout);
-    if return_plots
-        varargout = set_argout(nargout,out{:});
-    end
+    varargout = plot_dispersion(args{2}, opt,nargout);
     return
 end
 
@@ -383,9 +377,7 @@ if nargout == 0 || ~opt.noplot
     
     out{1} = varargout{1};
     out{2} = varargout{2};
-    if return_plots
-        varargout = set_argout(nargout,out{:});
-    end
+    varargout = out(1:nargout);
 else
     for i=3:nargout
         varargout{i} = [];
@@ -643,16 +635,4 @@ function plot_labels(labels,xvals)
 set(gca, 'XTick', xvals);
 set(gca, 'XTickLabel', labels);
 
-end
-
-%-----------------------------------------------------------------------
-function out = set_argout(nout, varargin)
-% set output arguments depending on number of output arguments
-% requested.
-%
-% expected usage is to set varargout, and because of this, no
-% output cell array is allocated (is this reasonable?)
-for i=1:nout
-    out{i} = varargin{i};
-end
 end

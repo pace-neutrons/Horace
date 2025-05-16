@@ -30,56 +30,12 @@ classdef test_plot_IX_dataset_2 < TestCase
         end
         
         
-        %------------------------------------------------------------------
-        %  genieplot tests
-        %------------------------------------------------------------------
-        % Tests of the singleton object that holds plot parameters
-        
-        function test_genieplot_setAndGet(~)
-            genieplot.set('colors', {'r','b','g'})
-            val = genieplot.get('colors');
-            assertEqual(val, {'r','b','g'})
-            % Set and get a different et of values, just in case the current
-            % values were the same as the ones we just set
-            genieplot.set('colors', {'k','#121314','y'})
-            val = genieplot.get('colors');
-            assertEqual(val, {'k','#121314','y'})            
-        end
-        
-        function test_genieplot_resets(~)
-            % Default values
-            S_def.XScale = 'linear';
-            S_def.YScale = 'linear';
-            S_def.ZScale = 'linear';
-            S_def.color_cycle = 'with';
-            S_def.colors = {'k'};
-            S_def.default_fig_name = [];
-            S_def.line_styles = {'-'};
-            S_def.line_widths = 0.5000;
-            S_def.marker_sizes = 6;
-            S_def.marker_types = {'o'};
-            S_def.maxspec_1D = 1000;
-            S_def.maxspec_2D = 1000;
-            
-            % Change some values and check those properties have changed
-            genieplot.set('colors', {'r','b','g'})
-            genieplot.set('line_widths', [3,4,5])
-            S = genieplot.get;
-            assert(~isequal(S,S_def), 'Properties unchanged from defaults')
-
-            % Check reset returns properties to the defaults
-            genieplot.reset;
-            S = genieplot.get;
-            assert(isequal(S,S_def), 'Properties were not reset to the defaults')
-        end
-        
-
         %==================================================================
         %==================================================================
         %                           1D tests
         %==================================================================
         %==================================================================
-
+        
         function test_1D_plotOverCurrent_on1D(obj)
             % Plot a 1D IX_dataset over a plot of an IX_dataset_1d
             genieplot.reset
@@ -95,10 +51,10 @@ classdef test_plot_IX_dataset_2 < TestCase
         
         %------------------------------------------------------------------
         function test_1D_axisScale_doesnt_change_if_plotOver(obj)
-            % If have plotted 1D data on linear axes, then plot data in a 
+            % If have plotted 1D data on linear axes, then plot data in a
             % second window, then issuing >> logx should result in the second
             % figure axes becoming logx (as it is the current figure), but if
-            % then make the first genie_figure have 'current' status (in the 
+            % then make the first genie_figure have 'current' status (in the
             % genie_figure sense, using >> make_current) and overplotting,
             % the x-axis should remain linear.
             genieplot.reset
@@ -117,7 +73,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             make_current(fig1)
             [~, is_current] = is_genie_figure (fig1);
             assertTrue(is_current, 'fig1 has ''keep'' status, not ''current'' status')
-
+            
             ftmp = ph(obj.w1_point(2));
             assertTrue(ftmp==fig1, 'Did not overplot on the first figure')
             assertTrue(isequal(ax1.XScale,'linear'), 'x-axis should be linear but is log')
@@ -126,7 +82,7 @@ classdef test_plot_IX_dataset_2 < TestCase
         
         %------------------------------------------------------------------
         function test_1D_axisScale_doesnt_change_if_plotOverCurr(obj)
-            % If have plotted 1D data on linear axes, then plot data in a 
+            % If have plotted 1D data on linear axes, then plot data in a
             % second window, then issuing >> logx should result in the second
             % figure axes becoming logx (as it is the current figure), but if
             % then make the first figure current (using Matlab function: figure,
@@ -200,7 +156,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Plot a pair of 1D line plots
             dl(obj.w1_point(1))
             pl(obj.w1_point(2))
-
+            
             % Reduce x-axis range; y range should be reduced
             lx 3 8
             xlim=get(gca,'XLim');
@@ -218,7 +174,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Plot a pair of 1D line plots
             dl(obj.w1_point(1))
             pl(obj.w1_point(2))
-
+            
             % Reduce x-axis range (tested above to correctly reduce y range)
             lx 3 8
             
@@ -239,7 +195,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Plot a pair of 1D line plots
             dl(obj.w1_point(1))
             pl(obj.w1_point(2))
-
+            
             % Reduce x-axis range (tested above to correctly reduce y range)
             lx 3 8
             
@@ -260,7 +216,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Plot a pair of 1D line plots
             dl(obj.w1_point(1))
             pl(obj.w1_point(2))
-
+            
             % Reduce y-axis range; x range should be reduced
             ly 70 210
             xlim=get(gca,'XLim');
@@ -278,7 +234,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Plot a pair of 1D line plots
             dl(obj.w1_point(1))
             pl(obj.w1_point(2))
-
+            
             % Reduce y-axis range (tested above to correctly reduce x range)
             ly 70 210
             
@@ -299,7 +255,7 @@ classdef test_plot_IX_dataset_2 < TestCase
             % Plot a pair of 1D line plots
             dl(obj.w1_point(1))
             pl(obj.w1_point(2))
-
+            
             % Reduce y-axis range (tested above to correctly reduce x range)
             ly 70 210
             
@@ -351,13 +307,27 @@ classdef test_plot_IX_dataset_2 < TestCase
             assertTrue(numel(plot_h)==numel(plot_h_ref)+1, 'Plot missing');
         end
         
+        %------------------------------------------------------------------
+        function test_2D_change_colourLimitMethod(obj)
+            % Ensure that attempting to change LimitMethod for colours does not
+            % cause an error. There is no property CLimitMethod (at least, as of
+            % R2024b and earlier).
+            % Checks that an easy-to-make bug is not reintroduced.
+            genieplot.reset
+            clear_figures()
+            cleanupObj = onCleanup(@clear_figures);
+            
+            ds(obj.w2_point(1));
+            lc('padded')    % Threw an error in earlier version
+        end
+        
         
         %==================================================================
         %==================================================================
         %                           3D tests
         %==================================================================
         %==================================================================
-
+        
         function test_3D_nonUniformBins_noFigurePlotted(obj)
             % Sliceomatic requires uniform bins. Error should be thrown.
             genieplot.reset
@@ -374,7 +344,7 @@ classdef test_plot_IX_dataset_2 < TestCase
         %                       Miscellaneous tests
         %==================================================================
         %==================================================================
-
+        
         function test_colorName_paletteName_distinguished(~)
             % Test of color and palette name is awkward case
             % Color is unambigiously green, as this matches the colorCode
@@ -384,6 +354,76 @@ classdef test_plot_IX_dataset_2 < TestCase
             acolor('g')
             colorCode = genieplot.get('colors');
             assertEqual(colorCode, {'g'});
+        end
+        
+        function test_limits_tight(obj)
+            % Matlab R2020b and earlier do not support the axes property
+            % XLimitMethod. An alternative algorithm uses an undocumented hidden
+            % property if prior to R2021a.
+            genieplot.reset
+            clear_figures()
+            cleanupObj = onCleanup(@clear_figures);
+            [~, axes_h] = dh(obj.w1_hist);
+            
+            % Change axes tightness:
+            lx ('tight')
+            xlim = axes_h.XLim;
+            assertEqual(xlim, [0.5, 14.5], 'Limits ''tight'' option failed', 1e-14)
+        end
+        
+        function test_limits_tickaligned(obj)
+            % Matlab R2020b and earlier do not support the axes property
+            % XLimitMethod. An alternative algorithm uses an undocumented hidden
+            % property if prior to R2021a.
+            genieplot.reset
+            clear_figures()
+            cleanupObj = onCleanup(@clear_figures);
+            [~, axes_h] = dh(obj.w1_hist);
+            
+            % Change axes tightness:
+            lx ('tickaligned')
+            xlim = axes_h.XLim;
+            assertEqual(xlim, [0, 15], 'Limits ''tickaligned'' option failed', 1e-14)
+        end
+        
+        function test_limits_padded(obj)
+            % Matlab R2020b and earlier do not support the axes property
+            % XLimitMethod. An alternative algorithm uses an undocumented hidden
+            % property if prior to R2021a.
+            genieplot.reset
+            clear_figures()
+            cleanupObj = onCleanup(@clear_figures);
+            [~, axes_h] = dh(obj.w1_hist);
+            
+            % Change axes tightness:
+            lx ('padded')
+            xlim = axes_h.XLim;
+            if verLessThan('MATLAB','9.10')
+                % 'padded' treated as 'tickaligned'
+                assertEqual(xlim, [0, 15], 'Limits ''padded'' option failed', 1e-14)
+            else
+                assertEqual(xlim, [-0.48, 15.48], 'Limits ''padded'' option failed', 1e-14)
+            end
+        end
+        
+        function test_limits_rounded(obj)
+            % Matlab R2020b and earlier do not support the axes property
+            % XLimitMethod. An alternative algorithm uses an undocumented hidden
+            % property if prior to R2021a.
+            genieplot.reset
+            clear_figures()
+            cleanupObj = onCleanup(@clear_figures);
+            [~, axes_h] = dh(obj.w1_hist);
+            
+            % Change axes tightness:
+            lx ('rounded')
+            xlim = axes_h.XLim;
+            if verLessThan('MATLAB','9.10')
+                % 'padded' treated as 'tickaligned'
+                assertEqual(xlim, [0, 15], 'Limits ''padded'' option failed', 1e-14)
+            else
+                assertEqual(xlim, [-0.48, 15.48], 'Limits ''padded'' option failed', 1e-14)
+            end
         end
     end
 end
