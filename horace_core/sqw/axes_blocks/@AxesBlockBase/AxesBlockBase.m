@@ -291,17 +291,9 @@ classdef AxesBlockBase < serializable
             fn = fullfile(obj.filepath_,obj.filename_);
         end
         function obj = set.full_filename(obj,fn)
-            if ~istext(fn)
-                error('HORACE:AxesBlockBase:invalid_argument',...
-                    'full_filename should be defined of array of characters or by a string. It is %s', ...
-                    disp2str(fn));
-            end
-            [fp,fn,fe] = fileparts(fn);
-            if strlength(fe)==0
-                fe = '.sqw';
-            end
-            obj.filename_ = char(sprintf("%s%s",fn,fe));
-            obj.filepath_ = char(fp);
+            [flpth_,flnm_] = parse_full_filename(fn);
+            obj.filepath_ = flpth_;
+            obj.filename_ = flnm_;
         end
         %
         %------------------------------------------------------------------

@@ -185,7 +185,6 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
         end
 
         function test_input_binning_pars_accepted(obj)
-
             lp = line_proj;
             out_par = sqw_op_bin_pixels(obj.sqw_2d_obj, ...
                 obj.gauss_sqw_fun,obj.gauss_sigma,lp ,[0,1],[0,1],[0,2],[0,1,10],'-test_input_parsing');
@@ -253,7 +252,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             assertEqual(in_sqw.data.npix(2),obj.sqw_2d_obj.pix.num_pixels);
             assertTrue(isa(in_sqw.pix,'pixobj_combine_info'))
         end
-        
+
         function test_combine_ignored_for_single_input(obj)
             out_par = sqw_op_bin_pixels(obj.sqw_2d_file, ...
                 obj.gauss_sqw_fun,obj.gauss_sigma,'-combine','-test_input_parsing');
