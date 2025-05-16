@@ -45,7 +45,7 @@ classdef test_main_header_constructor< TestCase
             inputs = struct('filename','test_file','filepath','test_path',...
                 'title','my_test_title','nfiles',10);
             th = main_header_cl(inputs);
-            assertEqual(th.filename,'test_file');
+            assertEqual(th.filename,'test_file.sqw');
             assertEqual(th.filepath,'test_path');
             assertEqual(th.title,'my_test_title');
             assertEqual(th.nfiles,10);
@@ -59,7 +59,7 @@ classdef test_main_header_constructor< TestCase
 
 
             assertTrue(all(date_tested == close_date));
-            assertEqual(th.filename_with_cdate,['test_file$',date_tested])
+            assertEqual(th.filename_with_cdate,['test_file.sqw$',date_tested])
 
             dat = th.saveobj();
 
@@ -72,7 +72,7 @@ classdef test_main_header_constructor< TestCase
             inputs = struct('filename','test_file','filepath','test_path',...
                 'title','my_test_title','nfiles',10);
             th = main_header_cl(inputs);
-            assertEqual(th.filename,'test_file');
+            assertEqual(th.filename,'test_file.sqw');
             assertEqual(th.filepath,'test_path');
             assertEqual(th.title,'my_test_title');
             assertEqual(th.nfiles,10);
@@ -82,7 +82,7 @@ classdef test_main_header_constructor< TestCase
             close_date = obj.get_close_date(date_tested);
 
             assertTrue(all(date_tested == close_date));
-            assertEqual(th.filename_with_cdate,'test_file')
+            assertEqual(th.filename_with_cdate,'test_file.sqw')
 
             dat = th.saveobj();
 

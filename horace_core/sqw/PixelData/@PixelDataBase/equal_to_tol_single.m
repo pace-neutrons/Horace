@@ -57,7 +57,7 @@ function [ok, mess] = equal_to_tol_single(pix, other_pix, opt,varargin)
 
 
 % Empty pix equal, validate proves both empty
-if pix.num_pixels == 0
+if pix.num_pixels == 0 % equal number for num_pixels have been validated before so both are empty here.
     ok = true;
     mess = [];
     return;

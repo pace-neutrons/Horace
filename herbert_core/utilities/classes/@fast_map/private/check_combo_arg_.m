@@ -12,9 +12,9 @@ if ~isa(obj.keys_,obj.key_type_)
     obj.keys_     = obj.key_conv_handle_(obj.keys_);
 end
 
-obj.min_max_key_val_ = min_max(obj.keys_);
-% always optimiza if key spread is bigger then specified number
-if ~isempty(obj.min_max_key_val_) && (obj.min_max_key_val_(2)-obj.min_max_key_val_(1) <= obj.empty_space_optimization_limit * obj.n_members)
+obj.min_max_key_ = min_max(obj.keys_);
+% always optimize if key spread is smaller then the specified number
+if ~isempty(obj.min_max_key_) && (obj.min_max_key_(2)-obj.min_max_key_(1) <= obj.empty_space_optimization_limit * obj.n_members)
     obj.optimized = true;
 end
 

@@ -1,16 +1,12 @@
 function [pix_cellarray,nonempty_bin_ind] = split_pix_per_bin_(pix_buf,...
-    pix_per_bin,n_file,run_label,change_runid,relabel_with_fnum)
+    pix_per_bin,run_label,change_runid)
 % divide pixels block read from a file into cells, containing pixels
 % belonging to bins,
 %
 if nargin > 2
     if change_runid
         if(numel(pix_buf) > 0)
-            if relabel_with_fnum
-                pix_buf(5,:)=n_file;
-            else %TODO: No clear test to verify this behaviour.
-                pix_buf(5,:) = run_label; % set run_id to run_label provided
-            end
+            pix_buf(5,:) = run_label; % set run_id to run_label provided. It may be filenum
         end
     end
 end
