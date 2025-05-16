@@ -93,7 +93,7 @@ else
     [name_list, verbose, logfile] = getInputNames(argi{:});
     if numel(name_list) == 0
         suite = TestSuite.fromPwd();
-    elseif numel(name_list) == 1
+    elseif isscalar(name_list)
         if iscell(name_list{1})
             nml = name_list{1};
             suite = TestSuite.fromName(nml{2},nml{1});
@@ -146,7 +146,9 @@ end
 
 [did_pass,num_tests_run] = suite.run(monitor);
 if did_pass && num_tests_run == 0
-    error('xunit:runtests:noTestCasesFound', 'No test cases were run');
+    error('xunit:runtests:noTestCasesFound', ...
+        'No test cases were run for suite: %s', ...
+        suite.Name);
 end
 
 if nargout>0
@@ -161,7 +163,7 @@ function yes = contains_full_win_path(ddot_ind)
 % helper function to identify from presense of : signe that the path is the
 % full windows path. The dot positions are found by strfind(path,':')
 % function.
-yes =  ispc && (numel(ddot_ind) == 1) && (ddot_ind(1) == 2) ;
+yes =  ispc && (isscalar(ddot_ind)) && (ddot_ind(1) == 2) ;
 end
 
 function [name_list, verbose, logfile] = getInputNames(varargin)
