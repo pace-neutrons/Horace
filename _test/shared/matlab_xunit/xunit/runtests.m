@@ -129,11 +129,17 @@ else
     end
 end
 
-fprintf(logfile_handle, 'Test suite: %s\n', suite.Name);
+fprintf(logfile_handle, ...
+    '**********************************************************************\n');
+fprintf(logfile_handle, ...
+    '*** Test suite         : %s\n', suite.Name);
 if ~strcmp(suite.Name, suite.Location)
-    fprintf(logfile_handle, 'Test suite location: %s\n', suite.Location);
+    fprintf(logfile_handle, ...
+        '*** Test suite location: %s\n', suite.Location);
 end
-fprintf(logfile_handle, '%s\n\n', datestr(now));
+fprintf(logfile_handle, '*** %s\n', datetime('now'));
+fprintf(logfile_handle, ...
+    '**********************************************************************\n\n');
 
 if verbose
     monitor = VerboseTestRunDisplay(logfile_handle);
