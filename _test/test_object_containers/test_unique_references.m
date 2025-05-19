@@ -24,14 +24,14 @@ classdef test_unique_references < TestCase
             % Store current contents of the unique_store for future usage
             % and clear store to have defined initial state for the tests.
             %
-            % These tests rely on defined initial store state
-            obj.clStore = set_temporary_global_obj_state();
         end
-        function delete(obj)
-            % retrieve essential store state, present before this test was
-            % running
+        function setUp(obj)
+            % These tests rely on defined initial store state
+            obj.clStore = set_temporary_global_obj_state();            
+        end
+        function tearDown(obj)
             %unique_obj_store.instance('clear');
-            obj.clStore = [];
+            obj.clStore = [];            
         end
         %------------------------------------------------------------------
         function test_save_restore_global_state_with_replacement(~)
