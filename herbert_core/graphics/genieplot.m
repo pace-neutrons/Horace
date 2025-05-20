@@ -56,7 +56,7 @@ classdef genieplot < handle
 
     properties(Access=private)
         % General graph properties
-        default_fig_name_ = ''
+        default_fig_name_ = []
         XScale_ = 'linear'
         YScale_ = 'linear'
         ZScale_ = 'linear'
@@ -138,7 +138,7 @@ classdef genieplot < handle
             %   dimensional, area plot, surface plot etc.) will be used.
             if is_string(val)
                 % Strip leading and trailing whitespace
-                obj.default_fig_name = strtrim(val);
+                obj.default_fig_name_ = strtrim(val);
             elseif isnumeric(val) && isempty(val)
                 obj.default_fig_name_ = [];
             else
@@ -207,10 +207,10 @@ classdef genieplot < handle
             %       '-',  '--',  ':',  '-.'
             line_style_codes = {'-',  '--',  ':',  '-.'};
             if (is_string(val) && any(strcmp(val, line_style_codes)))
-                obj.line_styles = val;
+                obj.line_styles_ = val;
             elseif iscell(val) && all(cellfun(@is_string, val(:))) && ...
                     all(ismember(val(:), line_style_codes))
-                obj.line_styles = val(:)';  % ensure a row cell array
+                obj.line_styles_ = val(:)';  % ensure a row cell array
             else
                 error('HERBERT:genieplot:invalid_argument', ['''line_styles ''', ...
                     'must be a cell array with elements one of ', ...
@@ -289,7 +289,7 @@ classdef genieplot < handle
     methods (Static)
         function obj = instance(varargin)
             % if any argument is provided to instance, it is assumed that
-            % you want to clear its state.
+            % you want to clear its current state (run reset to defaults)
             persistent uniqueInstance
             if isempty(uniqueInstance) || nargin>0
                 obj = genieplot();
@@ -327,9 +327,7 @@ classdef genieplot < handle
                 data = obj.(property);
             else
                 % Fill a structure with all the properties
-                mc = metaclass(obj);
-                names = arrayfun(@(x)(x.Name), mc.PropertyList, ...
-                    'UniformOutput', false);
+                names = properties(obj);
                 for i = 1:numel(names)
                     data.(names{i}) = obj.(names{i});
                 end
