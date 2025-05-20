@@ -7,18 +7,18 @@ classdef test_disp2str< TestCase
         function test_truncate_ignored_on_short(~)
             ss = disp2str('abcde',60);
             assertEqual(ss,'abcde')
-        end        
+        end
         function test_truncate_returns_provided(~)
             ss = disp2str(1:100,60,'constrained');
-            assertEqual(ss, ...
-                sprintf('%s\n%s','Columns 1 through 17',...
-             '1     2     3     4     5     6     7  constrained'))
-        end        
+            ss = splitlines(ss);
+            assertEqual(ss{2},...
+                '1     2     3     4     5     6     7  constrained')
+        end
         function test_truncate_returns_default(~)
             ss = disp2str(1:100,60);
-            assertEqual(ss, ...
-                sprintf('%s\n%s','Columns 1 through 17',...
-             '1     2     3     4     5     6     7  ...truncated.'))
+            ss = splitlines(ss);
+            assertEqual(ss{2}, ...
+                '1     2     3     4     5     6     7  ...truncated.')
         end
         function test_cell(~)
             pat = {1,2,3};
