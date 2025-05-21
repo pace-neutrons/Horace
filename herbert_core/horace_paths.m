@@ -117,7 +117,7 @@ classdef horace_paths
                 path_holder = struct();
                 path_holder.herbert_path_ = horace_paths.get_folder('herbert_init');
                 path_holder.horace_path_  = horace_paths.get_folder('horace_init');
-                path_holder.root_path_    = fileparts(path_holder.horace_ );
+                path_holder.root_path_    = fileparts(path_holder.horace_path_);
             end
             obj.herbert_path_ =  path_holder.herbert_path_;
             obj.horace_path_  =  path_holder.horace_path_;
