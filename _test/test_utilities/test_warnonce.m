@@ -6,13 +6,13 @@ classdef test_warnonce < TestCase
         end
 
         function setUp(~)
-            evalc("warnonce('clear', 'HORACE:panic:panic')");
-            evalc("warnonce('clear', 'HORACE:panic:arr')");
+            warnonce('clear', 'HORACE:panic:panic');
+            warnonce('clear', 'HORACE:panic:arr');
         end
 
         function tearDown(~)
-            evalc("warnonce('clear', 'HORACE:panic:panic')");
-            evalc("warnonce('clear', 'HORACE:panic:arr')");
+            warnonce('clear', 'HORACE:panic:panic');
+            warnonce('clear', 'HORACE:panic:arr');
         end
 
         function test_warnonce_warns_once_defaults(~)
