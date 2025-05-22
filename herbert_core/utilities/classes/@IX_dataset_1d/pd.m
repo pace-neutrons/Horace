@@ -1,5 +1,6 @@
 function varargout = pd(w,varargin)
-% Overplot markers, error bars and lines for a spectrum or array of spectra on an existing plot
+% Overplot markers, error bars and lines an IX_dataset_1d object or array of
+% objects on an existing plot.
 %
 %   >> pd(w)
 %
@@ -10,9 +11,8 @@ function varargout = pd(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = pd(w,...) 
 
+new_axes = false;
+force_current_axes = false;
 
-[fig_,axes_,plot_] = overplot_1d_nd_(w,'d',varargin{:});
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'd', varargin{:});

@@ -1,22 +1,28 @@
 function make_current(varargin)
-% Make requested figure(s) current for plotting
+% Set genie_figure(s) active for plotting
 %
-%   >> make_cur        % make the current figure active for plotting
-%   >> make_cur(fig)   % make the numbered or named figure(s) active
-%   >> make_cur('-all')% make one of each figure name active
+% If the current figure is a genie_figure, make it the active genie_figure:
 %
-% Input:
-% ------
-%   fig         Figure name or cellstr of figure names
-%          *OR* Figure number or array of figure numbers
-%          *OR* Figure handle or array of figure handles
+%   >> genie_figure_make_cur
 %
-% Only operates on figures created with the keep/make_cur menu items.
-% If more than one figure with the same name is provided, then the most
-% recently active is made current.
+% Make one genie_figure active for each of the name(s) of figures with selected
+% figure name(s), number(s), or handle(s), if there is one available:
+%
+%   >> genie_figure_make_cur (fig)
+%
+% Make one of each genie_figure name active, if there is one available:
+%
+%   >> genie_figure_make_cur ('-all')
+%
+%
+% This function only operates on genie_figures, that is, those with the
+% 'keep'/'make_cur' menu items.
+%
+% Synonym for genie_figure_make_cur. For more details, see the help for that
+% function
+%
+% See also: genie_figure_make_cur
 
-
-% Synonym for genie_figure_make_cur
 
 if nargin==0
     genie_figure_make_cur

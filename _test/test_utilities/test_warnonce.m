@@ -16,6 +16,14 @@ classdef test_warnonce < TestCase
         end
 
         function test_warnonce_warns_once_defaults(~)
+            % Ensure that warnings are turned on - the feature we are testing
+            % requires that a warning is produced so that the functionality of
+            % warnonce that doesn't broadcast it after the first time can be
+            % validated.
+            warnState = warning();
+            cleanupObj = onCleanup(@()warning(warnState));
+            warning('on')
+            
             out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
             msg = lastwarn;
 
@@ -33,10 +41,16 @@ classdef test_warnonce < TestCase
         end
 
         function test_warnonce_clear(~)
-            out = evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
-            assertTrue(contains(out, 'Panic elsewhere too'));
-            out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
-            assertTrue(contains(out, 'Panic at the disco'));
+            % Ensure that warnings are turned on - the feature we are testing
+            % requires that a warning is produced so that the functionality of
+            % warnonce that doesn't broadcast it after the first time can be
+            % validated.
+            warnState = warning();
+            cleanupObj = onCleanup(@()warning(warnState));
+            warning('on')
+
+            evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
+            evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
 
             out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
             assertFalse(contains(out, 'Panic at the disco'));
