@@ -1,5 +1,5 @@
 function varargout = dm(w,varargin)
-% Draws a marker plot of a spectrum or array of spectra
+% Draws a marker plot of an IX_dataset_1d object or array of objects.
 %
 %   >> dm(w)
 %   >> dm(w,xlo,xhi)
@@ -11,11 +11,8 @@ function varargout = dm(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = dm(w,...) 
 
+new_axes = true;
+force_current_axes = false;
 
-[fig_,axes_,plot_] = plot_1d_nd_(w,'m',varargin{:});
-
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
-
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'm', varargin{:});

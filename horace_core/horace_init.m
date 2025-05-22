@@ -65,16 +65,6 @@ addpath_message(1,horace_path,'GUI');
 addpath_message (1,horace_path,'Tobyfit');
 
 
-% Set up graphical defaults for plotting
-horace_plot.name_oned = 'Horace 1D plot';
-horace_plot.name_multiplot = 'Horace multiplot';
-horace_plot.name_stem = 'Horace stem plot';
-horace_plot.name_area = 'Horace area plot';
-horace_plot.name_surface = 'Horace surface plot';
-horace_plot.name_contour = 'Horace contour plot';
-horace_plot.name_sliceomatic = 'Sliceomatic';
-set_global_var('horace_plot',horace_plot);
-
 hc = hor_config;
 if hc.init_tests % this is developer version
     % set unit tests to the Matlab search path, to overwrite the unit tests

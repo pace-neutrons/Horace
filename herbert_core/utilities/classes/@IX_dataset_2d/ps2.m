@@ -1,5 +1,7 @@
-function varargout = ps2(w,varargin)
-% Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d
+function varargout = ps2(w, varargin)
+% Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d objects
+% with the possibility of providing a second dataset as the source of the image
+% colour scale.
 %
 %   >> ps2(w)       % Use error bars to set colour scale
 %   >> ps2(w,wc)    % Signal in wc sets colour scale
@@ -23,11 +25,10 @@ function varargout = ps2(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ps2(w,...) 
 
+new_axes = false;
+force_current_axes = false;
+alternate_cdata_ok = true;
 
-% Check input arguments (must allow for the two cases of one or two plotting input arguments)
-opt=struct('newplot',false);
-[fig_,axes_,plot_] = plot_2d_nd_oc_(w,nargout,'surface2',opt,varargin{:});
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_twod(w, alternate_cdata_ok, new_axes, ...
+    force_current_axes, 'surface2', varargin{:});
