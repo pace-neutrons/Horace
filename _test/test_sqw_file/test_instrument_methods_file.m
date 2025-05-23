@@ -1,4 +1,4 @@
-classdef test_instrument_methods <  TestCase %WithSave
+classdef test_instrument_methods_file <  TestCase %WithSave
     %Testing various methods to change instrument/sample in a file
     %
 
@@ -10,7 +10,7 @@ classdef test_instrument_methods <  TestCase %WithSave
     end
 
     methods
-        function obj = test_instrument_methods(varargin)
+        function obj = test_instrument_methods_file(varargin)
             if nargin > 0
                 name = varargin{1};
             else
