@@ -9,7 +9,11 @@ if ~exist(file_path, 'file')
 end
 
 % Get list of all open file IDs and the names of the files
-all_open_fids = fopen('all');
+if verLessThan('MATLAB','24')
+    all_open_fids = fopen('all');
+else
+    all_open_fids = openedFiles();
+end
 open_file_names = arrayfun(@fopen, all_open_fids, 'UniformOutput', 0);
 
 % Get the file IDs that correspond to open instances of 'file_path'

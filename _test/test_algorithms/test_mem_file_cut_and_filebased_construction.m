@@ -1,4 +1,4 @@
-classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_file_state_holder
+classdef  test_mem_file_cut_and_filebased_construction < TestCase
     % Tests functionality of methods that can take object or file input
     %
     % Author: T.G.Perring
@@ -35,6 +35,17 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             %
 
         end
+        function setUp(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'off','off'});
+            warning(ws);
+        end
+        function tearDown(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'on','on'});
+            warning(ws);
+        end
+
         function delete(obj)
             obj.clob_obj_ = [];
         end
@@ -84,7 +95,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             sqw_1d_source = {fullfile(source,'sqw_1d_1.sqw'),...
                 fullfile(source,'sqw_1d_2.sqw')};
 
-
+            obj.setUp();
             obj.sqw1d_arr=read_sqw(sqw_1d_source);
 
 
