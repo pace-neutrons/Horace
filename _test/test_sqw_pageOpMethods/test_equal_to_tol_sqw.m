@@ -1,4 +1,4 @@
-classdef test_equal_to_tol < TestCase
+classdef test_equal_to_tol_sqw < TestCase
     properties
         clOb;
 
@@ -14,8 +14,8 @@ classdef test_equal_to_tol < TestCase
 
     methods
 
-        function obj = test_equal_to_tol(~)
-            obj = obj@TestCase('test_equal_to_tol');
+        function obj = test_equal_to_tol_sqw(~)
+            obj = obj@TestCase('test_equal_to_tol_sqw');
 
             obj.clOb = set_temporary_config_options(hor_config, 'log_level', -1);
 
