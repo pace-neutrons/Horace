@@ -411,7 +411,7 @@ classdef unique_references_container < ObjContainersBase
             n_unique = numel(unique_idx);
             unique_objects = cell( 1, n_unique);
 
-            for i = 1:n_unique 
+            for i = 1:n_unique
                 unique_objects{i} = storage.get(unique_idx(i));
             end
             if get_lidx

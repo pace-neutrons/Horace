@@ -418,8 +418,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
 
-
-
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
             % to allow
@@ -466,8 +464,9 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             end
             obj.data_range_ = data_range;
         end
+
         function [is,mess] = eq_to_tol_type_equal(obj1,obj2,name_a,name_b)
-            % Helper function used by equal_to_tol to validate if types of 
+            % Helper function used by equal_to_tol to validate if types of
             % two objects is equal for purposes of equal_to_tol comparison
             % procedure.
             %

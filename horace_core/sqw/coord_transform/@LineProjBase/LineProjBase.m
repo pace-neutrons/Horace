@@ -293,7 +293,7 @@ classdef LineProjBase < aProjectionBase
             % procedure.
             %
             % Overload used in equal_to_tol to check types allowed for compariosn
-            % line_proj allow comparison of two any LineProjBase children
+            % line_proj allows comparison with any LineProjBase children
             %
             % Inputs:
             % obj1    -- LineProjBase object 1 to compare
@@ -309,7 +309,8 @@ classdef LineProjBase < aProjectionBase
             % Returns:
             % is      -- true if objects types are equal and false if not.
             % mess    -- the message providing additinal information about
-            %            object types it the types are different
+            %            object types it the types are different. Empty if
+            %            types are equal.
             %
             [is,mess] = eq_to_tol_type_equal_(obj1,obj2,name_a,name_b);
         end

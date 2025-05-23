@@ -18,7 +18,17 @@ if any(abs(obj.offset_)>eps('double'))
 end
 if isempty(obj.Ei_)
     obj.ki_mod_ = 0;
-    obj.ki_ = [0,0,0];    
+    obj.ki_ = [0,0,0];
+end
+
+if ~(isempty(obj.run_id_mapper_)&&isempty(obj.cc_to_spec_mat_)) % allow construction with Ei only
+    if obj.run_id_mapper_.n_members ~= numel(obj.cc_to_spec_mat_)
+        error('HORACE:kf_sphere_proj:invalid_argument',[ ...
+            'number of transformation matrices must be equal to number of keys\n' ...
+            'which describe relation between these marrices and pixels run-id\n' ...
+            'In fact, they are different. N-martices: %d, n_keys: %d '], ...
+            numel(obj.cc_to_spec_mat_),obj.run_id_mapper_.n_members);
+    end
 end
 if obj.emode_ == 1
     obj.ki_mod_ = sqrt(obj.Ei_/neutron_constants('c_k_to_emev')); % incident

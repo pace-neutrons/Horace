@@ -6,9 +6,6 @@ classdef d0d < DnDBase
     %   >> w = d0d(filename)       % Create a D0D object from a file
     %   >> w = d0d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Hidden=true)
-        NUM_DIMS;
-    end
     methods
         function obj = d0d(varargin)
             obj = obj@DnDBase(varargin{:});
@@ -19,15 +16,19 @@ classdef d0d < DnDBase
             end
         end
         %
-        function nd = get.NUM_DIMS(~)
-            nd =0;
-        end
         function [nd, sz] = dimensions(~)
             % overloaded dimensions for special case of d0d object
             nd = 0;
             sz = [1,1];
         end
     end
+    methods(Access = protected)
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object dimensions
+            nd =0;
+        end
+    end
+
 
     methods(Static)
         function obj = loadobj(S)

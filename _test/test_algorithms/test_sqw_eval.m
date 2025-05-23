@@ -82,6 +82,16 @@ classdef test_sqw_eval < TestCase
                 'ignore_str', true ...
                 );
         end
+        %
+        function test_gauss_on_sqw_with_nopix_matches_reference_dnd(obj)
+            out_dnd = sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params,'-nopix');
+
+            assertEqualToTol( ...
+                out_dnd, obj.sqw_2d_sqw_eval_ref_obj.data, obj.FLOAT_TOL, ...
+                'ignore_str', true ...
+                );
+        end
+        
 
         function test_gauss_on_array_of_sqw_objects_matches_reference_file(obj)
             sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
@@ -121,14 +131,15 @@ classdef test_sqw_eval < TestCase
             assertEqual(out_sqw.data.e, zeros(size(obj.sqw_2d_obj.data.npix)))
         end
 
-        function test_output_is_file_if_filebacked_true_and_pix_in_memory(obj)
+        function test_output_isnot_file_anymore_if_flbckd_true_and_pix_in_memory(obj)
+            clWarn = set_temporary_warning('off','HORACE:filebacked_ignored');
             out_sqw = sqw_eval( ...
                 obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, 'filebacked', true ...
                 );
 
             assertEqualToTol( ...
                 out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true,'-ignore_date' ...
+                '-ignore_str','-ignore_date' ...
                 );
         end
 
@@ -138,8 +149,7 @@ classdef test_sqw_eval < TestCase
 
             assertEqualToTol( ...
                 out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true ...
-                );
+                '-ignore_str');
         end
 
         function test_gauss_on_sqw_file_with_all_flag_ignores_the_flag(obj)

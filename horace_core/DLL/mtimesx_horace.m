@@ -62,11 +62,8 @@ function varargout = mtimesx_horace(varargin)
 %             C(:,:,m,n) = A(:,:,m,n) * B(:,:,1,n);
 %         end
 %     end
-
-hc = hor_config;
-par = parallel_config;
-use_mex = hc.use_mex;
-n_threads = par.threads;
+use_mex   = config_store.instance.get_value('hor_config','use_mex');
+n_threads = config_store.instance.get_value('parallel_config','threads');
 
 if  numel(varargin) > 2 && isa(varargin{end},'logical')
     use_mex = varargin{end};

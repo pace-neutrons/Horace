@@ -184,16 +184,16 @@ classdef aProjectionBase < serializable
         end
         function obj = copy_proj_param_from_source(obj,cut_source)
             % Load information into the projection from the object being
-            % processed, which is required to perform the operation. 
+            % processed, which is required to perform the operation.
             % For example, all projections used for cut need to know
             % lattice parameters of sqw object used as source.
             %
-            % This is generic method which copies lattice parameters and 
+            % This is generic method which copies lattice parameters and
             % should be overloaded by specific projections, which
             % need more information from the source sqw or dnd object.
             %
             % Input:
-            % obj         -- partially initialized projection object, 
+            % obj         -- partially initialized projection object,
             %                used by cut
             % cut_source  -- sqw or dnd object to be cut using the
             %                projection object
@@ -407,8 +407,23 @@ classdef aProjectionBase < serializable
         function name = get.axes_name(obj)
             name = get_axes_name(obj);
         end
+        function obj = set(obj,prop_name,prop_value)
+            % set random property value using functional form of setter
+            % method.
+            % Inputs:
+            % obj         -- instance of the projection object
+            % prop_name   -- name of the property to set usin this function
+            % prop_value  -- value to set to property
+            %
+            if ~istext(prop_name)
+                error('HORACE:aProjectionBase:invalid_argument',[ ...
+                    'method set requests second argument to be a property name (character string).' ...
+                    'Provided property name class is: %s'], ...
+                    class(prop_name));
+            end
+            obj.(prop_name) = prop_value;
+        end
     end
-
     %======================================================================
     % MAIN PROJECTION OPERATIONS
     % BINNING:
@@ -434,7 +449,7 @@ classdef aProjectionBase < serializable
                 % available and enable if it available
                 targ_proj.targ_proj = obj;
                 obj.targ_proj = targ_proj;
-                
+
                 if targ_proj.disable_pix_preselection_
                     % select all pixels
                     bl_start = 1;
@@ -517,7 +532,7 @@ classdef aProjectionBase < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj, ...
+        function [npix,s,e,pix_ok,unique_runid,pix_idx,selected] = bin_pixels(obj, ...
                 axes,pix_cand,npix,s,e,varargin)
             % Convert pixels into the coordinate system defined by the
             % projection and bin them into the coordinate system defined
@@ -545,7 +560,6 @@ classdef aProjectionBase < serializable
             %         axes grid cell calculated during the previous
             %         iteration step. zeros(size(npix)) if this is the
             %         first step.
-            %
             % Outputs:
             % npix    -- the npix array
             %  The same npix, s, e arrays as inputs modified with added
@@ -562,10 +576,10 @@ classdef aProjectionBase < serializable
             %
             % unique_runid -- the run-id (tags) for the runs, which
             %           contributed into the cut
-            % pix_indx--indexes of the pix_ok coordinates according to the
-            %           bin. If this index is requested, the pix_ok object
-            %           remains unsorted according to the bins and the
-            %           follow up sorting of data by the bins is expected
+            % pix_idx -- indexes of the pix_ok coordinates according to the
+            %            bin. If this index is requested, the pix_ok object
+            %            remains unsorted according to the bins and the
+            %            follow up sorting of data by the bins is expected
             % selected  -- numerical array of indices of selected pixels after
             %            binning
             %
@@ -585,9 +599,14 @@ classdef aProjectionBase < serializable
             % '-return_selected' -- returns `selected` in `pix_ok`
             %             (For DnD only cuts fewer arguments are returned this uses
             %              the pix_ok slot)
+            % NOTE:
+            % if pix_idx array is requested, pix_ok are returned unsorted!!!
+            % Correct order of pixels in bins is stored in pix_idx and have
+            % to be used later.
+            nout = nargout;
 
             pix_transformed = obj.transform_pix_to_img(pix_cand);
-            switch(nargout)
+            switch(nout)
                 case(1)
                     npix=axes.bin_pixels(pix_transformed,...
                         npix,varargin{:});
@@ -602,11 +621,11 @@ classdef aProjectionBase < serializable
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 case(6)
-                    [npix,s,e,pix_ok,unique_runid,pix_indx]=...
+                    [npix,s,e,pix_ok,unique_runid,pix_idx]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 case(7)
-                    [npix,s,e,pix_ok,unique_runid,pix_indx,selected]=...
+                    [npix,s,e,pix_ok,unique_runid,pix_idx,selected]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 otherwise
@@ -785,7 +804,8 @@ classdef aProjectionBase < serializable
             %           coordinates, defined by cut projection using
             %           dnd.get_targ_range(targ_proj) method.
             % requested_bin_ranges --
-            %           cellarray of cut bin ranges, requested by user.
+            %           cellarray of cut bin ranges, requested by user and
+            %           expressed in source coordinate system.
             %
             % Returns:
             % ax_bl -- initialized, i.e. containing defined ranges and
@@ -931,6 +951,23 @@ classdef aProjectionBase < serializable
     end
     %
     methods(Static,Access=protected)
+        function    [npix,s,e] = init_accumulators(n_accum,axes)
+            % Initialize necessary numbers of binning accumulators
+            % which correspond to axes block provided
+            % Inputs:
+            % n_accum  -- number accumulators (1 or 3)
+            % access   -- instance of axes block class, which defines the
+            %             shape of the accomulators array
+            % Returns
+            % npix     -- npix accumulator
+            % s        -- signal accumulator. If n_accum == 1 it is empty
+            % e        -- error accunulator. If n_accum == 1 it is empty
+            if n_accum<2
+                [npix,s,e] = axes.init_accumulators(1,false);
+            else
+                [npix,s,e] = axes.init_accumulators(3,false);
+            end
+        end
         function [alignment_needed,alignment_mat] = check_alignment_needed(pixData)
             % verify if input argument contain alignment information and
             % return this information if it is available.
