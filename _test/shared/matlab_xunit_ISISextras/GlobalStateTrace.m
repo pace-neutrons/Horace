@@ -6,10 +6,16 @@ classdef GlobalStateTrace < handle
     %
     % >>ts = GlobalStateTrace.instance();
     % >>ts.trace_enabled = true;
-    % before starting to run tests to identify places where test
-    % constructor change configuration.
     %
-    % set break-point in this object's "trace" function where changed
+    % before starting to run tests to identify places where test
+    % constructor change configuration. Test then prints logs if the global
+    % Horace configuration (hor_config, parallel_config or hpc_config) or
+    % warning state is changed at unit test construction. 
+    % 
+    % The calls to the class instance can also be added to other code 
+    % to trace for changes in global configuration.
+    %
+    % Set break-point in this object's "trace" function where changed
     % configuration is stored for future usage:
     % (obj.state_holder_ = current_state;)
     % to investigate details of change using MATLAB debugger
@@ -17,7 +23,8 @@ classdef GlobalStateTrace < handle
     properties(Dependent)
         % if the tracing should be enabled
         trace_enabled;
-        % variable which contains a structure with global state
+        % variable which contains a structure with current global state
+        % values
         state_holder;
     end
     properties(Access=protected)
@@ -38,6 +45,8 @@ classdef GlobalStateTrace < handle
             obj.trace_enabled_ = new_state;
         end
         function difr = trace(obj)
+            % Trace changes in global configuration and return difference
+            % in configuration if global configuration changed.
             if ~obj.trace_enabled
                 difr = [];
                 return;
