@@ -20,6 +20,7 @@ classdef test_plot_sqw < TestCase
                 fullfile(test_folder,'common_data',obj.sqw_3d_file),...
                 fullfile(test_folder,'common_data',obj.sqw_4d_file)};
             obj.sqw_obj = cell(4,1);
+            clWarn = set_temporary_warning('off','SQW_FILE:old_version');
             for i = 1:4
                 obj.sqw_obj{i} = read_sqw(tst_files{i});
             end
