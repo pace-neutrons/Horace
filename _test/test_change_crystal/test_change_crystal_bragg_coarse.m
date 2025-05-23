@@ -65,7 +65,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             obj.hpc_config_holder.combine_sqw_using = 'mex_code';
         end
         function tearDown(obj)
-            obj.hpc_config_holder.set_stored_data(obj.hpc_conf_to_restore)
+            obj.hpc_config_holder.set_stored_data(obj.hpc_conf_to_restore);
         end
         %
         function test_change_crystal_family_invalid_throw_in_memory(obj)
