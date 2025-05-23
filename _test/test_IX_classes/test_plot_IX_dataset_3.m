@@ -1,6 +1,6 @@
 classdef test_plot_IX_dataset_3 < TestCase
     % Test of marker, lines and colours control (functions amark, aline, acolor)
-    
+
     properties
         data1D
         data2D
@@ -17,18 +17,18 @@ classdef test_plot_IX_dataset_3 < TestCase
     methods
         function obj = test_plot_IX_dataset_3(varargin)
             obj = obj@TestCase('test_plot_IX_dataset');
-            
+
             % Load example 1D, 2D, 3D, IX_dataset_*d objects
             hp = horace_paths().test_common;    % common data location
 
             sqw_1d_file = fullfile(hp, 'sqw_1d_1.sqw');
             sqw_2d_file = fullfile(hp, 'sqw_2d_1.sqw');
             sqw_3d_file = fullfile(hp, 'w3d_sqw.sqw');
-            
+
             obj.data1D = IX_dataset_1d(read_dnd(sqw_1d_file));
             obj.data2D = IX_dataset_2d(read_dnd(sqw_2d_file));
-            obj.data3D = IX_dataset_3d(read_dnd(sqw_3d_file));           
-            
+            obj.data3D = IX_dataset_3d(read_dnd(sqw_3d_file));
+
             % Valid colours, line styles and marker types:
             % - colorCodes are how the colours are stored in genieplot
             obj.colorNames = {...
@@ -38,11 +38,11 @@ classdef test_plot_IX_dataset_3 < TestCase
             obj.colorCodes = {'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w', ...
                 'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w', ...
                 '#0072BD','#D95319','#EDB120','#7E2F8E','#77AC30','#4DBEEE','#A2142F'};
-            
+
             % - line_style_codes are how line styles are stored in genieplot
             obj.line_style_names = {'solid','dashed','dotted','ddot'};
             obj.line_style_codes = {'-',  '--',  ':',  '-.'};
-            
+
             % marker_type_codes are how marker type are stored in genieplot
             if verLessThan('MATLAB','9.9')  % prior to R2020b
                 obj.marker_type_names = {'o','+','*','.','x','square','diamond', ...
@@ -56,7 +56,7 @@ classdef test_plot_IX_dataset_3 < TestCase
                     {'o','+','*','.','x','_','|','s','d','^','v','>','<','p','h'};
             end
         end
-        
+
         %------------------------------------------------------------------
         % Test aline
         %------------------------------------------------------------------
@@ -71,7 +71,7 @@ classdef test_plot_IX_dataset_3 < TestCase
                 genie_line_properties_test({line_style_code}, [], i);
             end
         end
-        
+
         function test_aline_loopSetScalarStyleCode(obj)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -82,7 +82,7 @@ classdef test_plot_IX_dataset_3 < TestCase
                 genie_line_properties_test({line_style_code}, [], i);
             end
         end
-        
+
         function test_aline_setScalarWidth(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -90,7 +90,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             aline (2.718)
             genie_line_properties_test([], 2.718);
         end
-        
+
         function test_aline_setScalarStyleName(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -130,7 +130,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             aline  (':', 0.5)
             genie_line_properties_test({':'}, 0.5);
         end
-        
+
         function test_aline_setScalarWidth_commandMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -138,7 +138,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             aline 2.718
             genie_line_properties_test([], 2.718);
         end
-        
+
         function test_aline_setScalarStyleCode_ddot_commandMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -183,12 +183,13 @@ classdef test_plot_IX_dataset_3 < TestCase
             % Until we can find a way of changing Matlab behaviour in a robut
             % way, catch this test.
             % The following will be interpreted as >> aline
-            aline  :  0.5
+            clWarn = set_temporary_warning('off','MATLAB:colon:operandsNotRealScalar');
+            aline  :  0.5;
             styles = genieplot.get('line_styles');
             widths = genieplot.get('line_widths');
             assertFalse(isequal(styles, ':'), 'Mysteriously now working ???')
             assertFalse(isequal(widths, '0.5'), 'Mysteriously now working ???')
-            
+
             % This will work:
             aline ':' 0.5
             genie_line_properties_test({':'}, 0.5);
@@ -274,7 +275,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             assertEqual(width_out, 4.5)
             assertEqual(style_out, ':')
         end
-        
+
         function test_aline_vectorStyle_output(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -283,8 +284,8 @@ classdef test_plot_IX_dataset_3 < TestCase
             assertEqual(width_out, [5,6,8])
             assertEqual(style_out, {':', '-'})
         end
-        
-        
+
+
         %------------------------------------------------------------------
         % Test amark
         %------------------------------------------------------------------
@@ -298,7 +299,7 @@ classdef test_plot_IX_dataset_3 < TestCase
                 genie_marker_properties_test({marker_type_code}, [], i);
             end
         end
-                
+
         function test_amark_loopSetScalarMarkerName(obj)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -310,7 +311,7 @@ classdef test_plot_IX_dataset_3 < TestCase
                 genie_marker_properties_test({marker_type_code}, [], i);
             end
         end
-        
+
         function test_amark_setScalarSize(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -318,7 +319,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             amark (9.5)
             genie_marker_properties_test([], 9.5);
         end
-        
+
         function test_amark_setScalarMarkerName(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -358,7 +359,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             amark  ('+', 4.5)
             genie_marker_properties_test({'+'}, 4.5);
         end
-        
+
         function test_amark_setScalarSize_commandMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -366,7 +367,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             amark 9.5
             genie_marker_properties_test([], 9.5);
         end
-        
+
         function test_amark_setScalarMarkerCode_plus_commandMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -402,7 +403,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             % Until we can find a way of changing Matlab behaviour in a robut
             % way, catch this test.
             % The following will be interpreted as >> aline
-            amark  +  4.5
+            amark  +  4.5;
             types = genieplot.get('marker_types');
             sizes = genieplot.get('marker_sizes');
             assertFalse(isequal(types, ':'), 'Mysteriously now working ???')
@@ -477,7 +478,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             assertEqual(size_out, 4.5)
             assertEqual(markerCode_out, 'p')
         end
-        
+
         function test_amark_vectorMarkerName_output(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -486,8 +487,8 @@ classdef test_plot_IX_dataset_3 < TestCase
             assertEqual(size_out, [5,6,8])
             assertEqual(markerCode_out, {'p', 'd'})
         end
-        
-        
+
+
         %------------------------------------------------------------------
         % Test acolor
         %------------------------------------------------------------------
@@ -498,7 +499,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor('-fast')
             genie_colors_test([], 'fast');
         end
-        
+
         function test_acolor_setScalarCycle_with(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -506,7 +507,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor('-wi')
             genie_colors_test([], 'with');
         end
-        
+
         function test_acolor_setScalarCycle_ERROR(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -514,7 +515,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             f = @()acolor('wi');
             assertExceptionThrown(f, 'HERBERT:graphics:invalid_argument');
         end
-        
+
         function test_acolor_loopSetScalarColorName(obj)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -526,7 +527,7 @@ classdef test_plot_IX_dataset_3 < TestCase
                 genie_colors_test({color_code}, [], i);
             end
         end
-        
+
         function test_acolor_loopSetScalarColorCode(obj)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -537,7 +538,7 @@ classdef test_plot_IX_dataset_3 < TestCase
                 genie_colors_test({color_code}, [], i);
             end
         end
-        
+
         function test_acolor_setScalarColorCode_functionMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -545,7 +546,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor('re')
             genie_colors_test({'r'}, []);
         end
-        
+
         function test_acolor_setScalarColorCode_commandMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -553,7 +554,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor re
             genie_colors_test({'r'}, []);
         end
-        
+
         function test_acolor_setScalarColorCode_commandMode_evalTest(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -562,7 +563,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor re
             genie_colors_test({'r'}, []);
         end
-        
+
         function test_acolor_setScalarColorCode_commandMode_blackAbbrev(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -570,7 +571,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor('bla')
             genie_colors_test({'k'}, []);
         end
-        
+
         function test_acolor_setScalarColorCode_commandMode_blackAbbrevr(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -578,7 +579,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor bla
             genie_colors_test({'k'}, []);
         end
-        
+
         function test_acolor_setVectorColorCode_functionMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -586,7 +587,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor('r', 'b', 'bla', 'g')
             genie_colors_test({'r', 'b', 'k', 'g'}, []);
         end
-        
+
         function test_acolor_setVectorColorCode_and_cycle_functionMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -594,7 +595,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor('r', 'b', 'bla', 'g', '-wi')
             genie_colors_test({'r', 'b', 'k', 'g'}, []);
         end
-        
+
         function test_acolor_setVectorColorCode_and_cycle_functionMode_ERROR(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -602,7 +603,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             f = @()acolor('r', 'b', 'bla', '-wi', 'g'); % error: cycle set in middle of colours
             assertExceptionThrown(f, 'HERBERT:graphics:invalid_argument');
         end
-        
+
         function test_acolor_setVectorColorCode_commandMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -610,7 +611,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor r  b  bla  g
             genie_colors_test({'r', 'b', 'k', 'g'}, []);
         end
-        
+
         function test_acolor_setVectorColorCode_and_cycle_commandMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -618,7 +619,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor r  b  bla  g -with
             genie_colors_test({'r', 'b', 'k', 'g'}, 'with');
         end
-        
+
         function test_acolor_setVectorColorCode_and_cycle_commandMode_ERROR(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -631,7 +632,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             end
             assertTrue(failed, 'Should have thrown error but did not.')
         end
-        
+
         function test_acolor_setCellVectorColorCode_functionMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -639,7 +640,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor({'r', 'y', 'bla'})
             genie_colors_test({'r', 'y', 'k'}, []);
         end
-        
+
         function test_acolor_setCellVectorColorCode_and_cycle_functionMode(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -647,7 +648,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             acolor({'r', 'y', 'bla'}, '-wi')
             genie_colors_test({'r', 'y', 'k'}, 'with');
         end
-        
+
         function test_acolor_singleColor_output(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -656,7 +657,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             assertEqual(col_out, 'green')
             assertEqual(cycle_out, 'fast')
         end
-        
+
         function test_acolor_vectorColor_output(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -665,7 +666,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             assertEqual(col_out, {'red', 'yellow', 'black'})
             assertEqual(cycle_out, 'with')
         end
-        
+
         function test_acolor_vectorColorAndPalette_output(~)
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
@@ -675,13 +676,13 @@ classdef test_plot_IX_dataset_3 < TestCase
                 'purple', 'grass', 'babyblue', 'brickred', 'black'})
             assertEqual(cycle_out, 'with')
         end
-        
+
         %------------------------------------------------------------------
         % Test cascade of plots with different colors, linestyles etc
         %------------------------------------------------------------------
         function test_cyclePlotProperties_colorsFast(obj)
             % Cycle colors 'fast', so that all colors are cycled through before
-            % incrementing the line and mark styles/types and widths/sizes 
+            % incrementing the line and mark styles/types and widths/sizes
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
@@ -698,7 +699,8 @@ classdef test_plot_IX_dataset_3 < TestCase
 
             nplot = 12;
             data1D_arr = arrayfun(@mtimes, repmat(obj.data1D,1,12), 1:12);
-            [~, ~, plot_h] = dd(data1D_arr);
+            [fh, ~, plot_h] = dd(data1D_arr);
+            clOb = onCleanup(@()close(fh)); % close image when test finishes
             for i=1:12
                 j = nplot + 1 - i;  % plot handles in reverse order (1 was last plot etc.)
                 assertEqual(plot_h(j).Color, col_ref{i}, ...
@@ -713,10 +715,10 @@ classdef test_plot_IX_dataset_3 < TestCase
                     ['MarkerSize error, plot handle ', num2str(j)])
             end
         end
-        
+
         function test_cyclePlotProperties_colorsWith(obj)
             % Cycle colors 'fast', so that all colors are cycled through before
-            % incrementing the line and mark styles/types and widths/sizes 
+            % incrementing the line and mark styles/types and widths/sizes
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
@@ -733,7 +735,8 @@ classdef test_plot_IX_dataset_3 < TestCase
 
             nplot = 12;
             data1D_arr = arrayfun(@mtimes, repmat(obj.data1D,1,12), 1:12);
-            [~, ~, plot_h] = dd(data1D_arr);
+            [fh, ~, plot_h] = dd(data1D_arr);
+            clOb = onCleanup(@()close(fh)); % close image when test finishes
             for i=1:12
                 j = nplot + 1 - i;  % plot handles in reverse order (1 was last plot etc.)
                 assertEqual(plot_h(j).Color, col_ref{i}, ...
@@ -775,10 +778,10 @@ function genie_line_properties_test(styles_ref, widths_ref, suffix)
 %
 %   >> genie_line_properties_test(styles_ref, widths_ref)
 %   >> genie_line_properties_test(styles_ref, widths_ref, index)
-% 
-% Optional suffix is added to error message should the test fail. 
+%
+% Optional suffix is added to error message should the test fail.
 % If the suffix is numeric, then it is assumed to be a loop index. Useful when
-% debugging a test that loops over values. 
+% debugging a test that loops over values.
 %
 % Set the test value to [] to skip the test.
 %
@@ -819,10 +822,10 @@ function genie_marker_properties_test(types_ref, sizes_ref, suffix)
 %
 %   >> genie_marker_properties_test(types_ref, sizes_ref)
 %   >> genie_marker_properties_test(types_ref, sizes_ref, index)
-% 
-% Optional suffix is added to error message should the test fail. 
+%
+% Optional suffix is added to error message should the test fail.
 % If the suffix is numeric, then it is assumed to be a loop index. Useful when
-% debugging a test that loops over values. 
+% debugging a test that loops over values.
 %
 % Set the test value to [] to skip the test.
 %
@@ -863,10 +866,10 @@ function genie_colors_test(colors_ref, cycle_ref, suffix)
 %
 %   >> genie_colors_test(color_ref, cycle_ref)
 %   >> genie_colors_test(color_ref, cycle_ref, index)
-% 
-% Optional suffix is added to error message should the test fail. 
+%
+% Optional suffix is added to error message should the test fail.
 % If the suffix is numeric, then it is assumed to be a loop index. Useful when
-% debugging a test that loops over values. 
+% debugging a test that loops over values.
 %
 % Set the test value to [] to skip the test.
 %
