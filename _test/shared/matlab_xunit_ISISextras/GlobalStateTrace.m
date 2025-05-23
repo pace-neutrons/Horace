@@ -89,6 +89,7 @@ function difr = compare_states(original,other_one)
 % compare contents of two structures with the same fields
 difr = struct([]);
 if numel(original) ~= numel(other_one)
+    %n_base = min(numel(original),numel(other_one));
     difr = struct('new_minus_old_elements',numel(other_one)-numel(original), ...
         'old_array',original,'new_array',other_one);
     return;
