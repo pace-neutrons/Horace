@@ -29,6 +29,12 @@ classdef PageOpBase
         % Pixels only change in tests and in some pix-only operations
         % e.g. mask(Pixels)
         changes_pix_only;
+        % Almost opposite to change_pix_only as PageOp modifies image only.
+        % Pixels which may be modified by the operation are discarded and
+        % only image, calculated from modified pixels is returned. The
+        % operation itself would return dnd object constructed from sqw
+        % object modified by operation.
+        do_nopix
         % while page operations occur, not every page operation should be
         % reported, as it could print too many logs. The property defines
         % how many page operations should be omitted until operation progress
@@ -106,10 +112,13 @@ classdef PageOpBase
         % true if operation should not create the copy of a filebacked
         % object
         inplace_ = false;
+        % true if user wants to get only modified dnd object, ignoring
+        % changes in pixels
+        do_nopix_ = false;
         % holder for the pixel object which is source and sometimes target
         % for the operation
         pix_ = PixelDataMemory();
-        % holder for the image, being modified by the operation(s).
+        % holder for the target image, being modified by the operation(s).
         img_;
         % initial pixel range, recalculated according to the operation
         pix_data_range_ = PixelDataBase.EMPTY_RANGE;
@@ -271,7 +280,7 @@ classdef PageOpBase
                 obj.unique_run_id_ = unique([obj.unique_run_id_, ...
                     obj.page_data_(obj.run_idx_,:)]);
             end
-            if ~obj.inplace_
+            if ~(obj.inplace_ || obj.do_nopix_)
                 obj.pix_ = obj.pix_.store_page_data(obj.page_data_,obj.write_handle_);
             end
         end
@@ -328,7 +337,21 @@ classdef PageOpBase
             % Complete image modifications which would happen only if you
             % were processing the image and using accumulators
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-
+            % transfer modifications of new image and pixels to the target object
+            [out_obj,obj] = obj.finish_core_op(in_obj);
+        end
+        function [out_obj,obj] = finish_core_op(obj,in_obj)
+            % The core part of finish_op
+            %
+            % Contains common code to transfer data changed by operation to
+            % out_obj.
+            %
+            % Finalize core of the page operations transferring the modifications
+            % of new image and pixels to the target object. Conatins major
+            % part of finis_op code except update_image
+            %
+            %
+            %
             % transfer modifications of new image and pixels to the target object
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
@@ -395,6 +418,9 @@ classdef PageOpBase
         function idx = get.coord_idx(obj)
             idx = obj.coord_idx_;
         end
+        function idx = get.run_idx(obj)
+            idx = obj.run_idx_;
+        end
         %
         function in = get.inplace(obj)
             in = obj.inplace_;
@@ -445,7 +471,7 @@ classdef PageOpBase
                     'Pix can be an object of PixelDatBase class only');
             end
             obj.pix_ = val;
-        end        
+        end
         %------------------------------------------------------------------
         function fn = get.source_filename(obj)
             [~,fn,fe] = fileparts(obj.pix_.full_filename);
@@ -503,6 +529,14 @@ classdef PageOpBase
         function obj =  set.init_filebacked_output(obj,val)
             obj.init_filebacked_output_ = logical(val);
         end
+        %
+        function do = get.do_nopix(obj)
+            do = obj.do_nopix_;
+        end
+        function obj = set.do_nopix(obj,val)
+            obj.do_nopix_ = logical(val);
+        end
+
     end
     %======================================================================
     methods(Access=protected)
@@ -531,7 +565,7 @@ classdef PageOpBase
             do  = ~isempty(obj.img_);
         end
 
-        function obj = update_image(obj,sig_acc,var_acc)
+        function obj = update_image(obj,sig_acc,var_acc,varargin)
             % The piece of code which often but not always used at the end
             % of an operation when modified data get transformed from
             % accumulators to the final image finalizing the image
@@ -542,13 +576,20 @@ classdef PageOpBase
             %            operation(s)
             % var_acc -- array accumulating changed variance during
             %            operation(s)
+            % Optional
+            % npix   -- array containing number of pixels in each bin
+            %
             % Returns:
             % obj      -- operation object containing modified image, if
             %             image have been indeed modified
             if obj.changes_pix_only
                 return;
             end
-            npix_acc = obj.npix(:);
+            if nargin < 4
+                npix_acc = obj.npix(:);
+            else
+                npix_acc = varargin{1};
+            end
             obj = update_image_(obj,sig_acc,var_acc,npix_acc);
         end
         %

@@ -1,13 +1,18 @@
 classdef PageOp_sqw_op < PageOp_sqw_eval
     % Single pixel page operation used by sqw_op algorithm
     %
+    properties(Access=public)
+        sig_var_idx
+    end
 
     methods
         function obj = PageOp_sqw_op(varargin)
             obj = obj@PageOp_sqw_eval(varargin{:});
             obj.op_name_ = 'sqw_op';
+            obj.op_holder = @(obj,varargin){};
+
         end
-        function obj = init(obj,sqw_obj,operation,op_param)
+        function obj = init(obj,sqw_obj,operation,op_param,pop_options)
             % Initialize PageOp_sqw_op operation over input sqw file
             %
             % Inputs:
@@ -19,6 +24,12 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             % op_param  -- cellarray of operation parameters to be provided
             %              to operation in the form:
             %              operation(obj,op_param{:});
+            % pop_options-- the structure, which provides information about 
+            %              fine-tunning of PageOP operation
+            % fields currently used:
+            % .nopix    -- if true, return only dnd object build on the
+            %              basis of modified pixels data.
+            % 
             % Returns:
             % obj      --  PageOp_sqw_op instance initialized to run
             %              operation over it
@@ -37,6 +48,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             obj.var_acc_ = zeros(numel(obj.npix),1);
             % pages should be split on bin edges. Most generic case
             obj.split_at_bin_edges = true;
+            obj.do_nopix = pop_options.nopix;
 
             %
         end
@@ -63,11 +75,11 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             % pixel data are split over bin edges (see split_vector_max_sum
             % for details), so npix_idx contains min/max indices of
             % currently processed image cells.
-            page_data = obj.op_holder(obj, obj.op_parms{:});
-            obj.page_data_ = page_data;
+            sig_var = obj.op_holder(obj, obj.op_parms{:});
+            obj.page_data_(obj.sigvar_idx,:) = sig_var;
             %
             obj = update_img_accumulators(obj,npix_block,npix_idx, ...
-                page_data(obj.signal_idx_,:),page_data(obj.var_idx_,:));
+                sig_var(1,:),sig_var(2,:));
         end
         %
         function obj = update_img_accumulators(obj,npix_block,npix_idx, ...
@@ -79,11 +91,5 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
                 new_signal,variance);
         end
         %
-        function [out_obj,obj] = finish_op(obj,out_obj)
-            % Re-overload (return to basics) to override sqw_eval.
-            % transfer modifications to the underlying object. Return to
-            % generic behaviour
-            [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
-        end
-    end
+   end
 end

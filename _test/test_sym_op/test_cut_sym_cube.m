@@ -111,7 +111,8 @@ classdef test_cut_sym_cube < TestCase
             proj = line_proj([1 0 0], [0 1 0]);
             ubin_half = [0.5 1 1.5];
             all_data = {[-5 5] [-5 5] [-5 5]};
-
+            
+            clOb = set_temporary_warning('off','HORACE:symmetrise_sqw:deprecated');
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, obj.nil);
             w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
@@ -131,6 +132,7 @@ classdef test_cut_sym_cube < TestCase
             all_data = {[-5 5] [-5 5] [-5 5]};
             x = cut(data, proj, ubin_half, all_data{:});
 
+            clOb = set_temporary_warning('off','HORACE:symmetrise_sqw:deprecated');
             wtmp = symmetrise_sqw(data, obj.ref_xy{:}, obj.nil);
 
             w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
@@ -148,6 +150,7 @@ classdef test_cut_sym_cube < TestCase
             all_data = {[-5 5] [-5 5] [-5 5]};
             offset = [0.5 0 0];
 
+            clOb = set_temporary_warning('off','HORACE:symmetrise_sqw:deprecated');            
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, offset);
             w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');
 
@@ -165,7 +168,8 @@ classdef test_cut_sym_cube < TestCase
             proj = line_proj([1 0 0], [0 1 0]);
             ubin_half = [0.5 1 1.5];
             all_data = {[-5 5] [-5 5] [-5 5]};
-
+            
+            clOb = set_temporary_warning('off','HORACE:symmetrise_sqw:deprecated');
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, obj.nil);
             wtmp = symmetrise_sqw(wtmp, obj.ref_y{:}, obj.nil);
             w1sym = cut(wtmp, proj, ubin_half, all_data{:}, '-nopix');

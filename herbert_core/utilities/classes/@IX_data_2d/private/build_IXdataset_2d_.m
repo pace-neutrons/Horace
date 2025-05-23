@@ -1,16 +1,24 @@
 function obj=build_IXdataset_2d_(obj,varargin)
 % Construct IX_dataset_2d object
 %
-%   >> w = build_IXdataset_2d_(obj,other_obj)
-%   >> w = build_IXdataset_2d_(obj,x,y)
-%   >> w = build_IXdataset_2d_(obj,x,y,signal)
-%   >> w = build_IXdataset_2d_(obj,x,y,signal,error)
-%   >> w = build_IXdataset_2d_(obj,x,y,signal,error, x_distribution,y_distribution)
-%   >> w = build_IXdataset_2d_(obj,x,y,signal,error,title,x_axis,y_axis,s_axis)
-%   >> w = build_IXdataset_2d_(obj,x,y,signal,error,title,x_axis,y_axis,s_axis,x_distribution,y_distribution)
-%   >> w = build_IXdataset_2d_(obj,title, signal, error, s_axis, x, x_axis, x_distribution, y, y_axis, y_distribution)
+% Construct from primitive properties:
+%   >> w = build_IXdataset_2d_(obj, x, y)
+%   >> w = build_IXdataset_2d_(obj, x, y, signal)
 %
-%  Creates an IX_dataset_2d object with the following elements:
+%   >> w = build_IXdataset_2d_(obj, x, y, signal, error)
+%   >> w = build_IXdataset_2d_(..., x_distribution, y_distribution)
+%   >> w = build_IXdataset_2d_(..., title, x_axis, y_axis, s_axis)
+%   >> w = build_IXdataset_2d_(..., title, x_axis, y_axis, s_axis,...
+%                                               x_distribution, y_distribution)
+%
+%   >> w = build_IXdataset_2d_(obj, title, signal, error, s_axis, ...
+%                           x, x_axis, x_distribution, y, y_axis, y_distribution)
+%
+% Construct from other objects
+%   >> w = build_IXdataset_2d_(obj, other_obj)
+%
+% Creates an IX_dataset_2d object (or array of objects) with the following
+% elements:
 %
 %   title               char/cellstr    Title of dataset for plotting purposes (character array or cellstr)
 %   signal              double          Signal (2D array)
@@ -30,28 +38,37 @@ function obj=build_IXdataset_2d_(obj,varargin)
 %   y_distribution      logical         -|
 
 
-
 obj.do_check_combo_arg_ = false;
-% Various input options
-if nargin==2 && isa(varargin{1},'IX_dataset_2d')  % if already IX_dataset_2d object, return
+
+% If already an IX_dataset_2d object or array of objects, return
+if nargin==2 && isa(varargin{1},'IX_dataset_2d')
     obj=varargin{1};
     return;
 end
+
+% Create an IX_dataset_2d object or array of objects from an IX_dataset_1d
+% object or array of objects.
+% Contiguous IX_dataset_1d objects in the array that share the same x-axis and
+% point/histogram mode will be 'stacked' to form a single IX_dataset_2d in the
+% output.
 if nargin == 2 && isa(varargin{1},'IX_dataset_1d')
-    obj = build_from_IX_dataset_1d_(obj,varargin{:});
-    obj.do_check_combo_arg_ = true;
-    obj = check_combo_arg (obj);
+    obj = build_from_IX_dataset_1d_(obj, varargin{:});
+    for i=1:numel(obj)
+        obj(i).do_check_combo_arg_ = true;
+        obj(i) = check_combo_arg(obj(i));
+    end
 
     return;
 end
 
-if nargin==2 && isstruct(varargin{1})   % structure input
+% Create IX_dataset_2d or array of IX_dataset_2d from a structure input
+if nargin==2 && isstruct(varargin{1})
     obj = obj.loadobj(varargin{1});
     return;
 end
-%     [ok,mess,w]=checkfields(varargin{1});   % Make checkfields the ultimate arbiter of the validity of a structure
-%     if ok, w=class(w,'IX_dataset_2d'); return, else error(mess); end
 
+% The various cases of constructing a single IX_dataset_1d object from
+% properties with defaults for the properties not given.
 if nargin>=3 && nargin<=5
     obj.xyz_{1}        = obj.check_xyz(varargin{1});
     obj.xyz_distribution_(1)= true;
@@ -68,6 +85,7 @@ if nargin>=3 && nargin<=5
     else
         obj = check_and_set_sig_err_(obj,'error',zeros(size(obj.signal_)));
     end
+    
 elseif nargin ==7
     obj.xyz_{1}        = obj.check_xyz(varargin{1});
     obj.xyz_{2}        =  obj.check_xyz(varargin{2});
@@ -114,6 +132,7 @@ elseif nargin==11
     obj.y_axis=varargin{9};
     obj.y_distribution=varargin{10};
     %obj.xyz_distribution_ = logical([varargin{7},varargin{10}]);
+    
 else
     error('IX_dataset_2d:invalid_argument',...
         'Invalid number or type of arguments')

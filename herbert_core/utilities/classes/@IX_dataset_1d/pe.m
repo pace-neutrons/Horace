@@ -1,5 +1,5 @@
 function varargout= pe(w,varargin)
-% Overplot error bars for a spectrum or array of spectra on an existing plot
+% Overplot error bars of an IX_dataset_1d object or array of objects on an existing plot.
 %
 %   >> pe(w)
 %
@@ -8,11 +8,10 @@ function varargout= pe(w,varargin)
 %                                   % or figure with given figure number or handle
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = pe(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = pe(w,...)
 
+new_axes = false;
+force_current_axes = false;
 
-[fig_,axes_,plot_] = overplot_1d_nd_(w,'e',varargin{:});
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'e', varargin{:});

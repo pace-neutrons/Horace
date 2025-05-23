@@ -25,22 +25,6 @@ classdef test_cut_data_from_file_job < TestCase
             obj.test_sqw = fso{1};
         end
         %
-        function test_bin_pixels_wrong_inputs(obj)
-            dat = obj.test_sqw.data;
-            proj = dat.proj;
-            axes = dat.axes;
-            pix = obj.test_sqw.pix;
-            npix0 = zeros(size(dat.npix));
-            s0    = zeros(size(dat.npix));
-
-            assertExceptionThrown(@()cut_data_from_file_job.bin_pixels(...
-                proj, axes,pix,npix0,s0), ...
-                'HORACE:cut_data_from_file_job:invalid_argument');
-            assertExceptionThrown(@()cut_data_from_file_job.bin_pixels(...
-                proj, axes,pix,npix0,s0,'-force_double'), ...
-                'HORACE:cut_data_from_file_job:invalid_argument');
-
-        end
         %
         function test_bin_pixels_6inputs(obj)
             dat = obj.test_sqw.data;
@@ -51,7 +35,7 @@ classdef test_cut_data_from_file_job < TestCase
             s0    = zeros(size(dat.npix));
             e0    = zeros(size(dat.npix));
             [npix,s,e,pix_ok,unique_runid,pix_indx] = ...
-                cut_data_from_file_job.bin_pixels(proj, axes,pix,npix0,s0,e0);
+                proj.bin_pixels(axes,pix,npix0,s0,e0);
             [s,e] = normalize_signal(s,e,npix);
 
             assertEqual(dat.npix,npix);
@@ -70,10 +54,12 @@ classdef test_cut_data_from_file_job < TestCase
             axes = dat.axes;
             pix = obj.test_sqw.pix;
             npix0 = zeros(size(dat.npix));
+            s0 =zeros(size(dat.npix));
+            e0 =zeros(size(dat.npix));
             [npix,s,e,pix_ok,unique_runid,pix_indx] = ...
-                cut_data_from_file_job.bin_pixels(proj, axes,pix,npix0);
+                proj.bin_pixels(axes,pix,npix0,s0,e0);
             [npix1,s1,e1,pix_ok1,unique_runid1,pix_indx1] = ...
-                cut_data_from_file_job.bin_pixels(proj, axes,pix,npix0,'-force_double');
+                proj.bin_pixels(axes,pix,npix0,s0,e0,'-force_double');
             assertEqual(npix,npix1);
             assertEqual(s,s1);
             assertEqual(e,e1);
@@ -100,9 +86,9 @@ classdef test_cut_data_from_file_job < TestCase
             axes = dat.axes;
             pix = obj.test_sqw.pix;
             [npix,s,e,pix_ok,unique_runid,pix_indx] = ...
-                cut_data_from_file_job.bin_pixels(proj, axes,pix);
+                proj.bin_pixels(axes,pix,[],[],[]);
             [npix1,s1,e1,pix_ok1,unique_runid1,pix_indx1] = ...
-                cut_data_from_file_job.bin_pixels(proj, axes,pix,'-force_double');
+                proj.bin_pixels(axes,pix,[],[],[],'-force_double');
             assertEqual(npix,npix1);
             assertEqual(s,s1);
             assertEqual(e,e1);

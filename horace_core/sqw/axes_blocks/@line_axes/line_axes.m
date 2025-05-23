@@ -188,10 +188,6 @@ classdef line_axes < AxesBlockBase
             volume = calc_bin_volume_(obj,varargin{:});
         end
 
-        function  obj = check_and_set_img_range(obj,val)
-            % main setter for orthogonal image range.
-            obj = check_and_set_img_range_(obj,val);
-        end
         function pbin = default_pbin(~,ndim)
             % method is called when default constructor with dimensions is invoked
             % and defines default binning in this situation
