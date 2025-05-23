@@ -143,16 +143,10 @@ return_plots = nargout > 0;
 return_cuts = nargout > 1;
 
 if numel(args) == 1 && (isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d'))
-    out = plot_dispersion(args{1}, opt,nargout);
-    if return_plots
-        varargout = data_plot_interface.set_argout(nargout,out{:});
-    end
+    varargout = plot_dispersion(args{1}, opt,nargout);
     return
 elseif numel(args) > 1 && isa(args{2}(1), 'd2d')
-    out = plot_dispersion(args{2}, opt,nargout);
-    if return_plots
-        varargout = data_plot_interface.set_argout(nargout,out{:});
-    end
+    varargout = plot_dispersion(args{2}, opt,nargout);
     return
 end
 
@@ -179,7 +173,7 @@ if present.cuts_plot_size
             ' In fact the number of rlp is %d and the number of distances is %d'], ...
             num_rlp, numel(opt.cuts_plot_size));
     end
-
+    
     invalid = opt.cuts_plot_size <= 0;
     if any(invalid)
         error('HORACE:spaghetti_plot:invalid_argument', ...
@@ -237,11 +231,11 @@ plane_normal = [];
 if nseg > 1
     u1rlp = rlp(1, :) - rlp(2, :);
     u2rlp = rlp(2, :) - rlp(3, :);
-
+    
     u1crt = sqw_proj.transform_hkl_to_img(u1rlp')';
     u2crt = sqw_proj.transform_hkl_to_img(u2rlp')';
     normal_vector = cross(u1crt, u2crt);
-
+    
     % Check if rlp's are collinear.
     for j = 3:nseg
         if abs(sum(normal_vector)) >= min(opt.qbin) / 100
@@ -252,17 +246,17 @@ if nseg > 1
         normal_vector = cross(u1crt, u2crt);
     end
     plane_normal = normal_vector;
-
+    
     for i = j:nseg
         u2rlp = rlp(i, :) - rlp(i+1, :);
         u2crt = sqw_proj.transform_hkl_to_img(u2rlp')';
         normal_vector = cross(u1crt, u2crt);
-
+        
         if abs(sum(cross(normal_vector, plane_normal))) > 1e-5 % and are coplanar.
             plane_normal = [];
             break
         end
-
+        
     end
 end
 if ~isempty(plane_normal)
@@ -289,7 +283,7 @@ end
 for i = 1:nseg
     % Choose u1 along the user desired q-direction
     q_dir_rlu = rlp(i+1, :) - rlp(i, :);
-
+    
     q_dir_cart = sqw_proj.transform_hkl_to_pix(q_dir_rlu')';
     % Choose u2 to be either perpendicular to the plane of all the rlp (previous determined)
     %   or the plane defined by u1 and c* or, if u1||c*, the plane defined by u1 and a*.
@@ -302,27 +296,27 @@ for i = 1:nseg
         v_cart = ortho_vec(q_dir_cart);
     end
     v_rlu = sqw_proj.transform_pix_to_hkl(v_cart')';
-
+    
     proj = line_proj(q_dir_rlu, ...
-                     v_rlu, ...
-                     'offset', rlp(i, :), ...
-                     'type', 'aaa');
-
-
+        v_rlu, ...
+        'offset', rlp(i, :), ...
+        'type', 'aaa');
+    
+    
     u1 = [0, qbin, norm(q_dir_cart)];
     u2 = [-qwidth(1, i), qwidth(1, i)] ./ 2;
     u3 = [-qwidth(2, i), qwidth(2, i)] ./ 2;
-
+    
     % Radu Coldea on 19/12/2018: adjust qbin size to have an exact
     % integer number of bins between the start and end points
     u1(2) = (u1(3) - u1(1)) / floor((u1(3) - u1(1)) / u1(2));
-
+    
     % Make cut, and save to array of d2d
     wdisp_sqw = cut(sqw_in, proj, u1, u2, u3, ebin);
-
+    
     if return_cuts
         u1v = u1(1):u1(2):u1(3);
-
+        
         if wdisp_sqw.has_pixels()
             if opt.withpix
                 out_1d_cuts{i} = repmat(sqw,1,numel(u1v)-1);
@@ -336,12 +330,12 @@ for i = 1:nseg
             out_1d_cuts{i} = repmat(d1d(), 1, numel(u1v)-1);
         end
     end
-
+    
     wdisp(i) = d2d(wdisp_sqw);
     if ~opt.withpix && return_cuts
         out_1d_cuts{i} = arrayfun(@d1d, out_1d_cuts{i});
     end
-
+    
     if present.labels
         titlestr = sprintf('Segment from "%s" (%f %f %f) to "%s" (%f %f %f)', ...
             opt.labels{i}, rlp(i, :), opt.labels{i+1}, rlp(i+1, :));
@@ -349,7 +343,7 @@ for i = 1:nseg
         titlestr = sprintf('Segment from (%f %f %f) to (%f %f %f)', ...
             rlp(i, :), rlp(i+1, :));
     end
-
+    
     if i > 1
         wdisp(i).title = titlestr;
     else
@@ -380,12 +374,10 @@ end
 %----------------
 if nargout == 0 || ~opt.noplot
     out = plot_dispersion(arrayfun(@d2d,wdisp), opt, nargout);
-
+    
     out{1} = varargout{1};
     out{2} = varargout{2};
-    if return_plots
-        varargout = data_plot_interface.set_argout(nargout,out{:});
-    end
+    varargout = out(1:nargout);
 else
     for i=3:nargout
         varargout{i} = [];
@@ -442,7 +434,7 @@ else
 end
 
 for i=1:length(wdisp_in)
-
+    
     if numel(wdisp(i).x) == size(wdisp(i).signal, 1)+1
         % For plotting, change bin edges to bin centres
         bin_centers = 0.5*(wdisp(i).x(1:end-1)+wdisp(i).x(2:end));
@@ -450,7 +442,7 @@ for i=1:length(wdisp_in)
         % Already bin centres
         bin_centers  = wdisp(i).x;
     end
-
+    
     if scale_x_axis
         % scale plot axis according to the scales provided
         min_bc = min(bin_centers);
@@ -464,34 +456,34 @@ for i=1:length(wdisp_in)
         % Converts the x-axis from r.l.u. along the segment q-direction to incremental |q| in 1/Ang
         wdisp(i).x = qinc + (bin_centers-bin_centers(1))*ulen(1);
     end
-
+    
     qinc = wdisp(i).x(end);
-
+    
     % Update current segment length for labelling position.
     wdisp(i).x_axis = IX_axis('Momentum', [char(197), '^{-1}']);
     wdisp(i).y_axis = IX_axis('Energy', 'meV');
-
+    
     if is_ix_dataset
         labels{i} = wdisp(i).title{1};
         continue;
     end
-
+    
     % Finds labels in segment title
     title = wdisp_in(i).title;
     brk = strfind(title, newline);
-
+    
     if ~isempty(brk)
         brk = brk(end);
         wdisp_in(i).title = title(brk+1:end);
     end
-
+    
     try
         bra = strfind(title, '(');
         ket = strfind(title, ')');
         hkls = [sscanf(title(bra(1):ket(1)), '(%f %f %f)');
             sscanf(title(bra(2):ket(2)), '(%f %f %f)')];
         quotes = strfind(title, '"');
-
+        
         % hkl points for segments previous and current do not match'
         if i > 1 && ~equal_to_tol(hkls(1:3), hkl0(4:6), 'tol', 1e-2)
             if isempty(quotes)
@@ -504,7 +496,7 @@ for i=1:length(wdisp_in)
         else
             labels{i} = title(quotes(1)+1:quotes(2)-1);
         end
-
+        
         if isempty(quotes)
             labels{i+1} = ['[', str_compress(num2str(hkls(4:6)'), ', '), ']'];
         else
@@ -518,7 +510,7 @@ for i=1:length(wdisp_in)
             wdisp_in(i).p{1}(end) * hkldir + hklcen];
         labels{i} = ['[', str_compress(num2str(hkls(1:3)'), ', '), ']'];
         labels{i+1} = ['[', str_compress(num2str(hkls(4:6)'), ', '), ']'];
-
+        
     end
     hkl0 = hkls;
 end
@@ -557,7 +549,7 @@ if ~isempty(opt.labels)
             ['Not using user-supplied labels. They are either not a cell array of' ...
             'strings or not enough for all segments']);
     end
-
+    
     labels = opt.labels;
 end
 
@@ -576,7 +568,7 @@ if sum(isnan(opt.clim)) ~= 2
 end
 
 if opt.logscale
-
+    
     if sum(isnan(opt.clim))~=2
         clim = opt.clim;
     else
@@ -585,47 +577,47 @@ if opt.logscale
         set(findobj(chld, 'tag', 'color_slider_min_value'), 'String', num2str(clim(1)));
         set(findobj(chld, 'tag', 'color_slider_max_value'), 'String', num2str(clim(2)));
     end
-
+    
     hc=colorbar;
-
+    
     set(hc, 'TicksMode', 'manual');
-
+    
     step = 9;
-
+    
     majorticks = ceil(log10(clim(1))):floor(log10(clim(2)));
-
+    
     unitbefore = 10^majorticks(1) / 10;
     unitafter = 10^majorticks(end);
-
+    
     tickstart = ceil(clim(1)*unitbefore) / unitbefore;
     tickend = floor(clim(2)*unitafter) / unitafter;
-
+    
     ticksbefore = tickstart:unitbefore:unitbefore*9;
     ticksafter = unitafter:unitafter:tickend;
-
+    
     ntick = (numel(majorticks) - 1) * step;
     ntick = ntick + numel(ticksbefore) + numel(ticksafter);
-
+    
     ticklabels = cell(1,ntick);
     offset = numel(ticksbefore);
-
+    
     minorticks = zeros(1,ntick);
     minorticks(1:offset) = ticksbefore;
-
+    
     tick_index = offset + 1;
-
+    
     for i=0:numel(majorticks)-2
         unit = 10^majorticks(i+1);
         tick_index = tick_index + step;
         minorticks(tick_index:tick_index + step) = unit:unit:step*unit;
         ticklabels{tick_index} = num2str(unit);
     end
-
+    
     tick_index = tick_index + step;
-
+    
     minorticks(tick_index:end) = ticksafter;
     ticklabels{tick_index} = num2str(10^majorticks(end));
-
+    
     set(hc, 'Ticks', log10(minorticks));
     set(hc, 'TickLabels', ticklabels);
 end

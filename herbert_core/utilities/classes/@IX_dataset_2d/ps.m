@@ -1,5 +1,5 @@
-function varargout = ps(w,varargin)
-% Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d
+function varargout = ps(w, varargin)
+% Overplot a surface plot of an IX_dataset_2d or array of IX_dataset_2d objects.
 %
 %   >> ps(w)
 %
@@ -10,10 +10,10 @@ function varargout = ps(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = ps(w,...) 
 
+new_axes = false;
+force_current_axes = false;
+alternate_cdata_ok = false;
 
-opt=struct('newplot',false);
-[fig_,axes_,plot_] = plot_2d_nd_(w,nargout,'surface',opt,varargin{:});
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_twod(w, alternate_cdata_ok, new_axes, ...
+    force_current_axes, 'surface', varargin{:});

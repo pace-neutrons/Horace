@@ -1,101 +1,81 @@
-function varargout = lz (zlo, zhi)
-% Change z limits current figure
+function varargout = lz (varargin)
+% Change z-axis limits for the current axes on the current figure. If there is
+% only colour data, change that on the assumption that the colour scale
+% represents the z data.
 %
-%   >> lz (zlo, zhi)
-% or
+% Replot with change of limits:
+%   >> lz (zlo, zhi)    % Sets limits to zlo to zhi; the limits retained for
+%                       % further overplotting
+%   Equivalently:
 %   >> lz  zlo  zhi
-% or
-%   >> lz           % set z limits to include all data
-% or
-%   >> lz ('round') % set z limits to rounded limits that encompass data
-%   >> lz  round 
+%
+% Change limits to autoscale to encompass all data:
+%   >> lz               % Set limits to match the range of the data.
+%                       % The limits automatically change to accommodate further
+%                       % overplotting
+%
+%   The default automatic limit method is to exactly match the range of the data.
+%   Automatic limits can be set and the default behaviour altered for all
+%   subsequent overplotting to the current figure with one of the options:
+%
+%   >> lz ('tight')     % [Default] Fit the limits to tightly match the full data range
+%   >> lz ('tickaligned') % Align to tick marks while still encompassing the full data range
+%   >> lz ('padded')    % Add a thin margin of padding each side of the full data range
+%                       %    [NOTE: 'padded' has the same effect as 'tickaligned' for Matlab
+%                       %     earlier than R2021a, as 'padded' is not supported]
+%   >> lz ('rounded')   % Equivalent syntax to 'padded'
+%
+%   Equivalently:
+%   >> lz  tight        % limit method set without parentheses
+%   >> lz  tickaligned
+%       :
 %
 % Return current limits (without changing range):
 %   >> [zlo, zhi] = lz
+%
+% Replot several times with different limits in sequence:
+%   (Change limits to first pair [zlo(1),zhi(1)], then hit <CR> to change to the
+%   next pair in then sequence, [zlo(2),zhi(2)], and so on)
+%   >> lz (zlo, zhi)    % zlo and zhi are arrays with the same number of
+%                       % elements;
+%   Equivalently:
+%   >> lz  zlo  zhi
+%
+%   or, for backwards compatibility:
+%   >> lz ([zlo1,zhi2], [zlo2,zhi2],...)    % zlo1, zhi1, zlo2, zhi2... scalars
+%   >> lz ({[zlo1,zhi2],[zlo2,zhi2],...})   % equivalent syntax
+%
+%
+% This function closely mimics the matlab intrinsic function zlim
+%
+% See also zlim
 
 
-% Get figure
-if isempty(findall(0,'Type','figure'))
-    disp('No current figure - change z limits ignored')
-    return
-end
-
-% Find out if there is z data
-present = graph_range (gcf,'present');
-if ~(present.z || present.c)
-    error('No z range to change')
-end
-
-% Get z range
-if nargin==0  || (nargin==1 && ischar(zlo))
-    if nargout==0
-        % Get z axis limits in the current limits of x and y (or full range if c data)
-        [range,subrange] = graph_range(gcf,'evaluate');
-        if present.z
-            zrange=subrange.z;
-        else
-            zrange=range.c;
-        end
-        
-        if zrange(1)==zrange(2)
-            error('The upper and lower limits of the data are equal')
-        end
-        
-        % Read 'round' from either function syntax or command syntax
-        if nargin==1
-            if strcmpi(zlo,'round')
-                zrange = round_range (zrange);
-            else
-                error('Unrecognised option')
-            end
-        end
-    else
-        % Return current z-axis limits
-        range = get(gca,'Zlim');
-        if nargout>=1, varargout{1} = range(1); end
-        if nargout>=2, varargout{2} = range(2); end
-        return
-    end   
-    
-elseif nargin==2
-    % Read parameters from either function syntax or command syntax
-    zrange=zeros(1,2);
-    if isnumeric(zlo) && isscalar(zlo)
-        zrange(1)=zlo;
-    elseif ~isempty(zlo) && is_string(zlo)
+% Resolve input arguments
+if nargin>0 && all(cellfun(@(x)(is_string(x) & ~isempty(x)), varargin))
+    % All input arguments are character vectors - the function could have
+    % been called with command syntax.
+    %
+    % The only valid case of command syntax where valid input arguments are not
+    % character strings is two arguments giving the lower and upper limits plot
+    % limits. It is only this case that needs to have evaluation in the caller
+    % workspace performed in order to resolve passed variable names or
+    % expressions.
+    if nargin==2
         try
-            zrange(1) = evalin('caller',zlo);
+            args = {evalin('caller',varargin{1}), evalin('caller',varargin{2})};
         catch
-            error('Check input arguments');
+            error('HERBERT:graphics:invalid_argument', ['Check there are ', ...
+                'two input arguments giving the lower and upper ranges']);
         end
     else
-        error('Check input arguments');
+        args = varargin;
     end
-    
-    if isnumeric(zhi) && isscalar(zhi)
-        zrange(2)=zhi;
-    elseif ~isempty(zhi) && is_string(zhi)
-        try
-            zrange(2) = evalin('caller',zhi);
-        catch
-            error('Check input arguments');
-        end
-    else
-        error('Check input arguments');
-    end
-    
-    if zrange(1)>=zrange(2)
-        error('Check zlo < zhi')
-    end
-    
 else
-    error 'Check number of input parameters'
+    % Must have been function syntax
+    args = varargin;
 end
 
-% Change limits
-if present.z
-    set (gca, 'ZLim', zrange);
-else
-    set (gca, 'CLim', zrange);  % assume that crange is axis to be changed
-    colorslider('update')       % update colorslider, if present
-end
+
+% Perform the operation
+[varargout{1:nargout}] = set_limits ('Z', args{:});
