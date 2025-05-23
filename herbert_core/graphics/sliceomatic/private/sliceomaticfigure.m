@@ -11,6 +11,10 @@ function appdata=sliceomaticfigure(d)
 % clf(fig,'reset')
 
 % === with:
+% History: 
+%   - TGP Feb 2014: Handle figure names so can have multiple sliceomatics.
+%   - TGP Feb 2025: Correct bug if more than one figure with the name exists,
+%                   and now retains existing figure colour.
 
 % If existing Sliceomatic figure, reset; otherwise create a new figure
 if isfield(d,'name')
@@ -18,12 +22,16 @@ if isfield(d,'name')
 else
     name = 'Sliceomatic';
 end
+
 fig=findobj('name',name,'type','figure');
 if ~isempty(fig)
+    fig = fig(1);   % most recent figure with that name
     cm = colormap;
+    color = fig.Color;
     clf(fig,'reset')
-    colormap(cm);
-    fig.Name = name;
+    colormap(cm);       % restore colormap
+    fig.Name = name;    % restore name
+    fig.Color = color;  % restore color
     set(0,'CurrentFigure',fig);
 else
     fig=figure('Position',[5, 30, 800, 600],'name',name);
@@ -159,7 +167,7 @@ d = figmenus(d);
 
 % Color and alph maps
 uicontrol(fig,'style','text','string','ColorMap',...
-    'units','normal','pos',[0 .9 .1 .1]);
+    'units','normal','pos',[0 .9 .1 .1],'BackgroundColor',fig.Color);
 uicontrol(fig,'style','popup','string',...
     {'jet','hsv','cool','hot','pink','bone','copper','flag','prism','rand','custom'},...
     'callback','sliceomatic colormap',...
@@ -167,7 +175,7 @@ uicontrol(fig,'style','popup','string',...
 colormap('jet');
 
 uicontrol(fig,'style','text','string','AlphaMap',...
-    'units','normal','pos',[.9 .9 .1 .1]);
+    'units','normal','pos',[.9 .9 .1 .1],'BackgroundColor',fig.Color);
 uicontrol(fig,'style','popup','string',{'rampup','rampdown','vup','vdown','rand'},...
     'callback','sliceomatic alphamap',...
     'units','normal','pos',[.9 .85 .1 .1]);

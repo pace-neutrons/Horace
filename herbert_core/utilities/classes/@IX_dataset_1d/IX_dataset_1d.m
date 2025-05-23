@@ -45,7 +45,7 @@ classdef IX_dataset_1d < IX_data_1d & data_plot_interface
             obj = obj@IX_data_1d(varargin{:});
         end
         %------------------------------------------------------------------
-        % actual plotting interface:
+        % Actual plotting interface:
         %------------------------------------------------------------------
         % PLOT:
         [figureHandle, axesHandle, plotHandle] = dd(w,varargin);
