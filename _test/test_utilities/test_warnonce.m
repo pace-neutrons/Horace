@@ -23,7 +23,7 @@ classdef test_warnonce < TestCase
             warnState = warning();
             cleanupObj = onCleanup(@()warning(warnState));
             warning('on')
-            
+
             out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
             msg = lastwarn;
 
@@ -49,12 +49,14 @@ classdef test_warnonce < TestCase
             cleanupObj = onCleanup(@()warning(warnState));
             warning('on')
 
-            evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
-            evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
+            out = evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
+            assertTrue(contains(out, 'Panic elsewhere too'));
+            out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
+            assertTrue(contains(out, 'Panic at the disco'));
+
 
             out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
             assertFalse(contains(out, 'Panic at the disco'));
-
             out = evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
             assertFalse(contains(out, 'Panic elsewhere too'));
 
@@ -77,8 +79,5 @@ classdef test_warnonce < TestCase
             out = evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
             assertTrue(contains(out, 'Panic elsewhere too'))
         end
-
-
     end
-
 end

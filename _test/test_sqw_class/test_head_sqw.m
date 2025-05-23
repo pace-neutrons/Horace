@@ -1,4 +1,4 @@
-classdef test_head < TestCaseWithSave
+classdef test_head_sqw < TestCaseWithSave
     % Collection of placeholder tests to simple run the migrated API functions: these MUST be replaced
     % with more comprehensive tests as soon as possible
 
@@ -16,7 +16,7 @@ classdef test_head < TestCaseWithSave
 
 
     methods
-        function obj = test_head(varargin)
+        function obj = test_head_sqw(varargin)
             %hor_root = horace_root();
             this_data_path = fileparts(mfilename('fullpath'));
             test_data = fullfile(this_data_path,'test_head.mat');

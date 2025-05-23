@@ -25,7 +25,8 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
         gl=3;
         gs=-3;
 
-        hpc_restore;
+        hpc_config_holder;
+        hpc_conf_to_restore
     end
 
     methods
@@ -38,12 +39,9 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             end
             obj= obj@TestCaseWithSave(argi{:});
+            obj.hpc_config_holder = hpc_config;
 
-            obj.hpc_restore = set_temporary_config_options(hpc_config, ...
-                'build_sqw_in_parallel', false, ...
-                'combine_sqw_using', 'mex_code' ...
-                );
-
+            obj.setUp();
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
             pths = horace_paths;
@@ -59,6 +57,15 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             obj = obj.build_misaligned_source_file(sim_sqw_file);
 
             obj.save();
+            obj.tearDown();
+        end
+        function setUp(obj)
+            obj.hpc_conf_to_restore = obj.hpc_config_holder.get_data_to_store();
+            obj.hpc_config_holder.build_sqw_in_parallel = false;
+            obj.hpc_config_holder.combine_sqw_using = 'mex_code';
+        end
+        function tearDown(obj)
+            obj.hpc_config_holder.set_stored_data(obj.hpc_conf_to_restore);
         end
         %
         function test_change_crystal_family_invalid_throw_in_memory(obj)
@@ -289,7 +296,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             corr  = crystal_alignment_info([5.0191 4.9903 5.0121], ...
                 [90.1793 90.9652 89.9250], [-0.0530 0.0519 0.0345]);
-            % TEST:            
+            % TEST:
             % apply alignment on FB object
             test_fb_ref = change_crystal(test_fb, corr);
             % apply alignment on file directrly

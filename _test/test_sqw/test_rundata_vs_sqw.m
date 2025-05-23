@@ -1,4 +1,4 @@
-classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
+classdef test_rundata_vs_sqw < TestCaseWithSave
     % Series of tests to check work of mex files against Matlab files
 
     properties
@@ -66,7 +66,6 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                     [10,5,5,5]);
                 obj.sqw_obj = obj.sqw_obj{1};
             end
-
         end
 
         function obj=test_build_rundata_from_sqw_keeps_lattice_and_detectors(obj)
@@ -108,15 +107,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             sqw_rev = rd.calc_sqw(grid_size,img_range);
 
-            lattice = rd.lattice;
-            proj = struct('u',lattice.u,'v',lattice.v);
-
-            [ok,mess]=is_cut_equal(obj.sqw_obj,sqw_rev,proj,0.04*(img_range(2,1)-img_range(1,1)),0.1*(img_range(2,2)-img_range(1,2)),[-Inf,Inf],[-Inf,Inf]);
-            assertTrue(ok, ...
-                sprintf('The cut from direct sqw obj and sqw->rundata->sqw converted obj are not the same:\n %s\n', ...
-                mess));
-            sqw_rev.main_header.creation_date = obj.sqw_obj.main_header.creation_date;
-            assertEqualToTol(obj.sqw_obj,sqw_rev,'tol',[1.e-12,1.e-12]);
+            assertEqualToTol(obj.sqw_obj,sqw_rev,'tol',[1.e-12,1.e-12],'-ignore_date')
         end
 
         function test_bounding_object_provides_correct_img_range(obj)

@@ -1,8 +1,9 @@
-classdef test_equal_to_tol < TestCase
+classdef test_equal_to_tol_dnd < TestCase
 
     properties
+        cfg_holder; % helper property to keep hor_config class instance
+        % for rapid access (without construction ) within setUp/teadDown
         old_config;
-        old_warn_state;
 
         ALL_IN_MEM_PG_SIZE = 1e12;
 
@@ -14,21 +15,23 @@ classdef test_equal_to_tol < TestCase
 
     methods
 
-        function obj = test_equal_to_tol(~)
-            obj = obj@TestCase('test_equal_to_tol');
+        function obj = test_equal_to_tol_dnd(~)
+            obj = obj@TestCase('test_equal_to_tol_dnd');
 
-            hc = hor_config();
-            obj.old_config = hc.get_data_to_store();
-
-            hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
+            hc = hor_config;
+            obj.old_config = hc.get_data_to_store();            
+            obj.cfg_holder = hc;
 
             obj.dnd_2d = read_horace(obj.test_dnd_file_path);
         end
-
-        function delete(obj)
-            set(hor_config, obj.old_config);
+        %
+        function setUp(obj)
+            obj.cfg_holder.log_level = 0; % hide the (quite verbose) equal_to_tol output            
         end
-
+        function tearDown(obj)
+            set(obj.cfg_holder,obj.old_config);
+        end
+        %------------------------------------------------------------------
         function test_the_same_d2d_objects_are_equal(obj)
             dnd_copy = obj.dnd_2d;
             assertEqualToTol(obj.dnd_2d, dnd_copy);

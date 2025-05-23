@@ -1,4 +1,4 @@
-classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
+classdef test_faccess_dnd_v2< TestCase
     %
     % Validate fast sqw reader used in combining sqw
     %
@@ -45,6 +45,18 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             this.sample_file = fullfile(this.sample_dir,'w2d_qq_d2d.sqw');
 
         end
+        
+        function setUp(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'off','off'});
+            warning(ws);
+        end
+        function tearDown(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'on','on'});
+            warning(ws);
+        end
+        
 
         % tests
         function obj = test_should_load_stream(obj)

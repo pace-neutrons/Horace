@@ -1,4 +1,4 @@
-classdef test_replicate< TestCase
+classdef test_replicate_dnd< TestCase
     %
     % Validate dnd objects replication
 
@@ -9,7 +9,7 @@ classdef test_replicate< TestCase
     methods
 
         %The above can now be read into the test routine directly.
-        function this=test_replicate(name)
+        function this=test_replicate_dnd(name)
             if ~exist('name','var')
                 name = 'test_replicate';
             end

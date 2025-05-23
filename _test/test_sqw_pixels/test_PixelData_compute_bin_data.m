@@ -1,4 +1,4 @@
-classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_holder
+classdef test_PixelData_compute_bin_data < TestCase
 
     properties
         BYTES_PER_PIX = 4*PixelDataBase.DEFAULT_NUM_PIX_FIELDS;

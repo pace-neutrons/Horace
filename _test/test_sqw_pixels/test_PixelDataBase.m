@@ -16,7 +16,7 @@ classdef test_PixelDataBase < TestCase
             'run_idx', 'detector_idx', 'energy_idx', 'signal', ...
             'variance'};
 
-        warning_cache;
+        warning_holder;
         working_test_file
     end
 
@@ -34,7 +34,6 @@ classdef test_PixelDataBase < TestCase
 
         function obj = test_PixelDataBase(~)
             obj = obj@TestCase('test_PixelData');
-            obj.warning_cache = warning('off','HORACE:old_file_format');
 
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
 
@@ -58,8 +57,16 @@ classdef test_PixelDataBase < TestCase
 
         end
 
+        function setUp(obj)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'off','off'});
+            obj.warning_holder = warning(ws);
+        end
+        function tearDown(obj)
+            warning(obj.warning_holder);
+        end
+
         function delete(obj)
-            warning(obj.warning_cache);
             del_memmapfile_files(obj.tst_sqw_file_full_path);
         end
 

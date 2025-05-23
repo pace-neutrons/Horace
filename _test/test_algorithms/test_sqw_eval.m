@@ -1,4 +1,4 @@
-classdef test_sqw_eval < TestCase & common_state_holder
+classdef test_sqw_eval < TestCase
 
     properties (Constant)
         FLOAT_TOL = 1e-5;

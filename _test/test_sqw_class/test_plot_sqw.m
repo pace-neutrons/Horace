@@ -22,8 +22,8 @@ classdef test_plot_sqw < TestCase
             
             obj.data1D = read_sqw(sqw_1d_file);
             obj.data2D = read_sqw(sqw_2d_file);
-            obj.data3D = read_sqw(sqw_3d_file);   
-            obj.data4D = read_sqw(sqw_4d_file);           
+            obj.data3D = read_sqw(sqw_3d_file);
+            obj.data4D = read_sqw(sqw_4d_file);
         end
 
 
@@ -34,7 +34,7 @@ classdef test_plot_sqw < TestCase
             % Test all 1D, 2D, 3D plot methods throw an error
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             all_methods = [ ...
                 T.methodsND_plot(:); T.methodsND_plotOver(:); ...
@@ -51,9 +51,9 @@ classdef test_plot_sqw < TestCase
                     'HORACE:graphics:invalid_argument', ...
                     sprintf('error for method number %d: %s',i, ...
                     func2str(all_methods{i})));
-            end
-        end
-        
+                end
+                end
+
         
         %------------------------------------------------------------------
         % Three-dimensional data
@@ -62,10 +62,10 @@ classdef test_plot_sqw < TestCase
             % Test all 3D plot methods produce a figure
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             methods = [T.methodsND_plot(:); T.methods3D_plot(:)];
-            
+
             clear_figures()
             for i=1:numel(methods)
                 meth = methods{i};
@@ -75,7 +75,7 @@ classdef test_plot_sqw < TestCase
                 assertTrue(isstruct(plot_h));
                 if i>1  % Must have cleared existing figure window and reused it
                     assertTrue(fig_h==fig_h_ref);
-                else    
+                else
                     fig_h_ref = fig_h;  % store fig handle first time through loop
                 end
             end
@@ -86,7 +86,7 @@ classdef test_plot_sqw < TestCase
             % Test all plot methods for 1D and 2D throw an error with 3D data
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             other_methods = [ ...
                 T.methods1D_plot(:); T.methods1D_plotOver(:); ...
@@ -103,7 +103,7 @@ classdef test_plot_sqw < TestCase
                     func2str(other_methods{i})));
             end
         end
-        
+
         %------------------------------------------------------------------
         function test_sqw3D_plot3D_methods_do_not_work_with_array(obj)
             % Test that all 3D 'plot' methods do not plot arrays of data
@@ -121,10 +121,10 @@ classdef test_plot_sqw < TestCase
                     'HORACE:graphics:invalid_argument', ...
                     sprintf('error for method number %d: %s',i, ...
                     func2str(methods{i})));
+                end
             end
-        end
-        
-        
+
+
         %------------------------------------------------------------------
         % Two-dimensional data
         %------------------------------------------------------------------
@@ -132,13 +132,13 @@ classdef test_plot_sqw < TestCase
             % Test all 2D plot methods produce a figure
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             methods = [...
                 T.methodsND_plot(:); T.methods2D_plot(:); ...
                 T.methodsND_plotOver(:); T.methods2D_plotOver(:); ...
                 T.methods2D_plotOverCurr(:)];
-            
+
             clear_figures()
             for i=1:numel(methods)
                 meth = methods{i};
@@ -146,15 +146,15 @@ classdef test_plot_sqw < TestCase
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h, 'matlab.graphics.primitive.Data'));
+                end
             end
-        end
 
         %------------------------------------------------------------------
         function test_sqw2D_other_plot_methods_throw(obj)
             % Test all plot methods for 1D and 3D throw an error with 2D data
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             other_methods = [ ...
                 T.methods1D_plot(:); T.methods1D_plotOver(:); ...
@@ -170,7 +170,7 @@ classdef test_plot_sqw < TestCase
                     func2str(other_methods{i})));
             end
         end
-        
+
         %------------------------------------------------------------------
         function test_sqw2D_plot2D_methods_work_with_array(obj)
             % Test that all 2D 'plot' methods plot arrays of data
@@ -196,8 +196,8 @@ classdef test_plot_sqw < TestCase
                 assertEqual(numel(plot_h),2);
             end
         end
-        
-        
+
+
         %------------------------------------------------------------------
         % One-dimensional plot methods
         %------------------------------------------------------------------
@@ -222,15 +222,15 @@ classdef test_plot_sqw < TestCase
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                end
             end
-        end
         
         %------------------------------------------------------------------
         function test_sqw1D_other_plot_methods_throw(obj)
             % Test all plot methods for 2D and 3D throw an error with 1D data
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             other_methods = [ ...
                 T.methods2D_plot(:); T.methods2D_plotOver(:); ...
@@ -244,9 +244,9 @@ classdef test_plot_sqw < TestCase
                     'HORACE:graphics:invalid_argument', ...
                     sprintf('error for method number %d: %s',i, ...
                     func2str(other_methods{i})));
-            end
-        end
-        
+                end
+                end
+
         %------------------------------------------------------------------
         function test_sqw1D_plot1D_methods_work_with_array(obj)
             % Test that all 1D 'plot' methods plot arrays of data
@@ -270,12 +270,12 @@ classdef test_plot_sqw < TestCase
                 assertEqual(numel(fig_h),1);
                 assertEqual(numel(axes_h),1);
                 assertEqual(numel(plot_h),2);
+                end
+            end
+
+        %------------------------------------------------------------------
             end
         end
-        
-        %------------------------------------------------------------------
-    end
-end
 
 
 %--------------------------------------------------------------------------
@@ -286,8 +286,8 @@ function clear_figures
 fig_handles = findobj(0, 'Type', 'figure');
 if ~isempty(fig_handles)
     delete(fig_handles)
-end
-end
+                end
+            end
 
 %--------------------------------------------------------------------------
 function function_caller(function_handle, varargin)
@@ -295,4 +295,4 @@ function function_caller(function_handle, varargin)
 % Wraps the method or function handle so that the call can be run as an argument
 % in e.g. assertErrorThrown within a loop that loops over function handles
 function_handle(varargin{:});
-end
+            end

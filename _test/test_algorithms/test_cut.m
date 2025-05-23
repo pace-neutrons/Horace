@@ -48,9 +48,10 @@ classdef test_cut < TestCase
                 end
             end
             obj = obj@TestCase(name);
+
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
             obj.sqw_4d = read_sqw(obj.sqw_file);
             obj.working_dir = tmp_dir();
-            obj.old_ws = warning('off','HORACE:old_file_format');
 
             if save_reference
                 fprintf('*** Rebuilding and overwriting reference cut file %s\n',...
@@ -109,6 +110,7 @@ classdef test_cut < TestCase
                 'mem_chunk_size', mem_chunk_size, ...
                 'use_mex', true ...
                 );
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
 
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
 
@@ -180,6 +182,7 @@ classdef test_cut < TestCase
             diary off;
             clConfig2 = set_temporary_config_options(hor_config,'log_level',2);
             diary(diary_file2);
+            clWarn = set_temporary_warning('off','HORACE:old_file_format');
             sqw_cut = cut(obj.sqw_4d, obj.ref_params{:});
             assertTrue(isfile(diary_file2));
             diary off;
@@ -198,12 +201,17 @@ classdef test_cut < TestCase
             clFile2 = onCleanup(@()delete(diary_file2));
             clConfig = set_temporary_config_options(hor_config,'log_level',0);
             diary(diary_file1);
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
+
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
+
             assertTrue(isfile(diary_file1));
             diary off;
             clConfig2 = set_temporary_config_options(hor_config,'log_level',2);
             diary(diary_file2);
+
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
+
             assertTrue(isfile(diary_file2));
             diary off;
 
@@ -221,12 +229,17 @@ classdef test_cut < TestCase
             clFile2 = onCleanup(@()delete(diary_file2));
             clConfig1 = set_temporary_config_options(hor_config,'log_level',0);
             diary(diary_file1);
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
+
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
+
             assertTrue(isfile(diary_file1));
             diary off;
             clConfig2 = set_temporary_config_options(hor_config,'log_level',2);
             diary(diary_file2);
+
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
+
             assertTrue(isfile(diary_file2));
             diary off;
 
@@ -240,6 +253,7 @@ classdef test_cut < TestCase
 
 
         function test_cut_sqw_nopix(obj)
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
 
             ref_sqw = read_dnd(obj.ref_cut_file);
@@ -247,6 +261,7 @@ classdef test_cut < TestCase
         end
 
         function test_cut_sqw_array(obj)
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
             sqw_obj1 = sqw(obj.sqw_file);
             sqw_obj2 = sqw(obj.sqw_file);
 
@@ -261,6 +276,7 @@ classdef test_cut < TestCase
             v_axis_lims = [-0.1, 0.1];
             w_axis_lims = [-0.1, 0.1];
             en_axis_lims = [105, 1, 114];
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');                        
 
             dnd_cut = cut(...
                 obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
@@ -273,7 +289,8 @@ classdef test_cut < TestCase
         function test_cut_sqw_file_to_file(obj)
             mem_chunk_size = 500;
             clWarn = set_temporary_warning('off', ...
-                'HOR_CONFIG:set_mem_chunk_size','HORACE:physical_memory_configured');
+                'HOR_CONFIG:set_mem_chunk_size','HORACE:physical_memory_configured', ...
+                'HORACE:old_file_format','SQW_FILE:old_version');
 
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
@@ -305,7 +322,8 @@ classdef test_cut < TestCase
             clWarn = set_temporary_warning('off', ...
                 'HOR_CONFIG:set_mem_chunk_size', ...
                 'HORACE:physical_memory_configured', ...
-                'HORACE:insufficient_physical_memory');
+                'HORACE:insufficient_physical_memory',...
+                'HORACE:old_file_format','SQW_FILE:old_version');
 
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
@@ -351,7 +369,8 @@ classdef test_cut < TestCase
             clWarn = set_temporary_warning('off', ...
                 'HOR_CONFIG:set_mem_chunk_size', ...
                 'HORACE:physical_memory_configured', ...
-                'HORACE:insufficient_physical_memory');
+                'HORACE:insufficient_physical_memory',...
+                'HORACE:old_file_format','SQW_FILE:old_version');
 
             cleanup_hor_config = set_temporary_config_options( ...
                 hor_config, ...
@@ -385,7 +404,8 @@ classdef test_cut < TestCase
 
         function test_cut_sqw_object_to_file(obj)
             clWarn = set_temporary_warning('off', ...
-                'HOR_CONFIG:set_mem_chunk_size','HORACE:physical_memory_configured');
+                'HOR_CONFIG:set_mem_chunk_size','HORACE:physical_memory_configured',...
+                'HORACE:old_file_format','SQW_FILE:old_version');
 
             mem_chunk_size = 4000;
             cleanup_config = set_temporary_config_options( ...
@@ -393,8 +413,6 @@ classdef test_cut < TestCase
                 'mem_chunk_size', mem_chunk_size, ...
                 'fb_scale_factor',3 ...
                 );
-            ws = warning('off','HORACE:old_file_format');
-            clWarn = onCleanup(@()warning(ws));
 
             sqw_obj = read_sqw(obj.sqw_file);
 
@@ -438,6 +456,7 @@ classdef test_cut < TestCase
             % We check that the error  is raised early by checking the error's ID,
             % which is different if writing fails after the cut is complete.
             outfile = fullfile('P:', 'not', 'a_valid', 'path.sqw');
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
 
             f = @() cut(obj.sqw_file, obj.ref_params{:}, outfile);
             assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
@@ -453,7 +472,9 @@ classdef test_cut < TestCase
             clWarn = set_temporary_warning('off', ...
                 'HOR_CONFIG:set_mem_chunk_size', ...
                 'HORACE:physical_memory_configured', ...
-                'HORACE:insufficient_physical_memory');
+                'HORACE:insufficient_physical_memory',...
+                'HORACE:old_file_format', ...
+                'SQW_FILE:old_version');
             cleanup_config = set_temporary_config_options( ...
                 hor_config, ...
                 'mem_chunk_size', mem_chunk_size, ...
@@ -466,6 +487,7 @@ classdef test_cut < TestCase
                 );
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));
+
             cut(obj.sqw_file, obj.ref_params{:}, outfile);
 
             clear cleanup_config;
@@ -486,6 +508,7 @@ classdef test_cut < TestCase
                 'mem_chunk_size', mem_chunk_size, ...
                 'use_mex', false ...
                 );
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
             % assure that we are realy doing filebacked cut
             assertTrue(PixelDataBase.do_filebacked(num_pixels));
 
@@ -516,6 +539,7 @@ classdef test_cut < TestCase
         function test_cut_nopix_to_file(obj)
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup = onCleanup(@() clean_up_file(outfile));
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
 
             cut(obj.sqw_file, obj.ref_params{:}, outfile, '-nopix')
 

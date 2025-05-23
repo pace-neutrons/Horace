@@ -1,4 +1,4 @@
-classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
+classdef test_faccess_dnd_v4< TestCase
     %
     % Validate faccess_dnd_v4 class operations
     %
@@ -36,6 +36,17 @@ classdef test_faccess_dnd_v4< TestCase & common_sqw_file_state_holder
             obj.sample_file = fullfile(obj.sample_dir,'w2d_qq_d2d.sqw');
             obj.this_dir = fileparts(mfilename('fullpath'));
         end
+        function setUp(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'off','off'});
+            warning(ws);
+        end
+        function tearDown(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'on','on'});
+            warning(ws);
+        end
+        
         %------------------------------------------------------------------
         % tests
         function test_get_npix_block(obj)

@@ -10,6 +10,5 @@ classdef test_job_dispatcher_slurm < job_dispatcher_common_tests
             this.print_running_tests = true;
         end
 
-   end
-
+    end
 end

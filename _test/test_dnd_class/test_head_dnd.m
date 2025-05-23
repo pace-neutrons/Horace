@@ -1,4 +1,4 @@
-classdef test_head < TestCaseWithSave
+classdef test_head_dnd < TestCaseWithSave
     % Collection of placeholder tests to simple run the migrated API functions: these MUST be replaced
     % with more comprehensive tests as soon as possible
 
@@ -17,7 +17,7 @@ classdef test_head < TestCaseWithSave
 
 
     methods
-        function obj = test_head(varargin)
+        function obj = test_head_dnd(varargin)
             test_data = fullfile(fileparts(mfilename('fullpath')),'test_head.mat');
             if nargin == 0
                 argi = {test_data};

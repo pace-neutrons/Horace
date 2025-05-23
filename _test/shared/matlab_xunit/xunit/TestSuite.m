@@ -142,6 +142,13 @@ classdef TestSuite < TestComponent
             else
                 self.TestComponents{end + 1} = component;
             end
+            difr= GlobalStateTrace.instance.trace();
+            if ~isempty(difr)
+                sprintf('*** Component %s causes the change:\n', ...
+                    disp2str(component))
+                disp(difr);
+            end
+
         end
 
         function keepMatchingTestCase(self, name)
@@ -263,6 +270,15 @@ classdef TestSuite < TestComponent
                 return;
             end
 
+            difr= GlobalStateTrace.instance.trace();
+            if ~isempty(difr)
+                sprintf('*** Config changed while init tests fromName: %s', ...
+                    name)
+                disp(difr);
+                if isfield(difr,'difference')
+                    disp(difr.difference);
+                end
+            end
             [name, filter_string] = strtok(name, ':');
             if ~isempty(filter_string)
                 filter_string = strrep(filter_string,':','');
@@ -322,10 +338,22 @@ classdef TestSuite < TestComponent
             test_suite.Location = pwd;
 
             mfiles = dir(fullfile('.', '*.m'));
+
+            difr= GlobalStateTrace.instance.trace();
+            if ~isempty(difr)
+                sprintf('*** Global state changed in init tests from working directory: %s', ...
+                    test_suite.Name)
+                disp(difr);
+                if isfield(difr,'difference')
+                    disp(difr.difference);
+                end
+            end
             for k = 1:numel(mfiles)
                 [~, name] = fileparts(mfiles(k).name);
                 if xunit.utils.isTestCaseSubclass(name) && ~isempty(regexp(name,'^test_','ONCE'))
+
                     test_suite.add(TestSuite.fromTestCaseClassName(name));
+
                 elseif xunit.utils.isTestString(name)
                     suite_k = TestSuite.fromName(name);
                     if ~isempty(suite_k.TestComponents)
@@ -350,6 +378,14 @@ classdef TestSuite < TestComponent
             test_suite = TestSuite();
             test_suite.Name = name;
             test_suite.Location = 'Package';
+
+            difr= GlobalStateTrace.instance.trace();
+            if ~isempty(difr)
+                sprintf('*** Package %s initialized from change :\n', ...
+                    name)
+                disp(difr);
+            end
+
 
             for k = 1:numel(package_info.Packages)
                 pkg_name = package_info.Packages{k}.Name;

@@ -11,7 +11,7 @@ classdef test_get_unique_fields < TestCase
         function obj = test_get_unique_fields(name)
             obj = obj@TestCase(name);
             obj.IX_inst_stor =  unique_obj_store.instance().get_objects('IX_inst');
-            unique_obj_store.instance().clear('IX_inst')            
+            unique_obj_store.instance().clear('IX_inst');
         end
 
         function test_get_unique_fields_1(~)
@@ -43,7 +43,7 @@ classdef test_get_unique_fields < TestCase
         function delete(obj)
             % avoid side effects from this test
             unique_obj_store.instance().clear('unique_fields_example_class');
-            unique_obj_store.instance().clear('IX_inst');                        
+            unique_obj_store.instance().clear('IX_inst');
             unique_obj_store.instance().set_objects(obj.IX_inst_stor);
         end
     end

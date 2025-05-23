@@ -1,4 +1,4 @@
-classdef test_gen_runfiles < TestCase
+classdef test_gen_runfiles_sqw < TestCase
     % Test that a bug discovered in gen_runfiles on 31/10/2013 has been resolved
 
     properties
@@ -6,7 +6,7 @@ classdef test_gen_runfiles < TestCase
     end
 
     methods
-        function obj = test_gen_runfiles(name)
+        function obj = test_gen_runfiles_sqw(name)
             obj = obj@TestCase(name);
 
             % -----------------------------------------------------------------------------

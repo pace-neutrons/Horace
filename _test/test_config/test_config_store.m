@@ -1,7 +1,6 @@
 classdef test_config_store < TestCase
     properties
         config_store_path;
-        cfg;
     end
     methods
         %
@@ -9,11 +8,15 @@ classdef test_config_store < TestCase
             this = this@TestCase(name);
             this.config_store_path = config_store.instance().config_folder();
         end
-        %         function this=setUP(this)
-        %             this.cfg = get(conf
-        %         end
-        function this=tearDown(this)
+        %
+        function this=setUP(this)
+            config_store.instance().clear_config('tgp_test_class2','-files');
         end
+        function this=tearDown(this)
+            config_store.instance().clear_config('tgp_test_class2','-files');
+            config_store.instance.clear_config('config_base_tester','-file')
+        end
+        %
         function this=test_store_restore_new_class(this)
             % set up
             tsc = some_test_class();
@@ -251,7 +254,6 @@ classdef test_config_store < TestCase
                 'HERBERT:config_store:default_configuration','HERBERT:fake_warning');
             warning('HERBERT:fake_warning','ensure no unwanted warnings have been issued');
 
-            config_store.instance().clear_config('tgp_test_class2','-files');
 
             assertFalse(config_store.instance().is_field_configured('tgp_test_class2','v1'))
             % twice to esure first call is not loaded to memory and

@@ -38,6 +38,7 @@ classdef tgp_test_class<config_base
             end
             obj = obj@config_base(class_name);
         end
+
         function val = get.v1(this)
             val = get_or_restore_field(this,'v1');
             %val = this.my_prop;
