@@ -119,6 +119,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase
 
             save(obj.d2d_arr(1),obj.d2d_name{1});
             save(obj.d2d_arr(2),obj.d2d_name{2});
+            obj.tearDown();
         end
 
         function clearUp(obj)
