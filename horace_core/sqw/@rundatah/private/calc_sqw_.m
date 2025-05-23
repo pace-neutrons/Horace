@@ -40,7 +40,10 @@ instproj = obj.get_projection();
 axes_bl = instproj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 [exp_info,data] = calc_sqw_data_and_header (obj,axes_bl);
 
-% in addition to standard operations, recalculates line_axes img_range if
+% The method below is the overload of standard projection method
+% bin_pixels. It converts rundata to pixels and bins them using standard 
+% aProjectionBase bining procedure.
+% In addition to that, recalculates line_axes img_range if
 % the range has not been defined before:
 [data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
     instproj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
@@ -58,10 +61,8 @@ w.main_header.nfiles = 1;
 w.main_header.creation_date = datetime('now');
 % w.detpar = det0; % detpar of w now removed
 det = IX_detector_array(det0);
-if exp_info.detector_arrays.n_runs ~= 0
-    % detectors already populated, ignore
-    ;
-else
+if exp_info.detector_arrays.n_runs == 0 % populate detectors only once.
+    % TODO: should it check them for uniqueness and run anyway?
     exp_info.detector_arrays = exp_info.detector_arrays.add(det);
 end
 w.experiment_info = exp_info;

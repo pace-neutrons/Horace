@@ -203,6 +203,34 @@ classdef test_unique_references < TestCase
         end
     end
     methods
+        function test_get_unique_objects_and_references_lidx(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+            urc2 = unique_references_container('char');
+            urc2 = urc2.add({'b','c','b','d','d','c','d'});
+
+            [uobj,uref]= urc2.get_unique_objects_and_indices(true);
+            assertEqual(uobj,{'b','c','d'});
+            assertEqual(uref,{[1,3],[2,6],[4,5,7]});
+        end
+        
+        function test_get_unique_objects_and_references_gidx(~)
+            function clearer()
+                unique_obj_store.instance().clear('char');
+            end
+            clOb = onCleanup(@()clearer);
+            urc1 = unique_references_container('char');
+            urc1 = urc1.add({'a','b','c'});
+            urc2 = unique_references_container('char');
+            urc2 = urc2.add({'b','b','c','c','d','d'});
+
+            [uobj,uref]= urc2.get_unique_objects_and_indices();
+            assertEqual(uobj,{'b','c','d'});
+            assertEqual(uref,[2,3,4]);
+        end
+        %------------------------------------------------------------------
         function test_unique_reference_non_pollute_ws(obj)
 
            unique_obj_store.instance().clear('IX_inst');

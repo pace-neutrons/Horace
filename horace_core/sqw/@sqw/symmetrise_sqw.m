@@ -78,7 +78,7 @@ else
 end
 
 
-if numel(varargin) == 1 && isa(varargin{1}, 'Symop') || ...
+if isscalar(varargin) && isa(varargin{1}, 'Symop') || ...
         (iscell(varargin{1}) && all(cellfun(@(x) isa(x, 'Symop'), varargin{1})))
 
     sym = varargin{1};

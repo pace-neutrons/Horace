@@ -242,10 +242,7 @@ classdef IX_detector_bank < hashable
         function val = get.height(obj)
             val = obj.det_.height;
         end
-
-
         %------------------------------------------------------------------
-
     end
 
     %======================================================================
