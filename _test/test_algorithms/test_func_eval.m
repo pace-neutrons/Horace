@@ -31,7 +31,6 @@ classdef test_func_eval < TestCase & common_state_holder
     methods
         function obj = test_func_eval(~)
             obj = obj@TestCase('test_func_eval');
-            obj.old_ws = warning('off','HORACE:old_file_format');
 
             pths = horace_paths;
             obj.sqw_1d_file_path = fullfile(pths.test_common, 'sqw_1d_1.sqw');
@@ -44,9 +43,6 @@ classdef test_func_eval < TestCase & common_state_holder
             obj.sqw_2d_obj_mb = obj.sqw_2d_obj_fb;
             obj.sqw_2d_obj_mb.pix = PixelDataMemory(obj.sqw_2d_obj_fb.pix);
 
-        end
-        function delete(obj)
-            warning(obj.old_ws);
         end
 
 
