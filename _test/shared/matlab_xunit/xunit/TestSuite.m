@@ -272,6 +272,8 @@ classdef TestSuite < TestComponent
 
             difr= GlobalStateTrace.instance.trace();
             if ~isempty(difr)
+                sprintf('*** Config changed while init tests fromName: %s', ...
+                    name)
                 disp(difr);
             end
             [name, filter_string] = strtok(name, ':');
