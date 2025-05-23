@@ -35,10 +35,10 @@ classdef MPI_Test_Common < TestCase
             else
                 obj.cluster_name = 'parpool';
             end
-            clOb = set_temporary_config_options('parallel_config','parallel_cluster',obj.cluster_name);
-            pc = parallel_config;
+
             try
-                pc.parallel_cluster = obj.cluster_name;
+                clOb = set_temporary_config_options('parallel_config','parallel_cluster',obj.cluster_name);
+                pc = parallel_config;
                 set_framework = strcmpi(pc.parallel_cluster,obj.cluster_name);
             catch ME
                 switch ME.identifier
@@ -49,10 +49,10 @@ classdef MPI_Test_Common < TestCase
                         rethrow(ME);
                 end
             end
-
             obj.ignore_test = ~set_framework;
             if obj.ignore_test
                 obj.ignore_cause = ['The framework: ', obj.cluster_name, ' can not be enabled so is not tested'];
+                return;
             end
             if strcmpi(pc.parallel_cluster,'none')
                 obj.ignore_test = true;
