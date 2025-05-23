@@ -2,7 +2,6 @@ classdef test_set_instrument_data< TestCase
     properties
         data_inst;
         data_inst_ref;
-        clob;
         w1;
         clMem
     end
@@ -17,8 +16,8 @@ classdef test_set_instrument_data< TestCase
             end
             obj=obj@TestCase(name);
             data_dir = fileparts(which(mfilename));
-            obj.clob = set_temporary_warning('off','SQW_FILE:old_version');
-            obj.clMem = set_temporary_global_obj_state();
+            clob = set_temporary_warning('off','SQW_FILE:old_version');
+
 
             % Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
             % its the file containing old instrument and old sample.
@@ -31,17 +30,15 @@ classdef test_set_instrument_data< TestCase
             obj.w1 = read_sqw(obj.data_inst_ref);
 
         end
-        function delete(obj)
-            obj.clMem = [];
-            obj.clob  = [];
-        end
         function setUp(obj)
+            obj.clMem = set_temporary_global_obj_state();            
             if is_file(obj.data_inst)
                 delete(obj.data_inst);
             end
             save(obj.w1,obj.data_inst);
         end
         function tearDown(obj)
+            obj.clMem = [];            
             if is_file(obj.data_inst)
                 delete(obj.data_inst);
             end

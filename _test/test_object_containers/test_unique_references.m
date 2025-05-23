@@ -24,12 +24,12 @@ classdef test_unique_references < TestCase
             % Store current contents of the unique_store for future usage
             % and clear store to have defined initial state for the tests.
             %
+        end
+        function setUp(obj)
             % These tests rely on defined initial store state
             obj.clStore = set_temporary_global_obj_state();
         end
-        function delete(obj)
-            % retrieve essential store state, present before this test was
-            % running
+        function tearDown(obj)
             %unique_obj_store.instance('clear');
             obj.clStore = [];
         end
@@ -204,12 +204,10 @@ classdef test_unique_references < TestCase
     end
     methods
         function test_unique_reference_non_pollute_ws(obj)
-            function clearer()
-                unique_obj_store.instance().clear('IX_inst');
-                unique_obj_store.instance().clear('IX_samp');
-                unique_obj_store.instance().clear('IX_detector_array');
-            end
-            clOb = onCleanup(@()clearer);
+
+           unique_obj_store.instance().clear('IX_inst');
+           unique_obj_store.instance().clear('IX_samp');
+           unique_obj_store.instance().clear('IX_detector_array');
 
 
             sqw1 = sqw.generate_cube_sqw(4);
@@ -263,7 +261,7 @@ classdef test_unique_references < TestCase
                 unique_obj_store.instance().clear('IX_inst');
             end
             clOb = onCleanup(@()clearer);
-
+            n_obj = obj.check_global_store_state('IX_samp');            
             %
             % test initialisation of an Experiment with 1 run - see next
             % test for what happens initialising individual components for
@@ -292,7 +290,7 @@ classdef test_unique_references < TestCase
             gc = unique_obj_store.instance().get_objects('IX_samp');
             %Re #1816 this tests operation with ref_counting and replacing deleted.
             %assertEqual(gc.n_objects,4); % sam2, sam3 and sam4 have been replacemed in ex2
-            assertEqual(gc.n_objects,7)
+            assertEqual(gc.n_objects,n_obj + 7)
 
             % test conversion to struct and clearing of all sample objects
             % associated with ex2, and then its restoration and checking
@@ -458,11 +456,10 @@ classdef test_unique_references < TestCase
         end
 
         function test_basic_instruments_container(obj)
-            function clearer()
-                unique_obj_store.instance().clear('IX_inst');
-            end
-            clOb = onCleanup(@()clearer);
+            unique_obj_store.instance().clear('IX_inst');            
+
             urc = unique_references_container('IX_inst');
+            [n_obj,n_unique,n_dupl] = obj.check_global_store_state('IX_inst',obj.mi1);            
 
             urc = urc.add(obj.mi1);
             urc = urc.add(IX_null_inst());
@@ -522,8 +519,8 @@ classdef test_unique_references < TestCase
             glc = unique_obj_store.instance().get_objects('IX_inst');
             assertTrue( isa( glc, 'unique_only_obj_container') );
             %Re #1816 this test for operation with ref_counting and replacing deleted.
-            assertEqual( glc.n_objects, 4);
-            assertEqual( glc.n_unique, 4);
+            assertEqual( glc.n_objects,n_obj+4);
+            assertEqual( glc.n_unique, n_unique+4);
             %assertEqual( glc.n_duplicates,[2,1,1,1]);
             %Re #1816 this tests code without replacement
             assertEqual( glc.n_duplicates,[2,2,1,1]);
@@ -975,6 +972,8 @@ classdef test_unique_references < TestCase
                 unique_obj_store.instance().clear('IX_inst');
             end
             clOb = onCleanup(@()clearer);
+            %------
+            [n_obj,n_unique,n_dupl] = obj.check_global_store_state('IX_inst',obj.mi1);
 
             urc = unique_references_container('IX_inst');
             urc{1} = obj.mi1;
@@ -988,10 +987,12 @@ classdef test_unique_references < TestCase
             assertEqual(urc.n_unique,1);
             %------
             stor = unique_obj_store.instance().get_objects('IX_inst');
-            assertEqual(stor.n_objects,1)
-            assertEqual(stor.n_unique,1)
-            assertEqual(stor.unique_objects{1},obj.mi1)
-            assertEqual(stor.n_duplicates,10);
+            assertEqual(stor.n_objects,n_obj+1)
+            assertEqual(stor.n_unique,n_unique+1)
+            idx = stor.find_in_container(obj.mi1);
+            assertFalse(isempty(idx))
+            assertEqual(stor.unique_objects{idx},obj.mi1)
+            assertEqual(stor.n_duplicates(idx),n_dupl+10);
 
         end
         %-----------------------------------------------------------------
@@ -1000,6 +1001,7 @@ classdef test_unique_references < TestCase
                 unique_obj_store.instance().clear('IX_inst');
             end
             clOb = onCleanup(@()clearer);
+            [n_obj,n_unique,n_dupl] = obj.check_global_store_state('IX_inst',obj.mi1);            
 
             urc = unique_references_container('IX_inst');
 
@@ -1011,10 +1013,11 @@ classdef test_unique_references < TestCase
             assertEqual(urc,urc_rec);
             %-----
             stor = unique_obj_store.instance().get_objects('IX_inst');
-            assertEqual(stor.n_objects,1)
-            assertEqual(stor.n_unique,1)
-            assertEqual(stor.unique_objects{1},obj.mi1)
-            assertEqual(stor.n_duplicates,4);
+            assertEqual(stor.n_objects,n_obj+1)
+            assertEqual(stor.n_unique,n_unique+1)
+            idx = stor.find_in_container(obj.mi1);            
+            assertEqual(stor.unique_objects{idx},obj.mi1)
+            assertEqual(stor.n_duplicates(idx),n_dupl+4);
         end
         function test_serialization_empty(~)
             function clearer()
@@ -1150,7 +1153,7 @@ classdef test_unique_references < TestCase
             %assertEqual(stor.unique_objects{1},thingy_tester(222))
             %Re #1816 tests refcounting without deleteon.
             assertEqual(stor.n_objects,2)
-            assertEqual(stor.unique_objects{1},thingy_tester(111))            
+            assertEqual(stor.unique_objects{1},thingy_tester(111))
             assertEqual(stor.unique_objects{2},thingy_tester(222))
         end
         %-----------------------------------------------------------------
@@ -1196,8 +1199,6 @@ classdef test_unique_references < TestCase
 
         end
 
-
-
         function test_two_urc_partially_replaced_through_index(~)
             function clearer()
                 unique_obj_store.instance().clear('char');
@@ -1240,8 +1241,6 @@ classdef test_unique_references < TestCase
             %Re #1816 tests refcounting without deleteon.
             assertEqual(stor.n_duplicates,[2, 2,  3,  2,  2,  1]);
         end
-
-
 
         function test_two_urc_fully_expanded_through_index(~)
             function clearer()
@@ -1412,6 +1411,26 @@ classdef test_unique_references < TestCase
             assertEqual(urc1.n_unique,0);
             assertEqual(urc1.n_objects,0);
             assertTrue(isempty(urc1.idx));
+        end
+    end
+    methods(Access=protected)
+        function [n_obj,n_unique,n_dupl1] = check_global_store_state(~,obj_type,obj2test)
+            % Check global state of the object type "obj_type" and the
+            % object intself: obj2test
+            %
+            stor = unique_obj_store.instance().get_objects(obj_type);
+            n_obj = stor.n_objects;
+            n_unique = stor.n_unique;
+            if nargin<3
+                n_dupl1 = 0;
+                return;
+            end
+            idx = stor.find_in_container(obj2test);
+            if isempty(idx)
+                n_dupl1 = 0;
+            else
+                n_dupl1 = stor.n_duplicates(idx);
+            end
         end
     end
 end

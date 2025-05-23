@@ -6,13 +6,13 @@ classdef test_warnonce < TestCase
         end
 
         function setUp(~)
-            warnonce('clear', 'HORACE:panic:panic')
-            warnonce('clear', 'HORACE:panic:arr')
+            warnonce('clear', 'HORACE:panic:panic');
+            warnonce('clear', 'HORACE:panic:arr');
         end
 
         function tearDown(~)
-            warnonce('clear', 'HORACE:panic:panic')
-            warnonce('clear', 'HORACE:panic:arr')
+            warnonce('clear', 'HORACE:panic:panic');
+            warnonce('clear', 'HORACE:panic:arr');
         end
 
         function test_warnonce_warns_once_defaults(~)
@@ -53,13 +53,14 @@ classdef test_warnonce < TestCase
             evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
 
             out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
-            assertFalse(contains(out, 'Panic at the disco'))
+            assertFalse(contains(out, 'Panic at the disco'));
 
             out = evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
-            assertFalse(contains(out, 'Panic elsewhere too'))
+            assertFalse(contains(out, 'Panic elsewhere too'));
 
             % Test clear
-            warnonce('clear', 'HORACE:panic:panic');
+            out = evalc("warnonce('clear', 'HORACE:panic:panic')");
+            assertTrue(isempty(out));
             out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
             assertTrue(contains(out, 'Panic at the disco'))
             out = evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
@@ -69,7 +70,8 @@ classdef test_warnonce < TestCase
             assertFalse(contains(out, 'Panic at the disco'))
 
             % Test global clear
-            warnonce('clear')
+            out = evalc("warnonce('clear')");
+            assertTrue(isempty(out));
             out = evalc("warnonce('HORACE:panic:panic', 'Panic at the disco')");
             assertTrue(contains(out, 'Panic at the disco'))
             out = evalc("warnonce('HORACE:panic:arr', 'Panic elsewhere too')");
