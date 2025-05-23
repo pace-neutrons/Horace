@@ -1,6 +1,19 @@
 classdef GlobalStateTrace < handle
     %GlobalStateChecker  Singleton class used to trance code for
     % changes in global state and report these changes on request
+    %
+    % set up tracing by doing:
+    %
+    % >>ts = GlobalStateTrace.instance();
+    % >>ts.trace_enabled = true;
+    % before starting to run tests to identify places where test
+    % constructor change configuration.
+    %
+    % set break-point in this object's "trace" function where changed
+    % configuration is stored for future usage:
+    % (obj.state_holder_ = current_state;)
+    % to investigate details of change using MATLAB debugger
+    %
     properties(Dependent)
         % if the tracing should be enabled
         trace_enabled;
@@ -39,11 +52,12 @@ classdef GlobalStateTrace < handle
             hpc = hpc_config;
             current_state.hpc_state = hpc.get_data_to_store;
             if isempty(obj.state_holder_)
-               obj.state_holder_ = current_state;
+                obj.state_holder_ = current_state;
             end
-            difr = compare_states(obj.state_holder_,current_state); 
+            difr = compare_states(obj.state_holder_,current_state);
             if ~isempty(difr)
-               obj.state_holder_ = current_state;                
+                % store changed state to keep track of next change
+                obj.state_holder_ = current_state;
             end
         end
     end
