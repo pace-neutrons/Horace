@@ -14,6 +14,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase
         d2d_name
 
         clob_obj_;
+        warn_holder;
     end
 
     methods
@@ -35,15 +36,21 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase
             %
 
         end
-        function setUp(~)
+        %
+        function setUp(obj)
             ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
                 'state',{'off','off'});
-            warning(ws);
+            obj.warn_holder = warning(ws);
         end
-        function tearDown(~)
-            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
-                'state',{'on','on'});
-            warning(ws);
+        function tearDown(obj)
+            warning(obj.warn_holder);
+        end
+        %
+        function clearUp(obj)
+            for i=1:numel(obj.sqw1d_name), delete(obj.sqw1d_name{i}); end
+            for i=1:numel(obj.sqw2d_name), delete(obj.sqw2d_name{i}); end
+            for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
+            for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
         end
 
         function delete(obj)
@@ -122,12 +129,6 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase
             obj.tearDown();
         end
 
-        function clearUp(obj)
-            for i=1:numel(obj.sqw1d_name), delete(obj.sqw1d_name{i}); end
-            for i=1:numel(obj.sqw2d_name), delete(obj.sqw2d_name{i}); end
-            for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
-            for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
-        end
 
         % =================================================================================================
         % Perform tests
