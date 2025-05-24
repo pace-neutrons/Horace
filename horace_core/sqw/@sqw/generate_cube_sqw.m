@@ -27,7 +27,7 @@ function out = generate_cube_sqw(shape,varargin)
 %     The function must obey the requests for the function used by sqw_eval
 %     and accept no external parameters. (all parameters are inside the
 %     function)
-%     If no handle is provided the signal will be initialised to `1`
+%     If handle is not provided the signal will be initialised to `1`
 % func_param
 % -- array of parameters to transfer to the function, described by handle
 %
@@ -130,9 +130,14 @@ if numel(argi) > 0  && isa(argi{1},'function_handle')
     else
         out = sqw_eval(out,argi{:},[]);        
     end
-    out_err = sqw_eval(out,@(h,k,l,e,p)ones(numel(h),1),[]);
-    out.pix.variance = out_err.pix.signal;
-    out.data.e = out_err.data.s;
+    % uncomment this and provide errors to be more complex function if we
+    % need this behaviour
+    % out_err = sqw_eval(out,@(h,k,l,e,p)ones(numel(h),1),[]);
+    % out.pix.variance = out_err.pix.signal;    
+    % out.data.e = out_err.data.s;    
+    % simple equal variance 
+    out.pix.variance = ones(1,out.pix.num_pixels); 
+    out.data.e = 0; % will be recalculated below during cut
 end
 
 

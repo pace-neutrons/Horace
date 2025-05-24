@@ -34,8 +34,8 @@ function wout = parallel_sqw_eval(func, nWorkers, args)
         pix = cellfun(extract, res, repmat({i}, size(res)), 'UniformOutput', false);
         wout{i}.pix = wout{i}.pix.cat(pix{:});
         [wout{i}.data.s, wout{i}.data.e] = wout{i}.pix.compute_bin_data(wout{i}.data.npix);
-        for i = 1:numel(pix) % Clear temp files preserved by function
-            delete(pix{i}.full_filename);
+        for j = 1:numel(pix) % Clear temp files preserved by function
+            delete(pix{j}.full_filename);
         end
     end
 
