@@ -5,6 +5,8 @@ function warnonce(id, message, varargin)
 % id      -- Warning identifier as per `warning`
 % message -- Warning message as per `warning`
 
+% evalc evaluates this variable in different workspace, so this variable is
+% workspace specific!!!
 persistent idset
 
 clear = strcmp(id, 'clear');
@@ -12,7 +14,7 @@ clear = strcmp(id, 'clear');
 if isempty(idset) || (clear && ~exist('message', 'var'))
     idset = {};
 elseif clear
-    idset(strcmp(idset, message)) = [];
+    idset(ismember(idset, message)) = '';
 end
 
 if clear
@@ -24,7 +26,7 @@ message = sprintf(message, varargin{:});
 
 if ~ismember(id, idset)
     warning(id, message);
-    idset{end+1} = id
+    idset{end+1} = id;
 else
     lastwarn(message, id);
 end

@@ -292,7 +292,7 @@ classdef test_binfile_v2_common <  TestCase %WithSave
             if matlab_version_num() < 24.01
                 file_ids = fopen('all');
             else
-                file_ids = openFiles();
+                file_ids = openedFiles();
             end
             for i = 1:numel(file_ids)
                 [open_file_path, open_permission] = fopen(file_ids(i));
