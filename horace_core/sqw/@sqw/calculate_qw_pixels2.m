@@ -12,7 +12,9 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 %
 % Input:
 % ------
-%  win         -- Input sqw object
+%  win         -- Input sqw object which works like a container for
+%                 Experiment info and PixelData used to caclulate pixel's
+%                 Q-coordinates from pixels indices.
 % Optional:
 % coord_in_rlu --  default true. Returns pixel coordinates in reciprocal
 %                  lattice units (projection onto rotated hkl coordinate
