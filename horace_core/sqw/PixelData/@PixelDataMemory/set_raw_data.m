@@ -16,4 +16,6 @@ end
 obj.data_ = pix;
 %
 % setting data removes misalignment
-obj = obj.clear_alignment();
+if obj.is_corrected_
+    obj = obj.clear_alignment();
+end

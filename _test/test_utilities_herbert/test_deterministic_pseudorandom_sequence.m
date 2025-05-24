@@ -9,12 +9,6 @@ classdef test_deterministic_pseudorandom_sequence < TestCase
 % particular idiosyncrasies.
 %=========================================================================
 
-    properties
-        % Current path for noisify_test_rand.
-        % Needs to be added and removed from the path to make the
-        % test function
-        deterministic_pseudorandom_sequence_path = '../shared';
-    end
     methods
         
         % constructor for the test class - constructs base
@@ -22,16 +16,12 @@ classdef test_deterministic_pseudorandom_sequence < TestCase
         function this=test_deterministic_pseudorandom_sequence(name)
             this = this@TestCase(name);
             disp(name)
-            addpath(this.deterministic_pseudorandom_sequence_path);
         end
         
-        function delete(this)
-            rmpath(this.deterministic_pseudorandom_sequence_path);
-        end
-        
+       
         % test function to verify operation of noisify_test_rand
         % tests one usage - see below for extended tests
-        function test_if_single_deterministic_pseudorandom_sequence_ok(this)
+        function test_if_single_deterministic_pseudorandom_sequence_ok(~)
             % find noisify_test_rand
             % create object for deterministic_psuedorandom_sequence to
             % initialise state at the start of the deterministic
@@ -50,7 +40,7 @@ classdef test_deterministic_pseudorandom_sequence < TestCase
         
         % test function to verify operation of noisify_test_rand
         % tests repeated usage for one distribution of equal size
-        function test_if_equal_twocall_deterministic_pseudorandom_sequence_ok(this)
+        function test_if_equal_twocall_deterministic_pseudorandom_sequence_ok(~)
             % find noisify_test_rand
             % create object for deterministic_psuedorandom_sequence to
             % initialise state at the start of the deterministic
@@ -75,7 +65,7 @@ classdef test_deterministic_pseudorandom_sequence < TestCase
         
         % test function to verify operation of noisify_test_rand
         % tests repeated usage for one distribution of unequal sizes
-        function test_if_unequal_twocall_deterministic_pseudorandom_sequence_ok(this)
+        function test_if_unequal_twocall_deterministic_pseudorandom_sequence_ok(~)
             % find noisify_test_rand
             % create object for deterministic_psuedorandom_sequence to
             % initialise state at the start of the deterministic
@@ -99,7 +89,7 @@ classdef test_deterministic_pseudorandom_sequence < TestCase
         end
         
         % repeat above equal test twice with an rnd reset between the two
-        function test_if_repeated_equal_deterministic_pseudorandom_sequence_ok(this)
+        function test_if_repeated_equal_deterministic_pseudorandom_sequence_ok(~)
             % find noisify_test_rand
             % create object for deterministic_psuedorandom_sequence to
             % initialise state at the start of the deterministic
@@ -137,7 +127,7 @@ classdef test_deterministic_pseudorandom_sequence < TestCase
         end
         
         
-        function test_if_repeated_unequal_deterministic_pseudorandom_sequence_ok(this)
+        function test_if_repeated_unequal_deterministic_pseudorandom_sequence_ok(~)
             % find noisify_test_rand
             % create object for deterministic_psuedorandom_sequence to
             % initialise state at the start of the deterministic
