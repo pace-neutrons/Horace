@@ -4,7 +4,7 @@ function [ok, n] = is_string (varargin)
 %   >> [ok, n] = is_string (arg)
 %   >> [ok, n] = is_string (arg1, arg2,...)
 %
-% Backweards comptibility alias of is_charVector
+% Backwards compatibility alias of is_charVector
 %
 % See also is_charVector
 %

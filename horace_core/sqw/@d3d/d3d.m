@@ -7,9 +7,6 @@ classdef d3d < DnDBase
     %   >> w = d3d(filename)       % Create a D3D object from a file
     %   >> w = d3d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Dependent,Hidden=true)
-        NUM_DIMS;
-    end
 
     methods(Static)
         function obj = loadobj(S)
@@ -17,6 +14,12 @@ classdef d3d < DnDBase
             % saveable class. Put it as it is replacing the
             obj = d3d();
             obj = loadobj@serializable(S,obj);
+        end
+    end
+    methods(Access=protected)
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object dimensions
+            nd =3;
         end
     end
 
@@ -35,20 +38,10 @@ classdef d3d < DnDBase
                 obj.do_check_combo_arg = true;
             end
         end
-        function nd = get.NUM_DIMS(~)
-            nd =3;
-        end
+
         function [nd,sz] = dimensions(obj)
             nd = 3;
             sz = obj.axes_.data_nbins;
         end
-        % actual plotting interface:
-        %------------------------------------------------------------------
-        % PLOT:
-        %[figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
-        varargout = sliceomatic(w, varargin);
-        %[figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin);
-        varargout = sliceomatic_overview(w,varargin);
-
     end
 end

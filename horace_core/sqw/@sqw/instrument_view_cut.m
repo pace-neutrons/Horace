@@ -51,7 +51,7 @@ if n_bins_arguments <2 || (n_bins_arguments >=2 && isempty(argi{1}))
     theta_bin = [0,1,140]; % do we have inelastic instrument with coverage larger then 140%?
 else
     theta_bin = argi{1};
-    if numel(theta_bin) ==1
+    if isscalar(theta_bin)
         theta_bin = [0,theta_bin,140];
     end
 end
@@ -72,7 +72,7 @@ if n_bins_arguments <3 || (n_bins_arguments>=3 && isempty(argi{2}))
     end
 else
     en_bin = argi{2};
-    if numel(en_bin) == 1
+    if isscalar(en_bin)
         en_bin = [en_range(1)+0.5*en_bin,en_bin,en_range(2)-0.5*en_bin];
     end
 end

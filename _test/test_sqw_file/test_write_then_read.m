@@ -105,7 +105,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
                     if matlab_version_num() < 24.01
                         open_fids = fopen('all');
                     else
-                        open_fids = openFiles();
+                        open_fids = openedFiles();
                     end
                     for i = 1:numel(open_fids)
                         fpath = fopen(open_fids(i));

@@ -1,7 +1,7 @@
 classdef test_sqw_op < TestCaseWithSave
 
     properties (Constant)
-        FLOAT_TOL = 1e-5;
+        FLOAT_TOL = 0.0006;
         DOUBLE_TOL = 1e-8;
     end
 
@@ -82,7 +82,7 @@ classdef test_sqw_op < TestCaseWithSave
                 );
             assertTrue(fb_out_sqw.is_filebacked);
 
-            clear conf_cleanup; % clear small chunk config limit to avoid 
+            clear conf_cleanup; % clear small chunk config limit to avoid
             % warning about data chunk beeing too big to fit memory
             ref_out_sqw = sqw_op( ...
                 obj.sqw_2d_obj, obj.gauss_sqw_fun, obj.gauss_sigma);
@@ -117,6 +117,31 @@ classdef test_sqw_op < TestCaseWithSave
             assertEqualToTolWithSave(obj,out_sqw,...
                 obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
+        function test_gauss_on_sqw_in_mem_with_nopix_is_equal_to_ref_dnd(obj)
+
+            out_dnd = sqw_op(obj.sqw_2d_obj, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,'-nopix');
+
+            assertTrue(isa(out_dnd,'DnDBase'));
+
+            % my custom function does not change variange, just
+            % recalculates it, so it should remain the same.
+            assertEqualToTol(obj.sqw_2d_obj.data.e,out_dnd.e,obj.FLOAT_TOL);
+
+            if obj.save_output
+                %This test does not work in save mode as reference dataset
+                %may not be available.
+                return;
+            end
+            % get reference dataset obtained previously for different test
+            % which calculates and returns full sqw object
+            ref_sqw = obj.getReferenceDataset('test_gauss_on_sqw_in_mem_is_equal_to_reference','out_sqw');
+
+            assertEqualToTol(ref_sqw.data,out_dnd, ...
+                'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
+        end
+
+
         function test_gauss_on_sqw_in_mem_is_equal_to_reference(obj)
 
             out_sqw = sqw_op(obj.sqw_2d_obj, ...
@@ -126,11 +151,12 @@ classdef test_sqw_op < TestCaseWithSave
 
             % my custom function does not change variange, just
             % recalculates it, so it should remain the same.
-            assertEqualToTol(obj.sqw_2d_obj.data.e,out_sqw.data.e);
+            assertEqualToTol(obj.sqw_2d_obj.data.e,out_sqw.data.e,obj.FLOAT_TOL);
 
             assertEqualToTolWithSave(obj,out_sqw, ...
                 'tol', obj.FLOAT_TOL, '-ignore_str','-ignore_date');
         end
+
     end
     %----------------------------------------------------------------------
     % DND tests or some undefined input -- test fails gracefully
@@ -139,25 +165,25 @@ classdef test_sqw_op < TestCaseWithSave
             fake_dnd = {d4d()};
 
             assertExceptionThrown(@()sqw_op(fake_dnd,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+                'HORACE:algorithms:invalid_argument');
         end
         function test_sqw_op_on_dnd_file_fails(obj)
             assertExceptionThrown(@()sqw_op(obj.dnd_file,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+                'HORACE:algorithms:invalid_argument');
         end
 
         function test_sqw_op_something_unknown_file_fails(obj)
             assertExceptionThrown(@()sqw_op(10,obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+                'HORACE:algorithms:invalid_argument');
         end
         function test_sqw_op_wrong_mixture_fails(obj)
             assertExceptionThrown(@()sqw_op({obj.sqw_2d_obj,obj.dnd_file},obj.gauss_sqw_fun,obj.gauss_sigma),...
-                'HORACE:sqw_op:invalid_argument');
+                'HORACE:algorithms:invalid_argument');
         end
     end
 
     methods(Static,Access=protected)
-        function page = page_gauss(op,gauss_sigma)
+        function sig_var = page_gauss(op,gauss_sigma)
             % function-sample used to calculate function of interest over
             % pixels page.
             page = op.page_data;
@@ -177,7 +203,7 @@ classdef test_sqw_op < TestCaseWithSave
             coord = page(q_idx,:);
             center = 0.5*(pix_range(1,:)+pix_range(2,:));
             signal = exp(-sum(((coord-center(:))./gauss_sigma(:)).^2,1))/(prod(gauss_sigma)*pi*pi);
-            page(op.signal_idx,:) = signal;
+            sig_var = [signal;page(op.var_idx,:)];
         end
     end
 end

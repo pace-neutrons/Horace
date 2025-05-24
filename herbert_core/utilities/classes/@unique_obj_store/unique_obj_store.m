@@ -129,7 +129,7 @@ classdef unique_obj_store<handle
             %
             % 'clear' -- removes all unique objects from memory.
             %         Invalidates all unuque_references_containers which
-            %         use these obhects.
+            %         use these objects.
             % DANGEROUS OPTION! normally should use Matlab's "clear all"
             %         instead.
             %

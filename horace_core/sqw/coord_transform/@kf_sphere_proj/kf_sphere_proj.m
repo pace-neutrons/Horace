@@ -113,6 +113,9 @@ classdef kf_sphere_proj<sphere_proj
             if nargin>0
                 obj = obj.init(varargin{:});
             end
+            % Disable pixels preselection, as this projection can not do
+            % inverse image->pixels transformation correctly.
+            obj.disable_pix_preselection = true;
         end
         function obj = copy_proj_param_from_source(obj,cut_source)
             % overloaded aProjectionBase method, which sets up

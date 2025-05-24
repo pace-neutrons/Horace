@@ -24,13 +24,7 @@ function wout=apply_mag_ff(self,win)
 % * Subsequent appliations of apply_mag_ff and correct_mag_ff  should return
 %   initial dataset (within the round-off errors caused by multiplitation and then
 %   division by the same (often large or small) numbers.
-
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-
-
-
 %
 % conversion factor to change from rlu to wave-vector in A^(-1)
 %

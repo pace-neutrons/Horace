@@ -61,7 +61,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     %----------------------------------------------------------------------
     % PageOp abstract protected methods
     methods (Abstract, Access = protected)
-        wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i,varargin);
+        wout = sqw_eval_pix(wout, sqwfunc, pars,options,i,varargin);
         % REDUNDANT METHOD to remove
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
@@ -168,17 +168,12 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     methods (Access = protected)
         wout = unary_op_manager(w, operation_handle);
         %
-        function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
-            % Process arguments of func_eval function
-            [func_handle, pars, opts] = parse_funceval_args_(win, func_handle, pars, varargin{:});
-        end
-
-        wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
+        wout = sqw_eval_nopix(win, sqwfunc, pars, options); % evaluate function
         % on an image stored in an sqw object
 
         function [func_handle, pars, opts] = parse_eval_args(win, ...
                 func_handle, pars, varargin)
-            % parser for funceval function input parameters
+            % parser for funceval, sqw_eval and sqw_op algorithms input parameters
             [func_handle, pars, opts] = parse_eval_args_(win, func_handle, ...
                 pars, varargin{:});
         end
