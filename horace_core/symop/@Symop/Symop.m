@@ -243,7 +243,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     offset_new = proj.offset(:);
                     proj = lp.set_directions(u_new, v_new, [], offset_new);
 
-                case {'sphere_proj','cylinder_proj'}
+                case {'sphere_proj','cylinder_proj','kf_sphere_proj'}
                     if ~isa(obj,'SymopIdentity')
                         error('HORACE:Symop:not_implemented', ...
                             'Symmetry operation %s is not yet implemented for %s', ...

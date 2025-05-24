@@ -47,7 +47,7 @@ npix = zeros(sz1);
 sproj = obj.data.proj;
 saxes = obj.data.axes;
 
-if numel(obj.data.npix) == 1 % single bin original grid
+if isscalar(obj.data.npix) % single bin original grid
     block_starts = 1;
     block_sizes = obj.data.npix;
 else
@@ -259,7 +259,7 @@ for iter = 1:num_chunks
     end
 end  % loop over pixel blocks
 
-% store partial pixel_blocks remaining memory to tmp files if some files
+% store partial pixel_blocks remaining in memory to tmp files if some files
 % were written or collect together data stored in memory.
 % return pix_out which is either pixfile_combine_info or PixelDataMemory
 % depending on how many pixels were extracted.

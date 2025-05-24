@@ -78,7 +78,7 @@ if v.num_pixels > 0
     pix_mem_retained{n_mem_blocks} = v;    % accumulate pixels into buffer array
     pix_mem_ix_retained{n_mem_blocks} = ix_add;
 
-    pix_comb_info.data_range = minmax_ranges(pix_comb_info.data_range,pix_mem_retained{n_mem_blocks}.data_range);
+    pix_comb_info.data_range = minmax_ranges(pix_comb_info.data_range,v.data_range);
 end
 
 if n_pix_in_memory>= max_buf_size % flush pixels in file

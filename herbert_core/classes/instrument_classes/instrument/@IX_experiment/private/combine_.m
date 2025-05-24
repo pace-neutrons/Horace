@@ -6,7 +6,7 @@ function [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_
 %
 % Inputs:
 % obj             -- single instance or array of IX_experiment objects
-% exper_cellarray -- cellarray containing IX_experiments arrays
+% exper_cellarray -- cellarray containing IX_experiment arrays
 %                    or Experiment classes to combine their IX_experiments
 %                    into obj.
 % allow_eq_headers-- if true, headers with the same runid and
@@ -15,7 +15,7 @@ function [obj,file_id_array,skipped_inputs,this_runid_map] = combine_(obj,exper_
 %                    throws HORACE:IX_experiment:invalid_argument
 %                    if the IX_experiment have the same run_id
 %                    and the same values.
-% keep_runid      -- true if run_id-s stored in input IX_experiment-s 
+% keep_runid      -- true if run_id-s stored in input IX_experiment-s
 %                    should be kept or false if final obj run_id should be
 %                    recalculated starting from 1 to number of kept runs.
 % WARNING:        -- run_id(s) modified if keep_runid == false
@@ -95,17 +95,17 @@ for i=1:n_exper_to_add
     skipped_input = false(1,n_runs);
     for j=1:n_runs
         ic = ic+1;
-        % extract particular IX_experiments to check for addition
+        % extract particular IX_experiment to check for addition
         add_IX_exper      = add_exper(j);
         % hash will be used either forever in a future, or in comparison below.
-        add_IX_exper      = add_IX_exper.build_hash();        
+        add_IX_exper      = add_IX_exper.build_hash();
         run_id            = add_IX_exper.run_id;
         file_id_array(ic) = run_id; % this is run_id for current IX_experiment
 
         if this_runid_map.isKey(run_id) % run_id is already added to combine.
             % check if runs with the same run_id contain the same
             % IX_experiments
-            present_run_pos  = this_runid_map(run_id);
+            present_run_pos  = this_runid_map.get(run_id);
             present_IX_exper = base_runs{present_run_pos};
 
             [present_IX_exper,~,is_new] = present_IX_exper.build_hash();
@@ -138,7 +138,7 @@ for i=1:n_exper_to_add
         end
         % store new unique run to add to existing ones
         n_existing_runs           = n_existing_runs+1;
-        this_runid_map(run_id)    = n_existing_runs;
+        this_runid_map            = this_runid_map.add(run_id,n_existing_runs);
 
         base_runs{n_existing_runs}= add_IX_exper;
     end
@@ -171,16 +171,11 @@ function [obj,id_map,id_array] = recalc_runid(obj,id_map,file_id_array)
 %             replaced by new run_id
 %
 
-id_array = zeros(1,numel(file_id_array));
-for i=1:numel(file_id_array)
-    id_array(i) = id_map(file_id_array(i));
-end
-%
+id_array = id_map.get_values_for_keys(file_id_array);
 ids = 1:numel(obj);
-id_map = containers.Map(ids,ids);
-
+id_map = fast_map(ids,ids);
+%
 for i=1:numel(obj)
     obj(i).run_id = i;
 end
 end
-
