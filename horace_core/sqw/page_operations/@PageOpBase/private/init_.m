@@ -5,13 +5,20 @@ function obj = init_(obj,in_obj)
 obj.pix_data_range_ = PixelDataBase.EMPTY_RANGE;
 
 %
-if ~obj.inplace
+if ~(obj.inplace || obj.do_nopix_)
     obj.write_handle_ = in_obj.get_write_handle(obj.outfile);
+    if in_obj.is_filebacked
+        obj.init_filebacked_output = true;
+    end
 end
 
 if isa(in_obj ,'PixelDataBase')
     obj.pix_             = in_obj;
     obj.img_             = [];
+    if obj.do_nopix_
+        error('HORACE:PageOpBase:invalid_argument', ...        
+            '-nopix option provided to pageOp but input contans pixels only. Can not continue.');
+    end
 elseif isa(in_obj,'sqw')
     obj.img_             = in_obj.data;
     obj.pix_             = in_obj.pix;

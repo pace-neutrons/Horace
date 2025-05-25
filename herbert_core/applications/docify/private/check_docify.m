@@ -1,14 +1,17 @@
 function out = check_docify(topic)
-    persistent isR2023
-    if isempty(isR2023)
+% Check if function contains docify information on the topic, provided as
+% input
+%
+    persistent lessThanR2023
+    if isempty(lessThanR2023)
         try
             matlab.internal.language.introspective.resolveName('');
-            isR2023 = true;
+            lessThanR2023 = true;
         catch
-            isR2023 = false;
+            lessThanR2023 = false;
         end
     end
-    if isR2023
+    if lessThanR2023
         resolveName = @(topic) matlab.internal.language.introspective.resolveName(topic, '', false, [], false);
     else
         resolveName = @matlab.lang.internal.introspective.resolveName;
@@ -28,6 +31,14 @@ function out = check_docify(topic)
     if ~contains(lower(filepath), 'herbert') && ...
        ~contains(lower(filepath), 'horace'), return; end
     fid = fopen(filepath);
+    % in higher Matlab versions resolver return child class name if you call
+    % function defined on parent. (e.g. sqw_eval is defined on SQWDnDBase
+    % but if you ask help sqw/sqw_eval resolver will correctly return name
+    % as the function is defined on sqw from inheritance). 
+    % To avoid error about missing file, ignore docify info in such cases
+    if fid<1
+        return;
+    end
     mfiletxt = fread(fid, '*char')';
     fclose(fid);
     % Check for docify tags

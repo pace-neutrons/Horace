@@ -1,4 +1,4 @@
-function obj = sqw_eval_nopix(obj, sqwfunc, all_bins, pars)
+function obj = sqw_eval_nopix(obj, sqwfunc,pars,options )
 % SQW_EVAL_NOPIX
 %
 % Helper function for sqw eval executed on a pixel-less object (i.e. DnD or SQW with no pixels
@@ -15,6 +15,6 @@ function obj = sqw_eval_nopix(obj, sqwfunc, all_bins, pars)
 %
 %=================================================================
 for i=1:numel(obj)
-    obj(i).data = obj(i).data.sqw_eval_nopix(sqwfunc, all_bins, pars);
+    obj(i).data = obj(i).data.sqw_eval_nopix(sqwfunc,pars,options);
 end
 

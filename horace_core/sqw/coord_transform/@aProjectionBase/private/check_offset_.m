@@ -8,7 +8,7 @@ elseif isnumeric(offset)
         off=[offset(:);0]';
     elseif numel(offset)==4
         off=offset(:)';
-    elseif numel(offset) == 1
+    elseif isscalar(offset)
         off = ones(1,4)*offset;
     else
         error('HORACE:aProjectionBase:invalid_argument',...
