@@ -96,8 +96,8 @@ classdef oriented_lattice < Goniometer
         % calculate u and ub matrix
         [ub,umat] = ubmatrix(obj,varargin)
         % Calculate matrix used to convert momentum from coordinates in
-        % spectrometer frame to crystal Cartesian system.
-        [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (obj)
+        % spectrometer frame to crystal Cartesian system and related systems.
+        mat = calc_proj_matrix (obj,n_matrix)
         %------------------------------------------------------------------
         function obj = init(obj,varargin)
             if nargin == 1

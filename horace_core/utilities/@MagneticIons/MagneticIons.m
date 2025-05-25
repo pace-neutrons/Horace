@@ -18,6 +18,9 @@ classdef MagneticIons
     %                   to the dataset provided as input.
     % correct_mag_ff  - correct given dataset for magnetic form factor of
     %                   the particular ion, defined earlier.
+    % get_fomFactor_fh- Return cellarray of 4 function handles to functions 
+    %                   used to calculate magnetic form factor of a specific
+    %                   magnetic ion.    
     %----------------------------------------------------------------------
     %
     % Auxiliary methods:
@@ -49,8 +52,8 @@ classdef MagneticIons
         % handles to functions calculating magnetic momentums of
         % appropriate order for current ion.
         J0_ff_;J2_ff_;J4_ff_;J6_ff_;
-        % 
-        proj_ % the instance of the projection which converts hkl values into 
+        %
+        proj_ % the instance of the projection which converts hkl values into
         % Crystal Cartesian coordinate system
     end
 
@@ -80,9 +83,10 @@ classdef MagneticIons
         out=calc_mag_ff(self,win)
         % Apply magnetic form factor to the dataset provided as input
         out=apply_mag_ff(self,win)
-        % retrieve cellarray of function handles, used to calculate magnetic
-        % form factor of the selected magnetic ion.
-        [J0_ff,varargout] = getInterpolant(self,IonName)
+        % Return cellarray fh of function handles used to calculate magnetic form factor.
+        % Method returns cellarray of 4 function handles, used for calculating Magnetic
+        % form factor of a specific magnetic ion.
+        [fh,self] = get_fomFactor_fh(self,varargin);
         % return function hanlde to calculate magnetic form factor on
         % q-vector in hkl units  of the sqw or dnd object provided
         fint = getFF_calculator(self,win)
@@ -106,6 +110,11 @@ classdef MagneticIons
             % Method returns list of ion names defined by the class
             ionNames = self.Ions_;
         end
+    end
+    methods(Static)
+        % retrieve cellarray of function handles, used to calculate magnetic
+        % form factor of the selected magnetic ion.
+        [J0_ff,varargout] = getInterpolant(self,IonName)
     end
     properties(Constant, Access=private)
         % supported ions
@@ -601,6 +610,4 @@ classdef MagneticIons
 
         IonParMap_=containers.Map(MagneticIons.Ions_,MagneticIons.IonParams_);
     end
-
-
 end
