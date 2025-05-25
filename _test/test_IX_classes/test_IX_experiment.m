@@ -47,8 +47,8 @@ classdef test_IX_experiment <  TestCase
 
             keys = this_runid_map.keys();
             for i=1:numel(keys)
-                id = this_runid_map(keys{i});
-                assertEqual(result(id).run_id,keys{i});
+                id = this_runid_map.get(keys(i));
+                assertEqual(result(id).run_id,keys(i));
             end
         end
 
@@ -73,8 +73,8 @@ classdef test_IX_experiment <  TestCase
 
             keys = this_runid_map.keys();
             for i=1:numel(keys)
-                id = this_runid_map(keys{i});
-                assertEqual(result(id).run_id,keys{i});
+                id = this_runid_map.get(keys(i));
+                assertEqual(result(id).run_id,keys(i));
             end
         end
         function test_combine_empty_change_ID(~)
@@ -123,8 +123,8 @@ classdef test_IX_experiment <  TestCase
 
             keys = this_runid_map.keys();
             for i=1:numel(keys)
-                id = this_runid_map(keys{i});
-                assertEqual(result(id).run_id,keys{i});
+                id = this_runid_map.get(keys(i));
+                assertEqual(result(id).run_id,keys(i));
             end
         end
 
@@ -147,8 +147,8 @@ classdef test_IX_experiment <  TestCase
 
             keys = this_runid_map.keys();
             for i=1:numel(keys)
-                id = this_runid_map(keys{i});
-                assertEqual(result(id).run_id,keys{i});
+                id = this_runid_map.get(keys(i));
+                assertEqual(result(id).run_id,keys(i));
             end
         end
 
@@ -174,8 +174,8 @@ classdef test_IX_experiment <  TestCase
 
             keys = this_runid_map.keys();
             for i=1:numel(keys)
-                id = this_runid_map(keys{i});
-                assertEqual(result(id).run_id,keys{i});
+                id = this_runid_map.get(keys(i));
+                assertEqual(result(id).run_id,keys(i));
             end
         end
         function test_combine_empty(~)
@@ -226,8 +226,8 @@ classdef test_IX_experiment <  TestCase
 
             keys = this_runid_map.keys();
             for i=1:numel(keys)
-                id = this_runid_map(keys{i});
-                assertEqual(result(id).run_id,keys{i});
+                id = this_runid_map.get(keys(i));
+                assertEqual(result(id).run_id,keys(i));
             end
         end
         %==================================================================
