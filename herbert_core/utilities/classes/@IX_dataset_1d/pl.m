@@ -1,5 +1,5 @@
 function varargout = pl(w,varargin)
-% Overplot line for a spectrum or array of spectra on an existing plot
+% Overplot line of an IX_dataset_1d object or array of objects on an existing plot.
 %
 %   >> pl(w)
 %
@@ -10,9 +10,8 @@ function varargout = pl(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = pl(w,...) 
 
+new_axes = false;
+force_current_axes = false;
 
-[fig_,axes_,plot_] = overplot_1d_nd_(w,'l',varargin{:});
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'l', varargin{:});

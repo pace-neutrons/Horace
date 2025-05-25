@@ -15,19 +15,11 @@ mem_contents.inst = unique_obj_store.instance().get_objects('IX_inst');
 mem_contents.samp = unique_obj_store.instance().get_objects('IX_samp');
 mem_contents.det  = unique_obj_store.instance().get_objects('IX_detector_array');
 
-unique_obj_store.instance().clear('IX_inst');
-unique_obj_store.instance().clear('IX_samp');
-unique_obj_store.instance().clear('IX_detector_array');
+%unique_obj_store.instance().clear('IX_inst');
+%unique_obj_store.instance().clear('IX_samp');
+%unique_obj_store.instance().clear('IX_detector_array');
 
 cleanup_handle = onCleanup(@() restore(mem_contents));
-% stop changes from being stored on disk.
-config_instance.saveable = false;
-
-for i = 1:2:numel(varargin)
-    config_field = varargin{i};
-    value = varargin{i + 1};
-    config_instance.(config_field) = value;
-end
 
 end
 

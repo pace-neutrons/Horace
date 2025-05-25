@@ -69,11 +69,27 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
 
             n_pixels = sqw_in.npixels;
             mcs = floor(n_pixels)/6; % define 6 pages, 3 pages in memory --
-            %will make object filebacked
+            %will make object filebacked with 2 tmp files to combine.
             clOb =set_temporary_config_options(hor_config, ...
                 'mem_chunk_size',mcs,'fb_scale_factor',3);
-
             out_sqw = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, 0);
+            % ensure temporary files used for combining pixels get deleted
+            % when algorithm finishes
+            tmp_dir = get(parallel_config,'working_directory');
+            all_files = dir(tmp_dir);
+
+            offenders_name = [];
+            for i=1:numel(all_files)
+                if(all_files(i).isdir);continue;end
+                if contains(all_files(i).name,'page_op_bin_pixels_part')
+                    offenders_name  = all_files(i).name;
+                end
+            end
+            assertTrue(isempty(offenders_name),[ ...
+                ' Temporary file: ',offenders_name, ...
+                ' used for combining target file ',out_sqw.full_filename, ...
+                ' have not been deleted'])
+
             out_dnd = sqw_op_bin_pixels(obj.sqw_2d_file, obj.fold_dataX_fun, 0,'-nopix');
             assertEqualToTol(out_sqw.data,out_dnd,1.e-7,'-ignore_str','-ignore_date');
             assertEqualToTol(ref_sqw.data,out_dnd,1.e-7,'-ignore_str','-ignore_date');

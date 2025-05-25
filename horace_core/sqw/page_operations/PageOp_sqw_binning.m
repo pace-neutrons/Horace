@@ -58,7 +58,8 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             if pop_options.nopix && obj.init_filebacked_output
                 % This is because sqw_eval does not support -nopix
                 % Until it does not support it, we should deal
-                % with it here.
+                % with it here. Close standard PageOp output channel, as
+                % this algorithm uses its own.
                 obj.init_filebacked_output = false;
                 if ~isempty(obj.write_handle_)
                     obj.write_handle_.delete();
@@ -116,7 +117,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % store modified pixels
             wk_dir = get(parallel_config, 'working_directory');
             n_files = numel(npix_chunks);
-            tmp_file_names = gen_unique_file_paths(n_files, 'horace_cut', wk_dir);
+            tmp_file_names = gen_unique_file_paths(n_files, 'page_op_bin_pixels_part', wk_dir);
 
             nbins = numel(obj.npix_acc_);
             obj.pix_combine_info_ = pixfile_combine_info(tmp_file_names, nbins);
@@ -238,6 +239,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %
             % transfer image modifications to the underlying object.
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_,obj.npix_acc_);
+            pix_cmbn_info = [];
             if ~isempty(obj.pix_combine_info_)
                 % finalize pixel combining procedure; write all pixels
                 % still in memory into appropriate tmp files. set up output
@@ -245,24 +247,24 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 % information about tmp files combining
                 obj.pix_ = cut_data_from_file_job.accumulate_pix( ...
                     obj.pix_combine_info_, true,[],[],obj.npix_acc_);
+                % if all resulting objects were held in memory and nothing
+                % was stored in tmp files yet, the operation above have
+                % combined them without storing data
+                % in tmp files. in this case, all have been already done.
                 if isa(obj.pix_,'MultipixBase')
-                    combine_pixels = true;
-                else
-                    % if all resulting objects were held in memory and nothing
-                    % was stored in tmp files yet, the operation above have
-                    % combined them without storing data
-                    % in tmp files. in this case, all have been already done.
-
-                    combine_pixels = false;
+                    pix_cmbn_info = obj.pix_;
                 end
-            else
-                combine_pixels = false;
             end
             % if filebacked, this will create sqw object with
             % combine_pixel_data object in sqw_obj.pix_ field
             [out_obj,obj] = obj.finish_core_op(out_obj);
+            if ~isempty(obj.outfile)
+                % set up target filename if it is present regardless
+                % of was file saved on disk or not
+                out_obj.full_filename = obj.outfile;
+            end
             %
-            if ~combine_pixels
+            if isempty(pix_cmbn_info)
                 return
             end
             if isa(out_obj.pix,'PixelDataMemory') % source filebacked object
@@ -282,6 +284,8 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             [page_op,out_obj] = page_op.init(out_obj,[],use_mex);
             out_obj           = sqw.apply_op(out_obj,page_op);
             cut_data_from_file_job.accumulate_pix('cleanup');
+            % ensure all tmp files combined by PageOp_join_sqw get deleted
+            pix_cmbn_info.clean_up_tmp_files();
         end
         %------------------------------------------------------------------
     end

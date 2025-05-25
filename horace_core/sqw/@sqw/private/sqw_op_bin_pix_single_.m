@@ -1,7 +1,7 @@
 function obj = sqw_op_bin_pix_single_(obj, sqwfunc, pars,targ_ax_block,targ_proj,opts,i)
 %==================================================================================================
 % SQW_OP_BIN_PIXELS_SINGLE_
-% Helper function for sqw_op_bin_pixels executed on a full sqw object 
+% Helper function for sqw_op_bin_pixels executed on a full sqw object
 % containing pixels.
 %
 % Called by `sqw_op_bin_pixels` defined in sqw object
@@ -21,7 +21,7 @@ function obj = sqw_op_bin_pix_single_(obj, sqwfunc, pars,targ_ax_block,targ_proj
 %             algorithm behaviour. The used properties of these
 %             parameters (fields of the structure) are@
 %   .outfile  -- The file used for outputting filebacked result
-%   .thePageOpProcessor 
+%   .thePageOpProcessor
 %            -- if not empty, a child of PageOp_sqw_op class, which
 %               provides additional features to PageOp_sqw_op operations
 %               if empty, basic PageOp_sqw_op class will be used.
@@ -33,9 +33,11 @@ function obj = sqw_op_bin_pix_single_(obj, sqwfunc, pars,targ_ax_block,targ_proj
 %==================================================================================================
 
 if isempty(opts.pageop_processor)
-    rebin_op = PageOp_sqw_binning();
+    rebin_op = PageOp_sqw_binning(); % standard sqw_bin_pixel algorithm
 else
-    rebin_op = opts.pageop_processor;    
+    % allow to use undocumented page_processor inheriting from sqw_op
+    % (Advanced debugging, future development)
+    rebin_op = opts.pageop_processor;
 end
 % file have to be set first to account for the case infile == outfile
 if ~isempty(opts.outfile{i})

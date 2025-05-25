@@ -43,13 +43,5 @@ classdef d3d < DnDBase
             nd = 3;
             sz = obj.axes_.data_nbins;
         end
-        % actual plotting interface:
-        %------------------------------------------------------------------
-        % PLOT:
-        %[figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
-        varargout = sliceomatic(w, varargin);
-        %[figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin);
-        varargout = sliceomatic_overview(w,varargin);
-
     end
 end
