@@ -97,7 +97,7 @@ classdef test_TestPerformance < TestCase
         end
 
         %
-        function test_suite_name_is_computer_name_and_test_class_name_for_herbert(~)
+        function test_suite_name_is_cmptr_name_and_test_class_name_for_herbert(~)
             clob = set_temporary_config_options(parallel_config, 'parallel_cluster', 'herbert');
 
             tc = pTestPerformanceTester();

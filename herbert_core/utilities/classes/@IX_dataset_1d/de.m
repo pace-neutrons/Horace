@@ -1,5 +1,5 @@
 function varargout = de(w,varargin)
-% Draws a plot of error bars of a spectrum or array of spectra
+% Draws a plot of error bars of an IX_dataset_1d object or array of objects.
 %
 %   >> de(w)
 %   >> de(w,xlo,xhi)
@@ -9,13 +9,10 @@ function varargout = de(w,varargin)
 %   >> de(w,...,'name',fig_name)        % draw with name = fig_name
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = de(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = de(w,...)
 
+new_axes = true;
+force_current_axes = false;
 
-
-[fig_,axes_,plot_] = plot_1d_nd_(w,'e',varargin{:});
-
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'e', varargin{:});

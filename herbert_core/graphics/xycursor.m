@@ -1,5 +1,5 @@
 function [x,y]=xycursor (rot)
-% Place cross-hairs on a plot and prompt to write x, y, (x,y) or text to be written at a mouse click
+% Place cross-hairs on a plot and prompt to write x, y, (x,y) or text on the plot
 %
 %   >> xycursor
 %   >> xycursor('v')          % numerical values and text are drawn vertically.

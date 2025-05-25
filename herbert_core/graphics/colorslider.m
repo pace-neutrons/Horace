@@ -1,24 +1,57 @@
 function colorslider(varargin)
-% Add a color slider to a plot
+% Add, update or delete a colorslider to a graphics figure
 %
-%   >> colorslider                  % add to current figure
-%   >> colorslider (fig)            % add to named or numbered figure
+% A colorslider is a colorbar (as created by the Matlab colorbar function)
+% together with (1) boxes to edit the minimum and maximum values for the
+% colorscale and (2) a slider adjacent to each of those boxes to enable those
+% values to be increased or decreased by clicking on those arrows.
 %
-%   >> colorslider ('delete')       % delete colorslider from current figure
-%   >> colorslider ('update')       % update colorslider on current figure
-%                                    (use if resize the figure, to reshape slider boxes)
-%   >> colorslider (fig,'delete')   % delete colorslider from named or numbered figure
-%   >> colorslider (fig,'update')   % update colorslider on named or numbered figure
+% Syntax:
+% -------
+% Add to the current axes of the current figure:
+%
+%   >> colorslider              % Add a colorslider to the current axes.
+%                               % Update all the existing colorbar, if already present
+%
+%   >> colorslider ('update')   % Update all colorsliders on current figure, if
+%                               % already present
+%                               % (use if resize the figure, to reshape slider boxes)
+%
+%   >> colorslider ('cleanup')  % Cleanup any orphaned sliders and edit boxes
+%                               % on the entire figure
+%
+%   >> colorslider ('delete')   % Delete colorslider, if present
 %
 %
-% NOTE: flaw in syntax: cannot add a colorslider to a figure with the name
-%       'delete' or 'update' - unlikely to happen, but poor anyway!
+% Add to specified axes:
+%
+%   >> colorslider (axes_handle)
+%   >> colorslider (axes_handle, 'update')
+%   >> colorslider (axes_handle, 'cleanup')
+%   >> colorslider (axes_handle, 'delete')
+%
+%   The axes_handle could be to other axes on the current figure, or to axes on
+%   another figure entirely. This is particularly useful when there are several
+%   subplots on figures; if the axes handles have been previously stored then a
+%   colorbar can be added without changing the focus of the current axes and
+%   then returning it again.
+%
+%   [This syntax mirrors that of the Matlab function colorbar in that by default
+%   the colorbar is plotted on the current axes of the current figure, but if
+%   alternative target axes are given on the figure is given that supports a
+%   colorbar then it will be plotted there.]
 
-% Adapted from script by Radu Coldea 02-Oct-1999, by Dean Whittaker 2-2-2007, and then Toby Perring
+
+% Adapted from script by Radu Coldea 02-Oct-1999, by Dean Whittaker 2-2-2007,
+% and then Toby Perring
+
 
 % Parse arguments
 if nargin>=1 && is_stringmatchi(varargin{end},'delete')
     option='delete';
+    narg=nargin-1;
+elseif nargin>=1 && is_stringmatchi(varargin{end},'cleanup')
+    option='cleanup';
     narg=nargin-1;
 elseif nargin>=1 && is_stringmatchi(varargin{end},'update')
     option='update';
@@ -28,110 +61,66 @@ else
     narg=nargin;
 end
 
+
+% If there is no current figure, then one is created with the default axes by a
+% call to Matlab function gca. if there is a current figure, but it has no axes,
+% then axes are created on that figure.by the call to gca. This seems to be the
+% way that colorbar works, which we are aiming to mimic.
 if narg==0
-    fig=[];
+    axes_handle = gca;
 elseif narg==1
-    fig=varargin{1};
+    if ~(isscalar(varargin{1}) && isgraphics(varargin{1}, 'axes'))
+        error('HERBERT:graphics:invalid_argument', ...
+            'The target for a colorslider must be a valid axes object')
+    end
+    axes_handle = varargin{1};
 else
-    error('Check number and type of input arguments')
+    error('HERBERT:graphics:invalid_argument', ...
+        'Check number and type of input arguments')
 end
+fig_handle = ancestor(axes_handle, 'figure');
 
-% Determine figure handle
-[fig_handle,ok,mess]=get_figure_handle_single(fig);
-if ~ok
-    error([mess,'; cannot create/edit colorslider.'])
-end
 
-% Get various handles for the figure
-[fig_handle, axes_handle] = genie_figure_all_handles (fig);
-
-% Check for current sliders and boxes (if handle is empty, then delete does not cause error)
-curr_colorbar = findobj(fig_handle,'tag','Colorbar');
-curr_slider_min = findobj(fig_handle,'tag','color_slider_min');
-curr_slider_max = findobj(fig_handle,'tag','color_slider_max');
-curr_slider_min_val = findobj(fig_handle,'tag','color_slider_min_value');
-curr_slider_max_val = findobj(fig_handle,'tag','color_slider_max_value');
-
-if ~isempty(curr_slider_min)||~isempty(curr_slider_max)||~isempty(curr_slider_min_val)||~isempty(curr_slider_max_val)
-    colorslider_exist=true;
-else
-    colorslider_exist=false;
-end
-
-% Switch on options (note:delete is silent if object does not exist)
-if numel(curr_colorbar)>0
-   delete(curr_colorbar);delete(curr_slider_min); delete(curr_slider_max);
-   delete(curr_slider_min_val);delete(curr_slider_max_val);
-end
-
+% Perform the appropriate colorslider operations according to the input option.
 switch option
     case 'create'
-        %do nothing
+        % Add a colorslider to the axes 
+        % That is, delete a colorbar or colorslider if present, and then create
+        % a colorslider regardless of whether or not one was present on entry.
+        colorslider_delete(axes_handle)
+        colorbar(axes_handle, 'off')    % delete any colorbar that is not part of a colorslider
+        colorslider_create(axes_handle)
+        
     case 'update'
-        if ~colorslider_exist
-            return  % no colorslider to update
+        % Update all colorsliders on the figure
+        % That is, delete and recreate on all axes where there is already a
+        % colorslider present on the axes.
+        axes_h = findobj(fig_handle, 'Type', 'Axes', '-depth', 1);
+        for h = make_row(axes_h)    % index to for loop needs to be a row vector
+            if ~isempty(colorbar_get_handle(h))
+                colorslider_delete(h)
+                colorbar(h, 'off')  % delete colorbar(s) not part of a colorslider
+                colorslider_create(h)
+            end
         end
+        
+    case 'cleanup'
+        % Delete any orphaned sliders and edit boxes that could have been left
+        % over if the Matlab function >> colorbar('off') was used. This will
+        % have deleted the colorbar, but not the sliders and edit boxes.
+        % This is performed for all axes on the figure, not just the current
+        % axes.
+        
+        % === Will be done on exit from this function
+
+        
     case 'delete'
-        return % already deleted above
-    otherwise
-        error('incorrect option given')
+        % Delete the colorslider on the axes, if present, but leave any colorbar
+        % that is not part of a colorslider.
+        colorslider_delete(axes_handle)
 end
 
-% Create colorslider
-i_min = [];
-i_max = [];
-for i = 1:length(axes_handle)
-    irange = get(axes_handle(i),'clim');
-    i_min = min([irange(1), i_min]);
-    i_max = max([irange(2), i_max]);
-end
-range = i_max-i_min;
 
-cbar_handle = colorbar;
-pos_h = get(cbar_handle,'position');    % get position of the colorbar
-
-% Get text size and font of colorbar annotations, and size of box that will take height of that text
-% (do this by plotting some text, and enquiring the extent)
-txtFont=get(cbar_handle,'FontName');
-txtSize=get(cbar_handle,'FontSize');
-htmp=text(0.9,0.9,'1234567890','FontName',txtFont,'FontSize',txtSize,'units','normalized');
-tmp=get(htmp,'Extent');         % in units normalised to graph having height 0->1
-delete(htmp);
-box_height=0.7*(tmp(4)/pos_h(4));     % normalised to same units as window itself, reduce as box is very generous
-slider_height=pos_h(4)/20;
-
-% bottom slider
-pos_lo_ed=[pos_h(1)+pos_h(3), pos_h(2), pos_h(3)*2.5, box_height];
-pos_lo_sl=[pos_h(1)+pos_h(3)*2, pos_h(2)+box_height, pos_h(3)*1.5, slider_height];
-hh=uicontrol(fig_handle,'Style','slider',...
-    'Units',get(cbar_handle,'Units'),'Position',pos_lo_sl,...
-    'Min',i_min-range/2,'Max',i_max-range*0.1,...
-    'SliderStep',[0.01/1.4*2 0.10/1.4],'Value',i_min,'Tag','color_slider_min','Callback','colorslider_command(gcf,''slider_min'')');
-% the SliderStep is adjusted such that in real terms it is [0.02 0.10] of the displayed intensity range
-
-val = get(hh,'Value');
-val = truncdig(val,3);
-
-hh_value=uicontrol(fig_handle,'Style','edit',...
-    'Units',get(cbar_handle,'Units'),'Position',pos_lo_ed,...
-    'String',num2str(val),'Tag','color_slider_min_value',...
-    'FontName',txtFont,'FontSize',txtSize,'HorizontalAlignment','left',...
-    'Callback','colorslider_command(gcf,''min'')');
-
-
-% top slider
-pos_hi_ed=[pos_h(1)+pos_h(3), pos_h(2)+pos_h(4)-box_height, pos_h(3)*2.5, box_height];
-pos_hi_sl=[pos_h(1)+pos_h(3)*2, pos_h(2)+pos_h(4)-box_height-slider_height, pos_h(3)*1.5, slider_height];
-hh=uicontrol(fig_handle,'Style','slider',...
-    'Units',get(cbar_handle,'Units'),'Position',pos_hi_sl,...
-    'Min',i_min+range*0.1,'Max',i_max+range/2,...
-    'SliderStep',[0.01/1.4*2 0.10/1.4],'Value',i_max,'Tag','color_slider_max','Callback','colorslider_command(gcf,''slider_max'')');
-
-val = get(hh,'Value');
-val = truncdig(val,3);
-
-hh_value=uicontrol(fig_handle,'Style','edit',...
-    'Units',get(cbar_handle,'Units'),'Position',pos_hi_ed,...
-    'String',num2str(val),'Tag','color_slider_max_value',...
-    'FontName',txtFont,'FontSize',txtSize,'HorizontalAlignment','left',...
-    'Callback','colorslider_command(gcf,''max'')');
+% Always do a cleanup, that is, delete any orphaned colorslider sliders and edit
+% boxes across the whole figure.
+colorslider_cleanup(fig_handle)
