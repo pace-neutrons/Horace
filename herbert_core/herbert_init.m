@@ -32,7 +32,6 @@ addgenpath_message (herbert_path,'utilities')
 
 % Graphics
 addgenpath_message (herbert_path,'graphics')
-genieplot_init
 
 % Applications definitions
 addgenpath_message (herbert_path,'applications')

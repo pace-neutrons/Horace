@@ -1,79 +1,58 @@
-function lc (clo, chi)
-% Change intensity limits on current figure if it is a surface or contour plot
+function varargout = lc (varargin)
+% Change colour scale limits for the current axes on the current figure.
 %
-%   >> lc (clo, chi)
-% or
+% Replot with change of limits:
+%   >> lc (clo, chi)    % Sets limits to clo to chi; the limits retained for
+%                       % further overplotting
+%   Equivalently:
 %   >> lc  clo  chi
 %
-%   >> lc    % set intensity limits to include all data
+% Change limits to autoscale to encompass all data:
+%   >> lc               % Set limits to match the range of the data.
+%                       % The limits automatically change to accommodate further
+%                       % overplotting
+%
+% Return current limits (without changing range):
+%   >> [clo, chi] = lc
+%
+% Replot several times with different limits in sequence:
+%   (Change limits to first pair [clo(1),chi(1)], then hit <CR> to change to the
+%   next pair in then sequence, [clo(2),chi(2)], and so on)
+%   >> lc (clo, chi)    % clo and chi are arrays with the same number of
+%                       % elements;
+%   Equivalently:
+%   >> lc  clo  chi
+%
+%   or, for backwards compatibility:
+%   >> lc ([clo1,chi2], [clo2,chi2],...)    % clo1, chi1, clo2, chi2... scalars
+%   >> lc ({[clo1,chi2],[clo2,chi2],...})   % equivalent syntax
 
 
-% Get figure
-if isempty(findall(0,'Type','figure'))
-    disp('No current figure - change intensity limits ignored')
-    return
-end
-
-% Find out if there is c data
-present = graph_range (gcf,'present');
-if ~present.c
-    error('No c range to change')
-end
-
-% Get intensity range
-if nargin==0 || (nargin==1 && ischar(clo))
-    % Get intensity axis limits for entire data range
-    [range,subrange] = graph_range(gcf,'evaluate');
-    crange=range.c;
-    
-    if crange(1)==crange(2)
-        error('The upper and lower limits of the data are equal')
-    end
-    
-    % Read 'round' from either function syntax or command syntax
-    if nargin==1
-        if strcmpi(clo,'round')
-            crange = round_range (crange);
-        else
-            error('Unrecognised option')
-        end
-    end
-    
-elseif nargin==2
-    % Read parameters from either function syntax or command syntax
-    crange=zeros(1,2);
-    if isnumeric(clo) && isscalar(clo)
-        crange(1)=clo;
-    elseif ~isempty(clo) && is_string(clo)
+% Resolve input arguments
+if nargin>0 && all(cellfun(@(x)(is_string(x) & ~isempty(x)), varargin))
+    % All input arguments are character vectors - the function could have
+    % been called with command syntax.
+    %
+    % The only valid case of command syntax where valid input arguments are not
+    % character strings is two arguments giving the lower and upper limits plot
+    % limits. It is only this case that needs to have evaluation in the caller
+    % workspace performed in order to resolve passed variable names or
+    % expressions.
+    if nargin==2
         try
-            crange(1) = evalin('caller',clo);
+            args = {evalin('caller',varargin{1}), evalin('caller',varargin{2})};
         catch
-            error('Check input arguments');
+            error('HERBERT:graphics:invalid_argument', ['Check there are ', ...
+                'two input arguments giving the lower and upper ranges']);
         end
     else
-        error('Check input arguments');
+        args = varargin;
     end
-    
-    if isnumeric(chi) && isscalar(chi)
-        crange(2)=chi;
-    elseif ~isempty(chi) && is_string(chi)
-        try
-            crange(2) = evalin('caller',chi);
-        catch
-            error('Check input arguments');
-        end
-    else
-        error('Check input arguments');
-    end
-    
-    if crange(1)>=crange(2)
-        error('Check clo < chi')
-    end
-    
 else
-    error 'Check number of input parameters'
+    % Must have been function syntax
+    args = varargin;
 end
 
-% Change limits
-set (gca, 'CLim', crange);
-colorslider('update')   % update colorslider, if present
+
+% Perform the operation
+[varargout{1:nargout}] = set_limits ('C', args{:});

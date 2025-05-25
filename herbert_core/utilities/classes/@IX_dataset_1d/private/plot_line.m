@@ -1,32 +1,37 @@
 function plot_line (w)
-% Plot lines
-
-line_width=get_global_var('genieplot','line_width');
-line_style=get_global_var('genieplot','line_style');
-color=get_global_var('genieplot','color');
+% Plot lines for an array of one-dimensional datasets
 
 nw = numel(w);
 
-[color,icol]       = types_list_(color,'colors',nw);
-[line_style,ilin]  = types_list_(line_style,'line_styles',nw);
+% Get relevant plot item properties (colours, lines, markers)
+color_cycle = genieplot.get('color_cycle');
+colors = genieplot.get('colors');
+line_styles = genieplot.get('line_styles');
+line_widths = genieplot.get('line_widths');
 
-iwid = mod(0:nw-1,length(line_width))+1;
+% Set indices for cycling through plot properties
+[icol, ilin, iwid] = property_index (nw, color_cycle, numel(colors), ...
+    numel(line_styles), numel(line_widths));
+
+% Loop over all datasets
 for i=1:nw
-    if i==2; hold on; end   % hold on for array input
-    x = w(i).x;
-    nx=length(x);
-    ny=length(w(i).signal_);
-    if (nx == ny)   % point data
-        temp=x;
-    else
-        temp=0.5*(x(2:nx) + x(1:nx-1));
+    % Ensure axes are held for plotting an array of datasets
+    if i==2
+        hold on
     end
-    plot(temp,w(i).signal_,'Color',color{icol(i)},'LineStyle',...
-        line_style{ilin(i)},'LineWidth',line_width(iwid(i)));
+    
+    % Get point positions
+    x = w(i).x;
+    nx = numel(x);
+    ny = numel(w(i).signal);
+    if nx==ny       % point data
+        xtemp = x;
+    else
+        xtemp = 0.5*(x(2:nx) + x(1:nx-1));
+    end
+    
+    % Plot data
+    plot(xtemp, w(i).signal, 'Color', colors{icol(i)}, ...
+         'LineStyle', line_styles{ilin(i)}, 'LineWidth', line_widths(iwid(i)));
 end
 
-% Make linear or log axes as required
-xscale=get_global_var('genieplot','xscale');
-yscale=get_global_var('genieplot','yscale');
-set (gca, 'XScale', xscale);
-set (gca, 'YScale', yscale);

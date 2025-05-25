@@ -92,7 +92,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             obj.cleanup_obj = onCleanup(@()obj.rm_files(...
                 obj.sqw_pow_file,obj.sqw_pow_rings_file));
             % does nothing if -save is not enabled and saves saveable if it
-            % is
+            % save is enabled (present)
             obj.save();
         end
 

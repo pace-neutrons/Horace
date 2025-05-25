@@ -1,5 +1,5 @@
 function [x,y]=xyselect
-% Create cross-hairs on current figure and print x,y pairs on mouse click.
+% Create cross-hairs on current figure and print x,y pairs to the command window.
 %
 % Move the cross-hairs with the mouse and press the left mouse button to
 % print the position. Continue until hit return, when cross-hairs
