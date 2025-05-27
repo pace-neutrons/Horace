@@ -169,6 +169,20 @@ classdef LineProjBase < aProjectionBase
     %======================================================================
     % TRANSFORMATIONS:
     methods
+        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj, ...
+                axes,pix_cand,npix,s,e,varargin)
+            %use_mex = config_store.instance().get_value('hor_config','use_mex');
+            %if use_mex
+            [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = ...
+                bin_pixels@aProjectionBase(obj, ...
+                axes,pix_cand,npix,s,e,varargin);
+            % else
+            %     [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = ...
+            %         bin_pixels@aProjectionBase(obj, ...
+            %         axes,pix_cand,npix,s,e,varargin);
+            % end
+
+        end
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
