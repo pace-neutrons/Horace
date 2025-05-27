@@ -26,7 +26,7 @@ classdef test_sort_pix_mex_nomex < TestCase
 
             [pix1,ix1,npix1] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
 
-            clConf = set_temporary_config_options('hor_config','use_mex',true);
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
             clWarn = set_temporary_warning('off','HORACE:test_warning','HORACE:mex_code_problem');
 
             warning('HORACE:test_warning','warning issued to ensure that no other warnings are received')
@@ -236,14 +236,15 @@ classdef test_sort_pix_mex_nomex < TestCase
 
         function test_mex_changes_precision(obj)
             [pix,ix,npix] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
             % test mex
-            pix1 = sort_pix(pix,ix,npix,'-force_mex');
+            pix1 = sort_pix(pix,ix,npix,[],true);
 
             assertTrue(isa(pix1.data,'double'))
 
             pix0 = PixelDataBase.create(single(pix.data));
             ix0  = int64(ix);
-            pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
+            pix0a = sort_pix(pix0,ix0,npix,[]);
 
             assertTrue(isa(pix0a.data,'double'))
             assertElementsAlmostEqual(pix0a.data, pix1.data,'absolute',1.e-6);
@@ -264,15 +265,18 @@ classdef test_sort_pix_mex_nomex < TestCase
             disp('Profile started')
             profile on
             % test sorting parameters and matlab sorting
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);            
             t1=tic();
-            pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_precision');
+            pix1 = sort_pix(pix0,ix0,npix,[],[],true);
             t2=toc(t1) % 2 sec
             clear pix1;
-            pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_precision');
+            pix1 = sort_pix(pix,ix,npix,[],[],true);
             t3=toc(t1); % 25sec
             clear pix1;
             t3r = t3-t2
-            pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_precision');
+            clConf = set_temporary_config_options('hor_config','use_mex',false);                        
+            t1=tic();            
+            pix1 = sort_pix(pix0,ix0,npix,[],[],true);
             t4=toc(t1); % 50 sec
             clear pix1;
             t4= t4-t3
