@@ -4,9 +4,42 @@
 
 #include "../CommonCode.h"
 #include <algorithm>
+enum Input_Arguments {
+    Pixel_data,
+    Pixel_Indexes,
+    Pixel_Distribution,
+    keep_type,
+    N_INPUT_Arguments
+};
+enum Out_Arguments {
+    Pixels_Sorted,
+    Pixels_range,
+    N_OUTPUT_Arguments
+};
+/* What kind of input/output types the routine supports*/
+enum InputOutputTypes {
+    Pix8IndIOut8, // Double pixels, Int64 indexes, double output
+    Pix8IndDOut8, // Double pixels, Double indexes, double output
+    Pix4IndIOut8,
+    Pix4IndDOut8, // Float pixels Int64 indexes double output
+    Pix4IndIOut4, // Float pixels Int64 indexes float output
+    Pix4IndDOut4,
+    Pix4Ind4Out4, // float pixels float indexes, fload output
+    Pix4Ind4Out8, // float pixels float indexes, double output
+    Pix8Ind4Out8, // double pixels float indexes, double output
+    ERROR,
+    N_InputCases
+};
+enum InputIndexesType {
+    IndI64,  // input indexes are unit64 type
+    IndD64,  // input indexes are double64 type
+    IndF32,  // input indexes are float32 type.
+    N_InputIndexes
+};
 
 #define iRound(x)  (int)floor((x)+0.5)
 
+InputOutputTypes process_types(bool float_pix, InputIndexesType index_type, bool double_out);
 
 //
 template<class T, class N, class K>

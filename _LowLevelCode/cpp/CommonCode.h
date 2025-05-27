@@ -91,6 +91,13 @@ T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
     return static_cast<T>(*mxGetPr(pPar));
 };
 
+/** Identify type of MATLAB's provided input array and retrieve appropriate pointer to its data
+//plus size and shape of the pixels array
+void get_pix_info(void) {
+
+};
+*/
+
 class omp_storage
     /** Class to manage dynamical storage used in OMP loops
     with various sources depending on the size of the storage and
@@ -178,6 +185,7 @@ public:
 
 
     }
+
     void add_signal(const double& signal, const double& error, int n_thread, size_t index)
     {
         /*  signal_stor[n_thread][il] += ;
@@ -189,6 +197,7 @@ public:
         pError[ind] += error;
         pNpix[ind] += 1;
     }
+
     void combine_storage(double* const s, double* const e, double* const npix, long i) {
         for (int ns = 0; ns < num_threads; ns++) {
             size_t ind = ns * distr_size + i;
@@ -196,8 +205,8 @@ public:
             e[i] += pError[ind];
             npix[i] += pNpix[ind];
         }
-
     }
+
     ~omp_storage() {
         if (largeMemory && se_vec_stor.size() == 0) {
             mxFree(largeMemory);
