@@ -66,9 +66,17 @@ if use_mex
         %logical.
         keep_type = double(keep_precision);
 
-        raw_pix = cellfun(@(x)get_pix_page_data(x,keep_precision), pix_retained, ...
+        [raw_pix,in_memory,is_empty] = cellfun(@(x)get_pix_page_data(x,keep_precision), pix_retained, ...
             'UniformOutput', false);
-        in_memory = cellfun(@(pix)~pix.is_filebacked, pix_retained);
+        is_empty  = [is_empty{:}];
+        if all(is_empty)
+            pix = PixelDataBase.create();
+            if use_given_pix_range
+                pix = pix.set_data_range(data_range);
+            end
+            return;
+        end
+        in_memory = [in_memory{:}];
         if ~all(in_memory) % there are filebaced pixels and we need to check
             % if all requested pixels are loaded in memory for correct
             % sorting
@@ -161,18 +169,40 @@ function npix = calc_npix_distribution(bin_idx)
 % npix    -- 1D array containing distribution of input indices over the
 %            bins
 %
-max_cell_idx = cellfun(@max,bin_idx);
+[max_cell_idx,include] = cellfun(@find_max_exclude_empty,bin_idx);
+bin_idx = bin_idx(include);
+max_cell_idx = max_cell_idx(include);
 num_bins     = max(max_cell_idx);
 npix         = zeros(num_bins,1);
 for i = 1:numel(bin_idx)
     npix = cut_data_from_file_job.calc_npix_distribution(bin_idx{i},npix);
 end
 
+function [max_idx,include] = find_max_exclude_empty(idx)
+% function checks input indices, if they are empty, return include=false,
+% and if not empty, returns max index of the distribution
+if isempty(idx)
+    max_idx = -1;
+    include = false;
+else
+    max_idx = max(idx);
+    include = true;
+end
+
+
 %
-function data = get_pix_page_data(pix,keep_precision)
+function [data,in_mem,is_empty] = get_pix_page_data(pix,keep_precision)
 % get current pixel data page keeping pixels precision on request
+if isempty(pix)
+    data = zeros(9,0);
+    in_mem  = true;
+    is_empty = true;
+    return
+end
 pix.keep_precision = keep_precision;
+in_mem = pix.is_filebacked;
 data = pix.data;
+is_empty = isempty(data);
 
 function [use_mex,force_mex,use_given_pix_range,data_range] = check_and_get_additional_pars(pix_range)
 % checks validity of additional arguments and if data_range is provided as

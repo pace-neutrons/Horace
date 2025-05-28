@@ -236,7 +236,7 @@ if ~isa(pix.data,'double') && force_double
 end
 
 if num_outputs < 6 && ndims > 0
-    pix = sort_pix(pix,pix_indx,npix1,varargin{:});
+    pix = sort_pix(pix,pix_indx,npix1,~force_double);
 end
 
 if num_outputs == 6 && ndims == 0

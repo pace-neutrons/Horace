@@ -54,7 +54,7 @@ classdef test_sort_pix_mex_nomex < TestCase
             assertTrue(isfile(tmp_file_names{1}))
             assertTrue(isfile(tmp_file_names{2}))
 
-            pos_pix_start = 8*numel(npix1)+8+4; % 8 first bytes -- 
+            pos_pix_start = 8*numel(npix1)+8+4; % 8 first bytes --
             % number of bytes for number of elements in stored npix field
             % + 4 additional bytes for pixel width (number of colums in
             % pixels)
@@ -102,7 +102,7 @@ classdef test_sort_pix_mex_nomex < TestCase
             clOb = onCleanup(@()cut_data_from_file_job.accumulate_pix('cleanup'));
 
             for i=1:2
-                pix1.signal = i;                
+                pix1.signal = i;
                 pci = cut_data_from_file_job.accumulate_pix(pci,false,pix1,ix1,i*npix1,buf_size);
                 assertTrue(isa(pci,'pixfile_combine_info'));
             end
@@ -117,11 +117,18 @@ classdef test_sort_pix_mex_nomex < TestCase
             assertEqual(pc_mex,pc_no_mex);
         end
         %==================================================================
-        function test_sort_pix_handles_emtpy_inputs(~)
+        function test_sort_pix_handles_emtpy_inputs(obj)
+            if obj.no_mex
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end
+
             % test nomex
-            pix_sn = sort_pix({[],''},{[],''},'-nomex');
+            clConf = set_temporary_config_options('hor_config','use_mex',false);
+            pix_sn = sort_pix({[],''},{[],''});
             % test mex
-            pix_sm = sort_pix({[],''},{[],''},'-force_mex');
+            clear clConf;
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
+            pix_sm = sort_pix({[],''},{[],''});
 
             assertEqualToTol(pix_sn, pix_sm);
             assertEqual(pix_sm.num_pixels,0);
@@ -134,12 +141,15 @@ classdef test_sort_pix_mex_nomex < TestCase
             [pix1,ix1] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
 
             % test nomex
-            pix_sn = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},'-nomex');
+            clConf = set_temporary_config_options('hor_config','use_mex',false);
+            pix_sn = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''});
             if obj.no_mex
                 skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
             end
             % test mex
-            pix_sm = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},'-force_mex');
+            clear clConf;
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
+            pix_sm = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''});
 
             assertEqualToTol(pix_sn, pix_sm);
         end
@@ -153,12 +163,15 @@ classdef test_sort_pix_mex_nomex < TestCase
 
             npix = npix1+npix1;
             % test nomex
-            pix_sn = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},npix,'-nomex');
+            clConf = set_temporary_config_options('hor_config','use_mex',false);
+            pix_sn = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},npix);
             if obj.no_mex
                 skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
             end
             % test mex
-            pix_sm = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},npix,'-force_mex');
+            clear clConf;
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
+            pix_sm = sort_pix({pix1,pix1,[],''},{ix1,ix1,[],''},npix);
 
             assertEqualToTol(pix_sn, pix_sm);
         end
@@ -178,9 +191,12 @@ classdef test_sort_pix_mex_nomex < TestCase
 
             npix = npix1+npix1;
             % test nomex
-            pix_sn = sort_pix({pix1,pix1},{ix1,ix1},npix,'-nomex');
+            clConf = set_temporary_config_options('hor_config','use_mex',false);
+            pix_sn = sort_pix({pix1,pix1},{ix1,ix1},npix);
             % test mex
-            pix_sm = sort_pix({pix1,pix1},{ix1,ix1},npix,'-force_mex');
+            clear clConf;
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
+            pix_sm = sort_pix({pix1,pix1},{ix1,ix1},npix);
 
             assertEqualToTol(pix_sn, pix_sm);
         end
@@ -203,40 +219,53 @@ classdef test_sort_pix_mex_nomex < TestCase
             assertElementsAlmostEqual(pix1.energy_idx(5:8),[1809,1819,3809,3819]);
             assertElementsAlmostEqual(pix1.energy_idx(end-3:end),[36181,36191,38181,38191]);
 
-            pix2 = sort_pix(pix,ix,npix,'-nomex');
+            pix2 = sort_pix(pix,ix,npix,[]);
             assertElementsAlmostEqual(pix1.data,pix2.data);
 
             if obj.no_mex
                 skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
             end
             % test mex
-            pix1 = sort_pix(pix,ix,npix,'-force_mex');
+            clear cleanup_obj_hc
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
+
+            pix1 = sort_pix(pix,ix,npix);
             assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
             assertElementsAlmostEqual(pix1.data, pix2.data);
 
             pix0 = PixelData(single(pix.data));
             ix0  = int64(ix);
-            pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
+            pix0a = sort_pix(pix0,ix0,npix);
             assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
         end
 
         function test_mex_keeps_precision(obj)
+            if obj.no_mex
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end
+
             [pix,ix,npix] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
             % test mex
-            pix1 = sort_pix(pix,ix,npix,'-force_mex');
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
+            pix1 = sort_pix(pix,ix,npix,[]);
 
             assertTrue(isa(pix1.data,'double'))
 
             pix0 = PixelDataBase.create(single(pix.data));
             ix0  = int64(ix);
-            pix0a = sort_pix(pix0,ix0,npix,'-force_mex','-keep_precision');
+            pix0a = sort_pix(pix0,ix0,npix,[],true);
             assertTrue(isa(pix0a.data,'single'))
             assertElementsAlmostEqual(pix0a.data, pix1.data,'absolute',1.e-6);
         end
 
         function test_mex_changes_precision(obj)
-            [pix,ix,npix] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
+            if obj.no_mex
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end
             clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
+
+            [pix,ix,npix] = obj.build_pix_page_for_sorting(9.6:-1:0.6,0.1:0.5:10);
+
             % test mex
             pix1 = sort_pix(pix,ix,npix,[],true);
 
@@ -253,6 +282,10 @@ classdef test_sort_pix_mex_nomex < TestCase
 
 
         function profile_sort_pix(obj)
+            if obj.no_mex
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end
+
             xs = 9.99:-0.1:0.01;
             xp = 0.01:0.1:9.99;
             [pix,ix,npix] = obj.build_pix_page_for_sorting(xs,xp);
@@ -263,26 +296,47 @@ classdef test_sort_pix_mex_nomex < TestCase
 
 
             disp('Profile started')
-            profile on
+            %profile on
             % test sorting parameters and matlab sorting
-            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);            
-            t1=tic();
-            pix1 = sort_pix(pix0,ix0,npix,[],[],true);
-            t2=toc(t1) % 2 sec
+            clConf = set_temporary_config_options('hor_config','use_mex',true,'force_mex_if_use_mex',true);
+            disp('sorting pixels with signle precision, keep precision:')
+            t1a=tic();
+            pix1 = sort_pix(pix0,ix0,npix,[],true);
+            t2=toc(t1a) % ~2 sec
             clear pix1;
-            pix1 = sort_pix(pix,ix,npix,[],[],true);
-            t3=toc(t1); % 25sec
+            disp('sorting pixels with signle precision, change precision:')
+            t1b=tic();
+            pix1 = sort_pix(pix,ix,npix,[],false);
+            t3=toc(t1b) %
             clear pix1;
-            t3r = t3-t2
-            clConf = set_temporary_config_options('hor_config','use_mex',false);                        
-            t1=tic();            
-            pix1 = sort_pix(pix0,ix0,npix,[],[],true);
-            t4=toc(t1); % 50 sec
+
+            pix0.data = pix.data;
+            disp('sorting pixels with double precision:')
+            t1c=tic();
+            pix1 = sort_pix(pix,ix,npix,[],false);
+            t3a=toc(t1c) %
             clear pix1;
-            t4= t4-t3
+
+            disp('sorting pixels  with signle precision using MATLAB, keep precision:')
+            pix0.data = single(pix.data);
+            clear clConf;
+            clConf = set_temporary_config_options('hor_config','use_mex',false);
+            profile on
+            t1d =tic();
+            pix1 = sort_pix(pix0,ix0,npix,[],true);
+            t4=toc(t1d) % ~20 sec
+            clear pix1;
 
             profile off
             profview;
+
+            disp('sorting pixels  with double precision using MATLAB, keep precision:')
+            pix0.data = pix.data;
+            t1d =tic();
+            pix1 = sort_pix(pix0,ix0,npix,[],true);
+            t4=toc(t1d) % ~20 sec
+            clear pix1;
+
         end
 
     end
@@ -292,7 +346,8 @@ classdef test_sort_pix_mex_nomex < TestCase
             [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);
             NumPix = numel(ux);
             pix=ones(9,NumPix);
-            npix = ones(10,10,10,10)*(NumPix/10000);
+            npix_size = [10,10,10,10];
+            npix = ones(npix_size)*(NumPix/prod(npix_size));
 
             pix(1,:) = ux(:);
             pix(2,:) = uy(:);
