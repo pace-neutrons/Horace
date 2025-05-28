@@ -1,4 +1,4 @@
-function [info, ops] = get_syms(arg)
+function [info, sym] = get_syms(arg)
 % MATLAB wrapper for python script to generate crystal symmetries
 %
 % >> get_syms('P3_212')
@@ -13,10 +13,12 @@ function [info, ops] = get_syms(arg)
         insert(py.sys.path, int32(0), pth);
     end
 
-    [info, ops] = py.get_syms.main(arg);
+    outpy = py.get_syms.main(arg);
+    info = string(outpy(1));
+    evalc(string(outpy(2));
     if nargout < 2
         disp(info)
-        disp(ops)
+        disp(sym)
     end
 
 end
