@@ -1,8 +1,5 @@
 classdef dnd_tester < DnDBase
     % Class for testing protected properties and methods of dnd objects
-    properties(Dependent,Hidden=true)
-        NUM_DIMS;
-    end
     properties(Access=protected)
         dnd_holder_;
     end
@@ -31,6 +28,12 @@ classdef dnd_tester < DnDBase
             % not currently used
             nd = 0;
             sz = obj.axes_.data_nbins;
+        end
+
+    end
+    methods(Access=protected)
+        function nd = get_NUM_DIMS(obj)
+            nd =obj.axes_.dimensions();
         end
 
     end

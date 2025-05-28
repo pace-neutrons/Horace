@@ -26,7 +26,8 @@ op_name = page_op.op_name;
 
 n_chunks = numel(npix_chunks);
 
-% check if warning about data range is necessary.
+% check if warning about data range is necessary. This is Horace<4
+% compartibility or fast aligned files.
 issue_range_warning = page_op.do_missing_range_warning;
 if issue_range_warning
     was_corrected = false;

@@ -47,7 +47,7 @@ npix = zeros(sz1);
 sproj = obj.data.proj;
 saxes = obj.data.axes;
 
-if numel(obj.data.npix) == 1 % single bin original grid
+if isscalar(obj.data.npix) % single bin original grid
     block_starts = 1;
     block_sizes = obj.data.npix;
 else
@@ -222,7 +222,8 @@ for iter = 1:num_chunks
     end
 
     for i = 1:num_proj
-        % Pix not sorted here
+        % Pix not sorted here. They will be sorted when accumulate cache
+        % is emtied either when pixels are written combined and returned
         [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
             targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
@@ -259,7 +260,7 @@ for iter = 1:num_chunks
     end
 end  % loop over pixel blocks
 
-% store partial pixel_blocks remaining memory to tmp files if some files
+% store partial pixel_blocks remaining in memory to tmp files if some files
 % were written or collect together data stored in memory.
 % return pix_out which is either pixfile_combine_info or PixelDataMemory
 % depending on how many pixels were extracted.
