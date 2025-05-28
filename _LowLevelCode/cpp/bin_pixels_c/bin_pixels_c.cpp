@@ -1,5 +1,7 @@
 #include "bin_pixels.h"
 #include "../utility/version.h"
+// combile code using c-mutexes
+#define C_MUTEXES
 //
 //
 //static std::unique_ptr<omp_storage> pStorHolder;

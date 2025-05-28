@@ -1,6 +1,6 @@
 function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
     bin_pixels_with_mex_code_(obj,coord,num_outputs,...
-    npix,s,e,pix_cand,unique_runid,force_double,return_selected)
+    npix,s,e,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
@@ -43,6 +43,12 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
 %              -- if true sets pix_ok to return the indices of selected
 %                 pixels for use with DnD cuts where fewer args are
 %                 requested
+% SPECIAL:
+% test_mex_inputs
+%              -- if ture, routine works in testing mode and all input
+%                 parameters are reflected to output parameters. 
+%                 This mode used in unit testing to verify correct
+%                 operations of mex code.
 %--------------------------------------------------------------------------
 % Outputs:
 % npix  -- the array of size of this grid, accumulating the information
@@ -76,30 +82,39 @@ pix_ok = [];
 pix_indx = [];
 selected = [];
 
-
-bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
-ndims           = obj.dimensions;
-data_range      = obj.img_range;
-is_pix = isa(pix_cand,'PixelDataBase');
+num_threads = config_store.instance().get_value('parallel_config','threads');
 
 pax = obj.pax;
-if size(coord,1) == 4
-    r1 = data_range(1,:)';
-    r2 = data_range(2,:)';
-else % 3D array binning
+if size(coord,1) == 3  % 3D array binning
     r1 = data_range(1,1:3)';
     r2 = data_range(2,1:3)';
     pax = pax(pax~=4);
     ndims = numel(pax);
+else
+    ndims = obj.dimensions;
 end
 
-% collapse first dimension, all along it should be ok for pixel be ok
+
+mex_input = struct( ...
+    'bins_all_dims',obj.nbins_all_dims, ... % size of binning lattice
+    'dimensions',ndims, ...                 % number of image dimensions (sum(nbins_all_dims~=1)))
+    'data_range',obj.img_range, ...         % binning ranges
+    'binning_mode',num_outputs, ...         % binning mode, what binning values to calculate and return
+    'num_threads',num_threads,  ...         % how many threads to use in computation
+    'test_input_parsing',test_mex_inputs ...% Run in test mode validating the way input have been parsed by mex code and doing no caclculations.
+    );
+mex_input.coord = coord;
+mex_input.npix  = npix;
+mex_input.s     = s;
+mex_input.err   = e;
+
+is_pix = isa(pix_cand,'PixelDataBase');
 if is_pix
-    % Add filter for duplicated pix
-    ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx >= 0;
+    mex_input.selected = pix_cand.detector_idx>0;
 else
-    ok = all(coord>=r1 & coord<=r2,1);
+    mex_input.selected = []; % do not analyze selected pixels    
 end
+[npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_c(mex_input);
 
 if ~any(ok)
     if num_outputs>3 % no further calculations are necessary, so all

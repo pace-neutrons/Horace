@@ -718,7 +718,8 @@ classdef AxesBlockBase < serializable
             %
             % keep unused argi parameter to tell parse_char_options to ignore
             % unknown options
-            [ok,mess,force_double,return_selected]=parse_char_options(argi,{'-force_double', '-return_selected'});
+            [ok,mess,force_double,return_selected,test_mex_inputs]=parse_char_options(argi, ...
+                {'-force_double', '-return_selected','-test_mex_inputs'});
             if ~ok
                 error('HORACE:AxesBlockBase:invalid_argument',mess)
             end
@@ -734,7 +735,8 @@ classdef AxesBlockBase < serializable
             if use_mex
                 [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
                     obj,coord_transf,mode,...
-                    npix,s,e,pix_cand,unique_runid,force_double,return_selected);
+                    npix,s,e,pix_cand,unique_runid, ...
+                    force_double,return_selected,test_mex_inputs);
             else
                 [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...
                     obj,coord_transf,mode,...
