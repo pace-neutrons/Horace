@@ -175,11 +175,11 @@ classdef LineProjBase < aProjectionBase
             %if use_mex
             [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = ...
                 bin_pixels@aProjectionBase(obj, ...
-                axes,pix_cand,npix,s,e,varargin);
+                axes,pix_cand,npix,s,e,varargin{:});
             % else
             %     [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = ...
             %         bin_pixels@aProjectionBase(obj, ...
-            %         axes,pix_cand,npix,s,e,varargin);
+            %         axes,pix_cand,npix,s,e,varargin{:});
             % end
 
         end
