@@ -46,7 +46,7 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
 % SPECIAL:
 % test_mex_inputs
 %              -- if ture, routine works in testing mode and all input
-%                 parameters are reflected to output parameters. 
+%                 parameters are reflected to output parameters.
 %                 This mode used in unit testing to verify correct
 %                 operations of mex code.
 %--------------------------------------------------------------------------
@@ -107,12 +107,13 @@ mex_input.coord = coord;
 mex_input.npix  = npix;
 mex_input.s     = s;
 mex_input.err   = e;
+mex_input.unique_runid = unique_runid;
 
 is_pix = isa(pix_cand,'PixelDataBase');
 if is_pix
     mex_input.selected = pix_cand.detector_idx>0;
 else
-    mex_input.selected = []; % do not analyze selected pixels    
+    mex_input.selected = []; % do not analyze selected pixels
 end
 [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_c(mex_input);
 
