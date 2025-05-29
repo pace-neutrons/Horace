@@ -102,6 +102,8 @@ emodes= experiment.get_emode();
 % detectors are used here and their number expected to coincide with the
 % number of unique instruments. As no separate indices exists for
 % instruments themselves, unique_detectors is all that means here.
+% Here we select all detector arrays known to sqw object (sqw-experiment
+% used to return specific unique references array)
 all_det = experiment.detector_arrays;
 [unique_det, unique_det_run_idx] = all_det.get_unique_objects_and_indices(true);
 undet_info = compact_array(unique_det_run_idx,unique_det);
@@ -164,9 +166,13 @@ for i=1:n_unique_det_arrays
     for run_id_number=1:n_runs
         [efix,efix_info_i,unique_efix_num,used_efix]  = efix_info_i.get(run_id_number);
         [en_tr,en_tr_info_i,unique_en_tr_num,used_en] = en_tr_info_i.get(run_id_number);
+        % calculate unique number which define unique incident
+        % energy/energy transfer scales
         q_spec_idx = n_unique_efix*(unique_en_tr_num-1)+unique_efix_num-1;
         en_tr_idx_per_run = en_tr_idx_i{unique_en_tr_num};
 
+        % check if the incident energy/energy transfer scale was calculated
+        % before in the else block below.
         if used_efix && used_en
             spec_idx = mapper.get(q_spec_idx);
             qspec_     = qspec_i_cache{spec_idx};
@@ -176,10 +182,16 @@ for i=1:n_unique_det_arrays
             qspec_i_cache{run_id_number}   = qspec_;
             eni_i_cache{run_id_number}     = eni_   ;
             short_idx_cache{run_id_number} = calc_idx_;
-        else
+        else % if not calculated, calculate qspec and enegry transfer values
+            % contributing to sqw pixels
+            % store used qspec index to know that we have already
+            % calculated it in the future cycles
             mapper = mapper.add(q_spec_idx,run_id_number);
+            % calculate energy transfers and momentum transfers in the
+            % spectrometer frame
             [qspec_,eni_] = calc_qspec(detdcn(1:3,:), efix,en_tr, emodes(run_id_number));
             %
+            % store cacluated values in cache per run number
             qspec_i_cache{run_id_number} = qspec_;
             eni_i_cache{run_id_number}   = eni_;
             % calc_q_spec replicates used detectors and energies into martix.
@@ -206,20 +218,23 @@ for i=1:n_unique_det_arrays
             qspec_ = mtimesx_horace(spec_to_rlu_mat,reshape(qspec_(:,accounted_for), [3, 1, numel(lng_run_idx)]));
             qspec_ = squeeze(qspec_);
 
-            % found the positons of the calculated q-dE values in the pixel
+            % found the positons of the calculated q-dE values in the
+            % pixel(i.e. Crystal Cartesian or hkl coordinates)
             % array with input indices.
             res_places   = res_reorder_map.get_values_for_keys(lng_run_idx);
             qw(1:3,res_places) = qspec_;
             qw(4,res_places)   = eni_(accounted_for);
+            % NB: only Crystal Cartesian can be stored in PixelDataBase
         end
     end
 end
 
 if ~return_array
+    % return cellarray of 4 vectors
     qw = num2cell(qw,2);
     for i=1:4
         qw{i} = qw{i}(:);
     end
 end
-end
 
+end
