@@ -9,11 +9,6 @@ classdef data_sqw_dnd < DnDBase
         % The pixels are rebinned on this grid
         img_db_range;
     end
-    properties(Dependent,Hidden=true)
-        %
-        NUM_DIMS;
-    end
-
     properties
         %
         % returns number of pixels, stored within the PixelData class
@@ -148,9 +143,6 @@ classdef data_sqw_dnd < DnDBase
             %    'using redundant property img_db_range. Use set/get.img_range instead')
             obj.img_range = val;
         end
-        function nd = get.NUM_DIMS(obj)
-            nd =obj.axes_.dimensions();
-        end
         function [nd,sz] = dimensions(obj)
             nd =obj.axes_.dimensions();
             sz = obj.axes_.data_nbins;
@@ -166,7 +158,9 @@ classdef data_sqw_dnd < DnDBase
             % in the structure does not correspond to the current version
             %
             obj = from_old_struct@DnDBase(obj,inputs);
-
+        end
+        function nd = get_NUM_DIMS(obj)
+            nd =obj.axes_.dimensions();
         end
     end
     methods(Static)

@@ -6,11 +6,6 @@ classdef d4d < DnDBase
     %   >> w = d4d(sqw)            % Create a D4D object from a 4-dimensional SQW object
     %   >> w = d4d(filename)       % Create a D4D object from a file
     %   >> w = d4d(struct)         % Create from a structure with valid fields (internal use)
-
-    properties (Dependent,Hidden=true)
-        NUM_DIMS;
-    end
-
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
@@ -19,7 +14,12 @@ classdef d4d < DnDBase
             obj = loadobj@serializable(S,obj);
         end
     end
-
+    methods(Access=protected)
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object dimensions
+            nd =4;
+        end
+    end
     methods
         function obj = d4d(varargin)
             obj = obj@DnDBase(varargin{:});
@@ -33,9 +33,6 @@ classdef d4d < DnDBase
                 obj.do_check_combo_arg = true;
             end
 
-        end
-        function nd = get.NUM_DIMS(~)
-            nd =4;
         end
         function [nd,sz] = dimensions(obj)
             nd = 4;

@@ -1,5 +1,5 @@
 classdef accumulate_headers_job < JobExecutor
-    % Class to combine multple sqw(tmp) file headers in parallel
+    % Class to combine multiple sqw(tmp) file headers in parallel
     %
     % If run in serial, provides methods to generate range of tmp files from
     % range of runfiles
