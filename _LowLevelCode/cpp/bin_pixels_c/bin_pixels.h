@@ -299,6 +299,3 @@ bool bin_pixels(double* s, double* e, double* npix,
     return place_pixels_in_old_array;
 }
 
-#undef OMP_VERSION_3
-#undef C_MUTEXES
-#undef SINGLE_PATH

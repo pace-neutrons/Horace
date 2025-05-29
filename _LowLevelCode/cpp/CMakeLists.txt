@@ -13,6 +13,7 @@ set(MEX_FUNCTIONS
     "serialiser"
     "accumulate_cut_c"
     "bin_pixels_c"
+    "bin_pixels_cpp"
     "calc_projections_c"
     "combine_sqw"
     "compute_pix_sums"
