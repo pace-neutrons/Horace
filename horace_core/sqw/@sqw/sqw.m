@@ -9,6 +9,8 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     %
     properties(Dependent)
+        %exposes number of dimensions in the underlying image
+        NUM_DIMS;
         % common with loaders interface to pix.num_pixels property
         % describing number of pixels (neutron events) stored
         % in sqw object
@@ -42,8 +44,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     end
 
     properties(Dependent,Hidden=true)
-        %exposes number of dimensions in the underlying image
-        NUM_DIMS;
         % the same as npixels, but allows to use the same interface on sqw
         % object or pixels
         num_pixels;
@@ -141,6 +141,13 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
 
         %Evaluate a function at the plotting bin centres of sqw object
         wout = func_eval (win, func_handle, pars, varargin)
+
+        % Apply operation or sequence of operations, defined by sqwfunc
+        % avoiding changes in pixels coordinates
+        obj = sqw_op(obj, sqwfunc, pars, varargin)
+        % Apply operation or sequence of operations, defined by sqwfunc
+        % where pixels coordinates may change
+        obj = sqw_op_bin_pixels(obj, sqwfunc, pars, varargin)
     end
     %======================================================================
     % Various sqw methods -- difficult to classify
@@ -154,6 +161,9 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             wout=rebin_sqw(win,varargin{:});
         end
         wout=rebin_sqw(win,varargin);
+        % make special cut, which contains intstrument view of the input
+        % sqw object.
+        wout = instrument_view_cut(win,varargin);
         % focusing projections?
         wout = shift_energy_bins (win, dispreln, pars);
         wout = shift_pixels (win, dispreln, pars, opt);
@@ -181,7 +191,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         qsqr_w = calculate_qsqr_w_pixels (win)
         % Calculate hkl,en of datest pixels using detectors and experiment
         % info
-        qw=calculate_qw_pixels2(win)
+        qw=calculate_qw_pixels2(win,coord_in_hkl,return_matrix)
     end
     %======================================================================
     % METHODS, Available on SQW but redirecting actions to DnD and requesting

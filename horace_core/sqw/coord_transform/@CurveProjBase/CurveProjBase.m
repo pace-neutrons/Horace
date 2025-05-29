@@ -80,8 +80,7 @@ classdef CurveProjBase <aProjectionBase
                 obj = obj.check_combo_arg();
                 return
             end
-            nargi = numel(varargin);
-            if nargi== 1 && (isstruct(varargin{1})||isa(varargin{1},'CurveProjBase'))
+            if isscalar(varargin) && (isstruct(varargin{1})||isa(varargin{1},'CurveProjBase'))
                 if isstruct(varargin{1})
                     obj = serializable.loadobj(varargin{1});
                 else
@@ -91,7 +90,7 @@ classdef CurveProjBase <aProjectionBase
                     obj = obj.check_combo_arg();
                 end
             else
-                opt =  [sphere_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
+                opt =  obj.init_order_fields();
                 [obj,remains] = ...
                     set_positional_and_key_val_arguments(obj,...
                     opt,false,varargin{:});
@@ -178,7 +177,7 @@ classdef CurveProjBase <aProjectionBase
                 obj = obj.check_combo_arg();
             end
         end
-        function obj = set_img_scales(obj,varargin)
+        function obj = set_img_scales(~,varargin)
             error('HORACE:CurveProjBase:invalid_argument', ...
                 'You can not set image scales directly. Use projection type instead')
         end
@@ -196,6 +195,16 @@ classdef CurveProjBase <aProjectionBase
                 S.u = S.ez;
                 S.v = S.ex;
             end
+        end
+        function flds = init_order_fields(~)
+            % Addition to serailizable interface allowing to reorder
+            % saveableFields in order, convenient for constructing a
+            % projection. While saveableFields specify public interface
+            % which fully defines projection, the convenient order of these
+            % fields in construction or init may be different as people may
+            % prefer define most important fields first and fields with
+            % reasonable defaults -- after them
+            flds = [sphere_proj.fields_to_save_(:);aProjectionBase.init_params(:)];
         end
     end
     methods

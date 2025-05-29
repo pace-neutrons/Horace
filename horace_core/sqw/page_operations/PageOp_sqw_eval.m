@@ -1,5 +1,5 @@
 classdef PageOp_sqw_eval < PageOpBase
-    % Single pixel page operation used by sqw_eval function
+    % Single pixel page operation used by sqw_eval algorithm
     %
     properties
         % empty operation
@@ -7,14 +7,21 @@ classdef PageOp_sqw_eval < PageOpBase
         average = false;
         proj
         op_parms
-        %
+        % indices of signal and variance arrays within the page
+        sigvar_idx
     end
+    properties(Dependent)
+        %Read-only Access to internal image holder to use in sqw_op
+        img
+    end
+    
 
     methods
         function obj = PageOp_sqw_eval(varargin)
             obj = obj@PageOpBase(varargin{:});
             obj.op_name_ = 'sqw_eval';
             obj.split_at_bin_edges = true;
+            obj.sigvar_idx = PixelDataBase.field_index('sig_var');
         end
         function obj = init(obj,sqw_obj,operation,op_param,average)
             obj           = init@PageOpBase(obj,sqw_obj);
@@ -41,6 +48,22 @@ classdef PageOp_sqw_eval < PageOpBase
         end
 
         function obj = apply_op(obj,npix_block,npix_idx)
+            % Apply user-defined operation over page of pixels located in
+            % memory. Pixels have to be split on bin edges
+            % 
+            % Inputs:
+            % obj         -- initialized instance of PageOp_sqw_eval class
+            % npix_block  -- array containing distrubution of pixel loaded into current page 
+            %                over image bins of the processed data chunk
+            % npix_idx    -- 2-element array [nbin_min,nbun_max] containing
+            %                min/max indices of the image bins
+            %                corresponding to the pixels, currently loaded
+            %                into page.
+            % NOTE:
+            % pixel data are split over bin edges (see split_vector_max_sum
+            % for details), so npix_idx contains min/max indices of
+            % currently processed image cells.
+            %
             qw = obj.proj.transform_pix_to_hkl(obj.page_data_(obj.coord_idx,:));
             qw_pix_coord =  {qw(1,:)',qw(2,:)',qw(3,:)',qw(4,:)'};
             if obj.average
@@ -67,6 +90,10 @@ classdef PageOp_sqw_eval < PageOpBase
 
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
+        end
+        %
+        function im = get.img(obj)
+            im = obj.img_;
         end
     end
     methods(Access=protected)
