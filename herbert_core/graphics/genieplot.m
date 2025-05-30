@@ -1,7 +1,11 @@
 classdef genieplot < handle
-    % Singleton class to hold configuration of graphics options.
+    % Singleton class to hold the state of genie_figure graphics.
     % This is a very lean implementation of a singleton. It permits the setting
-    % and getting of values but without any checks on values.
+    % and getting of values with the same syntax as the intrinsic Matlab
+    % graphics object properties, namely:
+    %       <object>.set(<name>, <value>)
+    %       <value> = <object>.get(<name>)
+    % thereby being consistent with matlab graphics property setting/getting.
     %
     % Use:
     % ----
