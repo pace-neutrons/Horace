@@ -2,11 +2,13 @@ classdef genieplot < handle
     % Singleton class to hold configuration of graphics options.
     % This is a very lean implementation of a singleton. It permits the setting
     % and getting of values but without any checks on values.
-    % 
-    % In addition to the standard signleon interface, which requests
-    % calling genieplot.instance() for reading and changing the class 
-    % properties, it has genieplot specific interface, reminicent of old
-    % genie graphics.
+    %
+    % In addition to the standard singlteon interface providing access
+    % to public properties of genieplot interface calling
+    % genieplot.instance() method for accessing and changing the class
+    % properties,
+    % it has genieplot specific interface, reminicent of old genie graphics.
+    % The descrption of this interface is provided below.
     %
     % Use:
     % ----
