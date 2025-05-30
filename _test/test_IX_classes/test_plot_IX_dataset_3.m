@@ -699,8 +699,8 @@ classdef test_plot_IX_dataset_3 < TestCase
 
             nplot = 12;
             data1D_arr = arrayfun(@mtimes, repmat(obj.data1D,1,12), 1:12);
-            [fh, ~, plot_h] = dd(data1D_arr);
-            clOb = onCleanup(@()close(fh)); % close image when test finishes
+            [fig_h, ~, plot_h] = dd(data1D_arr);
+            cleanupObj = onCleanup(@()close(fig_h)); % close image when test finishes
             for i=1:12
                 j = nplot + 1 - i;  % plot handles in reverse order (1 was last plot etc.)
                 assertEqual(plot_h(j).Color, col_ref{i}, ...
@@ -735,8 +735,8 @@ classdef test_plot_IX_dataset_3 < TestCase
 
             nplot = 12;
             data1D_arr = arrayfun(@mtimes, repmat(obj.data1D,1,12), 1:12);
-            [fh, ~, plot_h] = dd(data1D_arr);
-            clOb = onCleanup(@()close(fh)); % close image when test finishes
+            [fig_h, ~, plot_h] = dd(data1D_arr);
+            cleanupObj = onCleanup(@()close(fig_h)); % close image when test finishes
             for i=1:12
                 j = nplot + 1 - i;  % plot handles in reverse order (1 was last plot etc.)
                 assertEqual(plot_h(j).Color, col_ref{i}, ...

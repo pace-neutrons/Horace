@@ -1,12 +1,11 @@
 classdef genieplot < handle
-    % Singleton class to hold configuration of graphics options.
+    % Singleton class to hold the state of genie_figure graphics.
     % This is a very lean implementation of a singleton. It permits the setting
-    % and getting of values but without any checks on values.
-    % 
-    % In addition to the standard signleon interface, which requests
-    % calling genieplot.instance() for reading and changing the class 
-    % properties, it has genieplot specific interface, reminicent of old
-    % genie graphics.
+    % and getting of values with the same syntax as the intrinsic Matlab
+    % graphics object properties, namely:
+    %       <object>.set(<name>, <value>)
+    %       <value> = <object>.get(<name>)
+    % thereby being consistent with matlab graphics property setting/getting.
     %
     % Use:
     % ----
@@ -33,14 +32,14 @@ classdef genieplot < handle
     %
     % This singleton class is only expected to be used by the graphics
     % functions. Ideally, we would not have it visible to users.
-
-    properties(Dependent)
+    
+    properties (Access=private)
         % General graph properties
         default_fig_name
         XScale
         YScale
         ZScale
-
+        
         % One-dimensional graph properties
         maxspec_1D
         colors
@@ -53,79 +52,17 @@ classdef genieplot < handle
         % Two-dimensional graph properties
         maxspec_2D
     end
-
-    properties(Access=private)
-        % General graph properties
-        default_fig_name_ = []
-        XScale_ = 'linear'
-        YScale_ = 'linear'
-        ZScale_ = 'linear'
-
-        % One-dimensional graph properties
-        maxspec_1D_ = 1000 % Maximum number of 1D datasets in a plottable array
-        colors_     =  {'k'};
-        color_cycle_= 'with'
-        line_styles_= {'-'}
-        line_widths_= 0.5
-        marker_types_ = {'o'};   % Row cell array of default marker types
-        marker_sizes_ =  6;       % Row vector of default marker sizes
-
-        % Two-dimensional graph properties
-        maxspec_2D_ = 1000;      % Maximum number of 2D datasets in a plottable array
-    end
-
+    
     methods (Access=private)
         % The constructor is private, preventing external invocation.
         % Only a single instance of this class is created. This is
-        % ensured by genieplot.instance() calling the constructor only once.
+        % ensured by getInstance() calling the constructor only once.
         function newObj = genieplot()
+            % Initialize here
+            initialise(newObj)
         end
     end
-    methods
-        % Simple accessors
-        function val = get.default_fig_name(obj)
-            val = obj.default_fig_name_;
-        end
-
-        function val = get.XScale(obj)
-            val = obj.XScale_;
-        end
-        function val = get.YScale(obj)
-            val = obj.YScale_;
-        end
-        function val = get.ZScale(obj)
-            val = obj.ZScale_;
-        end
-
-        % One-dimensional graph properties
-        function val = get.maxspec_1D(obj)
-            val = obj.maxspec_1D_;
-        end
-        function val = get.colors(obj)
-            val = obj.colors_;
-        end
-        function val = get.color_cycle(obj)
-            val = obj.color_cycle_;
-        end
-        function val = get.line_styles(obj)
-            val = obj.line_styles_;
-        end
-        function val = get.line_widths(obj)
-            val = obj.line_widths_;
-        end
-        function val = get.marker_types(obj)
-            val = obj.marker_types_;
-        end
-        function val = get.marker_sizes(obj)
-            val = obj.marker_sizes_;
-        end
-
-        % Two-dimensional graph properties
-        function val = get.maxspec_2D(obj)
-            val = obj.maxspec_2D_;
-        end
-    end
-
+    
     methods
         %-----------------------------------------------------------------------
         % Check validity of properties on setting
@@ -135,12 +72,12 @@ classdef genieplot < handle
             % - The empty character vector '' is a valid name.
             % - If the figure name is [], this means that the default is to be
             %   set to hard-wired values for the different plot types (one-
-            %   dimensional, area plot, surface plot etc.) will be used.
+            %   dimensional, area plot, surface plot etc.) will be used.  
             if is_string(val)
                 % Strip leading and trailing whitespace
-                obj.default_fig_name_ = strtrim(val);
+                obj.default_fig_name = strtrim(val);  
             elseif isnumeric(val) && isempty(val)
-                obj.default_fig_name_ = [];
+                obj.default_fig_name = [];
             else
                 error('HERBERT:genieplot:invalid_argument', ['The default ', ...
                     'name can only be set to a character vector or []']);
@@ -149,7 +86,7 @@ classdef genieplot < handle
         %-----------------------------------------------------------------------
         function set.XScale(obj, val)
             if is_string(val) && any(strcmp(val, {'linear', 'log'}))
-                obj.XScale_ = val;
+                obj.XScale = val;
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     'XScale must be ''linear'' or ''log''');
@@ -158,7 +95,7 @@ classdef genieplot < handle
         %-----------------------------------------------------------------------
         function set.YScale(obj, val)
             if is_string(val) && any(strcmp(val, {'linear', 'log'}))
-                obj.YScale_ = val;
+                obj.YScale = val;
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     'YScale must be ''linear'' or ''log''');
@@ -167,7 +104,7 @@ classdef genieplot < handle
         %-----------------------------------------------------------------------
         function set.ZScale(obj, val)
             if is_string(val) && any(strcmp(val, {'linear', 'log'}))
-                obj.ZScale_ = val;
+                obj.ZScale = val;
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     'ZScale must be ''linear'' or ''log''');
@@ -177,7 +114,7 @@ classdef genieplot < handle
         function set.maxspec_1D(obj, val)
             if isnumeric(val) && isscalar(val) && val>0 && (isinf(val) || ...
                     (isfinite(val) && rem(val,1)==0))
-                obj.maxspec_1D_ = val;
+                obj.maxspec_1D = val;
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     'maxspec_1D must be a positive integer or Inf');
@@ -188,12 +125,12 @@ classdef genieplot < handle
             % Property 'colors' must be a cell arry with elements that either
             % one of the valid color codes or a valid hexadecimal color code
             colorCodes = {'r','g','b','c','m','y','k','w'}; % Valid color codes
-
+            
             nonEmptyString = @(x)(is_string(x) && ~isempty(x));
             isColorCode = @(x)(any(strcmp(x, colorCodes)) || ishexcolor(x));
             if iscell(val) && all(cellfun(nonEmptyString, val(:))) && ...
                     all(cellfun(isColorCode, val(:)))
-                obj.colors_ = val(:)';   % ensure a row cell array
+                obj.colors = val(:)';   % ensure a row cell array
             else
                 error('HERBERT:genieplot:invalid_argument', ['colors must be a ', ...
                     'cell array with elements from ''r'',''g'',''b'',''c'',''m'',', ...
@@ -207,10 +144,10 @@ classdef genieplot < handle
             %       '-',  '--',  ':',  '-.'
             line_style_codes = {'-',  '--',  ':',  '-.'};
             if (is_string(val) && any(strcmp(val, line_style_codes)))
-                obj.line_styles_ = val;
+                obj.line_styles = val;
             elseif iscell(val) && all(cellfun(@is_string, val(:))) && ...
-                    all(ismember(val(:), line_style_codes))
-                obj.line_styles_ = val(:)';  % ensure a row cell array
+                all(ismember(val(:), line_style_codes))
+                obj.line_styles = val(:)';  % ensure a row cell array
             else
                 error('HERBERT:genieplot:invalid_argument', ['''line_styles ''', ...
                     'must be a cell array with elements one of ', ...
@@ -221,7 +158,7 @@ classdef genieplot < handle
         function set.line_widths(obj, val)
             % line_widths must be a row vector of reals greater than zero
             if isnumeric(val) && all(isfinite(val(:))) && all(val(:)>0)
-                obj.line_widths_ = val(:)';  % ensure a row vector
+                obj.line_widths = val(:)';  % ensure a row vector
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     '''line_widths'' must be reals greater than zero');
@@ -240,10 +177,10 @@ classdef genieplot < handle
                     {'o','+','*','.','x','_','|','s','d','^','v','>','<','p','h'};
             end
             if (is_string(val) && any(strcmp(val, marker_type_codes)))
-                obj.marker_types_ = val;
+                obj.marker_types = val;
             elseif iscell(val) && all(cellfun(@is_string, val(:))) && ...
-                    all(ismember(val(:), marker_type_codes))
-                obj.marker_types_ = val(:)';  % ensure a row cell array
+                all(ismember(val(:), marker_type_codes))
+                obj.marker_types = val(:)';  % ensure a row cell array
             else
                 error('HERBERT:genieplot:invalid_argument', ['''marker_types ''', ...
                     'must be a cell array of valid marker types for your ', ...
@@ -254,7 +191,7 @@ classdef genieplot < handle
         function set.marker_sizes(obj, val)
             % marker_sizes must be a row vector of reals greater than zero
             if isnumeric(val) && all(isfinite(val(:))) && all(val(:)>0)
-                obj.marker_sizes_ = val(:)';     % ensure a row vector
+                obj.marker_sizes = val(:)';     % ensure a row vector
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     '''marker_sizes'' must be reals greater than zero');
@@ -264,7 +201,7 @@ classdef genieplot < handle
         function set.color_cycle(obj, val)
             % Must be one of 'fast' or 'with'
             if is_string(val) && any(strcmpi(deblank(val), {'fast','with'}))
-                obj.color_cycle_ = deblank(val);
+                obj.color_cycle = deblank(val);
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     '''marker_sizes'' must be reals greater than zero');
@@ -274,7 +211,7 @@ classdef genieplot < handle
         function set.maxspec_2D(obj, val)
             if isnumeric(val) && isscalar(val) && val>0 && (isinf(val) || ...
                     (isfinite(val) && rem(val,1)==0))
-                obj.maxspec_2D_ = val;
+                obj.maxspec_2D = val;
             else
                 error('HERBERT:genieplot:invalid_argument', ...
                     'maxspec_2D must be a positive integer or Inf');
@@ -282,26 +219,14 @@ classdef genieplot < handle
         end
         %-----------------------------------------------------------------------
     end
-
+        
     %---------------------------------------------------------------------------
     % No need to touch below this line
-
+    
     methods (Static)
-        function obj = instance(varargin)
-            % if any argument is provided to instance, it is assumed that
-            % you want to clear its current state (run reset to defaults)
-            persistent uniqueInstance
-            if isempty(uniqueInstance) || nargin>0
-                obj = genieplot();
-                uniqueInstance = obj;
-            else
-                obj = uniqueInstance;
-            end
-        end
-
         function set(property, newData)
             % Set a single property, or set all properties from a structure
-            obj = genieplot.instance();
+            obj = getInstance();
             if ~isstruct(property)
                 obj.(property) = newData;
             else
@@ -319,28 +244,64 @@ classdef genieplot < handle
                 end
             end
         end
-
+        
         function data = get(property)
-            % Get a single property, or a structure with all properties
-            obj = genieplot.instance();
+            % Get a single property, or a structure with all properties 
+            obj = getInstance();
             if nargin>0
                 data = obj.(property);
             else
                 % Fill a structure with all the properties
-                names = properties(obj);
+                mc = metaclass(obj);
+                names = arrayfun(@(x)(x.Name), mc.PropertyList, ...
+                    'UniformOutput', false);
                 for i = 1:numel(names)
                     data.(names{i}) = obj.(names{i});
                 end
                 data = orderfields(data);
             end
         end
-
+        
         function reset()
-            genieplot.instance('clear');
+            obj = getInstance();
+            initialise(obj);
         end
     end
-
+    
 end
+
+% Note: this is deliberately placed *outside* the class, so that it
+% ^^^^  is not exposed to the user. If we do not mind this, we could
+%       place getInstance() in the class's static methods group.
+function obj = getInstance()
+persistent uniqueInstance
+if isempty(uniqueInstance)
+    obj = genieplot();
+    uniqueInstance = obj;
+else
+    obj = uniqueInstance;
+end
+end
+
+
+function initialise(obj)
+obj.default_fig_name = [];  % default name for plot
+
+obj.XScale = 'linear';      % x-axis scaling: 'linear' or 'log'
+obj.YScale = 'linear';      % y-axis scaling: 'linear' or 'log'
+obj.ZScale = 'linear';      % z-axis scaling: 'linear' or 'log'
+
+obj.maxspec_1D = 1000;      % Maximum number of 1D datasets in a plottable array
+obj.colors = {'k'};         % Row cell array of default colors
+obj.color_cycle = 'with';   % 'fast' or 'with': colours cycle faster or with
+obj.line_styles = {'-'};    % Row cell array of default line styles
+obj.line_widths = 0.5;      % Row vector of default line widths
+obj.marker_types = {'o'};   % Row cell array of default marker types
+obj.marker_sizes = 6;       % Row vector of default marker sizes
+
+obj.maxspec_2D = 1000;      % Maximum number of 2D datasets in a plottable array
+end
+
 
 %-------------------------------------------------------------------------------
 function status = ishexcolor(str)
