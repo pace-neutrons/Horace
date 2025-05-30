@@ -93,6 +93,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
             if obj.no_mex
                 skipTest('Can not test mex code to checko binning parameters');
             end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
             
             AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
                 'img_range',[-1,-2,-3,-10;1,2,3,40]);

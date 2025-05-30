@@ -86,36 +86,32 @@ num_threads = config_store.instance().get_value('parallel_config','threads');
 
 pax = obj.pax;
 if size(coord,1) == 3  % 3D array binning
-    r1 = data_range(1,1:3)';
-    r2 = data_range(2,1:3)';
+    data_range = obj.img_range(:,1:3);
     pax = pax(pax~=4);
     ndims = numel(pax);
 else
+    data_range = obj.img_range(:,1:3);    
     ndims = obj.dimensions;
 end
 
 
-mex_input = struct( ...
+other_mex_input = struct( ...
+    'binning_mode',num_outputs, ...         % binning mode, what binning values to calculate and return
+    'num_threads',num_threads,  ...         % how many threads to use in computation    
+    'data_range',data_range,...             % binning ranges
     'bins_all_dims',obj.nbins_all_dims, ... % size of binning lattice
     'dimensions',ndims, ...                 % number of image dimensions (sum(nbins_all_dims~=1)))
-    'data_range',obj.img_range, ...         % binning ranges
-    'binning_mode',num_outputs, ...         % binning mode, what binning values to calculate and return
-    'num_threads',num_threads,  ...         % how many threads to use in computation
-    'test_input_parsing',test_mex_inputs ...% Run in test mode validating the way input have been parsed by mex code and doing no caclculations.
+    'test_input_parsing',test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
     );
-mex_input.coord = coord;
-mex_input.npix  = npix;
-mex_input.s     = s;
-mex_input.err   = e;
-mex_input.unique_runid = unique_runid;
+other_mex_input.unique_runid = unique_runid;
 
 is_pix = isa(pix_cand,'PixelDataBase');
 if is_pix
-    mex_input.selected = pix_cand.detector_idx>0;
+    other_mex_input.selected = pix_cand.detector_idx>0;
 else
-    mex_input.selected = []; % do not analyze selected pixels
+    other_mex_input.selected = []; % do not analyze selected pixels
 end
-[npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_c(mex_input);
+[npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_c(coord,npix,s,e,other_mex_input);
 
 if ~any(ok)
     if num_outputs>3 % no further calculations are necessary, so all

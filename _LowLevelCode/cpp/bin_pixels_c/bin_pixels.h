@@ -1,33 +1,67 @@
 #pragma once
+#include <string>
+#include <map>
+#include <functional>
 #include "../CommonCode.h"
-enum input_arguments {
-    Sqw_parameters,  //
-    N_INPUT_Arguments
+
+// use C-mutexes while binning the data
+#define C_MUTEXES
+// enumerate input arguments of the mex function
+enum in_arg {
+    coord,  // 3xnpix or 4xnpix dimensional array of pixels coordinates to bin
+    npix,   // image array containing number of pixels contributing into each bin
+    Signal, // image array containing signal. May be empty pointer
+    Error,  // image array containing errors. May be empty pointer
+    param_struct,  // other possible input parameters and data for the binning algorithm, combined into structure processed separately
+    N_IN_Arguments
 };
 
-enum arguments_meaning {
-    Threads,
-    Urange,
-    Grid_size,
-    Pix,
-    N_ARGUMENT_CELLS
+// enumerate output arguments of the mex function
+enum out_arg {
+    npix,   // pointer to modified npix array
+    Signal, // pointer to modified signal array 
+    Error,  // pointer to modified error array
+    cell_out, // pointer to cellarray with other possible outputs
+    N_OUT_Arguments
 };
-enum out_arguments {
-    Signal,
-    Error,
-    N_pix,
-    Pix_out,
-    N_ARGUMENTS_OUT
+
+// enumerate possible input/output data types
+// enumerate possible types of input pixel arguments
+enum inTypes { 
+    Coord4Pix4,
+    Coord8Pix4,
+    Coord8Pix8,
+    Coord4Pix8
 };
-enum output_arguments {  // not used at the moment
-    Sqw_data,
-    N_OUTPUT_Arguments
+// enumerate operational modes bin pixels operates in
+enum opModes {
+    npix_only = 1, // calculate npix array only binning coordinates over 
+    N_OP_Modes =10 // total number of modes code operates in
 };
-template<class T>
-bool bin_pixels(double* s, double* e, double* npix,
-    mxArray* pPixel_data, mxArray*& PixelSorted,
-    double const* const cut_range,
-    mwSize grid_size[4], int num_threads)
+
+// structure describes all parameters used by binning procedure
+struct BinningArg{
+    opModes binMode;
+    size_t n_dims; // number of dimensions
+    std::vector<double> data_range; // range of the data to bin within
+    std::vector<size_t> num_bins;   // number of bins in each non-unit dimension
+    int num_threads;                // number of computational threads to use in binning loop
+    // information about pixels coordinates to bin.
+    mxClassID coord_type;           // type of input coordinate array (mxDouble or mxSingle)
+    std::vector<int> coord_size;    // 2-element array describing sizes of coordinate array
+    void const* pCoord;             // pointer to the start of the coordinate array
+    //
+    BinningArg() {};
+};
+
+/** Procedure calculates positions of the input pixels coordinates within specified
+*   image box and various other values related to distributions of pixels over the image
+*   bins, including signal per image box, error per image box and distribution of pixels
+*   according to the image.
+*/
+template<class TC, class TP>
+bool bin_pixels(double* npix, double* s, double* e,
+    TC const* const coord,BinningArg const &bin_par)
 {
     mwSize distribution_size, comb_size;
     // numbers of the pixels in grid

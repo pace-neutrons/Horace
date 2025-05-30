@@ -1,44 +1,152 @@
 #include "bin_pixels.h"
 #include "../utility/version.h"
-// combile code using c-mutexes
-#define C_MUTEXES
+
+#define UNSAFE_CASTING
+
+BinningArg parse_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nlhs,
+    double*& pNpix, double*& pSignal, double*& pErr) {
+
+    BinningArg bin_par;
+
+    // retrieve information about coordinates of pixels to bin
+    auto* pcoord = prhs[in_arg::coord];
+    if (mxGetNumberOfDimensions(pcoord) != 2) {
+        std::stringstream buf;
+        buf << "Coordinate array must have only 2 dimensions\n";
+        buf << "Provided array has: " << (int)mxGetNumberOfDimensions(pcoord) << " dimensions\n";
+
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    bin_par.coord_type = mxGetClassID(pcoord);
+    bin_par.coord_size.reserve(2);
+    auto dims = mxGetDimensions(pcoord);
+    bin_par.coord_size[0] = int(dims[0]);
+    bin_par.coord_size[1] = int(dims[1]);
+    if (bin_par.coord_size[0] < 3 || bin_par.coord_size[0]>9) {
+        std::stringstream buf;
+        buf << "First dimension of coordinate array must lie between 3 and 9\n";
+        buf << "Provided array's dimension 0 equal to : " << bin_par.coord_size[0] << "\n";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    bin_par.pCoord = mxGetPr(pcoord);
+
+    // Retrieve information about npix, S and Err arrays
+    auto* tpNpix = prhs[in_arg::npix];
+    auto* tpSig = prhs[in_arg::Signal];
+    auto* tpErr = prhs[in_arg::Error];
+    // 
+#ifdef UNSAFE_CASTING
+    plhs[out_arg::npix] = const_cast<mxArray*>(tpNpix);
+    plhs[out_arg::Signal] = const_cast<mxArray*>(tpSig);
+    plhs[out_arg::Error] = const_cast<mxArray*>(tpErr);
+#else
+    plhs[out_arg::npix] = mxDuplicateArray(tpNpix);
+    plhs[out_arg::Signal] = mxDuplicateArray(tpSig);
+    plhs[out_arg::Error] = mxDuplicateArray(tpErr);
+#endif
+    // assume all size checks were done by calling function. It is easier
+    // to do it from MATLAB
+    pNpix = (double*)mxGetPr(plhs[out_arg::npix]);
+    pSignal = (double*)mxGetPr(plhs[out_arg::Signal]);
+    pErr = (double*)mxGetPr(plhs[out_arg::Error]);
+
+    /* ********************************************************************************
+     * retrieve and analyse other binning parameters collated into binning structure. *
+    ** ********************************************************************************/
+    // define map which relates field names of the input MATLAB structure with functions
+    // which processes this input and 
+    std::map < std::string, std::function<void(mxArray const* const)>> BinParInfo;
+    /*
+    'binning_mode', num_outputs, ...         % binning mode, what binning values to calculate and return
+        'num_threads', num_threads, ...         % how many threads to use in computation
+        'data_range', data_range, ...             % binning ranges
+        'bins_all_dims', obj.nbins_all_dims, ... % size of binning lattice
+        'dimensions', ndims, ...                 % number of image dimensions(sum(nbins_all_dims~= 1)))
+        'test_input_parsing', test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
+    */
+    BinParInfo["binning_mode"] = [&bin_par](mxArray const* const pField) {
+        if (!mxIsScalar(pField)) {  // get value for computational mode the alogrithm should run
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "Binning mode can be defined only by scalar values");
+        }
+        auto mode = mxGetScalar(pField);
+        bin_par.binMode = opModes(mode);
+        };
+    BinParInfo["num_threads"] = [&bin_par](mxArray const* const pField) {
+        if (!mxIsScalar(pField)) {
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "number of computational threads can be defined only by scalar values");
+        }
+        auto nthreads = mxGetScalar(pField);
+        if (nthreads < 1) {
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "number of computational threads can not be smaller then 1");
+        }
+        if (nthreads > 64) {
+            mexWarnMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "Using more then 64 computational threads is not expected.\n"
+                "Reverted requested number of threads to 64");
+            nthreads = 64;
+        }
+        bin_par.num_threads = nthreads;
+        };
+    //***********************************************************************
+    auto pAllPar = plhs[in_arg::param_struct];
+    auto argType = mxGetClassID(pAllPar);
+    if (argType != mxSTRUCT_CLASS) {
+        std::stringstream buf;
+        buf << in_arg::param_struct << "'s parameter of input class should be a structure with binning parameters\n";
+        buf << "It is something else with MATLAB mex classID: " << argType << "\n";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    auto total_num_of_elements = mxGetNumberOfElements(pAllPar);
+    if (total_num_of_elements != 1) {
+        std::stringstream buf;
+        buf << "Structure with binning parameters have to have 1 element. \n";
+        buf << "It has: " << (short)total_num_of_elements << "elements\n";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    auto number_of_fields = mxGetNumberOfFields(pAllPar);
+    /* For the given index, walk through each field. */
+    for (int fld_idx = 0; fld_idx < number_of_fields; fld_idx++) {
+        auto field_name = std::string(mxGetFieldNameByNumber(pAllPar, fld_idx));
+        auto fld_ptr = mxGetFieldByNumber(pAllPar, 0, fld_idx);
+
+
+        //display_subscript(structure_array_ptr, index);
+        //field_name = mxGetFieldNameByNumber(structure_array_ptr,
+        //    field_index);
+        //mexPrintf(".%s\n", field_name);
+        //field_array_ptr = mxGetFieldByNumber(structure_array_ptr,
+        //    index,
+        //    field_index);
+        //if (field_array_ptr == NULL) {
+        //    mexPrintf("\tEmpty Field\n");
+        //}
+        //else {
+        //    /* Display a top banner. */
+        //    mexPrintf("------------------------------------------------\n");
+        //    get_characteristics(field_array_ptr);
+        //    analyze_class(field_array_ptr);
+        //    mexPrintf("\n");
+        //}
+    }
+
+    return bin_par;
+}
 //
 //
 //static std::unique_ptr<omp_storage> pStorHolder;
 //
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
-//*************************************************************************************************
-// the function (bin_pixels_c) distributes pixels according to the 4D-grid specified and
-// calculates signal and error within grid cells
-// usage:
-// >>> bin_pixels_c(sqw_data,urange,grid_size);
-// where sqw_data -- sqw structure with defined array of correct pixels data
-// urange         -- allowed range of the pixels; the pixels which are out of the range are rejected
-// grid_size      -- integer array of the grid dimensions in every 4 directions
-//*************************************************************************************************
-// Matlab code:
-//    % Reorder the pixels according to increasing bin index in a Cartesian grid->
-//    [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
-//    % transform pixels;
-//    sqw_data.pix=sqw_data.pix(:,ix);
-//    sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
-//    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
-//    sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
-//    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalize data
-//
-//    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalize variance
-//    clear ix ibin   % biggish arrays no longer needed
-//    nopix=(sqw_data.npix==0);
-//    sqw_data.s(nopix)=0;
-//    sqw_data.e(nopix)=0;
-// based on original % Original matlab code of : T.G.Perring
-//
 {
     mwSize  iGridSizes[4],     // array of grid sizes
         nGridDimensions,    // number of dimensions in the whole grid (usually 4 according to the pixel data but can be modified in a future
         i;
-    double* pS, * pErr, * pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
-    mxArray* PixelSorted;
     //
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
 #ifdef _OPENMP
@@ -49,84 +157,22 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         return;
     }
 
-
-    if (nrhs != N_INPUT_Arguments) {
+    if (nrhs != N_IN_Arguments) {
         std::stringstream buf;
-        buf << "ERROR::bin_pixels_c needs" << (short)N_INPUT_Arguments << "  but got " << (short)nrhs << " input arguments\n";
-        mexErrMsgTxt(buf.str().c_str());
+        buf << "ERROR::bin_pixels_c needs" << (short)N_IN_Arguments << "  but got " << (short)nrhs << " input arguments\n";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
     }
     //  if(nlhs>N_OUTPUT_Arguments) {
     //    std::stringstream buf;
     //	buf<<"ERROR::bin_pixels accepts only "<<(short)N_OUTPUT_Arguments<<" but requested to return"<<(short)nlhs<<" arguments\n";
     //    mexErrMsgTxt(buf.str().c_str());
     //  }
-    if (!mxIsCell(prhs[Sqw_parameters])) {
-        mexErrMsgTxt("ERROR::bin_pixels_c function needs to receive its parameters as a cell array\n");
-    }
-    size_t nPars = mxGetN(prhs[Sqw_parameters]);
+    double* pS, * pErr, * pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
+    mxArray* PixelSorted;
 
-    if (nPars != N_ARGUMENT_CELLS) {
-        std::stringstream buf;
-        buf << "ERROR::bin_pixels_c expects array of " << (short)N_ARGUMENT_CELLS;
-        buf << "cells \n but got " << (short)nPars << " cells\n";
-        mexErrMsgTxt(buf.str().c_str());
-    }
+    auto binning_par = parse_inputs(prhs, nrhs, plhs, nlhs, pNpix, pS, pErr);
 
-
-    int num_threads;
-    mxArray* pThreads = mxGetCell(prhs[Sqw_parameters], Threads);
-    if (pThreads) {
-        num_threads = (int)*mxGetPr(pThreads);
-    }
-    else {
-        num_threads = 1;
-        mexPrintf("WARNING::bin_pixels_c->can not retrieve the number of computational threads from calling workspace, 1 assumed");
-    }
-    if (num_threads < 1)num_threads = 1;
-    if (num_threads > 64)num_threads = 64;
-
-    double const* const pGrid_sizes = (double*)mxGetPr(mxGetCell(prhs[Sqw_parameters], Grid_size));
-    double const* const pUranges = (double*)mxGetPr(mxGetCell(prhs[Sqw_parameters], Urange));
-    nGridDimensions = mxGetN(mxGetCell(prhs[Sqw_parameters], Grid_size));
-    if (nGridDimensions > 4)mexErrMsgTxt(" we do not currently work with the grids which have more then 4 dimensions");
-
-    mwSize    totalGridSize(1);  // number of cells in the whole grid;
-    for (i = 0; i < nGridDimensions; i++) {
-        iGridSizes[i] = (mwSize)(pGrid_sizes[i]);
-        if (iGridSizes[i] < 1)iGridSizes[i] = 1;
-        totalGridSize *= iGridSizes[i];
-    }
-    //**************************************************************
-    // get pixels information
-    mxArray* const pPixData = mxGetCell(prhs[Sqw_parameters], Pix);
-    if (!pPixData)mexErrMsgTxt("ERROR::bin_pixels_C-> pixels information (last field of input data) can not be void");
-    // this field has to had the format specified;
-    mwSize  nPixels = mxGetN(pPixData);
-    mwSize  nDataRange = mxGetM(pPixData);
-    if (nDataRange != PIX_WIDTH)mexErrMsgTxt("ERROR::bin_pixels-> the pixel data have to be a 9*num_of_pixels array");
-
-    //
-    plhs[0] = mxCreateCellMatrix(1, N_ARGUMENTS_OUT);
-    if (!plhs[0]) {
-        mexErrMsgTxt("ERROR::bin_pixels_c-> can not allocate cell array for output parameters");
-    }
-
-    mxArray* tt;
-    for (i = 0; i < N_ARGUMENTS_OUT - 1; i++) {
-        tt = mxCreateNumericArray(nGridDimensions, iGridSizes, mxDOUBLE_CLASS, mxREAL);
-        if (!tt)mexErrMsgTxt("ERROR::bin_pixels->can not allocate memory for output signals errors and npixels");
-        mxSetCell(plhs[0], i, tt);
-    }
-
-    pS = (double*)mxGetPr(mxGetCell(plhs[0], Signal));
-    pErr = (double*)mxGetPr(mxGetCell(plhs[0], Error));
-    pNpix = (double*)mxGetPr(mxGetCell(plhs[0], N_pix));
-    // Clear accumulation cells.
-    for (i = 0; i < totalGridSize; i++) {
-        *(pS + i) = 0;
-        *(pErr + i) = 0;
-        *(pNpix + i) = 0;
-    }
 
     bool place_pixels_in_old_array;
     try {
