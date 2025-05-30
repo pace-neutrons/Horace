@@ -59,9 +59,7 @@ BinningArg parse_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nl
     // which processes this input and 
     std::map < std::string, std::function<void(mxArray const* const)>> BinParInfo;
     /*
-    'binning_mode', num_outputs, ...         % binning mode, what binning values to calculate and return
-        'num_threads', num_threads, ...         % how many threads to use in computation
-        'data_range', data_range, ...             % binning ranges
+         'data_range', data_range, ...             % binning ranges
         'bins_all_dims', obj.nbins_all_dims, ... % size of binning lattice
         'dimensions', ndims, ...                 % number of image dimensions(sum(nbins_all_dims~= 1)))
         'test_input_parsing', test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
@@ -71,7 +69,20 @@ BinningArg parse_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nl
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 "Binning mode can be defined only by scalar values");
         }
-        auto mode = mxGetScalar(pField);
+        opModes mode =(opModes)(mxGetScalar(pField)-1); // C-modes are smaller then MATLAB modes by 1
+        if (mode < opModes::npix_only || mode >= opModes::N_OP_Modes) {
+            std::stringstream buf;
+            buf << "Operational modes should be in range from 1 to 7\n";
+            buf << "Unknown binning mode: " << (short)mode << "\n";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+
+        }
+        if (mode == opModes::invalid_mode) {
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "Operation mode N1 is not supported");
+        }
+        
         bin_par.binMode = opModes(mode);
         };
     BinParInfo["num_threads"] = [&bin_par](mxArray const* const pField) {

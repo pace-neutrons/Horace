@@ -35,8 +35,18 @@ enum inTypes {
 };
 // enumerate operational modes bin pixels operates in
 enum opModes {
-    npix_only = 1, // calculate npix array only binning coordinates over 
-    N_OP_Modes =10 // total number of modes code operates in
+    npix_only    = 0, // calculate npix array only binning coordinates over 
+    invalid_mode = 1, // this mode is not supported by binning routine
+    sig_err      = 2, // calculate npix, signal and error
+    sort_pix     = 3, // in additional to binning, return pixels sorted by bins
+    sort_and_id  = 4, // in additional to binning and sorting, return unique pixels id
+    nosort       = 5, // do binning but do not sort pixels but return array which defines pixels position
+                      // within the image grid
+    nosort_sel   = 6, // like 6, but return ?logical? array which specifies what pixels have been selected
+                      // and what were rejected by binning operations
+    test_inputs =  7, // do not do calculations but just return parsed inputs for 
+                     // unit testing
+    N_OP_Modes = 8   // total number of modes code operates in. Provided for checks
 };
 
 // structure describes all parameters used by binning procedure
