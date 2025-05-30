@@ -124,7 +124,7 @@ if nargin==0 || nargout>0
         % Return the current line width(s) and line style(s)
         varargout{1} = line_widths;
         if nargout>=2
-            if numel(line_styles)==1
+            if isscalar(line_styles)
                 varargout{2} = line_styles{1};
             else
                 varargout{2} = line_styles;
