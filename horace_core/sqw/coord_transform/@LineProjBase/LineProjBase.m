@@ -169,6 +169,22 @@ classdef LineProjBase < aProjectionBase
     %======================================================================
     % TRANSFORMATIONS:
     methods
+        function varargout = bin_pixels(obj, ...
+                axes,pix_cand,npix,s,e,varargin)
+            varargout = cell(1,nargout); % allocate only requested numbr of parameters
+            %use_mex = config_store.instance().get_value('hor_config','use_mex');
+            %if use_mex
+
+            [varargout{1:nargout}] = ...
+                bin_pixels@aProjectionBase(obj, ...
+                axes,pix_cand,npix,s,e,varargin{:});
+            % else
+            %     [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = ...
+            %         bin_pixels@aProjectionBase(obj, ...
+            %         axes,pix_cand,npix,s,e,varargin{:});
+            % end
+
+        end
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
         % and overloads for specific methods
@@ -293,7 +309,7 @@ classdef LineProjBase < aProjectionBase
             % procedure.
             %
             % Overload used in equal_to_tol to check types allowed for compariosn
-            % line_proj allow comparison of two any LineProjBase children
+            % line_proj allows comparison with any LineProjBase children
             %
             % Inputs:
             % obj1    -- LineProjBase object 1 to compare
@@ -309,7 +325,8 @@ classdef LineProjBase < aProjectionBase
             % Returns:
             % is      -- true if objects types are equal and false if not.
             % mess    -- the message providing additinal information about
-            %            object types it the types are different
+            %            object types it the types are different. Empty if
+            %            types are equal.
             %
             [is,mess] = eq_to_tol_type_equal_(obj1,obj2,name_a,name_b);
         end

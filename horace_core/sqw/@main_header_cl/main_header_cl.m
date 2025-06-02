@@ -240,14 +240,9 @@ classdef main_header_cl < serializable
             fn = fullfile(obj.filepath_,obj.filename_);
         end
         function obj = set.full_filename(obj,val)
-            if ~(ischar(val)||isstring(val))
-                error('HORACE:main_header_cl:invalid_argument', ...
-                    'full_filename should be a string, describing full name of the file on disk. It is: %s', ...
-                    disp2str(val));
-            end
-            [fp,fn,fe] = fileparts(val);
-            obj.filepath_ = fp;
-            obj.filename_ = [fn,fe];
+            [flpth_,flnm_] = parse_full_filename(val);
+            obj.filepath_ = flpth_;
+            obj.filename_ = flnm_;
         end
 
     end
