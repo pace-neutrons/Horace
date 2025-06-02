@@ -42,7 +42,7 @@ flags={'isonormals'};
 
 if ~isempty(par)
     error('HERBERT:IX_dataset_3d:invalid_argument', ...
-        'Invalid sliceomatic arguments given:\n %s',disp2str(par))
+        'Invalid sliceomatic arguments given:\n %s',disp2str(par,80))
 end
 
 if numel(w)~=1
@@ -168,7 +168,7 @@ function [ux, uniform] = check_axis_values (x, point_data, reltol)
 %               False: not equally spaced or at least two equal values.
 
 % Check validity of 
-if isempty(x) || (numel(x)==1 && ~point_data)
+if isempty(x) || (isscalar(x) && ~point_data)
     error('HERBERT:IX_dataset_3d:invalid_argument', ['Must have at least ' ...
         'one abscissa (point data) or two abscissae (histogram data)'])
 end
