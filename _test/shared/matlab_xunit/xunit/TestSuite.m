@@ -144,9 +144,8 @@ classdef TestSuite < TestComponent
             end
             difference= GlobalStateTrace.instance.trace();
             if ~isempty(difference)
-                sprintf('*** Component %s causes the change:\n', ...
-                    disp2str(component))
-                disp(difference);
+                info = sprintf('*** Component %s causes the change',disp2str(component));
+                GlobalStateTrace.instance.print(info);
             end
 
         end
@@ -272,12 +271,9 @@ classdef TestSuite < TestComponent
 
             difr= GlobalStateTrace.instance.trace();
             if ~isempty(difr)
-                sprintf('*** Config changed while init tests fromName: %s', ...
-                    name)
-                disp(difr);
-                if isfield(difr,'difference')
-                    disp(difr.difference);
-                end
+                info = sprintf( ...
+                    '*** Config changed while init tests fromName: %s',name);
+                GlobalStateTrace.instance.print(info);
             end
             [name, filter_string] = strtok(name, ':');
             if ~isempty(filter_string)
@@ -341,12 +337,10 @@ classdef TestSuite < TestComponent
 
             difference= GlobalStateTrace.instance.trace();
             if ~isempty(difference)
-                sprintf('*** Global state changed in init tests from working directory: %s', ...
-                    test_suite.Name)
-                disp(difference);
-                if isfield(difference,'difference')
-                    disp(difference.difference);
-                end
+                info = sprintf( ...
+                    '*** Global state changed in init tests from working directory: %s', ...
+                    test_suite.Name);
+                GlobalStateTrace.instance.print(info);
             end
             for k = 1:numel(mfiles)
                 [~, name] = fileparts(mfiles(k).name);
@@ -381,9 +375,8 @@ classdef TestSuite < TestComponent
 
             difr= GlobalStateTrace.instance.trace();
             if ~isempty(difr)
-                sprintf('*** Package %s initialized from change :\n', ...
-                    name)
-                disp(difr);
+                info = sprintf('*** Package %s initialized from changed configuration', name);
+                GlobalStateTrace.instance.print(info);
             end
 
 

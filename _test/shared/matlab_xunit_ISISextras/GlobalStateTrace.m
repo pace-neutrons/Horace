@@ -1,6 +1,6 @@
 classdef GlobalStateTrace < handle
     %GlobalStateChecker  Singleton class used to trace code for
-    % changes in global state and report these changes on request
+    % changes in some global state and report these changes on request
     %
     % set up tracing by doing:
     %
@@ -30,6 +30,9 @@ classdef GlobalStateTrace < handle
     properties(Access=protected)
         state_holder_ = [];
         trace_enabled_ = false;
+        % internal variable, which keeps difference between current and
+        % previous state of the traced value
+        difference_holder_ = [];
     end
     methods
         function is = get.trace_enabled(obj)
@@ -44,11 +47,11 @@ classdef GlobalStateTrace < handle
             new_state  = logical(val);
             obj.trace_enabled_ = new_state;
         end
-        function difr = trace(obj)
+        function diffr = trace(obj)
             % Trace changes in global configuration and return difference
             % in configuration if global configuration changed.
             if ~obj.trace_enabled
-                difr = [];
+                diffr = [];                
                 return;
             end
             current_state = struct();
@@ -63,11 +66,17 @@ classdef GlobalStateTrace < handle
             if isempty(obj.state_holder_)
                 obj.state_holder_ = current_state;
             end
-            difr = compare_states(obj.state_holder_,current_state);
-            if ~isempty(difr)
+            diffr = compare_states(obj.state_holder_,current_state);
+            if ~isempty(diffr)
                 % store changed state to keep track of next change
                 obj.state_holder_ = current_state;
+                obj.difference_holder_ = diffr;
             end
+        end
+        function print(obj,info)
+            % method prints provided information and displays 
+            % the contents of obj.difference_holder_ field if this field is
+            % not empty.
         end
     end
     methods(Static)
