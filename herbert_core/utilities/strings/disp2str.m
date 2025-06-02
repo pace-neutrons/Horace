@@ -5,21 +5,24 @@ function out_str = disp2str(in_obj,constraint_length,constraint_text)
 % Normally used for reporting incorrect values of arbitrary objects
 % in call 'error' function
 % Usage:
-% >>out_str = disp2str(in_obj)
+% >>out_str = disp2str(in_obj);
+% >>out_str = disp2str(in_obj,constraint_length);
+% >>out_str = disp2str(in_obj,constraint_length,constraint_text);
 % Inputs:
-% in_obj  -- the input object to convert to string using internal Matlab
+% in_obj  -- the input object to convert to string using internal MATLAB
 %            'disp' function
 % Optional:
 % constraint_length
-%         -- if provided, maximal length the output string allowed.
+%         -- if provided, maximum length the output string beyond which
+%            it is truncated.
 % constraint_text
-%         -- the text whcih should be printed when length of the string 
+%         -- the text which is appended when the length of the string
 %            is truncated. Default value: "...truncated."
 % Output:
 % out_str -- the string the object is converted to.
 %            If constraint_length is provided, the string is truncated to
 %            up to specified number of characters accompanied by constraint
-%            text. I.g. if you do s= disp2str(1:100,80)
+%            text. I.g. if you do: s= disp2str(1:100,80)
 %            The result would be:
 %      'Columns 1 through 18
 %       1     2     3     4     5     6     7     8     9    10    ...truncated.'
