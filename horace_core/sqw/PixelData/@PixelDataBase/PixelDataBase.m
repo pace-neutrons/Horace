@@ -418,8 +418,6 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
             recalculate_pix_ranges,keep_precision);
 
-
-
         function obj = invalidate_range(obj,fld)
             % set the data range to inverse values
             % to allow
@@ -466,8 +464,9 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             end
             obj.data_range_ = data_range;
         end
+
         function [is,mess] = eq_to_tol_type_equal(obj1,obj2,name_a,name_b)
-            % Helper function used by equal_to_tol to validate if types of 
+            % Helper function used by equal_to_tol to validate if types of
             % two objects is equal for purposes of equal_to_tol comparison
             % procedure.
             %
@@ -816,13 +815,9 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         end
 
         function obj = set_full_filename(obj,val)
-            % main part of file path setter. Need checks/modification
-            if ~istext(val)
-                error('HORACE:PixelDataBase:invalid_argument',...
-                    'full_filename must be a string. Received: %s', ...
-                    class(val));
-            end
-            obj.full_filename_ = val;
+            % main part of file path setter.
+            [flpth_,flnm_] = parse_full_filename(val);
+            obj.full_filename_ = fullfile(flpth_,flnm_);
         end
         %
         function obj =  set_metadata(obj,val)
