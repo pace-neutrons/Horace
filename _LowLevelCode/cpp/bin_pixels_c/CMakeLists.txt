@@ -1,11 +1,13 @@
 set(
     SRC_FILES
     "bin_pixels_c.cpp"
+    "BinningArg.cpp"
 )
 
 set(
     HDR_FILES
     "bin_pixels.h"
+    "BinningArg.h"
     "../CommonCode.h"
 )
 

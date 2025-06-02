@@ -1,29 +1,8 @@
 #pragma once
-#include <string>
-#include <map>
-#include <functional>
-#include "../CommonCode.h"
+#include "BinningArg.h"
 
 // use C-mutexes while binning the data
 #define C_MUTEXES
-// enumerate input arguments of the mex function
-enum in_arg {
-    coord,  // 3xnpix or 4xnpix dimensional array of pixels coordinates to bin
-    npix,   // image array containing number of pixels contributing into each bin
-    Signal, // image array containing signal. May be empty pointer
-    Error,  // image array containing errors. May be empty pointer
-    param_struct,  // other possible input parameters and data for the binning algorithm, combined into structure processed separately
-    N_IN_Arguments
-};
-
-// enumerate output arguments of the mex function
-enum out_arg {
-    npix,   // pointer to modified npix array
-    Signal, // pointer to modified signal array 
-    Error,  // pointer to modified error array
-    cell_out, // pointer to cellarray with other possible outputs
-    N_OUT_Arguments
-};
 
 // enumerate possible input/output data types
 // enumerate possible types of input pixel arguments
@@ -32,36 +11,6 @@ enum inTypes {
     Coord8Pix4,
     Coord8Pix8,
     Coord4Pix8
-};
-// enumerate operational modes bin pixels operates in
-enum opModes {
-    npix_only    = 0, // calculate npix array only binning coordinates over 
-    invalid_mode = 1, // this mode is not supported by binning routine
-    sig_err      = 2, // calculate npix, signal and error
-    sort_pix     = 3, // in additional to binning, return pixels sorted by bins
-    sort_and_id  = 4, // in additional to binning and sorting, return unique pixels id
-    nosort       = 5, // do binning but do not sort pixels but return array which defines pixels position
-                      // within the image grid
-    nosort_sel   = 6, // like 6, but return ?logical? array which specifies what pixels have been selected
-                      // and what were rejected by binning operations
-    test_inputs =  7, // do not do calculations but just return parsed inputs for 
-                     // unit testing
-    N_OP_Modes = 8   // total number of modes code operates in. Provided for checks
-};
-
-// structure describes all parameters used by binning procedure
-struct BinningArg{
-    opModes binMode;
-    size_t n_dims; // number of dimensions
-    std::vector<double> data_range; // range of the data to bin within
-    std::vector<size_t> num_bins;   // number of bins in each non-unit dimension
-    int num_threads;                // number of computational threads to use in binning loop
-    // information about pixels coordinates to bin.
-    mxClassID coord_type;           // type of input coordinate array (mxDouble or mxSingle)
-    std::vector<int> coord_size;    // 2-element array describing sizes of coordinate array
-    void const* pCoord;             // pointer to the start of the coordinate array
-    //
-    BinningArg() {};
 };
 
 /** Procedure calculates positions of the input pixels coordinates within specified
