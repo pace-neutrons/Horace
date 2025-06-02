@@ -1,5 +1,5 @@
 classdef GlobalStateTrace < handle
-    %GlobalStateChecker  Singleton class used to trance code for
+    %GlobalStateChecker  Singleton class used to trace code for
     % changes in global state and report these changes on request
     %
     % set up tracing by doing:

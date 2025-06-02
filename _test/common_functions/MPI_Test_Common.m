@@ -37,7 +37,7 @@ classdef MPI_Test_Common < TestCase
             end
 
             try
-                clOb = set_temporary_config_options('parallel_config','parallel_cluster',obj.cluster_name);
+                cleanUpObj = set_temporary_config_options('parallel_config','parallel_cluster',obj.cluster_name);
                 pc = parallel_config;
                 set_framework = strcmpi(pc.parallel_cluster,obj.cluster_name);
             catch ME

@@ -142,11 +142,11 @@ classdef TestSuite < TestComponent
             else
                 self.TestComponents{end + 1} = component;
             end
-            difr= GlobalStateTrace.instance.trace();
-            if ~isempty(difr)
+            difference= GlobalStateTrace.instance.trace();
+            if ~isempty(difference)
                 sprintf('*** Component %s causes the change:\n', ...
                     disp2str(component))
-                disp(difr);
+                disp(difference);
             end
 
         end
@@ -339,13 +339,13 @@ classdef TestSuite < TestComponent
 
             mfiles = dir(fullfile('.', '*.m'));
 
-            difr= GlobalStateTrace.instance.trace();
-            if ~isempty(difr)
+            difference= GlobalStateTrace.instance.trace();
+            if ~isempty(difference)
                 sprintf('*** Global state changed in init tests from working directory: %s', ...
                     test_suite.Name)
-                disp(difr);
-                if isfield(difr,'difference')
-                    disp(difr.difference);
+                disp(difference);
+                if isfield(difference,'difference')
+                    disp(difference.difference);
                 end
             end
             for k = 1:numel(mfiles)
