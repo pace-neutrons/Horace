@@ -26,7 +26,6 @@ classdef test_cut_multicut < TestCase
             };
         sqw_4d;
         working_dir;
-        old_ws;
     end
 
     methods
@@ -38,9 +37,19 @@ classdef test_cut_multicut < TestCase
                 name = varargin{1};
             end
             obj = obj@TestCase(name);
+            clWarn = set_temporary_warning('off','HORACE:old_file_format','SQW_FILE:old_version');
             obj.sqw_4d = read_sqw(obj.sqw_file);
             obj.working_dir = tmp_dir();
-            obj.old_ws = warning('off','HORACE:old_file_format');
+        end
+        function setUp(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'off','off'});
+            warning(ws);
+        end
+        function tearDown(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'on','on'});
+            warning(ws);
         end
 
 

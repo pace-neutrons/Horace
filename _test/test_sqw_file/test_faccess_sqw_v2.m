@@ -10,8 +10,8 @@ classdef test_faccess_sqw_v2< TestCase
         sample_dir;
         sample_file;
         test_folder;
-        % old warning level
-        old_wl;
+        % old warning state
+        old_ws;
     end
     methods(Static)
         function sz = fl_size(filename)
@@ -40,8 +40,15 @@ classdef test_faccess_sqw_v2< TestCase
             obj.sample_dir = hc.test_common;
             obj.sample_file = fullfile(obj.sample_dir,'w3d_sqw.sqw');
             obj.test_folder=fileparts(mfilename('fullpath'));
-            obj.old_wl = warning('off','HORACE:old_file_format');
+
         end
+        function setUp(obj)
+            obj.old_ws = warning('off','HORACE:old_file_format');
+        end
+        function tearDown(obj)
+            warning(obj.old_ws);
+        end
+
         function delete(obj)
             warning(obj.old_wl);
         end
@@ -103,7 +110,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(det,'unique_objects_container'))
             assertEqual(det.n_objects,1);
             udi = det.unique_objects;
-            
+
             assertEqual(udi{1}.filename,'slice_n_c_m1_ei140.par')
             assertEqual(udi{1}.filepath,'C:\Russell\PCMO\ARCS_Oct10\Data\')
             assertEqual(numel(udi{1}.group),58880)
@@ -137,7 +144,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(det,'unique_objects_container'))
             assertEqual(det.n_objects,1);
             udi = det.unique_objects;
-            
+
             assertEqual(udi{1}.filename,'9cards_4_4to1.par')
             assertEqual(udi{1}.filepath,'c:\data\Fe\')
             assertEqual(numel(udi{1}.group),36864)
