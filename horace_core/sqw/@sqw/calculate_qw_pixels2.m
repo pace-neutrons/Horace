@@ -201,8 +201,12 @@ for i=1:n_unique_det_arrays
             calc_idx_  = {Y(:)',X(:)'};
             short_idx_cache{run_id_number} = calc_idx_;
         end
-        % MAY BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP on the basis of
-        % mtimesx_horace with pivot.
+        % MUST BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP on the basis of
+        % mtimesx_horace with pivot which will calculate matrix production 
+        % using cellarray of input oritnation martices and input kf_de
+        % matrices (which do contain multiple pointers to the same matrices).
+        % Sorting and duplicate dropping should be also included
+        % into C routine for performance.
         %
         % found indices of the run, energy bins and detector used in q-dE
         % calculations in the frame of the input indices
