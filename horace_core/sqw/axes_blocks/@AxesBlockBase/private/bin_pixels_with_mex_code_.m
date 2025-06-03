@@ -91,14 +91,14 @@ else
 end
 
 other_mex_input = struct( ...
-    'coord_in',coord,...                    % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
-    'binning_mode',proc_mode, ...         % binning mode, what binning values to calculate and return
-    'num_threads',num_threads,  ...         % how many threads to use in parallel computation
-    'data_range',data_range,...             % binning ranges
+    'coord_in',    coord,...                % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
+    'binning_mode',proc_mode, ...           % binning mode, what binning values to calculate and return
+    'num_threads', num_threads,  ...        % how many threads to use in parallel computation
+    'data_range',  data_range,...           % binning ranges
     'bins_all_dims',obj.nbins_all_dims, ... % size of binning lattice
-    'dimensions',ndims, ...                 % number of image dimensions (sum(nbins_all_dims > 1)))
-    'unique_runid',unique_runid, ...        % unique run indices of pixels contributing into cut
-    'force_double',force_double, ...        % make result double precision regardless of input data
+    'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
+    'unique_runid', unique_runid, ...       % unique run indices of pixels contributing into cut
+    'force_double', force_double, ...       % make result double precision regardless of input data
     'test_input_parsing',test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
     );
 other_mex_input.unique_runid = unique_runid;
