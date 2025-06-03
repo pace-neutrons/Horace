@@ -1,4 +1,4 @@
-classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_file_state_holder
+classdef  test_mem_file_cut_and_filebased_construction < TestCase
     % Tests functionality of methods that can take object or file input
     %
     % Author: T.G.Perring
@@ -14,6 +14,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
         d2d_name
 
         clob_obj_;
+        warn_holder;
     end
 
     methods
@@ -35,6 +36,23 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             %
 
         end
+        %
+        function setUp(obj)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'off','off'});
+            obj.warn_holder = warning(ws);
+        end
+        function tearDown(obj)
+            warning(obj.warn_holder);
+        end
+        %
+        function clearUp(obj)
+            for i=1:numel(obj.sqw1d_name), delete(obj.sqw1d_name{i}); end
+            for i=1:numel(obj.sqw2d_name), delete(obj.sqw2d_name{i}); end
+            for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
+            for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
+        end
+
         function delete(obj)
             obj.clob_obj_ = [];
         end
@@ -84,7 +102,7 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
             sqw_1d_source = {fullfile(source,'sqw_1d_1.sqw'),...
                 fullfile(source,'sqw_1d_2.sqw')};
 
-
+            obj.setUp();
             obj.sqw1d_arr=read_sqw(sqw_1d_source);
 
 
@@ -108,14 +126,9 @@ classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_f
 
             save(obj.d2d_arr(1),obj.d2d_name{1});
             save(obj.d2d_arr(2),obj.d2d_name{2});
+            obj.tearDown();
         end
 
-        function clearUp(obj)
-            for i=1:numel(obj.sqw1d_name), delete(obj.sqw1d_name{i}); end
-            for i=1:numel(obj.sqw2d_name), delete(obj.sqw2d_name{i}); end
-            for i=1:numel(obj.d1d_name), delete(obj.d1d_name{i}); end
-            for i=1:numel(obj.d2d_name), delete(obj.d2d_name{i}); end
-        end
 
         % =================================================================================================
         % Perform tests
