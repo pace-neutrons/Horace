@@ -1,6 +1,6 @@
 function [obj,npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
     bin_pixels_with_mex_code_(obj,coord,num_outputs,...
-    npix,s,e,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
+    npix_in,s,e,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
@@ -15,9 +15,12 @@ function [obj,npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
 %       -- the number of output parameters requested to process. Depending
 %          on this number, additional parts of the algorithm will be
 %          deployed.
-% npix  -- the array of size of this grid, accumulating the information
+% npix_in
+%       -- the array of size of this grid, accumulating the information
 %          about number of pixels contributing into each bin of the grid,
-%          defined by this axes block.
+%          defined by this axes block. This routine uses it only as
+%          indicator of number of calls to this code and keeps ownership of
+%          actual npix array to itself.
 % s    --  the array of size of the grid, defined by this
 %          AxesBlockBase, containing the information about the accumulated
 %          signal from all pixels, contributing to each grid cell.
@@ -94,195 +97,74 @@ else
     ndims = obj.dimensions;
 end
 
-
 other_mex_input = struct( ...
+    'coord_in',coord,...                    % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
     'binning_mode',num_outputs, ...         % binning mode, what binning values to calculate and return
-    'num_threads',num_threads,  ...         % how many threads to use in computation
+    'num_threads',num_threads,  ...         % how many threads to use in parallel computation
     'data_range',data_range,...             % binning ranges
     'bins_all_dims',obj.nbins_all_dims, ... % size of binning lattice
-    'dimensions',ndims, ...                 % number of image dimensions (sum(nbins_all_dims~=1)))
+    'dimensions',ndims, ...                 % number of image dimensions (sum(nbins_all_dims > 1)))
     'unique_runid',unique_runid, ...        % unique run indices of pixels contributing into cut
+    'force_double',force_double, ...        % make result double precision regardless of input data
     'test_input_parsing',test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
     );
 other_mex_input.unique_runid = unique_runid;
 
 is_pix = isa(pix_cand,'PixelDataBase');
-if is_pix
-    other_mex_input.selected = pix_cand.detector_idx>0;
-    ndata = 2;    
+if is_pix && return_selected
+    other_mex_input.pix_candidates   = pix_cand.get_raw_data;
+    other_mex_input.selected = pix_cand.detector_idx>0;  % already selected pixels should be ignored by mex routine
+    ndata = 2;
+    if pix_cand.is_corrected
+        other_mex_input.alignment_matr = pix_cand.alignment_matr;
+    else
+        other_mex_input.alignment_matr  = [];
+    end
 else
-    other_mex_input.selected = []; % do not analyse selected pixels
+    other_mex_input.alignment_matr   = [];
+    other_mex_input.pix_candidates   = pix_cand;
+    other_mex_input.selected         = []; % do not analyse selected pixels
     % cell with data array
-    ndata = numel(pix_cand);    
+    ndata = numel(pix_cand);
 end
+% routine allocates npix (s,e on request) on first call and keeps ownership
+% of these arrays internally. Input npix is not used and serves just as an
+% indication that this is the first call to the routine if npix is empty.
+[obj.mex_code_holder_,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
+    obj.mex_code_holder_,npix_in,other_mex_input);
 
+out_struc = cell2struct(out_param_values,out_param_names);
 if test_mex_inputs
-    % in this case pix_ok and unique_runid change meaning and contain 
-    [npix, s, e, pix_ok,unique_runid] = bin_pixels_c(coord,npix,s,e,other_mex_input);    
+    % in this case pix_ok change meaning and contains output data structure
+    % directly. The structure itself contains copy of input parameters plus
+    % various helper values obtained from input and used during the testing
+    pix_ok = out_struc;
     return
 else
-    %[npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_c(coord,npix,s,e,other_mex_input);    
-    [npix, s, e, out_params] = bin_pixels_c(coord,npix,s,e,other_mex_input);
-    pix_ok_data  = out_params{1};
-    pix_ok_range = out_params{2};
+    %[npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_c(coord,npix,s,e,other_mex_input);
+    pix_ok_data  = out_struc.pix_ok_data;
+    pix_ok_range = out_struc.pix_ok_range;
+
     if num_outputs<4 || ~is_pix
         if ndata>=3
             pix_ok = pix_ok_range; % redefine pix_ok_range to be npix accumulated
         end
         return;
     end
-    pix_ok = PixelDataMemory();
-    pix_ok = pix_ok.set_raw_data(pix_ok_data);
-    pix_ok = pix_ok.set_data_range(pix_ok_range);    
-    
-    unique_runid = out_params{3};
-    pix_idx      = out_params{4};
-    selected     = out_params{5};
-
-end
-
-if ~any(ok)
-    if num_outputs>3 % no further calculations are necessary, so all
-        % following outputs are processed.
-        if iscell(pix_cand)
-            pix_ok = zeros(size(s));
-            selected = [];
-        elseif return_selected
-            pix_ok = [];
-        else
-            pix_ok = PixelDataBase.create();
-            selected = [];
-        end
-        return;
+    if isempty(pix_ok_data)
+        pix_ok = pix_ok_data;
+    else
+        pix_ok = PixelDataMemory();
+        pix_ok = pix_ok.set_raw_data(pix_ok_data);
+        pix_ok = pix_ok.set_data_range(pix_ok_range);
     end
+
+    % in modes where these values are not calculated, the code returns 
+    % empty 
+    unique_runid  = out_struc.unique_runid;
+    pix_indx      = out_struc.pix_idx;
+    selected      = out_struc.selected;
+
 end
-
-coord = coord(:,ok);
-
-% bin only points in dimensions, containing more then one bin
-n_bins  = bin_array_size(pax);
-
-if ndims == 0
-    npix1= sum(ok);
-    npix = npix + npix1;
-    pix_indx = ones(npix1,1);
-else
-    r1 = r1(pax);
-    r2 = r2(pax);
-    step = (r2-r1)./n_bins';
-
-    coord = coord(pax,:);
-
-    bin_step = 1./step;
-    pix_indx = floor((coord-r1)'.*bin_step')+1;
-    % Due to round-off errors and general binning procedure, the
-    % rightmost points have index, exceeding (by 1) the box size.
-    % We include points with these indices in the rightmost cell.
-    on_edge = pix_indx>n_bins;
-    if any(on_edge(:))
-        % assign these points to the leftmost bins
-        for i=1:ndims
-            pix_indx(on_edge(:,i),i) = n_bins(i);
-        end
-    end
-    % mex code, if deployed below, needs pixels collected during this
-    % particular accumulation.
-    [npix,npix1] = cut_data_from_file_job.calc_npix_distribution(pix_indx,npix);
-end
-
-if num_outputs<3
-    return;
-end
-
-%--------------------------------------------------------------------------
-% more then 1 output
-% Calculating signal and error
-%--------------------------------------------------------------------------
-
-if is_pix
-    ndata = 2;
-else % cell with data array
-    ndata = numel(pix_cand);
-end
-
-out = cell(1,ndata);
-out{1} = s;
-out{2} = e;
-
-if is_pix
-    bin_values = {pix_cand.signal;pix_cand.variance};
-else % cellarray of arrays to accumulate
-    bin_values = pix_cand;
-    if ndata>=3 % Output changes type and meaning. Nasty.
-        % Needs something better in a future
-        pix_ok = zeros(size(s));
-        out{3} = pix_ok;
-    end
-end
-
-if ndims == 0
-    for i=1:ndata
-        out{i} = out{i}+sum(bin_values{i});
-    end
-else
-    for i=1:ndata
-        out{i} = out{i}+accumarray(pix_indx,bin_values{i}(ok),size(npix));
-    end
-end
-
-s = out{1};
-e = out{2};
-if num_outputs<4 || ~is_pix
-    if ndata>=3
-        pix_ok = out{3}; % redefine pix_ok to be npix accumulated
-    end
-    return;
-end
-
-if num_outputs > 6
-    selected = find(ok);
-elseif return_selected
-    pix_ok = find(ok);
-    return
-end
-
-%--------------------------------------------------------------------------
-% more than 4 outputs requested
-% Get unsorted pixels, contributed to the bins
-%--------------------------------------------------------------------------
-% s,e,pix_ok,unique_runid,pix_indx
-pix_ok = pix_cand.get_pixels(ok,'-align');
-if num_outputs<5
-    return;
-end
-
-%--------------------------------------------------------------------------
-% find unique indices,
-% more then 5 outputs apparently requested to obtain sorted pixels
-loc_unique   = unique(pix_ok.run_idx);
-unique_runid = unique([unique_runid,loc_unique]);
-clear ok;
-
-%-------------------------------------------------------------------------
-% sort pixels according to bins
-if ndims > 1 % convert to 1D indices
-    stride = cumprod(n_bins);
-    pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
-end
-pix = pix_ok;
-
-if ~isa(pix.data,'double') && force_double
-    pix = PixelDataBase.create(double(pix.data));
-end
-
-if num_outputs < 6 && ndims > 0
-    pix = sort_pix(pix,pix_indx,npix1,[],~force_double);
-end
-
-if num_outputs == 6 && ndims == 0
-    pix_indx = ones(pix.num_pixels,1);
-end
-
-pix_ok = pix;
 
 end

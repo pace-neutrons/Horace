@@ -146,6 +146,10 @@ classdef AxesBlockBase < serializable
 
         %Old interface to img_scales
         ulen;   % in Ang^-1 or meV [row vector]
+        % Helper property which contains pointer to initialized mex code
+        % used to optimize mex code usage in multiple calls to the binning
+        % routine
+        mex_code_holder;
     end
 
     properties(Access=protected)
@@ -173,6 +177,8 @@ classdef AxesBlockBase < serializable
         offset_ = [0,0,0,0];
         %
         type_ = ''
+        % 
+        mex_code_holder_ = [];
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -466,6 +472,17 @@ classdef AxesBlockBase < serializable
         function range = get.max_img_range(obj)
             range = obj.max_img_range_;
         end
+        %
+        function pmex = get.mex_code_holder(obj)
+            pmex = obj.mex_code_holder_;
+        end
+        function obj = set.mex_code_holder(obj,val)
+            if ~isnumeric(val)
+                val = [];
+            end
+            obj.mex_code_holder_ = val;
+        end
+        
     end
     %======================================================================
     % Integration, interpolation and binning

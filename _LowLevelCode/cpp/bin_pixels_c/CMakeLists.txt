@@ -9,6 +9,7 @@ set(
     "bin_pixels.h"
     "BinningArg.h"
     "../CommonCode.h"
+    "../MatlabCppClassHolder.hpp"
 )
 
 set(MEX_NAME "bin_pixels_c")

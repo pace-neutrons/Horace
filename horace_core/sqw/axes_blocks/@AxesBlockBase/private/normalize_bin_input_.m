@@ -109,12 +109,14 @@ else
             class(pix_coord));
     end
 end
-
+not_use_mex = ~config_store.instance().get_value('hor_config','use_mex');
 
 % Analyze the number of input arguments
 switch narg
     case 3
-        [npix,s,e] = obj.init_accumulators(1,force_3Dbinning);
+        if not_use_mex
+            [npix,s,e] = obj.init_accumulators(1,force_3Dbinning);
+        end
     case 4
         npix = varargin{1};
         check_size(obj,npix);
@@ -122,29 +124,29 @@ switch narg
         error('HORACE:AxesBlockBase:invalid_argument',...
             'Can not request signal or signal and variance accumulation arrays without providing pixels source')
     case 7
-        [npix,s,e] = check_and_alloc_accum(obj,varargin{1:3},3,force_3Dbinning);
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
     case 8
-        [npix,s,e] = check_and_alloc_accum(obj,varargin{1:3},3,force_3Dbinning);
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
         unique_runid = varargin{5};
     otherwise
-        [npix,s,e] = check_and_alloc_accum(obj,varargin{1:3},3,force_3Dbinning);
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
         unique_runid = varargin{5};
         argi = varargin{6:end};
 end
 
 % initiate accumulators to 0, as no input value is provied
-if mode>1 && isempty(npix)
+if mode>1 && isempty(npix) && not_use_mex
     [npix,s,e] = obj.init_accumulators(3,force_3Dbinning);
 end
 
 end
 
-function [npix,s,e]=check_and_alloc_accum(obj,npix,s,e,n_case,force_3Dbinning)
+function [npix,s,e]=check_and_alloc_accum(obj,not_use_mex,npix,s,e,n_case,force_3Dbinning)
 empty_s = isempty(s);
 empty_n = isempty(npix);
 
-alloc_all =  empty_n && empty_s;
-alloc_se  = ~empty_n && empty_s;
+alloc_all =  empty_n && empty_s && not_use_mex;
+alloc_se  = ~empty_n && empty_s && not_use_mex;
 if alloc_all
     [npix,s,e] = obj.init_accumulators(n_case,force_3Dbinning);
 elseif alloc_se

@@ -6,10 +6,10 @@
 
 // enumerate input arguments of the mex function
 enum in_arg {
+    mex_code_holder, // pointer to the class shared with Matlab and containing persistent 
+                     // storage of the mex-function.
     coord,  // 3xnpix or 4xnpix dimensional array of pixels coordinates to bin
     npixIn,   // image array containing number of pixels contributing into each bin
-    SignalIn, // image array containing signal. May be empty pointer
-    ErrorIn,  // image array containing errors. May be empty pointer
     param_struct,  // other possible input parameters and data for the binning algorithm, combined into structure processed separately
     N_IN_Arguments
 };
