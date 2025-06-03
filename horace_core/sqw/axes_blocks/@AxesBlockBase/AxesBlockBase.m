@@ -627,17 +627,17 @@ classdef AxesBlockBase < serializable
                 source_axes,source_proj, data,proj);
         end
         %
-        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,varargin)
+        function [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
             % Usage:
-            % >>npix = obj.bin_pixels(coord_transf);
-            % >>[npix,s,e] = obj.bin_pixels(coord_transf,npix,s,e);
-            % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
-            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
-            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
-            % >>[npix,s,e,pix_ok,unque_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
+            % >>[obj,npix] = obj.bin_pixels(coord_transf);
+            % >>[obj,npix,s,e] = obj.bin_pixels(coord_transf,npix,s,e);
+            % >>[obj,npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
+            % >>[obj,npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
+            % >>[obj,npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
+            % >>[obj,npix,s,e,pix_ok,unque_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
             % Where
             % Inputs:
             % coord_transf
@@ -710,7 +710,7 @@ classdef AxesBlockBase < serializable
             if numel(varargin) == 4 && iscell(varargin{4})
                 mode = 4;
             else
-                mode = nargout;
+                mode = nargout-1;
             end
             % convert different input forms into fully expanded common form
             [npix,s,e,pix_cand,unique_runid,argi]=...
@@ -733,12 +733,12 @@ classdef AxesBlockBase < serializable
             % bin pixels
             use_mex = config_store.instance().get_value('hor_config','use_mex');
             if use_mex
-                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
+                [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
                     obj,coord_transf,mode,...
                     npix,s,e,pix_cand,unique_runid, ...
                     force_double,return_selected,test_mex_inputs);
             else
-                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...
+                [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...
                     obj,coord_transf,mode,...
                     npix,s,e,pix_cand,unique_runid,force_double,return_selected);
             end

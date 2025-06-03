@@ -94,10 +94,10 @@ classdef test_bin_pixels_mex_nomex < TestCase
                 skipTest('Can not test mex code to checko binning parameters');
             end
             clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
-            
+
             AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
                 'img_range',[-1,-2,-3,-10;1,2,3,40]);
-            out = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
+            [npix,s,e,out_flds,out_par] = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
             
 
         end
