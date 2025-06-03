@@ -111,7 +111,7 @@ if is_pix
     other_mex_input.selected = pix_cand.detector_idx>0;
     ndata = 2;    
 else
-    other_mex_input.selected = []; % do not analyze selected pixels
+    other_mex_input.selected = []; % do not analyse selected pixels
     % cell with data array
     ndata = numel(pix_cand);    
 end

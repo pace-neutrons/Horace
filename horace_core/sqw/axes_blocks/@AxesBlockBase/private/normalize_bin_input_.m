@@ -31,7 +31,7 @@ function [npix,s,e,pix_cand,unique_runid,argi]=...
 %          values (depending on mode)
 % pix_cand -- input pix_cand if mode>1 or empty string if it is 1
 %
-% argi  -- celarray of character strings, provided as input and not related
+% argi  -- cellarray of character strings, provided as input and not related
 %          to the processed arrays, left for further routines to process.
 %
 % The the examples input/output parameters and input normalization

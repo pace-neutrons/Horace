@@ -23,7 +23,7 @@ function [rez, n_errors, can_use_mex_4_combine,can_use_custom_MPI] = check_horac
 %      -- returns true if cpp_communicator returns valid version.
 %
 % These two options are responsible for possibility of using threading in
-% IO and custom MPI parallel extensions correspondignly.
+% IO and custom MPI parallel extensions correspondingly.
 %
 % NOTE:
 % TODO: currently routine does not counts hdf_mex_reader function errors

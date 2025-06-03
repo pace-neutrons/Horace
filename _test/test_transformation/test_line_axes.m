@@ -53,7 +53,7 @@ classdef test_line_axes < TestCase
             assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[],[]), ...
                 'HORACE:AxesBlockBase:invalid_argument');
 
-            [npix,s,e,pix_ok,unique_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [ab,npix,s,e,pix_ok,unique_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(numel(unique_runid),1);
             assertEqual(s(6,1),100);
@@ -99,18 +99,18 @@ classdef test_line_axes < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelDataBase.create(pix_dat_full);
 
-            [npix1] = ab.bin_pixels(pix_data);
-            [npix2] = ab.bin_pixels(pix_data,npix1);
+            [ab,npix1] = ab.bin_pixels(pix_data);
+            [ab,npix2] = ab.bin_pixels(pix_data,npix1);
             assertEqual(2*npix1,npix2)
 
 
-            [npix3,s1,e1,pix_ok1,unique_runid1] = ab.bin_pixels(pix_data,npix1,[],[],pix);
+            [ab,npix3,s1,e1,pix_ok1,unique_runid1] = ab.bin_pixels(pix_data,npix1,[],[],pix);
             assertEqual(npix3,npix2)
             assertEqual(npix1,s1)
             assertEqual(npix1,e1)
 
             assertEqual(numel(unique_runid1),1);
-            [~,~,~,pix_ok,unique_runid2] = ab.bin_pixels(pix_data,npix1,s1,e1,pix,unique_runid1);
+            [ab,~,~,~,pix_ok,unique_runid2] = ab.bin_pixels(pix_data,npix1,s1,e1,pix,unique_runid1);
             assertEqual(unique_runid1,unique_runid2);
             assertEqual(pix_ok,pix_ok1);
             assertEqual(unique_runid2,1);
@@ -140,7 +140,7 @@ classdef test_line_axes < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelDataBase.create(pix_dat_full);
 
-            [npix,s,e,pix_ok,uniq_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [ab,npix,s,e,pix_ok,uniq_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
             assertEqual(uniq_runid,1)
 
             assertEqual(size(npix),szs);
@@ -176,7 +176,7 @@ classdef test_line_axes < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelDataBase.create(pix_dat_full);
 
-            [npix,s,e,pix_ok] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [ab,npix,s,e,pix_ok] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -210,7 +210,7 @@ classdef test_line_axes < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelDataBase.create(pix_dat_full);
 
-            [npix,s,e] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [ab,npix,s,e] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -243,7 +243,7 @@ classdef test_line_axes < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelDataBase.create(pix_dat_full);
 
-            [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [ab,npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -276,7 +276,7 @@ classdef test_line_axes < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelDataBase.create(pix_dat_full);
 
-            [npix,s,e,pix_ok,uniq_runid,pix_indx] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [ab,npix,s,e,pix_ok,uniq_runid,pix_indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -309,7 +309,7 @@ classdef test_line_axes < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelDataBase.create(pix_dat_full);
 
-            [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [ab,npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -341,7 +341,7 @@ classdef test_line_axes < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelDataBase.create(pix_dat_full);
 
-            [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [ab,npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -372,7 +372,7 @@ classdef test_line_axes < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
 
-            npix = ab.bin_pixels(pix_data);
+            [ab,npix] = ab.bin_pixels(pix_data);
 
             assertEqual(size(npix),szs);
             % no pixels were lost at binning
@@ -397,7 +397,7 @@ classdef test_line_axes < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
 
-            npix = ab.bin_pixels(pix_data);
+            [ab,npix] = ab.bin_pixels(pix_data);
 
             assertEqual(size(npix),szs);
             % no pixels were lost at binning
@@ -423,7 +423,7 @@ classdef test_line_axes < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
 
-            npix = ab.bin_pixels(pix_data);
+            [ab,npix] = ab.bin_pixels(pix_data);
 
             assertEqual(size(npix),szs);
             % no pixels were lost at binning
@@ -449,7 +449,7 @@ classdef test_line_axes < TestCase
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
 
-            npix = ab.bin_pixels(pix_data);
+            [ab,npix] = ab.bin_pixels(pix_data);
 
             assertEqual(size(npix),szs);
             % no pixels were lost at binning

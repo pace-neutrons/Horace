@@ -42,10 +42,10 @@ axes_bl = instproj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 
 % The method below is the overload of standard projection method
 % bin_pixels. It converts rundata to pixels and bins them using standard 
-% aProjectionBase bining procedure.
+% aProjectionBase binning procedure.
 % In addition to that, recalculates line_axes img_range if
 % the range has not been defined before:
-[data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
+[instproj,data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
     instproj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
 [data.s, data.e] = normalize_signal(data.s, data.e, data.npix);
 data.axes.img_range = axes_bl.img_range; % the range the data are binned on
