@@ -1,4 +1,4 @@
-classdef test_instrument_methods < TestCaseWithSave
+classdef test_instrument_methods_class < TestCaseWithSave
     % Test of setting instrument and moderator parameters
     properties
         w_fe
@@ -9,7 +9,7 @@ classdef test_instrument_methods < TestCaseWithSave
 
     methods
         %--------------------------------------------------------------------------
-        function self = test_instrument_methods (name)
+        function self = test_instrument_methods_class (name)
             self@TestCaseWithSave(name);
 
             % load data

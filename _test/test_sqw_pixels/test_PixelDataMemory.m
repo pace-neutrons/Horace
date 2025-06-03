@@ -1,5 +1,4 @@
-classdef test_PixelDataMemory < TestCase %& common_pix_class_state_holder
-
+classdef test_PixelDataMemory < TestCase 
     properties
         test_file
     end
