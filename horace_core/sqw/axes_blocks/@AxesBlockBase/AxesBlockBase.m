@@ -681,18 +681,13 @@ classdef AxesBlockBase < serializable
             %             3xnpis array of interpolated density for
             %             integration
             % Parameters:
-            % '-nomex'    -- do not use mex code even if its available
-            %               (usually for testing)
-            %
-            % '-force_mex' -- use only mex code and fail if mex is not available
-            %                (usually for testing)
             % '-force_double'
             %              -- if provided, the routine changes type of pixels
             %                 it gets on input, into double. if not, output
             %                 pixels will keep their initial type
-            %   N.B. -nomex and -force_mex options can not be used together.
             % '-return_selected' -- Returns `selected` in `pix_ok`
-            %                       for use with DnD cuts where fewer args are requested
+            %                       for use with DnD cuts where fewer
+            %                 args are requested
             %
             % Returns:
             % npix    -- the array, containing the numbers of pixels
@@ -752,7 +747,7 @@ classdef AxesBlockBase < serializable
             if use_mex
                 [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
                     obj,coord_transf,mode,...
-                    npix,s,e,pix_cand,unique_runid, ...
+                    npix,pix_cand,unique_runid, ...
                     force_double,return_selected,test_mex_inputs);
             else
                 [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...

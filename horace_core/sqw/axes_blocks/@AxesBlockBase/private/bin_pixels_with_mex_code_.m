@@ -1,6 +1,6 @@
 function [obj,npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
     bin_pixels_with_mex_code_(obj,coord,num_outputs,...
-    npix_in,s,e,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
+    npix_in,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
@@ -20,16 +20,9 @@ function [obj,npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
 %          about number of pixels contributing into each bin of the grid,
 %          defined by this axes block. This routine uses it only as
 %          indicator of number of calls to this code and keeps ownership of
-%          actual npix array to itself.
-% s    --  the array of size of the grid, defined by this
-%          AxesBlockBase, containing the information about the accumulated
-%          signal from all pixels, contributing to each grid cell.
-% e    --  the array of size of the grid, defined by this
-%          AxesBlockBase, containing the information about the error from all
-%          pixels, contributing to each grid cell.
-% npix, s, e arrays on input, contain the previous
-%          state of the accumulator or 0, if this is the first call to
-%          bin_pixels routine.
+%          actual npix array to itself. On first call it is empty and on
+%          subsequent calls it gets values from previous call to binning
+%          routine
 % pix_cand
 %      -- if provided (not empty) contain PixelData information with
 %         the pixels to bin. The signal and error, contributing into s and
