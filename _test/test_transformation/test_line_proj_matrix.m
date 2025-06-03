@@ -11,7 +11,7 @@ classdef test_line_proj_matrix<TestCase
         function this=test_line_proj_matrix(name)
             this=this@TestCase(name);
         end
-        % tests themself
+        % tests themselves
         function test_square(~)
             alatt = [1,2,3];
             angdeg= [90,90,90];

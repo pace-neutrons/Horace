@@ -519,7 +519,7 @@ classdef test_cut < TestCase
             output_sqw = sqw(outfile);
 
             contrubuted_keys = output_sqw.runid_map.keys;
-            contrib_ind  = [contrubuted_keys{:}];
+            contrib_ind  = contrubuted_keys;
             real_contr_ind = unique(ref_sqw.pix.run_idx);
             assertTrue(all(ismember(contrib_ind,real_contr_ind)));
 

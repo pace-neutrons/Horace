@@ -198,8 +198,37 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
 
             rdr = rundatah(sq4);
             assertEqualToTol(rdr,rd,'ignore_str',true,'tol',1.e-7,'-nan_equal');
-
         end
+        function test_rundatasqw_calc_qw_pixels2(~)
+            pths = horace_paths;
+            test_file = fullfile(pths.test_common,'MAP11014.nxspe');
+            ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[90,90,90],...
+                'u',[1,0,0],'v',[0,1,0]);
+
+            rd = rundatah(test_file,ds);
+            rd = rd.load();
+            % this is needed to fix one bug; see use of rundata.get_det_par_rows()
+            % for where this causes further problems and the rows call fixes that.
+            %TODO fix the mex call calc_projections_c to make this unnecessary
+            rd.loader.detpar_loader = rd.loader.detpar_loader.columnize_detpar();
+
+            clob = set_temporary_config_options(hor_config, ...
+                                                'use_mex', false, ...
+                                                'ignore_nan', true ...
+                                                );
+
+            [sq4,grid,data_range] = rd.calc_sqw();
+            assertEqual(grid,[50,50,50,50]);
+            ref_range = [0.0576   -6.6475   -6.6475    2.5000;...
+                3.8615    6.6475    6.6475  147.5000];
+            assertElementsAlmostEqual(data_range(:,1:4),ref_range,'relative',3.e-4);
+
+            pix_coord_rec = sq4.calculate_qw_pixels2(false,true);
+
+            assertEqualToTol(sq4.pix.coordinates,pix_coord_rec);
+        end
+
+        
 
         function test_rundata_mex_nomex(~)
             pths = horace_paths;

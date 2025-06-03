@@ -125,9 +125,8 @@ classdef test_sqw_constructor < TestCase
 
             sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             keys = sqw_obj.runid_map.keys;
-            keys = [keys{:}];
             ids = sqw_obj.experiment_info.expdata.get_run_ids();
-            assertEqual(keys,ids);
+            assertEqual(double(keys),ids);
 
             pix_ids = unique(sqw_obj.pix.run_idx);
             assertEqual(ids,pix_ids)

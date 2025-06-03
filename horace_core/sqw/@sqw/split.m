@@ -104,5 +104,5 @@ if total_size > mem_available || split_filebacked || return_files % two later ar
 end
 page_op.outfile = folder_for_parts;
 page_op = page_op.init(w,pix_filebacked,img_filebacked);
-page_op.init_filebacked_output = nargout>0;
+page_op.init_filebacked_output = (nargout==0)||page_op.init_filebacked_output||split_filebacked;
 wout    = sqw.apply_op(w,page_op);
