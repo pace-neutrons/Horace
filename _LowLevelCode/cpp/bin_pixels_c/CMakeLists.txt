@@ -8,8 +8,8 @@ set(
     HDR_FILES
     "bin_pixels.h"
     "BinningArg.h"
-    "../CommonCode.h"
-    "../MatlabCppClassHolder.hpp"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
+    "${CXX_SOURCE_DIR}/include/MatlabCppClassHolder.hpp"
 )
 
 set(MEX_NAME "bin_pixels_c")

@@ -6,7 +6,9 @@
 #include <sstream>
 #include <typeinfo>
 #include <vector>
-#include "../MatlabCppClassHolder.hpp"
+#include "include/MatlabCppClassHolder.hpp"
+
+#define CLASS_HANDLE_SIGNATURE 0x7D58CDE2
 
 enum input_types {
     init_mpi,
@@ -109,9 +111,14 @@ struct InitParamHolder {
 
 void throw_error(char const * const MESS_ID, char const * const error_message, bool is_tested = false);
 
+
+// Declarations for input_parser functions
 class MPI_wrapper;
 
-class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
+std::unique_ptr<class_handle<MPI_wrapper> > parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
     input_types& work_mode, std::vector<int32_t> &data_addresses, std::vector<int32_t> &data_tag, bool& is_synchroneous,
     uint8_t*& data_buffer, size_t &nbytes_to_transfer,
     InitParamHolder & addPar);
+
+std::unique_ptr<class_handle<MPI_wrapper> > process_init_mode(const char* ModeName, bool is_test_mode,
+    const mxArray* prhs[], int nrhs,InitParamHolder& init_par);

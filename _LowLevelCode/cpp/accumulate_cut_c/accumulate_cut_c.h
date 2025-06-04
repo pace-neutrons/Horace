@@ -1,7 +1,7 @@
 #ifndef H_ACCUMULATE_CUT
 #define H_ACCUMULATE_CUT
 
-#include "../CommonCode.h"
+#include <include/CommonCode.h>
 
 #define iRound(x) (int)floor((x) + 0.5)
 
@@ -49,8 +49,8 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
     {
         ignore_inf = true;
     }
-    ignore_something = ignore_nan | ignore_inf;
-    ignote_all = ignore_nan & ignore_inf;
+    ignore_something = ignore_nan || ignore_inf;
+    ignote_all = ignore_nan && ignore_inf;
     if (ignore_inf)
     {
         Inf = static_cast<T>(mxGetInf());

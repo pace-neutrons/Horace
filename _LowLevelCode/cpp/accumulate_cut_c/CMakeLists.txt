@@ -1,13 +1,14 @@
 set(
-    SRC_FILES
+SRC_FILES
     "accumulate_cut_c.cpp"
 )
 
 set(
-    HDR_FILES
-    "../CommonCode.h"
+   HDR_FILES
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
     "accumulate_cut_c.h"
 )
+
 
 set(MEX_NAME "accumulate_cut_c")
 pace_add_mex(

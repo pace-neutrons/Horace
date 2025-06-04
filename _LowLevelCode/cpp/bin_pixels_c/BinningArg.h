@@ -2,24 +2,27 @@
 #include <string>
 #include <map>
 #include <functional>
-#include "../CommonCode.h"
+#include <include/CommonCode.h>
+#include <include/MatlabCppClassHolder.hpp>
+
+#define CLASS_HANDLE_SIGNATURE 0x7D58CDE3
 
 // enumerate input arguments of the mex function
 enum in_arg {
-    mex_code_holder, // pointer to the class shared with Matlab and containing persistent 
+    mex_code_hldrIn, // pointer to the class shared with Matlab and containing persistent input arguments and binning arrays
                      // storage of the mex-function.
-    coord,  // 3xnpix or 4xnpix dimensional array of pixels coordinates to bin
-    npixIn,   // image array containing number of pixels contributing into each bin
-    param_struct,  // other possible input parameters and data for the binning algorithm, combined into structure processed separately
+    npixIn,          // image array containing number of pixels contributing into each bin. Actually used as indicator of first call to binning code
+    param_struct,    // other possible input parameters and data for the binning algorithm, combined into structure processed separately
     N_IN_Arguments
 };
 // enumerate output arguments of the mex function
 enum out_arg {
+    mex_code_hldrOut, // pointer to the class shared with Matlab and containing persistent 
     npix,   // pointer to modified npix array
     Signal, // pointer to modified signal array 
     Error,  // pointer to modified error array
-    cell_out, // pointer to cellarray with other possible outputs
-    cell_out_debug, // pointer to cellarray used during during input parameters debugging
+    out_par_names,  // pointer to cellarray with the names  of other possible output parameters
+    out_par_values, // pointer to cellarray with the values of other possible output parameters
     N_OUT_Arguments
 };
 
@@ -48,18 +51,25 @@ public:
     std::vector<double> data_range; // range of the data to bin within
     std::vector<size_t> num_bins;   // number of bins in each non-unit dimension
     int num_threads;                // number of computational threads to use in binning loop
+
     // information about pixels coordinates to bin.
     mxClassID coord_type;           // type of input coordinate array (mxDouble or mxSingle)
     std::vector<int> coord_size;    // 2-element array describing sizes of coordinate array
-    void const* pCoord;             // pointer to the start of the coordinate array
+    void const* coord_ptr;             // pointer to the start of the coordinate array
     // vector of unique run-id(s) calculated from pixels data
     std::vector<double> unique_runIDIn;
     //
     bool test_inputs;
+    // pointers to double accumulators used to calculate image averages (npix signal and error)
+    mxArray* npix_ptr;
+    mxArray* signal_ptr;
+    mxArray* error_ptr;
 public:
     BinningArg():
         binMode(opModes::npix_only), n_dims(0),num_threads(8),
-        coord_type(mxClassID::mxDOUBLE_CLASS),pCoord(nullptr), test_inputs(false){
+        coord_type(mxClassID::mxDOUBLE_CLASS), coord_ptr(nullptr), test_inputs(false),
+        npix_ptr(nullptr),signal_ptr(nullptr),error_ptr(nullptr)
+    {
         /* initialize input Matlab parameters map with empty lambda functions
         * Actual property specific lambda function will be initialized later
         */
@@ -82,8 +92,7 @@ public:
         }
     };
 
-    void parse_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nlhs,
-        double*& pNpix, double*& pSignal, double*& pErr);
+    void parse_bin_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nlhs);
     void return_inputs(mxArray* plhs[], int nlhs);
 private:
     // map to keep list of function to process input values from MATLAB structure
@@ -91,4 +100,7 @@ private:
     // map to keep list of functions to process output values in case of testing parameters parsing
     std::unordered_map<std::string, std::function<void(mxArray * p1, mxArray * p2)> > OutParList;
 };
+
+// Declare procedure which will initialize binning inputs from MATLAB call
+BinningArg const* parse_inputs(mxArray const* prhs[], mxArray* plhs[]);
 

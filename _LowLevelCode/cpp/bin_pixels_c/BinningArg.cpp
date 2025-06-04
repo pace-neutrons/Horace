@@ -1,11 +1,34 @@
 #include "BinningArg.h"
 
-#define UNSAFE_CASTING
-/**  Parse input arguments and set BinningArg from MATLAB input arguments
+/** Parse input arguments of the binning routine and retrieve all necessary parameters 
+*   for start or continue binning calculations
+* */
+BinningArg const * parse_inputs(mxArray const* prhs[], mxArray* plhs[]) {
+
+    // if binning routine is invoked with empty npix array, it is new binning calculations
+    auto new_call = mxIsEmpty(prhs[in_arg::npixIn]);
+
+    class_handle<BinningArg, CLASS_HANDLE_SIGNATURE, false>* bin_arg_holder = get_handler_fromMatlab<BinningArg, CLASS_HANDLE_SIGNATURE, false>(prhs[in_arg::mex_code_hldrIn], false);
+    if (bin_arg_holder && new_call) {
+
+    }
+    if (bin_arg_holder == nullptr || new_call) {
+        bin_arg_holder = new class_handle<BinningArg, CLASS_HANDLE_SIGNATURE, false>();
+        plhs[out_arg::mex_code_hldrOut] = bin_arg_holder->export_hanlder_toMatlab();
+    }
+    else {
+        auto bin_arg_ptr = bin_arg_holder->class_ptr;
+        return bin_arg_ptr;
+    }
+    auto bin_arg_ptr = bin_arg_holder->class_ptr;
+    bin_arg_ptr->parse_bin_inputs(prhs);
+}
+
+
+/**  Parse input binning arguments and set BinningArg from MATLAB input arguments
 *
 **/
-void BinningArg::parse_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nlhs,
-    double*& pNpix, double*& pSignal, double*& pErr) {
+void BinningArg::parse_bin_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nlhs) {
 
 
     // retrieve information about coordinates of pixels to bin
@@ -34,8 +57,6 @@ void BinningArg::parse_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], 
 
     // Retrieve information about npix, S and Err arrays
     auto* tpNpix = prhs[in_arg::npixIn];
-    auto* tpSig  = prhs[in_arg::SignalIn];
-    auto* tpErr  = prhs[in_arg::ErrorIn];
     // 
 #ifdef UNSAFE_CASTING
     plhs[out_arg::npix] = const_cast<mxArray*>(tpNpix);

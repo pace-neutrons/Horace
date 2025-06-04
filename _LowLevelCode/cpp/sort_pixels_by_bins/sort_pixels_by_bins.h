@@ -1,8 +1,7 @@
-#ifndef H_SORT_PIXELS_BY_BINS
-#define H_SORT_PIXELS_BY_BINS
+#pragma once
 
 
-#include "../CommonCode.h"
+#include "include/CommonCode.h"
 #include <algorithm>
 enum Input_Arguments {
     Pixel_data,
@@ -98,6 +97,3 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *
 
 
 }
-
-
-#endif

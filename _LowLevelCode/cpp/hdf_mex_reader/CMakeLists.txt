@@ -8,7 +8,7 @@ set(
 
 set(
     HDR_FILES
-    "../CommonCode.h"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
     "hdf_mex_reader.cpp"
     "hdf_pix_accessor.cpp"
     "input_parser.cpp"

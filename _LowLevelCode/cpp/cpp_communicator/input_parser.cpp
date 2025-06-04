@@ -112,7 +112,7 @@ AddPar   -- the reference to structure, containing additional information about 
 Returns:
 pointer to handle, containing MPI communicator.
 */
-class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, bool is_test_mode, const mxArray* prhs[], int nrhs,
+std::unique_ptr<class_handle<MPI_wrapper> > process_init_mode(const char* ModeName, bool is_test_mode, const mxArray* prhs[], int nrhs,
     InitParamHolder& init_par) {
     if (nrhs > 5 || nrhs < 1) {
         std::stringstream err;
@@ -120,7 +120,7 @@ class_handle<MPI_wrapper>* process_init_mode(const char* ModeName, bool is_test_
             << nrhs << " input parameters";
         throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
     }
-    class_handle<MPI_wrapper>* pCommunicator = new class_handle<MPI_wrapper>();
+    std::unique_ptr<class_handle<MPI_wrapper> > pCommunicator = std::make_unique<class_handle<MPI_wrapper> >(CLASS_HANDLE_SIGNATURE);
     init_par.is_tested = is_test_mode;
 
     if (nrhs >= 2) {
@@ -165,7 +165,7 @@ AddParr    -- The structure, containing additional parameters, different operati
 returns:
 pointer to cpp_communicator class handler to share with Matlab
 */
-class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
+std::unique_ptr<class_handle<MPI_wrapper> > parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
     input_types& work_mode, std::vector<int>& data_addresses, std::vector<int>& data_tag, bool& is_synchronous,
     uint8_t*& data_buffer, size_t& nbytes_to_transfer,
     InitParamHolder& AddPar)
@@ -248,9 +248,10 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
     else if (mex_mode.compare("finalize") == 0) {
         work_mode = close_mpi;
         /* do not throw on finalize second time if the framework had been already finalized*/
-        class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)CloseOrInfoInputs::comm_ptr], false);
+       auto pCommunicator = get_handler_fromMatlab<MPI_wrapper>(
+           prhs[(int)CloseOrInfoInputs::comm_ptr], CLASS_HANDLE_SIGNATURE, false);
 
-        return pCommunicator;
+        return std::unique_ptr<class_handle<MPI_wrapper> >(pCommunicator);
     }
     else if (mex_mode.compare("clearAll") == 0) {
         work_mode = clearAll;
@@ -266,8 +267,9 @@ class_handle<MPI_wrapper>* parse_inputs(int nlhs, int nrhs, const mxArray* prhs[
     }
 
     // get handlder from Matlab. Throw if a problem
-    class_handle<MPI_wrapper>* pCommunicator = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)CloseOrInfoInputs::comm_ptr], true);
-    return pCommunicator;
+    auto pCommunicator = get_handler_fromMatlab<MPI_wrapper>(
+        prhs[(int)CloseOrInfoInputs::comm_ptr], CLASS_HANDLE_SIGNATURE, true);
+    return std::unique_ptr<class_handle<MPI_wrapper> >(pCommunicator);
 
 }
 
