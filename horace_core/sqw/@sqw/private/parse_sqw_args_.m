@@ -15,6 +15,7 @@ parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || ...
     isa(x,'horace_binfile_interface') || ...
     isstruct(x)));
 parser.addParameter('file_backed', false, @islognumscalar)
+parser.addParameter('filebacked', false, @islognumscalar)
 
 
 parser.parse(varargin{:});
@@ -24,13 +25,15 @@ if ~isempty(fieldnames(parser.Unmatched))
         disp2str(parser.Unmatched));
 end
 
+filebacked = parser.Results.file_backed || parser.Results.filebacked;
+
 input = parser.Results.input;
 args = struct('sqw_obj', [], 'file', [], 'data_struct', [], ...
-    'file_backed', parser.Results.file_backed);
+    'file_backed', filebacked);
 % check if specific pixel allocation is requested or default (configuration
 % based) allocation is preferable
 args.force_pix_location =...
-    ~(~isempty(parser.UsingDefaults) && ismember('file_backed',parser.UsingDefaults));
+    ~(~isempty(parser.UsingDefaults) && all(ismember({'file_backed','filebacked'},parser.UsingDefaults)));
 
 if isa(input, 'SQWDnDBase')
     if isa(input, 'DnDBase')
