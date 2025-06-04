@@ -1,7 +1,6 @@
 #include "bin_pixels.h"
 #include "../utility/version.h"
 
-#define UNSAFE_CASTING
 
 //
 //static std::unique_ptr<omp_storage> pStorHolder;
@@ -31,6 +30,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     mxArray* PixelSorted;
 
     BinningArg binning_par;
+    class_handle<BinningArg, CLASS_HANDLE_SIGNATURE, false>* bin_par_ptr=  parse_inputs(plhs, nlhs, prhs,nrhs);
+
     binning_par.parse_inputs(prhs, nrhs, plhs, nlhs, pNpix, pS, pErr);
 
     if (binning_par.test_inputs) {
@@ -69,7 +70,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 */
 }
 
-
+#undef CLASS_HANDLE_SIGNATURE
 #undef OMP_VERSION_3
 #undef C_MUTEXES
 #undef SINGLE_PATH

@@ -1,4 +1,4 @@
-#include "../CommonCode.h"
+#include "include/CommonCode.h"
 #include "fileParameters.h"
 #include "../utility/version.h"
 

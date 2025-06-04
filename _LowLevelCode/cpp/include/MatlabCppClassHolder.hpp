@@ -1,15 +1,17 @@
 #pragma once
+#include <memory> // to wrap all this in unique pointer
 //
 
-/*The class holding a selected C++ class and providing the exchange mechanism between this class and Matlab*/
-#define CLASS_HANDLE_SIGNATURE 0x7D58CDE2
+/*The class holding a selected C++ class and providing the exchange mechanism between this class and Matlab
+* to maintain consistency 
+* */
 template<class T> class class_handle
 {
 public:
-    class_handle(T* ptr) : _signature(CLASS_HANDLE_SIGNATURE), _name(typeid(T).name()), class_ptr(ptr),
+    class_handle(T* ptr,uint32_t CLASS_SIGNATURE) : _signature(CLASS_SIGNATURE), _name(typeid(T).name()), class_ptr(ptr),
         num_locks(0) {
     }
-    class_handle() : _signature(CLASS_HANDLE_SIGNATURE), _name(typeid(T).name()), class_ptr(new T()),
+    class_handle(uint32_t CLASS_SIGNATURE) : _signature(CLASS_SIGNATURE), _name(typeid(T).name()), class_ptr(new T()),
         num_locks(0) {
     }
 
@@ -17,7 +19,7 @@ public:
         _signature = 0;
         delete class_ptr;
     }
-    bool isValid() { return ((_signature == CLASS_HANDLE_SIGNATURE) && std::strcmp(_name.c_str(), typeid(T).name()) == 0); }
+    bool isValid(uint32_t CLASS_SIGNATURE) { return ((_signature == CLASS_SIGNATURE) && std::strcmp(_name.c_str(), typeid(T).name()) == 0); }
 
 
 
@@ -55,7 +57,7 @@ void class_handle<T>::clear_mex_locks()
     }
 };
 
-template<class T> inline class_handle<T>* get_handler_fromMatlab(const mxArray* in, bool throw_on_invalid = true)
+template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray* in,uint32_t CLASS_SIGNATURE, bool throw_on_invalid = true)
 {
     if (!in)
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "cpp_communicator received from Matlab evaluated to null pointer");
@@ -64,7 +66,7 @@ template<class T> inline class_handle<T>* get_handler_fromMatlab(const mxArray* 
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "Handle input must be a real uint64 scalar.");
 
     class_handle<T>* ptr = reinterpret_cast<class_handle<T> *>(*((uint64_t*)mxGetData(in)));
-    if (!ptr->isValid())
+    if (!ptr->isValid(CLASS_SIGNATURE))
         if (throw_on_invalid)
             throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "Retrieved handle does not point to correct class");
         else

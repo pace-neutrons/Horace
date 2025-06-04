@@ -1,6 +1,7 @@
 #include <mex.h>
 #include "cpp_communicator.h"
 #include "../utility/version.h"
+
 /* The mex file provides media for MPI communications betwen various Horace workers.
 
  Usage:
@@ -123,7 +124,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     input_types work_type;
 
 
-    class_handle<MPI_wrapper>* pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
+    auto pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
         work_type, data_addresses, data_tag, is_synchronous,
         data_buffer, nbytes_to_transfer, InitPar);
 
@@ -187,7 +188,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     }
     case(close_mpi): {
         pCommunicatorHolder->clear_mex_locks();
-        delete pCommunicatorHolder;
+        pCommunicatorHolder.reset();
 
         for (int i = 0; i < nlhs; ++i) {
             plhs[i] = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL);
@@ -198,12 +199,13 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     if (nlhs > 0) {
         plhs[(int)labIndex_Out::comm_ptr] = pCommunicatorHolder->export_hanlder_toMatlab();
+        pCommunicatorHolder.release();
     }
 }
 /* If appropriate number of output arguments are available, set up the mex routine output arguments to mpi_numLab and mpi_labNum values
    extracted from initialized MPI framework.
 */
-void set_numlab_and_nlabs(class_handle<MPI_wrapper>* const pCommunicatorHolder, int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+void set_numlab_and_nlabs(std::unique_ptr<class_handle<MPI_wrapper> > &pCommunicatorHolder, int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
     if (nlhs >= (int)labIndex_Out::numLab + 1) { // return labIndex
         plhs[(int)labIndex_Out::numLab] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
@@ -238,3 +240,4 @@ void set_numlab_and_nlabs(class_handle<MPI_wrapper>* const pCommunicatorHolder, 
         }
     }
 }
+#undef CLASS_HANDLE_SIGNATURE
