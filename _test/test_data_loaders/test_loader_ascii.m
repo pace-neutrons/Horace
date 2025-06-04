@@ -16,11 +16,9 @@ classdef test_loader_ascii < TestCase
             obj = obj@TestCase(name);
             pths = horace_paths;
             obj.test_data_path = pths.test_common;
-            obj.clOb = set_temporary_config_options(hor_config, 'log_level', -1);
-            obj.matlab_warning = set_temporary_warning('off', 'all');
         end
 
-        function test_wrong_first_argument(~)
+        function test_wrong_first_argument(~)            
             f = @()loader_ascii(10);
             % should throw; first argument has to be a file name
             assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');

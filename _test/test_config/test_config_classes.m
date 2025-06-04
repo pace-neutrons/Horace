@@ -5,8 +5,6 @@ classdef test_config_classes < TestCase
     %
     % Author: T.G.Perring
     properties
-        s0_def;
-        s1_def;
         s2_def;
     end
 
@@ -18,20 +16,21 @@ classdef test_config_classes < TestCase
             %banner_to_screen(mfilename)
 
             % Set test config classes
-            set(tgp_test_class,'default');
-            set(tgp_test_class1,'default');
             set(tgp_test_class2,'default');
 
             clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
-            obj.s0_def = get(tgp_test_class);
-            obj.s1_def = get(tgp_test_class1);
             obj.s2_def = get(tgp_test_class2);
 
         end
+        function setUp(~)
+            config_store.instance().clear_config(tgp_test_class2,'-files');
+        end
+        function tearDown(~)
+            config_store.instance().clear_config(tgp_test_class2,'-files');
+        end
 
         function obj = test_getstruct(obj)
-            config_store.instance().clear_config(tgp_test_class2,'-files');
             clob = set_temporary_warning('off','HERBERT:config_store:default_configuration');
 
             % ----------------------------------------------------------------------------
@@ -47,7 +46,6 @@ classdef test_config_classes < TestCase
             assertTrue(isequal(obj.s2_def.v1,v1),'Problem with: get(test2_config,''v1'',''v3'')')
             assertTrue(isequal(obj.s2_def.v3,v3),'Problem with: get(test2_config,''v1'',''v3'')')
 
-            config_store.instance().clear_config(tgp_test_class2,'-files');
         end
 
         function obj = test_get_wrongCase(obj)
@@ -80,7 +78,6 @@ classdef test_config_classes < TestCase
             assertTrue(~isequal(s2_tmp,s2_buf),'Error in config classes code');
             assertTrue(isequal(s2_tmp,obj.s2_def),'Error in config classes code');
 
-            config_store.instance().clear_config(tgp_test_class2,'-files');
         end
 
         function obj = test_set_withbuffer(obj)
@@ -100,7 +97,6 @@ classdef test_config_classes < TestCase
             assertTrue(~isequal(s2_tmp,s2_buf),'Error in config classes code')
             assertTrue(isequal(s2_tmp,s2_sav),'Error in config classes code')
 
-            config_store.instance().clear_config(tgp_test_class2,'-files');
         end
 
         function obj = test_set_tests(obj)
@@ -154,8 +150,6 @@ classdef test_config_classes < TestCase
             [~,lw] = lastwarn;
             assertEqual(lw,'HERBERT:fake_warning')
 
-            % clean-up to erase all memory about this test
-            config_store.instance().clear_config(stc,'-files');
         end
 
     end

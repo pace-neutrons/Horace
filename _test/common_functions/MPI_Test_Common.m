@@ -29,9 +29,6 @@ classdef MPI_Test_Common < TestCase
 
         function obj = MPI_Test_Common(name,varargin)
             obj = obj@TestCase(name);
-            persistent old_parallel_config;
-            ni = MPI_Test_Common.num_instances();
-            MPI_Test_Common.num_instances(ni+1);
 
             if nargin > 1
                 obj.cluster_name = varargin{1};
@@ -39,25 +36,39 @@ classdef MPI_Test_Common < TestCase
                 obj.cluster_name = 'parpool';
             end
 
-            [pc, opc] = set_local_parallel_config();
-
-            if isempty(old_parallel_config) || ni == 1
-                old_parallel_config = opc;
-            else
-                opc = old_parallel_config ;
+            try
+                cleanUpObj = set_temporary_config_options('parallel_config','parallel_cluster',obj.cluster_name);
+                pc = parallel_config;
+                set_framework = strcmpi(pc.parallel_cluster,obj.cluster_name);
+            catch ME
+                switch ME.identifier
+                    case {'HERBERT:parallel_config:invalid_argument', 'HERBERT:parallel_config:not_available'}
+                        set_framework = false;
+                        warning(ME.identifier,'%s',ME.message);
+                    otherwise
+                        rethrow(ME);
+                end
+            end
+            obj.ignore_test = ~set_framework;
+            if obj.ignore_test
+                obj.ignore_cause = ['The framework: ', obj.cluster_name, ' can not be enabled so is not tested'];
+                return;
+            end
+            if strcmpi(pc.parallel_cluster,'none')
+                obj.ignore_test = true;
+                obj.ignore_cause = 'Unit test to check parallel framework is not available as framework is not installed properly';
+                return;
             end
 
-            if is_idaaas && ~isempty(which('worker_4tests_idaaas'))
+            if is_idaaas && ~isempty(which('worker_4testsV4_idaaas'))
                 warning(' Setting parallel worker to special value: %s',...
                     which('worker_4testsV4_idaaas'));
-                pc.worker = 'worker_4testsV4_idaaas';
-                obj.worker = 'worker_4testsV4_idaaas';
+                obj.worker ='worker_4testsV4_idaaas';
             end
 
             if is_jenkins
                 warning(' Setting parallel worker to special value: %s',...
                     which('worker_v4'));
-                pc.worker = 'worker_v4';
                 obj.worker = 'worker_v4';
             end
 
@@ -65,7 +76,7 @@ classdef MPI_Test_Common < TestCase
             if isempty(ws)
                 warning(' Setting parallel worker to special value: %s',...
                     which('worker_v4'));
-                pc.worker = 'worker_v4';
+
                 obj.worker = 'worker_v4';
                 ws = which(obj.worker);
                 if isempty(ws)
@@ -73,38 +84,6 @@ classdef MPI_Test_Common < TestCase
                         'Can not find a worker to test MPI')
                 end
             end
-
-            obj.old_parallel_config_ = opc;
-            obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
-
-            if strcmpi(pc.parallel_cluster,'none')
-                obj.ignore_test = true;
-                obj.ignore_cause = 'Unit test to check parallel framework is not available as framework is not installed properly';
-                return;
-            end
-
-            %pc.saveable = false;
-            obj.working_dir = pc.working_directory;
-            try
-                pc.parallel_cluster = obj.cluster_name;
-                set_framework = strcmpi(pc.parallel_cluster,obj.cluster_name);
-
-            catch ME
-                switch ME.identifier
-                  case {'HERBERT:parallel_config:invalid_argument', 'HERBERT:parallel_config:not_available'}
-                    set_framework = false;
-                    warning(ME.identifier, ME.message);
-                  otherwise
-                    rethrow(ME);
-                end
-            end
-
-            obj.ignore_test = ~set_framework;
-
-            if obj.ignore_test
-                obj.ignore_cause = ['The framework: ', obj.cluster_name, ' can not be enabled so is not tested'];
-            end
-
         end
         %
         function setUp(obj)
@@ -112,10 +91,12 @@ classdef MPI_Test_Common < TestCase
                 return;
             end
             obj.stored_config_ = config_store.instance().get_all_configs();
+            pc = set_local_parallel_config();
 
-            pc = parallel_config;
             pc.parallel_cluster = obj.cluster_name;
             pc.worker = obj.worker;
+            % used somewhere in tests
+            obj.working_dir = pc.working_directory;
         end
         %
         function tearDown(obj)
@@ -124,25 +105,5 @@ classdef MPI_Test_Common < TestCase
             end
             config_store.instance().set_all_configs(obj.stored_config_);
         end
-        function delete(obj)
-            ni = MPI_Test_Common.num_instances();
-            ni = ni-1;
-            MPI_Test_Common.num_instances(ni);
-            obj.tearDown();
-        end
-    end
-    methods(Static)
-        function ni = num_instances(set_value)
-            persistent num_instances;
-            if exist('set_value', 'var')
-                num_instances = set_value;
-            else
-                if isempty(num_instances)
-                    num_instances = 1;
-                end
-            end
-            ni = num_instances;
-        end
-
     end
 end

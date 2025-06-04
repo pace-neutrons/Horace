@@ -1,4 +1,4 @@
-classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
+classdef test_migrated_apis < TestCaseWithSave
     % Collection of placeholder tests to simple run the migrated API functions: these MUST be replaced
     % with more comprehensive tests as soon as possible
 
@@ -29,6 +29,16 @@ classdef test_migrated_apis < TestCaseWithSave & common_sqw_class_state_holder
             obj.test_sqw_2d_fullpath = fullfile(pths.test_common, obj.sqw_file_2d_name);
             obj.test_sqw_4d_fullpath = fullfile(pths.test_common, obj.sqw_file_4d_name);
             obj.save();
+        end
+        function setUp(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'off','off'});
+            warning(ws);
+        end
+        function tearDown(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'on','on'});
+            warning(ws);
         end
 
         %% Calculate
