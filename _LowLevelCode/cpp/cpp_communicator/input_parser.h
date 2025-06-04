@@ -109,7 +109,6 @@ struct InitParamHolder {
     {}
 };
 
-void throw_error(char const * const MESS_ID, char const * const error_message, bool is_tested = false);
 
 
 // Declarations for input_parser functions

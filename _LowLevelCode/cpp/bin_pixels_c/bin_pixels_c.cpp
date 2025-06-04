@@ -26,31 +26,29 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             buf.str().c_str());
     }
+    if (nlhs != int(out_arg::N_OUT_Arguments)) {
+        std::stringstream buf;
+        buf << "bin_pixels_c needs" << (short)N_OUT_Arguments << "  but got " << (short)nlhs << " input arguments\n";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+
     double* pS, * pErr, * pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
     mxArray* PixelSorted;
+    //process input bining parameters and return pointer to the class which contains them
+    auto bin_par_ptr=  parse_inputs(plhs, prhs);
 
-    BinningArg binning_par;
-    class_handle<BinningArg, CLASS_HANDLE_SIGNATURE, false>* bin_par_ptr=  parse_inputs(plhs, nlhs, prhs,nrhs);
-
-    binning_par.parse_inputs(prhs, nrhs, plhs, nlhs, pNpix, pS, pErr);
-
-    if (binning_par.test_inputs) {
+    if (bin_par_ptr->class_ptr->test_inputs) {
         if (nlhs != int(out_arg::N_OUT_Arguments)) {
             std::stringstream buf;
             buf << "bin_pixels_c in test mode needs" << (short)N_OUT_Arguments << "  but got " << (short)nlhs << " input arguments\n";
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 buf.str().c_str());
         }
-        binning_par.return_inputs(plhs, nlhs);
+        bin_par_ptr->class_ptr->return_inputs(plhs);
         return;
     }
 
-    if(nlhs != int(out_arg::N_OUT_Arguments)-1) {
-        std::stringstream buf;
-        buf << "bin_pixels_c needs" << (short)N_OUT_Arguments-1 << "  but got " << (short)nlhs << " input arguments\n";
-        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
-            buf.str().c_str());
-    }
 
 /*
     bool place_pixels_in_old_array;

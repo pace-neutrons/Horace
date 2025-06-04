@@ -1,6 +1,14 @@
 #pragma once
 #include <memory> // to wrap all this in unique pointer
 //
+/* throws Matlab error.  There are two tested modes: one calling the framework from Matlab in single process without
+ deploying MPI, and the second one -- unit tests for the framework.
+ If the routine is g-tested, matlab mexUnlock should not be deployed*/
+void inline throw_error(char const* const MESS_ID, char const* const error_message, bool is_g_tested = false) {
+    if (!is_g_tested) mexUnlock();
+    mexErrMsgIdAndTxt(MESS_ID, error_message);
+};
+
 
 /*The class holding a selected C++ class and providing the exchange mechanism between this class and Matlab
 * to maintain consistency 
@@ -62,8 +70,13 @@ template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray* 
     if (!in)
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "cpp_communicator received from Matlab evaluated to null pointer");
 
-    if (mxGetNumberOfElements(in) != 1 || mxGetClassID(in) != mxUINT64_CLASS || mxIsComplex(in))
+    if (throw_on_invalid && (mxGetNumberOfElements(in) != 1 || mxGetClassID(in) != mxUINT64_CLASS || mxIsComplex(in))){
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "Handle input must be a real uint64 scalar.");
+    }
+    else {
+        class_handle<T>* ptr  = nullptr;
+        return ptr;
+    }
 
     class_handle<T>* ptr = reinterpret_cast<class_handle<T> *>(*((uint64_t*)mxGetData(in)));
     if (!ptr->isValid(CLASS_SIGNATURE))

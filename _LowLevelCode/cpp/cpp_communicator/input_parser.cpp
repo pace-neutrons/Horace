@@ -272,11 +272,3 @@ std::unique_ptr<class_handle<MPI_wrapper> > parse_inputs(int nlhs, int nrhs, con
     return std::unique_ptr<class_handle<MPI_wrapper> >(pCommunicator);
 
 }
-
-/* throws Matlab error.  There are two tested modes: one calling the framework from Matlab in single process without
- deploying MPI, and the second one -- unit tests for the framework.
- If the routine is g-tested, matlab mexUnlock should not be deployed*/
-void throw_error(char const* const MESS_ID, char const* const error_message, bool is_g_tested) {
-    if (!is_g_tested) mexUnlock();
-    mexErrMsgIdAndTxt(MESS_ID, error_message);
-};
