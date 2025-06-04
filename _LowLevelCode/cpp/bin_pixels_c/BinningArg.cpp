@@ -1,34 +1,47 @@
 #include "BinningArg.h"
+#include <cstdlib>
+#include <limits>
+#include <random>
+
+// something not 0 as input from MATLAB may be easy initilized to 0
+static::uint32_t CODE_SIGNATURE(0x7D58CDE3);
 
 /** Parse input arguments of the binning routine and retrieve all necessary parameters 
 *   for start or continue binning calculations
 * */
-BinningArg const * parse_inputs(mxArray const* prhs[], mxArray* plhs[]) {
+std::unique_ptr<class_handle<BinningArg> > parse_inputs(mxArray const* prhs[], mxArray* plhs[]) {
+
 
     // if binning routine is invoked with empty npix array, it is new binning calculations
     auto new_call = mxIsEmpty(prhs[in_arg::npixIn]);
+    // retrieve auto-ptr to old binning calculations
+    auto bin_arg_holder = std::unique_ptr<class_handle<BinningArg> >(get_handler_fromMatlab<BinningArg>(prhs[in_arg::mex_code_hldrIn], CODE_SIGNATURE, false));
 
-    class_handle<BinningArg, CLASS_HANDLE_SIGNATURE, false>* bin_arg_holder = get_handler_fromMatlab<BinningArg, CLASS_HANDLE_SIGNATURE, false>(prhs[in_arg::mex_code_hldrIn], false);
-    if (bin_arg_holder && new_call) {
+    if (bin_arg_holder == nullptr) {
+        // create new bin_arguments holder with random signature
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<uint32_t> dist(1, std::numeric_limits<uint32_t>::max());
 
-    }
-    if (bin_arg_holder == nullptr || new_call) {
-        bin_arg_holder = new class_handle<BinningArg, CLASS_HANDLE_SIGNATURE, false>();
+        CODE_SIGNATURE = dist(gen);
+        bin_arg_holder = std::make_unique<class_handle<BinningArg> >(CODE_SIGNATURE);
         plhs[out_arg::mex_code_hldrOut] = bin_arg_holder->export_hanlder_toMatlab();
     }
     else {
-        auto bin_arg_ptr = bin_arg_holder->class_ptr;
-        return bin_arg_ptr;
+        if (!new_call) {
+            return bin_arg_holder;
+        }
+
     }
     auto bin_arg_ptr = bin_arg_holder->class_ptr;
     bin_arg_ptr->parse_bin_inputs(prhs);
-}
+};
 
 
 /**  Parse input binning arguments and set BinningArg from MATLAB input arguments
 *
 **/
-void BinningArg::parse_bin_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nlhs) {
+void BinningArg::parse_bin_inputs(mxArray const* prhs[]) {
 
 
     // retrieve information about coordinates of pixels to bin

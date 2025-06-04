@@ -2,7 +2,9 @@
 #include <memory> // to wrap all this in unique pointer
 //
 
-/*The class holding a selected C++ class and providing the exchange mechanism between this class and Matlab*/
+/*The class holding a selected C++ class and providing the exchange mechanism between this class and Matlab
+* to maintain consistency 
+* */
 template<class T> class class_handle
 {
 public:

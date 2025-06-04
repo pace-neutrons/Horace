@@ -5,8 +5,6 @@
 #include <include/CommonCode.h>
 #include <include/MatlabCppClassHolder.hpp>
 
-#define CLASS_HANDLE_SIGNATURE 0x7D58CDE3
-
 // enumerate input arguments of the mex function
 enum in_arg {
     mex_code_hldrIn, // pointer to the class shared with Matlab and containing persistent input arguments and binning arrays
@@ -52,13 +50,11 @@ public:
     std::vector<size_t> num_bins;   // number of bins in each non-unit dimension
     int num_threads;                // number of computational threads to use in binning loop
 
-    // information about pixels coordinates to bin.
-    mxClassID coord_type;           // type of input coordinate array (mxDouble or mxSingle)
-    std::vector<int> coord_size;    // 2-element array describing sizes of coordinate array
-    void const* coord_ptr;             // pointer to the start of the coordinate array
+    //information about pixels coordinates to bin.
+    mxArray* coord_ptr; 
     // vector of unique run-id(s) calculated from pixels data
     std::vector<double> unique_runIDIn;
-    //
+    // logical variable with enables test mode returning input to outputs if 
     bool test_inputs;
     // pointers to double accumulators used to calculate image averages (npix signal and error)
     mxArray* npix_ptr;
@@ -67,7 +63,7 @@ public:
 public:
     BinningArg():
         binMode(opModes::npix_only), n_dims(0),num_threads(8),
-        coord_type(mxClassID::mxDOUBLE_CLASS), coord_ptr(nullptr), test_inputs(false),
+        coord_ptr(nullptr), test_inputs(false),
         npix_ptr(nullptr),signal_ptr(nullptr),error_ptr(nullptr)
     {
         /* initialize input Matlab parameters map with empty lambda functions
@@ -91,8 +87,9 @@ public:
                 });
         }
     };
-
-    void parse_bin_inputs(mxArray const* prhs[], int nRhs, mxArray* plhs[], int nlhs);
+    // process binning arguments input values
+    void parse_bin_inputs(mxArray const* prhs[]);
+    // generate test output which would echo input values
     void return_inputs(mxArray* plhs[], int nlhs);
 private:
     // map to keep list of function to process input values from MATLAB structure
@@ -102,5 +99,5 @@ private:
 };
 
 // Declare procedure which will initialize binning inputs from MATLAB call
-BinningArg const* parse_inputs(mxArray const* prhs[], mxArray* plhs[]);
+std::unique_ptr<class_handle<BinningArg> > parse_inputs(mxArray const* prhs[], mxArray* plhs[]);
 
