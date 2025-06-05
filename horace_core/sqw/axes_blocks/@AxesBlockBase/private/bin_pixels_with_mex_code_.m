@@ -95,8 +95,8 @@ other_mex_input = struct( ...
     'binning_mode',proc_mode, ...           % binning mode, what binning values to calculate and return
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
+    'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))    
     'bins_all_dims',obj.nbins_all_dims, ... % size of binning lattice
-    'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
     'unique_runid', unique_runid, ...       % unique run indices of pixels contributing into cut
     'force_double', force_double, ...       % make result double precision regardless of input data
     'test_input_parsing',test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
