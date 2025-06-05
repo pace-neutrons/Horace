@@ -51,11 +51,17 @@ public:
     int num_threads;                // number of computational threads to use in binning loop
 
     //information about pixels coordinates to bin.
-    mxArray* coord_ptr; 
+    mxArray const * coord_ptr;
+    size_t   in_pix_width;   // how many pixel elements have to be binned
+    size_t   n_data_points;  // number of pixel elements to bin into image
     // vector of unique run-id(s) calculated from pixels data
     std::vector<double> unique_runIDIn;
+    // logical variable which request to return transformed pixel data as double precision regardless
+    // of their input accuracy.
+    bool force_double;
     // logical variable with enables test mode returning input to outputs if 
     bool test_inputs;
+
     // pointers to double accumulators used to calculate image averages (npix signal and error)
     mxArray* npix_ptr;
     mxArray* signal_ptr;
@@ -63,19 +69,22 @@ public:
 public:
     BinningArg():
         binMode(opModes::npix_only), n_dims(0),num_threads(8),
-        coord_ptr(nullptr), test_inputs(false),
+        coord_ptr(nullptr), in_pix_width(4), n_data_points(0),
+        force_double(false),test_inputs(false),
         npix_ptr(nullptr),signal_ptr(nullptr),error_ptr(nullptr)
     {
         /* initialize input Matlab parameters map with empty lambda functions
         * Actual property specific lambda function will be initialized later
         */
         for (const auto& key : {
+            "coord_in",         // Input pixels coordinates to bin. May be empty in modes where they are produced from pixels coordinates
             "binning_mode",     // what parameters calculate during the binning 
             "num_threads",      // how many computational threads to deploy for calculations
             "data_range",       // the range of data to bin in
             "dimensions",       // number of dimensions the binning should be performed on
             "bins_all_dims",    // 
-            "unique_runid",
+            "unique_runid",     // holder for the information about unique run_id-s present in the data
+            "force_double",     // boolean parameters which would request output transformed pixels always been double regardless of input pixels
             "test_input_parsing"
             }) {
             this->BinParInfo.emplace(key, [](mxArray const* const){});  // Default initialize value of empty lambda
@@ -88,9 +97,9 @@ public:
         }
     };
     // process binning arguments input values
-    void parse_bin_inputs(mxArray const* prhs[]);
+    void parse_bin_inputs(mxArray const* pAllParStruct);
     // generate test output which would echo input values
-    void return_inputs(mxArray* plhs[], int nlhs);
+    void return_inputs(mxArray* plhs[]);
 private:
     // map to keep list of function to process input values from MATLAB structure
     std::unordered_map<std::string, std::function<void(mxArray const* const)> > BinParInfo;
@@ -99,5 +108,5 @@ private:
 };
 
 // Declare procedure which will initialize binning inputs from MATLAB call
-std::unique_ptr<class_handle<BinningArg> > parse_inputs(mxArray const* prhs[], mxArray* plhs[]);
+std::unique_ptr<class_handle<BinningArg> > parse_inputs(mxArray* plhs[], mxArray const* prhs[]);
 
