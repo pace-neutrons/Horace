@@ -1,4 +1,4 @@
-function [obj,npix,s,e,pix_cand,unique_runid,argi]=...
+function [npix,s,e,pix_cand,unique_runid,argi]=...
     normalize_bin_input_(obj,force_3Dbinning,pix_coord,mode,varargin)
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
@@ -116,8 +116,6 @@ switch narg
     case 3
         if not_use_mex
             [npix,s,e] = obj.init_accumulators(1,force_3Dbinning);
-        else
-            obj.mex_code_holder_ = [];
         end
     case 4
         npix = varargin{1};
@@ -126,12 +124,12 @@ switch narg
         error('HORACE:AxesBlockBase:invalid_argument',...
             'Can not request signal or signal and variance accumulation arrays without providing pixels source')
     case 7
-        [npix,s,e,obj] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
     case 8
-        [npix,s,e,obj] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
         unique_runid = varargin{5};
     otherwise
-        [npix,s,e,obj] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
         unique_runid = varargin{5};
         argi = varargin{6:end};
 end
@@ -143,26 +141,18 @@ end
 
 end
 
-function [npix,s,e,obj]=check_and_alloc_accum(obj,not_use_mex,npix,s,e,n_case,force_3Dbinning)
+function [npix,s,e]=check_and_alloc_accum(obj,not_use_mex,npix,s,e,n_case,force_3Dbinning)
 empty_s = isempty(s);
 empty_n = isempty(npix);
 
-alloc_all =  empty_n && empty_s;
-alloc_se  = ~empty_n && empty_s;
+alloc_all =  empty_n && empty_s && not_use_mex;
+alloc_se  = ~empty_n && empty_s && not_use_mex;
 if alloc_all
-    if not_use_mex
-        [npix,s,e] = obj.init_accumulators(n_case,force_3Dbinning);
-    else
-        obj.mex_code_holder_ = [];
-    end
+    [npix,s,e] = obj.init_accumulators(n_case,force_3Dbinning);
 elseif alloc_se
-    if not_use_mex
-        s = obj.init_accumulators(1,force_3Dbinning);
-        e = obj.init_accumulators(1,force_3Dbinning);
-        check_size(obj,npix,s,e);
-    else
-        obj.mex_code_holder_ = [];
-    end
+    s = obj.init_accumulators(1,force_3Dbinning);
+    e = obj.init_accumulators(1,force_3Dbinning);
+    check_size(obj,npix,s,e);
 else
     check_size(obj,npix,s,e);
 end
