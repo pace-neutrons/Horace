@@ -33,6 +33,7 @@ std::unique_ptr<class_handle<BinningArg> > parse_inputs(mxArray* plhs[], mxArray
     }
     auto bin_arg_ptr = bin_arg_holder->class_ptr;
     bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
+    return bin_arg_holder;
 };
 
 
@@ -111,7 +112,7 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct) {
         if (nDims != 2) {  
             std::stringstream buf;
             buf << "input data range have to be represented by 2 - dimensional matrix\n";
-            buf << "Provided input is: " << (short)nDims << "dimensional array";
+            buf << "Provided input is: " << (short)nDims << "-dimensional array";
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 buf.str().c_str());
         }
@@ -120,7 +121,7 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct) {
         if (minmax_width != 2 || minmax_length != 4) {
             std::stringstream buf;
             buf << "input data range have to be represented by 2x4 - matrix\n";
-            buf << "Provided input has: " << (short)minmax_width <<"x" << (short)minmax_length <<"components";
+            buf << "Provided input has: " << (short)minmax_width <<"x" << (short)minmax_length <<" components";
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 buf.str().c_str());
         }
@@ -128,25 +129,36 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct) {
         this->data_range.assign(pData,pData+8);
         };
     this->BinParInfo["bins_all_dims"] = [this](mxArray const* const pField) {
+        auto valid_type = mxIsUint32(pField);
+        if (!valid_type) {
+            auto class_id = mxGetClassID(pField);
+            std::stringstream buf;
+            buf << "input binning values have to be represented by uint32-type\n";
+            buf << " (mxUINT32_CLASS numbered by:" << (short)mxUINT32_CLASS <<")\n";
+            buf << "Provided input class number is: " << (short)class_id;
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+
+        }
         auto nDims = mxGetNumberOfDimensions(pField);// get size of the range matrix
         if (nDims != 2) {
             std::stringstream buf;
-            buf << "input binning range have to be represented by 2 - dimensional matrix\n";
-            buf << "Provided input is: " << (short)nDims << "dimensional array";
+            buf << "input binning values have to be represented by 2 - dimensional matrix\n";
+            buf << "Provided input is: " << (short)nDims << "-dimensional array";
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 buf.str().c_str());
         }
         auto bins_width = mxGetM(pField);
         auto bins_length = mxGetN(pField);
-        if (bins_width != 2 || bins_length != 4) {
+        if (bins_width != 1 || bins_length != 4) {
             std::stringstream buf;
-            buf << "input binning array have to be represented by 2x4 - matrix\n";
-            buf << "Provided input has: " << (short)bins_width << "x" << (short)bins_length << "components";
+            buf << "input binning array have to be represented by 1x4 - matrix\n";
+            buf << "Provided input has: " << (short)bins_width << "x" << (short)bins_length << " components";
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 buf.str().c_str());
         }
-        auto pData = mxGetPr(pField);
-        this->num_bins.assign(pData, pData + 8);
+        auto pData = (uint32_t*)mxGetPr(pField);
+        this->num_bins.assign(pData, pData + 4);
         };
     this->BinParInfo["force_double"] = [this](mxArray const* const pField) {
         if (!mxIsScalar(pField)) {
@@ -182,7 +194,17 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct) {
         auto fld_ptr = mxGetFieldByNumber(pAllParStruct, 0, fld_idx);
         // call appropriate fiel-processing function and set up appropriate MATLAB
         // parameters into current binning class instance.
-        this->BinParInfo[field_name](fld_ptr);
+        auto it = this->BinParInfo.find(field_name);
+        if (it != this->BinParInfo.end()) {
+            it->second(fld_ptr);  // key exists
+        }
+        else {                    // key not found
+            std::stringstream buf;
+            buf << "Mex code does not know about input field: "<< field_name;
+            mexWarnMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+        }
+
     }
     //// retrieve information about coordinates of pixels to bin
     //auto* pcoord = prhs[in_arg::coord];
@@ -237,65 +259,111 @@ void BinningArg::return_inputs(mxArray* plhs[]) {
      * retrieve binning parameters form BinningArg class and copy them into output array
     ** ********************************************************************************/
     // define functions which would convert binning parameters into MATLAB data
-    int fld_idx(0);
-    this->OutParList["coord_in"] = [this, fld_idx](mxArray* pFieldName, mxArray* pFieldValue) {
-        mxSetCell(pFieldName, fld_idx, mxCreateString("coord_in"));
-        mxSetCell(pFieldValue, fld_idx, pFieldValue);
+    this->OutParList["coord_in"] = [this](mxArray* pFieldName, mxArray* pFieldValue,
+        int fld_idx, const std::string &field_name) {
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+        mxSetCell(pFieldValue, fld_idx, mxDuplicateArray(pFieldValue));
         };
 
-    this->OutParList["binning_mode"] = [this, fld_idx](mxArray* pFieldName, mxArray* pFieldValue) {
+    this->OutParList["binning_mode"] = [this](mxArray* pFieldName, mxArray* pFieldValue,int fld_idx, const std::string& field_name) {
         auto mode = double(this->binMode + 1);// C-modes are smaller then MATLAB modes by 1
-        mxSetCell(pFieldName, fld_idx, mxCreateString("binning_mode"));
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(mode));
         };
     //
-    this->OutParList["num_threads"] = [this, fld_idx](mxArray* pFieldName, mxArray* pFieldValue) {
+    this->OutParList["num_threads"] = [this](mxArray* pFieldName, mxArray* pFieldValue,int fld_idx, const std::string& field_name) {
         auto n_threads = double(this->num_threads);
-        mxSetCell(pFieldName, fld_idx, mxCreateString("num_threads"));
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(n_threads));
         };
-    this->OutParList["data_range"] = [this, fld_idx](mxArray* pFieldName, mxArray* pFieldValue) {
+    this->OutParList["data_range"] = [this](mxArray* pFieldName, mxArray* pFieldValue,int fld_idx, const std::string& field_name) {
         auto range = this->data_range;
         auto pRange = mxCreateDoubleMatrix(2, 4, mxREAL);
         double* const pData = (double*)mxGetPr(pRange);
         for (auto i = 0; i < range.size(); i++) {
             *(pData + i) = range[i];
         }
-        mxSetCell(pFieldName, fld_idx, mxCreateString("data_range"));
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, pRange);
         };
-    this->OutParList["dimensions"] = [this, fld_idx](mxArray* pFieldName, mxArray* pFieldValue) {
+    this->OutParList["dimensions"] = [this](mxArray* pFieldName, mxArray* pFieldValue,int fld_idx, const std::string& field_name) {
         auto n_dims = double(this->n_dims);
         mxSetCell(pFieldName, fld_idx, mxCreateString("dimensions"));
         mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(n_dims));
         };
-    this->OutParList["bins_all_dims"] = [this, fld_idx](mxArray* pFieldName, mxArray* pFieldValue) {
-        auto num_bins = this->num_bins;
-        auto pNBins = mxCreateNumericMatrix(2, 4, mxUINT32_CLASS, mxREAL);
-        auto pData  = (uint32_t*)mxGetPr(pNBins);
+    this->OutParList["bins_all_dims"] = [this](mxArray* pFieldName, mxArray* pFieldValue,int fld_idx, const std::string& field_name) {
+        auto pNBins = mxCreateNumericMatrix(1, 4, mxUINT32_CLASS, mxREAL);
+        auto pData = (uint32_t*)mxGetPr(pNBins);
         for (auto i = 0; i < num_bins.size(); i++) {
-            *(pData + i) = (uint32_t)num_bins[i];
+            *(pData + i) = (uint32_t)this->num_bins[i];
         }
-        mxSetCell(pFieldName, fld_idx, mxCreateString("bins_all_dims"));
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, pNBins);
         };
-    this->OutParList["unique_runid"] = [this, fld_idx](mxArray* pFieldName, mxArray* pFieldValue) {
-         // incomplete!!!
-        mxSetCell(pFieldName, fld_idx, mxCreateString("unique_runid"));
+    this->OutParList["unique_runid"] = [this](mxArray* pFieldName, mxArray* pFieldValue,int fld_idx, const std::string& field_name) {
+        // incomplete!!!
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(0));
         };
-    this->OutParList["test_input_parsing"] = [this, fld_idx](mxArray* pFieldName, mxArray* pFieldValue) {
+    this->OutParList["test_input_parsing"] = [this](mxArray* pFieldName, mxArray* pFieldValue,int fld_idx, const std::string& field_name) {
         auto test_inputs = this->test_inputs;
-        mxSetCell(pFieldName, fld_idx, mxCreateString("test_input_parsing"));
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, mxCreateLogicalScalar(test_inputs));
         };
     // Copy BinningArg values to output cellarrays
     auto pFieldNames = plhs[out_arg::out_par_names];
     auto pFieldValues = plhs[out_arg::out_par_values];
+    int fld_idx(0);
     for (auto iter = this->OutParList.begin(); iter != this->OutParList.end(); iter++) {
         // call appropriate field-processing function and set up appropriate MATLAB values
         // from the values of the BinningArg fields
-        iter->second(pFieldNames, pFieldValues);
+        iter->second(pFieldNames, pFieldValues,fld_idx,iter->first);
         fld_idx++;
     }
-}
+};
+/* function parses special input values and return true if special value have been encountered 
+* special values processed by this function may be version request or request to reset memory holder
+* and set permission to unload memory holder mex file from memory
+*/
+bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], std::unique_ptr<class_handle<BinningArg> >& bin_par_ptr) {
+    if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+#ifdef _OPENMP
+        plhs[0] = mxCreateString(Horace::VERSION);
+#else
+        plhs[0] = mxCreateString(Horace::VER_NOOMP);
+#endif
+        return true;
+    }
+    // special case of calling class with mex-unlock request to enable to upload it from memory
+    if (nrhs == 1 && nlhs == 0) {
+        auto inType = mxGetClassID(prhs[0]);
+        if (inType != mxCHAR_CLASS) {
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "if bin_pixels_c is called with one argument, this argument have to be string 'clear' or 'reset'\n"
+                "(single dash ') Obtained non-character array as input");
+        }
+        auto buflen = mxGetNumberOfElements(prhs[0])+1;
+        std::vector<char> buf(buflen);
+        if (mxGetString(prhs[0], buf.data(), buflen) != 0) {
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "Could not convert string data first input argument of bin_pixels_c into string array");
+        }
+        auto key = std::string(buf.begin(), buf.end());
+        if (key.compare("clear")==0 || key.compare("reset")) {
+            if (bin_par_ptr) {
+                bin_par_ptr->clear_mex_locks();
+                bin_par_ptr.reset();
+            }
+            return true;
+        }
+        else {
+            std::stringstream buf;
+            buf << "signle char input for bin_pixels_c function may be 'clear' or 'reset' (in single dashes ') Got: " << key;
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+        }
+    }
+    return false;
+};
+
+

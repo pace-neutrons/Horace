@@ -74,29 +74,32 @@ function [obj,npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
 %      -- in proc_mode == 7, contains logical array with true where
 %         pixels were kept and false, where they are dropped
 
+persistent mex_code_holder; % the variable contains pointer, which ensure
+% constitency of subsequent calls to mex code.
+
 pix_ok       = [];
 pix_indx     = [];
 selected     = [];
 
 num_threads = config_store.instance().get_value('parallel_config','threads');
 
-pax = obj.pax;
 if size(coord,1) == 3  % 3D array binning
+    pax = obj.pax;    
     data_range = obj.img_range(:,1:3);
     pax = pax(pax~=4);
     ndims = numel(pax);
 else
-    data_range = obj.img_range(:,1:3);
+    data_range = obj.img_range;
     ndims = obj.dimensions;
 end
-
+nbins_all_dims = uint32(obj.nbins_all_dims(:)');
 other_mex_input = struct( ...
     'coord_in',    coord,...                % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
     'binning_mode',proc_mode, ...           % binning mode, what binning values to calculate and return
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))    
-    'bins_all_dims',obj.nbins_all_dims, ... % size of binning lattice
+    'bins_all_dims',nbins_all_dims, ...     % dimensions of binning lattice
     'unique_runid', unique_runid, ...       % unique run indices of pixels contributing into cut
     'force_double', force_double, ...       % make result double precision regardless of input data
     'test_input_parsing',test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
@@ -123,8 +126,8 @@ end
 % routine allocates npix (s,e on request) on first call and keeps ownership
 % of these arrays internally. Input npix is not used and serves just as an
 % indication that this is the first call to the routine if npix is empty.
-[obj.mex_code_holder_,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
-    obj.mex_code_holder_,npix_in,other_mex_input);
+[mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
+    mex_code_holder,npix_in,other_mex_input);
 
 out_struc = cell2struct(out_param_values,out_param_names);
 if test_mex_inputs

@@ -146,10 +146,6 @@ classdef AxesBlockBase < serializable
 
         %Old interface to img_scales
         ulen;   % in Ang^-1 or meV [row vector]
-        % Helper property which contains pointer to initialized mex code
-        % used to optimize mex code usage in multiple calls to the binning
-        % routine
-        mex_code_holder;
     end
 
     properties(Access=protected)
@@ -177,8 +173,6 @@ classdef AxesBlockBase < serializable
         offset_ = [0,0,0,0];
         %
         type_ = ''
-        % 
-        mex_code_holder_ = [];
     end
     %----------------------------------------------------------------------
     methods(Static)
@@ -472,17 +466,7 @@ classdef AxesBlockBase < serializable
         function range = get.max_img_range(obj)
             range = obj.max_img_range_;
         end
-        %
-        function pmex = get.mex_code_holder(obj)
-            pmex = obj.mex_code_holder_;
-        end
-        function obj = set.mex_code_holder(obj,val)
-            if ~isnumeric(val)
-                val = [];
-            end
-            obj.mex_code_holder_ = val;
-        end
-        
+        %       
     end
     %======================================================================
     % Integration, interpolation and binning
@@ -724,17 +708,21 @@ classdef AxesBlockBase < serializable
             else
                 mode = nargout-1;
             end
-            % convert different input forms into fully expanded common form
-            [npix,s,e,pix_cand,unique_runid,argi]=...
-                obj.normalize_bin_input(coord_transf,mode,varargin{:});
-            %
-            % keep unused argi parameter to tell parse_char_options to ignore
-            % unknown options
-            [ok,mess,force_double,return_selected,test_mex_inputs]=parse_char_options(argi, ...
+
+            [ok,mess,force_double,return_selected,test_mex_inputs,argi]=parse_char_options(varargin, ...
                 {'-force_double', '-return_selected','-test_mex_inputs'});
             if ~ok
                 error('HORACE:AxesBlockBase:invalid_argument',mess)
             end
+            if test_mex_inputs
+                mode = 1;
+            end
+            
+            % convert different input forms into fully expanded common form
+            [npix,s,e,pix_cand,unique_runid,use_mex]=...
+                obj.normalize_bin_input(coord_transf,mode,argi{:});
+            % keep unused argi parameter to tell parse_char_options to ignore
+            % unknown options
             % keep unused argi parameter to tell parse_char_options to ignore
             % unknown options
             if return_selected && mode ~= 4
@@ -743,7 +731,6 @@ classdef AxesBlockBase < serializable
             end
 
             % bin pixels
-            use_mex = config_store.instance().get_value('hor_config','use_mex');
             if use_mex
                 [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
                     obj,coord_transf,mode,...
@@ -988,7 +975,7 @@ classdef AxesBlockBase < serializable
                 obj.type_ = [obj.type_(:)','e'];
             end
         end
-        function [npix,s,e,pix_cand,unique_runid,argi]=...
+        function [npix,s,e,pix_cand,unique_runid,use_mex]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
             % forms of the inputs of this function into a common form,
@@ -1012,7 +999,7 @@ classdef AxesBlockBase < serializable
             if size(pix_coord_transf,1) ==3  % Q(3D) binning only. Third axis is always missing
                 force_3Dbinning = true;
             end
-            [npix,s,e,pix_cand,unique_runid,argi]=...
+            [npix,s,e,pix_cand,unique_runid,use_mex]=...
                 normalize_bin_input_(obj,...
                 force_3Dbinning,pix_coord_transf,n_argout,varargin{:});
         end

@@ -1,4 +1,4 @@
-function [npix,s,e,pix_cand,unique_runid,argi]=...
+function [npix,s,e,pix_cand,unique_runid,use_mex]=...
     normalize_bin_input_(obj,force_3Dbinning,pix_coord,mode,varargin)
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
@@ -31,8 +31,8 @@ function [npix,s,e,pix_cand,unique_runid,argi]=...
 %          values (depending on mode)
 % pix_cand -- input pix_cand if mode>1 or empty string if it is 1
 %
-% argi  -- cellarray of character strings, provided as input and not related
-%          to the processed arrays, left for further routines to process.
+% use_mex -- if true, try to deploy mex code for binning, if false
+%            use MATLAB
 %
 % The the examples input/output parameters and input normalization
 % as the function of bin_pixes procedure parameters and mode parameter as
@@ -81,16 +81,17 @@ end
 s = [];
 e = [];
 unique_runid = [];
-% extract possible character keys
-is_key = cellfun(@istext,varargin);
-argi = varargin(is_key);
-inputs = varargin(~is_key);
-narg = numel(inputs)+3;
+narg_in = numel(varargin)+3;
+use_mex = config_store.instance().get_value('hor_config','use_mex');
+not_use_mex = ~use_mex;
 
 if mode == 1
     pix_cand = [];
+    if use_mex
+        npix = [];
+    end
 else
-    if narg <7
+    if narg_in <7
         error('HORACE:AxesBlockBase:invalid_argument',...
             'PixelData have to be provided as 7-th argument if cell-average signal and erros are requested');
     end
@@ -109,10 +110,10 @@ else
             class(pix_coord));
     end
 end
-not_use_mex = ~config_store.instance().get_value('hor_config','use_mex');
+
 
 % Analyze the number of input arguments
-switch narg
+switch narg_in
     case 3
         if not_use_mex
             [npix,s,e] = obj.init_accumulators(1,force_3Dbinning);
@@ -131,7 +132,7 @@ switch narg
     otherwise
         [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
         unique_runid = varargin{5};
-        argi = varargin{6:end};
+        %argi = varargin{6:end};
 end
 
 % initiate accumulators to 0, as no input value is provied

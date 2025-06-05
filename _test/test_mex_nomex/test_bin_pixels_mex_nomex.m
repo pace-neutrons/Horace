@@ -89,7 +89,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
             assertElementsAlmostEqual(unique_runid_m,unique_runid_c);
         end
 
-        function test_bin_pixels_AB_inputs(~)
+        function test_bin_pixels_AB_inputs(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to checko binning parameters');
             end
@@ -99,7 +99,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
                 'img_range',[-1,-2,-3,-10;1,2,3,40]);
             [npix,s,e,out_flds,out_par] = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
 
-
+             i=1;
         end
 
 

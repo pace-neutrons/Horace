@@ -4,6 +4,7 @@
 #include <functional>
 #include <include/CommonCode.h>
 #include <include/MatlabCppClassHolder.hpp>
+#include <utility/version.h>
 
 // enumerate input arguments of the mex function
 enum in_arg {
@@ -46,8 +47,8 @@ class BinningArg{
 public:
     opModes binMode;
     size_t n_dims; // number of dimensions
-    std::vector<double> data_range; // range of the data to bin within
-    std::vector<size_t> num_bins;   // number of bins in each non-unit dimension
+    std::vector<double>   data_range; // range of the data to bin within
+    std::vector<uint32_t> num_bins;   // number of bins in each non-unit dimension
     int num_threads;                // number of computational threads to use in binning loop
 
     //information about pixels coordinates to bin.
@@ -92,8 +93,7 @@ public:
         // copy input MATLAB structure keys list into output Matlab keys list
         for (auto iter = this->BinParInfo.begin();iter != this->BinParInfo.end(); iter++) {
             auto key = iter->first;
-            this->OutParList.emplace(key, [this](mxArray* p1, mxArray* p2) {
-                });
+            this->OutParList.emplace(key, [](mxArray* p1, mxArray* p2, int idx,const std::string &field_name) { });
         }
     };
     // process binning arguments input values
@@ -104,9 +104,13 @@ private:
     // map to keep list of function to process input values from MATLAB structure
     std::unordered_map<std::string, std::function<void(mxArray const* const)> > BinParInfo;
     // map to keep list of functions to process output values in case of testing parameters parsing
-    std::unordered_map<std::string, std::function<void(mxArray * p1, mxArray * p2)> > OutParList;
+    std::unordered_map<std::string, std::function<void(mxArray * p1, mxArray * p2,int idx,const std::string &name)> > OutParList;
 };
 
 // Declare procedure which will initialize binning inputs from MATLAB call
 std::unique_ptr<class_handle<BinningArg> > parse_inputs(mxArray* plhs[], mxArray const* prhs[]);
+
+/* function parses special input values and return true if special value have been encountered Otherwise returns false */
+bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], std::unique_ptr<class_handle<BinningArg> >& bin_par_ptr);
+
 
