@@ -129,10 +129,10 @@ for iter = 1:num_chunks
     end
 
     if isscalar(targ_proj)
-        [targ_proj,npix, s, e] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
+        [npix, s, e] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
     else
         for i = 1:numel(targ_proj)
-            [targ_proj(i),npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_selected');
+            [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_selected');
             candidate_pix = candidate_pix.tag(selected);
         end
     end
@@ -224,7 +224,7 @@ for iter = 1:num_chunks
     for i = 1:num_proj
         % Pix not sorted here. They will be sorted when accumulate cache
         % is emptied either when pixels are written combined and returned
-        [targ_proj(i),npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
+        [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
             targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
         % if there are symmetries, we need to transform pixels and tag used

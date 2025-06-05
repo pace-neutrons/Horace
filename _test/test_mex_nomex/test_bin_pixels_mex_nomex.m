@@ -42,12 +42,12 @@ classdef test_bin_pixels_mex_nomex < TestCase
             clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
             clObPar = set_temporary_config_options(parallel_config, 'threads', 1);
 
-             [data.proj,npix_1,s_1,e_1,pix_ok_1,unique_runid_1] = ...
+            [npix_1,s_1,e_1,pix_ok_1,unique_runid_1] = ...
                 data.proj.bin_pixels(data.axes,pix,[],[],[]);
 
             clear clObPar;
-            clObPar = set_temporary_config_options(parallel_config, 'threads', 8);            
-            [data.proj,npix_8,s_8,e_8,pix_ok_8,unique_runid_8] = ...
+            clObPar = set_temporary_config_options(parallel_config, 'threads', 8);
+            [npix_8,s_8,e_8,pix_ok_8,unique_runid_8] = ...
                 data.proj.bin_pixels(data.axes,pix,[],[],[]);
 
             assertEqual(npix_1,npix_8)
@@ -71,12 +71,12 @@ classdef test_bin_pixels_mex_nomex < TestCase
 
             %check matlab-part
             hc.use_mex = false;
-            [data.proj,npix_m,s_m,e_m,pix_ok_m,unique_runid_m] = ...
+            [npix_m,s_m,e_m,pix_ok_m,unique_runid_m] = ...
                 data.proj.bin_pixels(data.axes,pix,[],[],[]);
 
             %check C-part
             hc.use_mex = true;
-            [data.proj,npix_c,s_c,e_c,pix_ok_c,unique_runid_c] = ...
+            [npix_c,s_c,e_c,pix_ok_c,unique_runid_c] = ...
                 data.proj.bin_pixels(data.axes,pix,[],[],[]);
 
 
@@ -97,8 +97,8 @@ classdef test_bin_pixels_mex_nomex < TestCase
 
             AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
                 'img_range',[-1,-2,-3,-10;1,2,3,40]);
-            [AB,npix,s,e,out_flds,out_par] = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
-            
+            [npix,s,e,out_flds,out_par] = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
+
 
         end
 
