@@ -42,7 +42,7 @@ options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',...
     '-herbert_only', '-horace_only','-combine_all'};
 [ok, mess, parallel, talkative, nomex, forcemex, ...
     disp_skipped, exit_on_completion, no_system, ...
-    herbert_only, horace_only,combile_all, test_folders] = ...
+    herbert_only, horace_only,combine_all, test_folders] = ...
     parse_char_options(varargin, options);
 
 if ~ok
@@ -212,7 +212,7 @@ else
 
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
-    if combile_all
+    if combine_all
         test_stage_reset(1, hor, hpc, par, nomex, forcemex, talkative);
         test_ok = runtests(test_folders_full{:}, argi{:});
     else
