@@ -109,6 +109,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
+    static std::unique_ptr<class_handle<MPI_wrapper> > pCommunicatorHolder;
 
     //mexWarnMsgIdAndTxt("MEX:runtime_info", "In mex file");
 
@@ -124,7 +125,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     input_types work_type;
 
 
-    auto pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
+    pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
         work_type, data_addresses, data_tag, is_synchronous,
         data_buffer, nbytes_to_transfer, InitPar);
 

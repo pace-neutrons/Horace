@@ -10,7 +10,7 @@ classdef AxesBlockBase < serializable
     %1) ab = AxesBlockBase(num) where num belongs to [0,1,2,3,4];
     %2) ab = AxesBlockBase([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
     %                                          parameters
-    %        or
+    %        orinit_accumulators
     %   ab = AxesBlockBase([min1,max1],...,[min4,max4]); - 4 binning
     %                                          parameters
     %        or any combination of ranges [min,step,max] or [min,max]
@@ -628,7 +628,7 @@ classdef AxesBlockBase < serializable
                 source_axes,source_proj, data,proj);
         end
         %
-        function [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,varargin)
+        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
@@ -732,12 +732,12 @@ classdef AxesBlockBase < serializable
 
             % bin pixels
             if use_mex
-                [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
+                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
                     obj,coord_transf,mode,...
-                    npix,pix_cand,unique_runid, ...
+                    npix,s,e,pix_cand,unique_runid, ...
                     force_double,return_selected,test_mex_inputs);
             else
-                [obj,npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...
+                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...
                     obj,coord_transf,mode,...
                     npix,s,e,pix_cand,unique_runid,force_double,return_selected);
             end

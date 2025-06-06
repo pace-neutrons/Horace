@@ -88,7 +88,19 @@ classdef test_bin_pixels_mex_nomex < TestCase
             assertEqualToTol(pix_ok_m,pix_ok_c);
             assertElementsAlmostEqual(unique_runid_m,unique_runid_c);
         end
+        function test_bin_pixels_AB_inputs_twice(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to checko binning parameters');
+            end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
 
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
+                'img_range',[-1,-2,-3,-10;1,2,3,40]);
+            [npix,s,e,out_data] = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
+            [npix,s,e,out_data] = AB.bin_pixels(rand(4,10),npix,'-test_mex_inputs');            
+
+             i=1;
+        end       
         function test_bin_pixels_AB_inputs(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to checko binning parameters');
@@ -97,7 +109,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
 
             AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
                 'img_range',[-1,-2,-3,-10;1,2,3,40]);
-            [npix,s,e,out_flds,out_par] = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
+            [npix,s,e,out_data] = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
 
              i=1;
         end

@@ -1,6 +1,6 @@
-function [obj,npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
+function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
     bin_pixels_with_mex_code_(obj,coord,proc_mode,...
-    npix_in,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
+    npix_in,s_in,err_in,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
@@ -127,9 +127,9 @@ end
 % of these arrays internally. Input npix is not used and serves just as an
 % indication that this is the first call to the routine if npix is empty.
 [mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
-    mex_code_holder,npix_in,other_mex_input);
+    mex_code_holder,npix_in,s_in,err_in,other_mex_input);
 
-out_struc = cell2struct(out_param_values,out_param_names);
+out_struc = cell2struct(out_param_values,out_param_names,2);
 if test_mex_inputs
     % in this case pix_ok change meaning and contains output data structure
     % directly. The structure itself contains copy of input parameters plus
