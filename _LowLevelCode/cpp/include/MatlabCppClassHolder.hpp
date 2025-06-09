@@ -67,18 +67,19 @@ void class_handle<T>::clear_mex_locks()
 
 template<class T> inline class_handle<T> *get_handler_fromMatlab(const mxArray* in,uint32_t CLASS_SIGNATURE, bool throw_on_invalid = true)
 {
+    class_handle<T>* ptr;
     if (!in)
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "cpp_communicator received from Matlab evaluated to null pointer");
 
-    if (throw_on_invalid && (mxGetNumberOfElements(in) != 1 || mxGetClassID(in) != mxUINT64_CLASS || mxIsComplex(in))){
-        throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "Handle input must be a real uint64 scalar.");
+    if (mxGetNumberOfElements(in) != 1 || mxGetClassID(in) != mxUINT64_CLASS || mxIsComplex(in)){
+        if (throw_on_invalid)
+            throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "Handle input must be a real uint64 scalar.");
+        else {
+            ptr = nullptr;
+            return ptr;
+        }
     }
-    else {
-        class_handle<T>* ptr  = nullptr;
-        return ptr;
-    }
-
-    class_handle<T>* ptr = reinterpret_cast<class_handle<T> *>(*((uint64_t*)mxGetData(in)));
+    ptr = reinterpret_cast<class_handle<T>*>(*((uint64_t*)mxGetData(in)));
     if (!ptr->isValid(CLASS_SIGNATURE))
         if (throw_on_invalid)
             throw_error("MPI_MEX_COMMUNICATOR:runtime_error", "Retrieved handle does not point to correct class");
