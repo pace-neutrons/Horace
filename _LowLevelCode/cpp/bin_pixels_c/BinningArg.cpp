@@ -11,14 +11,21 @@ void BinningArg::set_coord_in(mxArray const* const pField)
     auto nDims = mxGetNumberOfDimensions(pField);
     if (nDims != 2) { // get value for computational mode the alogrithm should run
         std::stringstream buf;
-        buf << "input pixel data have to be represented by 2 - dimensional matrix\n";
-        buf << "Provided input " << (short)nDims << "dimensional array";
+        buf << "input pixel coordinates to bin have to be represented by 2 - dimensional matrix\n";
+        buf << "Provided input " << (short)nDims << " dimensional array";
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             buf.str().c_str());
     }
     this->coord_ptr = pField;
-    this->in_pix_width = mxGetM(pField);
+    this->in_coord_width = mxGetM(pField);
     this->n_data_points = mxGetN(pField);
+    if (this->in_coord_width < 3 || this->in_coord_width > 4) {
+        std::stringstream buf;
+        buf << "input pixel coordinates to bin have to be represented by a matrix with at least 3 and not more then 4 rows\n";
+        buf << "Provided input have: " << (short)this->in_coord_width << " rows";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
 };
 // initalize one of available binning modes
 void BinningArg::set_binning_mode(mxArray const* const pField)
@@ -146,9 +153,19 @@ void BinningArg::set_force_double(mxArray const* const pField)
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             "fore_double parameters should be defined by scalar value");
     }
-    auto do_testing = mxGetScalar(pField);
-    this->test_inputs = bool(do_testing);
+    auto force_double = mxGetScalar(pField);
+    this->force_double = bool(force_double);
 };
+void BinningArg::set_return_selected(mxArray const* const pField)
+{
+    if (!mxIsScalar(pField)) {
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            "return_selected parameters should be defined by scalar value");
+    }
+    auto return_selected = mxGetScalar(pField);
+    this->return_selected = bool(return_selected);
+};
+
 // intialize testing input mode (or not)
 void BinningArg::set_test_input_mode(mxArray const* const pField)
 {
@@ -159,6 +176,70 @@ void BinningArg::set_test_input_mode(mxArray const* const pField)
     auto do_testing = mxGetScalar(pField);
     this->test_inputs = bool(do_testing);
 };
+// set pixels array used as source of signal and many other input parameters
+void BinningArg::set_all_pix(mxArray const* const pField)
+{
+    if (mxIsEmpty(pField)) {
+        this->all_pix_ptr = nullptr;
+        this->in_pix_width = 0;
+        return;
+    }
+    auto nDims = mxGetNumberOfDimensions(pField);
+    if (nDims != 2) { // get value for computational mode the alogrithm should run
+        std::stringstream buf;
+        buf << "input pixel data have to be represented by 2 - dimensional matrix\n";
+        buf << "Provided input " << (short)nDims << " dimensional array";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    this->all_pix_ptr = pField;
+    this->in_pix_width = mxGetM(pField);
+    this->n_data_points = mxGetN(pField); // should be dedined in set_coord too and values must be equal
+    // no check, as Matlab will call it from routine which does this check
+    if (this->in_pix_width != size_t(pix_fields::PIX_WIDTH)) {
+        std::stringstream buf;
+        buf << "Full input pixel coordinates to bin have to be represented by a matrix with 8 rows\n";
+        buf << "Support for provided input with " << (short)this->in_pix_width << " rows is not implemented";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
+            buf.str().c_str());
+    }
+}
+//
+void BinningArg::set_alignment_matrix(mxArray const* const pField)
+{
+    if (mxIsEmpty(pField)) {
+        this->alignment_matrix.clear();
+        return;
+    }
+    auto nDims = mxGetNumberOfDimensions(pField);
+    if (nDims != 2) { // get value for computational mode the alogrithm should run
+        std::stringstream buf;
+        buf << "Alignment matrix should be defined by 2 - dimensional, 9 elements array\n";
+        buf << "Provided input " << (short)nDims << " dimensional array";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    auto n_elements = mxGetNumberOfElements(pField);
+    if (n_elements != 9) {
+        std::stringstream buf;
+        buf << "Alignment matrix should be defined by9 elements array\n";
+        buf << "Provided input contains " << (short)n_elements << " elements";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    double* pData = mxGetPr(pField);
+    this->alignment_matrix.assign(pData, pData + 9);
+}
+//
+void BinningArg::set_check_pix_selection(mxArray const* const pField)
+{
+    if (!mxIsScalar(pField)) {
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            "check_pix_selection should be defined by scalar value");
+    }
+    auto check_selection = mxGetScalar(pField);
+    this->check_pix_selection = bool(check_selection);
+}
 
 /* define functions which would check and set BinninPar values from the input assigned
    to MATLAB structure.
@@ -172,6 +253,10 @@ void BinningArg::register_input_methods()
     this->BinParInfo["dimensions"] = [this](mxArray const* const pField) { this->set_dimensions(pField); };
     this->BinParInfo["bins_all_dims"] = [this](mxArray const* const pField) { this->set_bins_all_dims(pField); };
     this->BinParInfo["force_double"] = [this](mxArray const* const pField) { this->set_force_double(pField); };
+    this->BinParInfo["return_selected"] = [this](mxArray const* const pField) { this->set_return_selected(pField); };
+    this->BinParInfo["pix_candidates"] = [this](mxArray const* const pField) { this->set_all_pix(pField); };
+    this->BinParInfo["check_pix_selection"] = [this](mxArray const* const pField) { this->set_check_pix_selection(pField); };
+    this->BinParInfo["alignment_matr"] = [this](mxArray const* const pField) { this->set_alignment_matrix(pField); };
     this->BinParInfo["test_input_parsing"] = [this](mxArray const* const pField) { this->set_test_input_mode(pField); };
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
@@ -229,7 +314,7 @@ void BinningArg::return_inputs(mxArray* plhs[])
     this->OutParList["coord_in"] = [this](mxArray* pFieldName, mxArray* pFieldValue,
                                        int fld_idx, const std::string& field_name) {
         mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
-        mxSetCell(pFieldValue, fld_idx, mxDuplicateArray(pFieldValue));
+        mxSetCell(pFieldValue, fld_idx, mxDuplicateArray(this->coord_ptr));
     };
 
     this->OutParList["binning_mode"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
@@ -270,13 +355,53 @@ void BinningArg::return_inputs(mxArray* plhs[])
     this->OutParList["unique_runid"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
         // incomplete!!!
         mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
-        mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(0));
+        if (this->unique_runID.size() == 0) {
+            mxSetCell(pFieldValue, fld_idx, mxCreateDoubleMatrix(0, 0, mxREAL));
+        } else {
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "unique run_id retrieval have not been implemented yet");
+        }
     };
     this->OutParList["test_input_parsing"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
         auto test_inputs = this->test_inputs;
         mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, mxCreateLogicalScalar(test_inputs));
     };
+    this->OutParList["force_double"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
+        auto force_double = this->force_double;
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+        mxSetCell(pFieldValue, fld_idx, mxCreateLogicalScalar(force_double));
+    };
+    this->OutParList["return_selected"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
+        auto return_selected = this->return_selected;
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+        mxSetCell(pFieldValue, fld_idx, mxCreateLogicalScalar(return_selected));
+    };
+    this->OutParList["pix_candidates"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
+        auto all_pix_ptr = this->all_pix_ptr;
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+        mxSetCell(pFieldValue, fld_idx, mxDuplicateArray(all_pix_ptr));
+    };
+    this->OutParList["check_pix_selection"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
+        auto check_selection = this->check_pix_selection;
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+        mxSetCell(pFieldValue, fld_idx, mxCreateLogicalScalar(check_selection));
+    };
+    this->OutParList["alignment_matr"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
+        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+        mxArray* al_matr(nullptr);
+        if (this->alignment_matrix.size() == 0) {
+            al_matr = mxCreateDoubleMatrix(0, 0, mxREAL);
+        } else {
+            al_matr = mxCreateDoubleMatrix(3, 3, mxREAL);
+            auto dataPtr = mxGetPr(al_matr);
+            for (size_t i = 0; i < 9; i++) {
+                dataPtr[i] = this->alignment_matrix[i];
+            }
+        }
+        mxSetCell(pFieldValue, fld_idx, al_matr);
+    };
+
     /* ********************************************************************************
      * retrieve binning parameters form BinningArg class and copy them into output array
      ** ********************************************************************************/
@@ -299,35 +424,30 @@ void BinningArg::return_inputs(mxArray* plhs[])
 // check if input accumulators have not been changed and initalize them appropriately
 void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prhs[], bool force_update)
 {
-    auto in_npix_ptr = mxGetPr(prhs[in_arg::npixIn]);
-    if (mxGetPr(this->npix_ptr) == nullptr || mxGetPr(this->npix_ptr) != in_npix_ptr) {
-        if (mxIsEmpty(prhs[in_arg::npixIn]) || force_update) {
-            this->npix_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
-                mxDOUBLE_CLASS, mxREAL);
-        } else {
-            this->npix_ptr = mxDuplicateArray(prhs[in_arg::npixIn]);
-        }
+
+    if (mxGetPr(this->npix_ptr) == nullptr || mxIsEmpty(prhs[in_arg::npixIn])) {
+        this->npix_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
+            mxDOUBLE_CLASS, mxREAL);
+        nullify_array(this->npix_ptr);
+    } else {
+        this->npix_ptr = mxDuplicateArray(prhs[in_arg::npixIn]);
     }
 
     if (this->binMode == opModes::npix_only) {
-        this->signal_ptr = mxDuplicateArray(prhs[in_arg::signalIn]);
-        this->error_ptr = mxDuplicateArray(prhs[in_arg::errorIn]);
+        this->signal_ptr = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL); // mxDuplicateArray(prhs[in_arg::signalIn]);
+        this->error_ptr = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL); // mxDuplicateArray(prhs[in_arg::errorIn]);
     } else {
-        if (mxGetPr(this->signal_ptr) != const_cast<double*>(mxGetPr(prhs[in_arg::signalIn]))) {
-            if (mxIsEmpty(prhs[in_arg::signalIn]) || force_update) {
-                this->npix_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
-                    mxDOUBLE_CLASS, mxREAL);
-            } else {
-                this->npix_ptr = mxDuplicateArray(prhs[in_arg::signalIn]);
-            }
-        }
-        if (mxGetPr(this->error_ptr) != const_cast<double*>(mxGetPr(prhs[in_arg::errorIn]))) {
-            if (mxIsEmpty(prhs[in_arg::errorIn]) || force_update) {
-                this->npix_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
-                    mxDOUBLE_CLASS, mxREAL);
-            } else {
-                this->npix_ptr = mxDuplicateArray(prhs[in_arg::errorIn]);
-            }
+        if (mxGetPr(this->signal_ptr) == nullptr || mxIsEmpty(prhs[in_arg::signalIn])) {
+            this->signal_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
+                mxDOUBLE_CLASS, mxREAL);
+            nullify_array(this->signal_ptr);
+            this->error_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
+                mxDOUBLE_CLASS, mxREAL);
+            nullify_array(this->error_ptr);
+
+        } else {
+            this->signal_ptr = mxDuplicateArray(prhs[in_arg::signalIn]);
+            this->error_ptr = mxDuplicateArray(prhs[in_arg::errorIn]);
         }
     }
     plhs[out_arg::npix] = this->npix_ptr;
@@ -371,7 +491,7 @@ mwSize BinningArg::get_Matlab_n_dimensions()
         n_dims = 2;
     return n_dims;
 }
-    // binning arguments constructor
+// binning arguments constructor
 BinningArg::BinningArg()
     : binMode(opModes::npix_only)
     , n_dims(0)

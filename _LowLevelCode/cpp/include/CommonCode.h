@@ -60,7 +60,6 @@ enum pix_fields
     iErr = 8, //         Error array (variance i.e. error bar squared)
     PIX_WIDTH = 9  // Number of pixel fields
 };
-// modify this to support INTEL compiler (what OMP version(s) it has?
 
 // Copy pixels from source to target array
 inline void copy_pixels(double* pixel_data, long j, double* pPixelSorted, size_t j0) {
@@ -71,9 +70,17 @@ inline void copy_pixels(double* pixel_data, long j, double* pPixelSorted, size_t
     for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {
         pPixelSorted[j0 + i] = pixel_data[i0 + i];
     }
-
-
 }
+// nullify input mxArray (used as accumulator)
+inline void nullify_array(const mxArray* mxData_ptr) {
+
+    size_t n_elements = mxGetNumberOfElements(mxData_ptr);
+    auto pData = mxGetPr(mxData_ptr);
+    for (size_t i = 0; i < n_elements;i++) {
+        pData[i] = 0;
+    }
+}
+
 //* Possible prototype for a generic function
 template<class T>
 T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {

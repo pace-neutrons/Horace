@@ -24,6 +24,7 @@ public:
     }
 
     ~class_handle() {
+        clear_mex_locks();
         _signature = 0;
         delete class_ptr;
     }

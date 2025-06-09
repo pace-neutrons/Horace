@@ -1,9 +1,10 @@
 #include "bin_pixels.h"
 
 
+static std::unique_ptr<class_handle<BinningArg>> bin_par_ptr;
+
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
-    static std::unique_ptr<class_handle<BinningArg>> bin_par_ptr;
     // identify special input requests (e.g. version or clear mex from memory) 
     // and return if special input is found.
     if (find_special_inputs(nlhs, plhs, nrhs, prhs, bin_par_ptr)) {
