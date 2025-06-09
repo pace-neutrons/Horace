@@ -1,8 +1,8 @@
-#include "../CommonCode.h"
+#include <include/CommonCode.h>
 #include "combine_sqw.h"
 #include "nsqw_pix_reader.h"
 #include "sqw_pix_writer.h"
-#include "../utility/version.h"
+#include <utility/version.h>
 #include "../file_parameters/fileParameters.h"
 
 #include <memory>
