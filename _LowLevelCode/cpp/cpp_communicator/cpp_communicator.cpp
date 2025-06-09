@@ -102,6 +102,7 @@ Outputs:
   3     -- size of the MPI pool current worker is the part of.
 */
 
+static std::unique_ptr<class_handle<MPI_wrapper>> pCommunicatorHolder;
 
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
@@ -109,7 +110,6 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
-    static std::unique_ptr<class_handle<MPI_wrapper> > pCommunicatorHolder;
 
     //mexWarnMsgIdAndTxt("MEX:runtime_info", "In mex file");
 

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "include/CommonCode.h"
+#include <include/CommonCode.h>
 #include <algorithm>
 enum Input_Arguments {
     Pixel_data,
