@@ -127,6 +127,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
             [npix_mex,out_info] = AB.bin_pixels(in_coord1);
 
             assertEqual(size(npix_mex),[10,30]);
+            assertEqual(sum(npix_mex(:)),out_info.npix_retained);            
 
             assertEqual(npix_mex,npix_nom);
         end

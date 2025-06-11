@@ -62,11 +62,17 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     for (long i = 0; i < data_size; i++) {
         // drop out coordinates outside of the binning range
         size_t i0 = i * PIX_STRIDE;
+        bool outside(false);
         for (size_t upix = 0; upix < COORD_STRIDE; upix++) {
             qi[upix] = double(coord_ptr[i0 + upix]);
-            if (qi[upix] < cut_range[2 * upix] || qi[upix] > cut_range[2 * upix + 1])
-                continue;
+            if (qi[upix] < cut_range[2 * upix] || qi[upix] > cut_range[2 * upix + 1]) {
+                outside = true;
+                break;
+            }
         }
+        if (outside)  // do not account for outside pixels
+            continue;
+
         // identify the indices of the image cell, pixel belongs to
         size_t il(0);
         for (size_t j = 0; j < pax.size(); j++) {

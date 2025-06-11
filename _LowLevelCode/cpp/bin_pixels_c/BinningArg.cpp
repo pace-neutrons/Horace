@@ -674,7 +674,10 @@ BinningArg::BinningArg()
     , signal_ptr(nullptr)
     , error_ptr(nullptr)
 {
-    /* initialize input Matlab parameters map with methods which would associate
+    /* initialize input Matlab parameters map with methods which  associate
      * Matlab field names with the methods, which set appropriate property value  */
     this->register_input_methods();
+    /* initialize output parameters map with methods which associate 
+    * output MATLAB field names with appropriate results to move to the structure */
+    this->register_output_methods();
 };
