@@ -26,6 +26,14 @@ enum out_arg {
     out_par_values, // pointer to cellarray with the values of other possible output parameters
     N_OUT_Arguments
 };
+enum out_arg_mode0 {
+    mex_code_hldrOut, // pointer to the class shared with Matlab and containing persistent
+    npix, // pointer to modified npix array
+    out_par_names, // pointer to cellarray with the names  of other possible output parameters
+    out_par_values, // pointer to cellarray with the values of other possible output parameters
+    N_OUT_Arguments
+};
+
 
 // enumerate operational modes bin pixels operates in
 enum opModes {
@@ -85,7 +93,7 @@ protected:
     void set_num_threads(mxArray const* const pField);   // how many computational threads to deploy for calculations
     void set_data_range(mxArray const* const pField);    // the range of data to bin in
     void set_dimensions(mxArray const* const pField);    // number of dimensions the binning should be performed on
-    void set_bins_all_dims(mxArray const* const pField); //
+    void set_nbins_all_dims(mxArray const* const pField); //
     void set_unique_runid(mxArray const* const pField);  // holder for the information about unique run_id-s present in the data. Set procedure is non-standard
     void set_force_double(mxArray const* const pField);  // boolean parameters which would request output transformed pixels always been double regardless of input pixels
     void set_return_selected(mxArray const* const pField);
@@ -96,12 +104,14 @@ protected:
 
 public:
     BinningArg(); // construction
-    // process binning arguments input values
+    // process binning arguments input values for new binning arguments cycle
     void parse_bin_inputs(mxArray const* pAllParStruct);
+    // process binning arguments which have changed during followitng call to binning procedure
+    void parse_changed_bin_inputs(mxArray const* pAllParStruct);
     // generate test output which would echo input values
     void return_inputs(mxArray* plhs[]);
-    // check if input binning parameters have not been changed
-    bool check_binning_arguments(mxArray const* prhs[]);
+    // check if input binning parameters are new or have been changed
+    bool new_binning_arguments_present(mxArray const* prhs[]);
 
     // check if input accumulators have not been changed and initalize them appropriately
     void check_and_init_accumulators(mxArray* plhs[],mxArray const* prhs[], bool force_update = false);
@@ -117,9 +127,3 @@ private:
     // holder for actual array dimensions to allocate
     std::vector<mwSize> accumulator_dims_holder;
 };
-
-// Declare procedure which will initialize binning inputs from MATLAB call
-void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_handle<BinningArg>> &bin_arg_holder);
-
-/* function parses special input values and return true if special value have been encountered Otherwise returns false */
-bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], std::unique_ptr<class_handle<BinningArg>>& bin_par_ptr);

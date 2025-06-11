@@ -110,12 +110,11 @@ classdef test_bin_pixels_mex_nomex < TestCase
             AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
                 'img_range',[-1,-2,-3,-10;1,2,3,40]);
             in_coord = rand(4,10);
-            [npix,s,e,out_data] = AB.bin_pixels(in_coord,'-test_mex_inputs');
+            [npix,out_data] = AB.bin_pixels(in_coord,'-test_mex_inputs');
 
             assertEqual(size(npix),[10,20,30,40]);
             assertEqual(npix,zeros(10,20,30,40));            
-            assertTrue(isempty(s));
-            assertTrue(isempty(e));
+
             assertEqual(out_data.coord_in,in_coord);
             assertEqual(out_data.binning_mode,1);
             assertEqual(out_data.num_threads, ...

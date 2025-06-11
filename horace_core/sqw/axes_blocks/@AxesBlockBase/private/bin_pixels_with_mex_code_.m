@@ -1,4 +1,4 @@
-function [npix, s, err, pix_ok, unique_runid, pix_indx, selected] = ...
+function varargout = ...
     bin_pixels_with_mex_code_(obj,coord,proc_mode,...
     npix,s,err,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
@@ -84,9 +84,6 @@ if isempty(npix)
     mex_code_holder = [];
 end
 
-pix_ok       = [];
-pix_indx     = [];
-selected     = [];
 
 num_threads = config_store.instance().get_value('parallel_config','threads');
 
@@ -106,7 +103,7 @@ other_mex_input = struct( ...
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))    
-    'bins_all_dims',nbins_all_dims, ...     % dimensions of binning lattice
+    'nbins_all_dims',nbins_all_dims, ...    % dimensions of binning lattice
     'unique_runid', unique_runid, ...       % unique run indices of pixels contributing into cut
     'force_double', force_double, ...       % make result double precision regardless of input data
     'return_selected',return_selected,...   %
@@ -136,8 +133,10 @@ end
 % indication that this is the first call to the routine if npix is empty.
 % [mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
 %     mex_code_holder,npix_in,s_in,err_in,other_mex_input);
-[mex_code_holder,npix, s, err,out_param_names,out_param_values] = bin_pixels_c( ...
-     mex_code_holder,npix,s,err,other_mex_input);
+out = cell(1,nargout+1);
+[out{:}] = bin_pixels_c(mex_code_holder,npix,s,err,other_mex_input);
+mex_code_holder = out(1);
+varargout = out(2:end);
 
 
 out_struc = cell2struct(out_param_values,out_param_names,2);
