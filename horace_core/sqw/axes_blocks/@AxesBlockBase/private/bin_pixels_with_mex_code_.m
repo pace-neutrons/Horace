@@ -1,6 +1,6 @@
-function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
+function varargout = ...
     bin_pixels_with_mex_code_(obj,coord,proc_mode,...
-    npix_in,s_in,err_in,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
+    npix,s,err,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
@@ -14,14 +14,16 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
 % proc_mode
 %       -- the number of output parameters requested to process. Depending
 %          on this number, additional parts of the algorithm are deployed.
-% npix_in
-%       -- the array of size of this grid, accumulating the information
-%          about number of pixels contributing into each bin of the grid,
-%          defined by this axes block. This routine uses it only as
-%          indicator of number of calls to this code and keeps ownership of
-%          actual npix array to itself. On first call it is empty and on
-%          subsequent calls it gets values from previous call to binning
-%          routine
+% npix
+%      -- the array of size of this grid, accumulating the information
+%         about number of pixels contributing into each bin of the grid,
+%         defined by this axes block. This routine uses it only as
+%         indicator of number of calls to this code and keeps ownership of
+%         actual npix array to itself. On first call it is empty and on
+%         subsequent calls it gets values from previous call to binning
+%         routine
+% s    -- the array of size of this grid accumulating information about 
+%            
 % pix_cand
 %      -- if provided (not empty) contain PixelData information with
 %         the pixels to bin. The signal and error, contributing into s and
@@ -76,10 +78,12 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
 
 persistent mex_code_holder; % the variable contains pointer, which ensure
 % constitency of subsequent calls to mex code.
+if isempty(npix) 
+    % clear mex code holder to reset mex code binning to defaults and start
+    % binning operation over
+    mex_code_holder = [];
+end
 
-pix_ok       = [];
-pix_indx     = [];
-selected     = [];
 
 num_threads = config_store.instance().get_value('parallel_config','threads');
 
@@ -99,17 +103,18 @@ other_mex_input = struct( ...
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))    
-    'bins_all_dims',nbins_all_dims, ...     % dimensions of binning lattice
+    'nbins_all_dims',nbins_all_dims, ...    % dimensions of binning lattice
     'unique_runid', unique_runid, ...       % unique run indices of pixels contributing into cut
     'force_double', force_double, ...       % make result double precision regardless of input data
+    'return_selected',return_selected,...   %
     'test_input_parsing',test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
     );
 other_mex_input.unique_runid = unique_runid;
 
 is_pix = isa(pix_cand,'PixelDataBase');
-if is_pix && return_selected
+if is_pix
     other_mex_input.pix_candidates   = pix_cand.get_raw_data;
-    other_mex_input.selected = pix_cand.detector_idx>0;  % already selected pixels should be ignored by mex routine
+    other_mex_input.check_pix_selection = true; % check if pixels have already been processed by previous symmetry operations
     ndata = 2;
     if pix_cand.is_corrected
         other_mex_input.alignment_matr = pix_cand.alignment_matr;
@@ -119,15 +124,20 @@ if is_pix && return_selected
 else
     other_mex_input.alignment_matr   = [];
     other_mex_input.pix_candidates   = pix_cand;
-    other_mex_input.selected         = []; % do not analyse selected pixels
+    other_mex_input.check_pix_selection  = false; % use all pixels, do not analyze selection
     % cell with data array
     ndata = numel(pix_cand);
 end
 % routine allocates npix (s,e on request) on first call and keeps ownership
 % of these arrays internally. Input npix is not used and serves just as an
 % indication that this is the first call to the routine if npix is empty.
-[mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
-    mex_code_holder,npix_in,s_in,err_in,other_mex_input);
+% [mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
+%     mex_code_holder,npix_in,s_in,err_in,other_mex_input);
+out = cell(1,nargout+1);
+[out{:}] = bin_pixels_c(mex_code_holder,npix,s,err,other_mex_input);
+mex_code_holder = out(1);
+varargout = out(2:end);
+
 
 out_struc = cell2struct(out_param_values,out_param_names,2);
 if test_mex_inputs

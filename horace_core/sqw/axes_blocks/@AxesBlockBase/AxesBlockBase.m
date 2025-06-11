@@ -466,7 +466,7 @@ classdef AxesBlockBase < serializable
         function range = get.max_img_range(obj)
             range = obj.max_img_range_;
         end
-        %       
+        %
     end
     %======================================================================
     % Integration, interpolation and binning
@@ -628,7 +628,7 @@ classdef AxesBlockBase < serializable
                 source_axes,source_proj, data,proj);
         end
         %
-        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,varargin)
+        function varargout = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
@@ -714,10 +714,7 @@ classdef AxesBlockBase < serializable
             if ~ok
                 error('HORACE:AxesBlockBase:invalid_argument',mess)
             end
-            if test_mex_inputs
-                mode = 1;
-            end
-            
+
             % convert different input forms into fully expanded common form
             [npix,s,e,pix_cand,unique_runid,use_mex]=...
                 obj.normalize_bin_input(coord_transf,mode,argi{:});
@@ -731,13 +728,14 @@ classdef AxesBlockBase < serializable
             end
 
             % bin pixels
+            varargout  = cell(1,nargout);
             if use_mex
-                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
+                [varargout{:}] = bin_pixels_with_mex_code_( ...
                     obj,coord_transf,mode,...
                     npix,s,e,pix_cand,unique_runid, ...
                     force_double,return_selected,test_mex_inputs);
             else
-                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...
+                [varargout{:}] = bin_pixels_( ...
                     obj,coord_transf,mode,...
                     npix,s,e,pix_cand,unique_runid,force_double,return_selected);
             end

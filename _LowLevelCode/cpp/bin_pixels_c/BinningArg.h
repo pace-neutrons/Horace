@@ -26,6 +26,14 @@ enum out_arg {
     out_par_values, // pointer to cellarray with the values of other possible output parameters
     N_OUT_Arguments
 };
+enum out_arg_mode0 {
+    mex_code_hldrOut, // pointer to the class shared with Matlab and containing persistent
+    npix, // pointer to modified npix array
+    out_par_names, // pointer to cellarray with the names  of other possible output parameters
+    out_par_values, // pointer to cellarray with the values of other possible output parameters
+    N_OUT_Arguments
+};
+
 
 // enumerate operational modes bin pixels operates in
 enum opModes {
@@ -54,13 +62,20 @@ public:
 
     // information about pixels coordinates to bin.
     mxArray const* coord_ptr;
-    size_t in_pix_width; // how many pixel elements have to be binned
+    size_t in_coord_width; // how many pixel rows have to be binned (3 or 4)
     size_t n_data_points; // number of pixel elements to bin into image
+    mxArray const* all_pix_ptr; // pointer to array of all pixels containing signal and error info for binning and
+    size_t in_pix_width; // how many non-modified pixel data rows are provided in app_pix_ptr (8)
+                        // other information may be requested to process e.g. sorted pixels, pix_idx etc...
+    std::vector<double> alignment_matrix; // if defined, contains 3x3 matrix to use for aligning the pixels
     // vector of unique run-id(s) calculated from pixels data
-    std::vector<double> unique_runIDIn;
+    bool check_pix_selection; // if true, verify if pixels have been previously selected by a symmetry operation
+    std::vector<double> unique_runID;
     // logical variable which request to return transformed pixel data as double precision regardless
     // of their input accuracy.
     bool force_double;
+    //
+    bool return_selected;
     // logical variable with enables test mode returning input to outputs if
     bool test_inputs;
 
@@ -78,19 +93,25 @@ protected:
     void set_num_threads(mxArray const* const pField);   // how many computational threads to deploy for calculations
     void set_data_range(mxArray const* const pField);    // the range of data to bin in
     void set_dimensions(mxArray const* const pField);    // number of dimensions the binning should be performed on
-    void set_bins_all_dims(mxArray const* const pField); //
+    void set_nbins_all_dims(mxArray const* const pField); //
     void set_unique_runid(mxArray const* const pField);  // holder for the information about unique run_id-s present in the data. Set procedure is non-standard
     void set_force_double(mxArray const* const pField);  // boolean parameters which would request output transformed pixels always been double regardless of input pixels
+    void set_return_selected(mxArray const* const pField);
     void set_test_input_mode(mxArray const* const pField); // intialize testing mode (or not)
+    void set_all_pix(mxArray const* const pField);       //  pointer to all pixels to sort or use as binning arguments
+    void set_alignment_matrix(mxArray const* const pField); // matrix which have to be applied to raw pixels to bring them into Crystal Cartesian coordinate system
+    void set_check_pix_selection(mxArray const* const pField); // if true, check if detector_id are negative which may suggest that pixels have been alreary used in previous binning operation
 
 public:
     BinningArg(); // construction
-    // process binning arguments input values
+    // process binning arguments input values for new binning arguments cycle
     void parse_bin_inputs(mxArray const* pAllParStruct);
+    // process binning arguments which have changed during followitng call to binning procedure
+    void parse_changed_bin_inputs(mxArray const* pAllParStruct);
     // generate test output which would echo input values
     void return_inputs(mxArray* plhs[]);
-    // check if input binning parameters have not been changed
-    bool check_binning_arguments(mxArray const* prhs[]);
+    // check if input binning parameters are new or have been changed
+    bool new_binning_arguments_present(mxArray const* prhs[]);
 
     // check if input accumulators have not been changed and initalize them appropriately
     void check_and_init_accumulators(mxArray* plhs[],mxArray const* prhs[], bool force_update = false);
@@ -106,9 +127,3 @@ private:
     // holder for actual array dimensions to allocate
     std::vector<mwSize> accumulator_dims_holder;
 };
-
-// Declare procedure which will initialize binning inputs from MATLAB call
-void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_handle<BinningArg>> &bin_arg_holder);
-
-/* function parses special input values and return true if special value have been encountered Otherwise returns false */
-bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], std::unique_ptr<class_handle<BinningArg>>& bin_par_ptr);
