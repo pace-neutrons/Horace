@@ -633,12 +633,12 @@ classdef AxesBlockBase < serializable
             % described by this axes block over the current N-D lattice
             %
             % Usage:
-            % >>[obj,npix] = obj.bin_pixels(coord_transf);
-            % >>[obj,npix,s,e] = obj.bin_pixels(coord_transf,npix,s,e);
-            % >>[obj,npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
-            % >>[obj,npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
-            % >>[obj,npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
-            % >>[obj,npix,s,e,pix_ok,unque_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
+            % >>[npix] = obj.bin_pixels(coord_transf);
+            % >>[npix,s,e] = obj.bin_pixels(coord_transf,npix,s,e);
+            % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
             % Where
             % Inputs:
             % coord_transf
