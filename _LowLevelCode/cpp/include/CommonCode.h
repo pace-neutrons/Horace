@@ -47,7 +47,7 @@ extern bool ioFlush(void);
 #endif
 
 
-enum pix_fields
+enum pix_flds
 {
     u1 = 0, //      -|
     u2 = 1, //       |  Coordinates of pixel in the pixel projection axes
@@ -64,10 +64,10 @@ enum pix_fields
 // Copy pixels from source to target array
 inline void copy_pixels(double* pixel_data, long j, double* pPixelSorted, size_t j0) {
     //
-    j0 *= pix_fields::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-    size_t i0 = j * pix_fields::PIX_WIDTH;
+    j0 *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+    size_t i0 = j * pix_flds::PIX_WIDTH;
 
-    for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {
+    for (size_t i = 0; i < pix_flds::PIX_WIDTH; i++) {
         pPixelSorted[j0 + i] = pixel_data[i0 + i];
     }
 }

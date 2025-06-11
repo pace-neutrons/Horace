@@ -51,27 +51,33 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 buf.str().c_str());
         }
-        bin_par_ptr->class_ptr->return_inputs(plhs,nlhs);
+        bin_par_ptr->class_ptr->return_test_inputs(plhs, nlhs);
         return;
     }
-
-
-/*
-    bool place_pixels_in_old_array;
     try {
-        place_pixels_in_old_array = bin_pixels<double>(pS, pErr, pNpix, pPixData, PixelSorted, pUranges, iGridSizes, num_threads);
+        auto npix_ptr = mxGetPr(bin_par_ptr->class_ptr->npix_ptr);
+        auto signal_ptr = mxGetPr(bin_par_ptr->class_ptr->signal_ptr);
+        auto error_ptr = mxGetPr(bin_par_ptr->class_ptr->error_ptr);
+        auto transfType = bin_par_ptr->class_ptr->InOutTypeTransf;
+
+        size_t num_pixels_retained;
+        switch (transfType) {
+        case (InOutTransf::InCrd8OutPix8):
+        case (InOutTransf::InCrd4OutPix8): {
+            num_pixels_retained = bin_pixels<double>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+            break;
+        }
+        case (InOutTransf::InCrd4OutPix4): {
+            num_pixels_retained = bin_pixels<float>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+        }
+        }
+        bin_par_ptr->class_ptr->n_pix_retained = num_pixels_retained;
+        bin_par_ptr->class_ptr->return_results(plhs,nlhs);
     }
     catch (const char* err) {
-        mexErrMsgTxt(err);
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error", err);
     }
-    //if(!place_pixels_in_old_array){
-    //      mxDestroyArray(pPixData);
-    //}
-    if (place_pixels_in_old_array) {
-        mexPrintf("WARNING::bin_pixels_c->not enough memory for working arrays; Pixels sorted in-place");
-    }
-    mxSetCell(plhs[0], 3, PixelSorted);
-*/
+
 }
 /* function parses special input values and return true if special value have been encountered
  * special values processed by this function may be version request or request to reset memory holder

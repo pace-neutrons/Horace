@@ -246,7 +246,7 @@ void BinningArg::set_all_pix(mxArray const* const pField)
     this->in_pix_width = mxGetM(pField);
     this->n_data_points = mxGetN(pField); // should be dedined in set_coord too and values must be equal
     // no check, as Matlab will call it from routine which does this check
-    if (this->in_pix_width != size_t(pix_fields::PIX_WIDTH)) {
+    if (this->in_pix_width != size_t(pix_flds::PIX_WIDTH)) {
         std::stringstream buf;
         buf << "Full input pixel coordinates to bin have to be represented by a matrix with 8 rows\n";
         buf << "Support for provided input with " << (short)this->in_pix_width << " rows is not implemented";
@@ -290,6 +290,32 @@ void BinningArg::set_check_pix_selection(mxArray const* const pField)
     auto check_selection = mxGetScalar(pField);
     this->check_pix_selection = bool(check_selection);
 }
+//===================================================================================
+// return number of pixels retained in binning
+void BinningArg::set_npix_retained(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+{
+    mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+    mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(this->n_pix_retained));
+};
+
+//===================================================================================
+// calculate steps used in binning over non-unit directions and numbers of these dimensions
+void BinningArg::calc_step_sizes_pax_and_strides()
+{
+    size_t stride(1);
+    for (size_t i = 0; i < 4; i++) {
+        if (this->nbins_all_dims[i] > 1) {
+            auto n_bins = size_t(this->nbins_all_dims[i]);
+            auto step = double(n_bins) / (this->data_range[2 * i + 1] - this->data_range[2 * i]);
+            this->pax.push_back(i);
+            this->bin_step.push_back(step);
+            this->bin_cell_range.push_back(n_bins - 1);
+
+            this->stride.push_back(stride);
+            stride *= n_bins;
+        }
+    }
+};
 
 /* define functions which would check and set BinninPar values from the input assigned
    to MATLAB structure.
@@ -309,7 +335,11 @@ void BinningArg::register_input_methods()
     this->BinParInfo["alignment_matr"] = [this](mxArray const* const pField) { this->set_alignment_matrix(pField); };
     this->BinParInfo["test_input_parsing"] = [this](mxArray const* const pField) { this->set_test_input_mode(pField); };
 };
-
+// register functions used to set output parameters of the binning code
+void BinningArg::register_output_methods()
+{
+    this->Mode0ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
+};
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
  **/
@@ -354,12 +384,44 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
                 buf.str().c_str());
         }
     }
-    return;
-}
+    // calculate binning steps and projection axis in all binning directions
+    this->calc_step_sizes_pax_and_strides();
+    if (this->in_pix_width == 0) {
+        this->in_pix_width = this->in_coord_width;
+    }
+
+    // Identify what types of input-output transformation should be deployed
+    // while binning pixels
+    auto coord_type = mxGetClassID(this->coord_ptr);
+    if (this->all_pix_ptr) {
+        coord_type = mxGetClassID(this->all_pix_ptr);
+    }
+    switch (coord_type) {
+    case (mxSINGLE_CLASS): {
+        if (this->force_double) {
+            this->InOutTypeTransf = InOutTransf::InCrd4OutPix8;
+        } else {
+            this->InOutTypeTransf = InOutTransf::InCrd4OutPix4;
+        }
+        break;
+    case (mxDOUBLE_CLASS): {
+        this->InOutTypeTransf = InOutTransf::InCrd8OutPix8;
+        break;
+    }
+    default: {
+        std::stringstream buf;
+        buf << "Input coordinate type N " << short(coord_type) << " does not currently supported";
+        mexWarnMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    }
+        return;
+    }
+};
 
 /** Copy input arguments into appropriate places of output arguments for debugging purposes
  **/
-void BinningArg::return_inputs(mxArray* plhs[], int nlhs)
+void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
 {
     // define functions which would convert binning parameters into MATLAB data
     this->OutParList["coord_in"] = [this](mxArray* pFieldName, mxArray* pFieldValue,
@@ -456,32 +518,67 @@ void BinningArg::return_inputs(mxArray* plhs[], int nlhs)
     /* ********************************************************************************
      * retrieve binning parameters form BinningArg class and copy them into output array
      ** ********************************************************************************/
+    mxArray* pFieldNames(nullptr);
+    mxArray* pFieldValues(nullptr);
+
     auto number_of_fields = this->OutParList.size();
     if (this->binMode == opModes::npix_only) {
         if (nlhs == 4) {
             plhs[out_arg_mode0::out_par_names0] = mxCreateCellMatrix(1, mwSize(number_of_fields));
             plhs[out_arg_mode0::out_par_values0] = mxCreateCellMatrix(1, mwSize(number_of_fields));
+            pFieldNames = plhs[out_arg_mode0::out_par_names0];
+            pFieldValues = plhs[out_arg_mode0::out_par_values0];
         } else {
             return;
         }
     } else {
         plhs[out_arg::out_par_names] = mxCreateCellMatrix(1, mwSize(number_of_fields));
         plhs[out_arg::out_par_values] = mxCreateCellMatrix(1, mwSize(number_of_fields));
+        pFieldNames = plhs[out_arg::out_par_names];
+        pFieldValues = plhs[out_arg::out_par_values];
     }
+    //
+    int fld_idx(0);
+    for (auto iter = this->OutParList.begin(); iter != this->OutParList.end(); iter++) {
+        // call appropriate field-processing function and set up appropriate MATLAB values
+        // from the values of the BinningArg fields
+        iter->second(pFieldNames, pFieldValues, fld_idx, iter->first);
+        fld_idx++;
+    }
+};
+
+// Copy various result depending on processing mode into output data structure
+void BinningArg::return_results(mxArray* plhs[], mwSize nlhs)
+{
+    mwSize number_of_fields(0);
+    auto out_func_map = &this->Mode0ParList;
 
     mxArray* pFieldNames(nullptr);
     mxArray* pFieldValues(nullptr);
 
-    // Copy BinningArg values to output cellarrays
     if (this->binMode == opModes::npix_only) {
+        if (nlhs < out_arg_mode0::N_OUT_Arguments0 - 2) {
+            return;
+        }
+        number_of_fields = 1;
+        plhs[out_arg_mode0::out_par_names0] = mxCreateCellMatrix(1, number_of_fields);
+        plhs[out_arg_mode0::out_par_values0] = mxCreateCellMatrix(1, number_of_fields);
         pFieldNames = plhs[out_arg_mode0::out_par_names0];
         pFieldValues = plhs[out_arg_mode0::out_par_values0];
     } else {
+        if (nlhs < out_arg::N_OUT_Arguments - 2) {
+            return;
+        }
+        number_of_fields = 1;
+        out_func_map = &this->ModeNParList;
+        plhs[out_arg::out_par_names] = mxCreateCellMatrix(1, number_of_fields);
+        plhs[out_arg::out_par_values] = mxCreateCellMatrix(1, number_of_fields);
         pFieldNames = plhs[out_arg::out_par_names];
         pFieldValues = plhs[out_arg::out_par_values];
     }
+
     int fld_idx(0);
-    for (auto iter = this->OutParList.begin(); iter != this->OutParList.end(); iter++) {
+    for (auto iter = out_func_map->begin(); iter != out_func_map->end(); iter++) {
         // call appropriate field-processing function and set up appropriate MATLAB values
         // from the values of the BinningArg fields
         iter->second(pFieldNames, pFieldValues, fld_idx, iter->first);
@@ -519,6 +616,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         plhs[out_arg::Error] = this->error_ptr;
     }
 }
+
 /* get array of dimensions to allocate in the form appropriate for using with Matlab *mxCreateNumericArray
 ** function.
 **/
@@ -549,6 +647,7 @@ mwSize* BinningArg::get_Matlab_acc_dimensions()
     }
     return this->accumulator_dims_holder.data();
 }
+
 mwSize BinningArg::get_Matlab_n_dimensions()
 {
     mwSize n_dims = (mwSize)(this->n_dims);
@@ -559,6 +658,7 @@ mwSize BinningArg::get_Matlab_n_dimensions()
 // binning arguments constructor
 BinningArg::BinningArg()
     : binMode(opModes::npix_only)
+    , InOutTypeTransf(InOutTransf::InCrd4OutPix4)
     , n_dims(0)
     , num_threads(8)
     , coord_ptr(nullptr)

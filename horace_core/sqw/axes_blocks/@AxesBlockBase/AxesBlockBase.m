@@ -707,6 +707,9 @@ classdef AxesBlockBase < serializable
                 mode = 4;
             else
                 mode = nargout-1;
+                if mode == 0
+                    mode = 1;
+                end
             end
 
             [ok,mess,force_double,return_selected,test_mex_inputs,argi]=parse_char_options(varargin, ...

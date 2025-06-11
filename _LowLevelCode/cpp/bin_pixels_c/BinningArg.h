@@ -1,10 +1,18 @@
 #pragma once
 #include <functional>
+#include <numeric>
 #include <include/CommonCode.h>
 #include <include/MatlabCppClassHolder.hpp>
 #include <map>
 #include <string>
 #include <utility/version.h>
+
+// enumerate possible types of input/output pixel && coord arguments
+enum InOutTransf {
+    InCrd4OutPix4,
+    InCrd4OutPix8,
+    InCrd8OutPix8
+};
 
 // enumerate input arguments of the mex function
 enum in_arg {
@@ -55,6 +63,7 @@ enum opModes {
 class BinningArg {
 public:
     opModes binMode; // the operation mode, binning routine would operate
+    InOutTransf InOutTypeTransf; // what input pixel types provided and ouptout pixel types requested
     size_t n_dims; // number of DnD object dimensions. changes from 0 to 4 and differs from Matlab arrays dimensions (from 2 to 4)
     std::vector<double> data_range; // range of the data to bin within
     std::vector<uint32_t> nbins_all_dims; // number of bins in each non-unit dimension
@@ -83,11 +92,30 @@ public:
     mxArray* npix_ptr;
     mxArray* signal_ptr;
     mxArray* error_ptr;
+    // number of pixels retained after binning
+    size_t n_pix_retained;
+
+    std::vector<double> bin_step; // vector of binning sizes in all non-unit directions
+    std::vector<size_t> pax; // vector of projection axes to bin pixels over
+    std::vector<size_t> stride; // vector, which describes binning steps reflecting multidimensional array strides
+    std::vector<size_t> bin_cell_range; // vector containing allowed ranges of the binning (with nbins_all_dims>1) cells in binning directions
+
+
+    // calculate size of the binning grid
+    size_t n_grid_points() { 
+        size_t product = std::accumulate(
+            nbins_all_dims.begin(), nbins_all_dims.end(),
+            size_t(1), // promote to size_t
+            [](size_t a, size_t b) {
+                return a * b;
+            });
+        return product;
+    }
 
 protected:
-    // register all setters with parameters map
-    void BinningArg::register_input_methods();
-    // setters for all binning properties
+    // register with parameters map all methods which accept input parameters from MATLAB
+    void register_input_methods();
+    // setters for all binning properties retrieved from MATLAB
     void set_coord_in(mxArray const* const pField); //   // Input pixels coordinates to bin. May be empty in modes where they are produced from pixels coordinates
     void set_binning_mode(mxArray const* const pField);  // what parameters calculate during the binning
     void set_num_threads(mxArray const* const pField);   // how many computational threads to deploy for calculations
@@ -102,6 +130,10 @@ protected:
     void set_alignment_matrix(mxArray const* const pField); // matrix which have to be applied to raw pixels to bring them into Crystal Cartesian coordinate system
     void set_check_pix_selection(mxArray const* const pField); // if true, check if detector_id are negative which may suggest that pixels have been alreary used in previous binning operation
 
+    // register with parameters map all methods which 
+    void register_output_methods();
+    // setters for binning results returned to MATLAB in output structure
+    void set_npix_retained(mxArray* p1, mxArray* p2, int idx, const std::string& name);
 public:
     BinningArg(); // construction
     // process binning arguments input values for new binning arguments cycle
@@ -109,7 +141,9 @@ public:
     // process binning arguments which have changed during followitng call to binning procedure
     void parse_changed_bin_inputs(mxArray const* pAllParStruct);
     // generate test output which would echo input values
-    void return_inputs(mxArray* plhs[],int nlhs);
+    void return_test_inputs(mxArray* plhs[],int nlhs);
+    // return various inputs 
+    void return_results(mxArray* plhs[], mwSize nlhs);
     // check if input binning parameters are new or have been changed
     bool new_binning_arguments_present(mxArray const* prhs[]);
 
@@ -126,4 +160,9 @@ private:
     std::unordered_map<std::string, std::function<void(mxArray* p1, mxArray* p2, int idx, const std::string& name)>> OutParList;
     // holder for actual array dimensions to allocate
     std::vector<mwSize> accumulator_dims_holder;
+    // helper function to calculate binning sizes in all non-unit directions
+    void calc_step_sizes_pax_and_strides();
+
+    std::unordered_map<std::string, std::function<void(mxArray* p1, mxArray* p2, int idx, const std::string& name)>> Mode0ParList;
+    std::unordered_map<std::string, std::function<void(mxArray* p1, mxArray* p2, int idx, const std::string& name)>> ModeNParList;
 };

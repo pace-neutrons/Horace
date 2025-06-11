@@ -134,11 +134,8 @@ end
 % [mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
 %     mex_code_holder,npix_in,s_in,err_in,other_mex_input);
 if proc_mode == 1
-    if test_mex_inputs % return mex_holder, npix, field_names, field_values
-        out = cell(1,4);
-    else
-        out = cell(1,2); % retun only mex_holder, npix, field_names, field_values
-    end
+    % return mex_holder, npix, field_names, field_values
+    out = cell(1,4);
 else % return mex_holder, npix, s, e, field_names, field_values for the fields
     % requested by binning mode
     out = cell(1,6);
@@ -149,9 +146,7 @@ varargout = cell(1,nargout);
 mex_code_holder = out{1};
 varargout{bin_out.npix} = out{2};
 
-
-
-if proc_mode == 1 && test_mex_inputs
+if proc_mode == 1
     % in this case pix_ok change meaning and contains output data structure
     % directly. The structure itself contains copy of input parameters plus
     % various helper values obtained from input and used during the testing
