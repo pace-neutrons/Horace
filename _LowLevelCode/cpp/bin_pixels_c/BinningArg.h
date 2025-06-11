@@ -27,11 +27,11 @@ enum out_arg {
     N_OUT_Arguments
 };
 enum out_arg_mode0 {
-    mex_code_hldrOut, // pointer to the class shared with Matlab and containing persistent
-    npix, // pointer to modified npix array
-    out_par_names, // pointer to cellarray with the names  of other possible output parameters
-    out_par_values, // pointer to cellarray with the values of other possible output parameters
-    N_OUT_Arguments
+    mex_code_hldrOut0, // pointer to the class shared with Matlab and containing persistent
+    npix0, // pointer to modified npix array
+    out_par_names0, // pointer to cellarray with the names  of other possible output parameters
+    out_par_values0, // pointer to cellarray with the values of other possible output parameters
+    N_OUT_Arguments0
 };
 
 
@@ -109,7 +109,7 @@ public:
     // process binning arguments which have changed during followitng call to binning procedure
     void parse_changed_bin_inputs(mxArray const* pAllParStruct);
     // generate test output which would echo input values
-    void return_inputs(mxArray* plhs[]);
+    void return_inputs(mxArray* plhs[],int nlhs);
     // check if input binning parameters are new or have been changed
     bool new_binning_arguments_present(mxArray const* prhs[]);
 

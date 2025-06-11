@@ -22,8 +22,8 @@ function varargout = ...
 %         actual npix array to itself. On first call it is empty and on
 %         subsequent calls it gets values from previous call to binning
 %         routine
-% s    -- the array of size of this grid accumulating information about 
-%            
+% s    -- the array of size of this grid accumulating information about
+%
 % pix_cand
 %      -- if provided (not empty) contain PixelData information with
 %         the pixels to bin. The signal and error, contributing into s and
@@ -78,7 +78,7 @@ function varargout = ...
 
 persistent mex_code_holder; % the variable contains pointer, which ensure
 % constitency of subsequent calls to mex code.
-if isempty(npix) 
+if isempty(npix)
     % clear mex code holder to reset mex code binning to defaults and start
     % binning operation over
     mex_code_holder = [];
@@ -88,7 +88,7 @@ end
 num_threads = config_store.instance().get_value('parallel_config','threads');
 
 if size(coord,1) == 3  % 3D array binning
-    pax = obj.pax;    
+    pax = obj.pax;
     data_range = obj.img_range(:,1:3);
     pax = pax(pax~=4);
     ndims = numel(pax);
@@ -102,7 +102,7 @@ other_mex_input = struct( ...
     'binning_mode',proc_mode, ...           % binning mode, what binning values to calculate and return
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
-    'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))    
+    'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
     'nbins_all_dims',nbins_all_dims, ...    % dimensions of binning lattice
     'unique_runid', unique_runid, ...       % unique run indices of pixels contributing into cut
     'force_double', force_double, ...       % make result double precision regardless of input data
@@ -133,44 +133,59 @@ end
 % indication that this is the first call to the routine if npix is empty.
 % [mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
 %     mex_code_holder,npix_in,s_in,err_in,other_mex_input);
-out = cell(1,nargout+1);
+if proc_mode == 1
+    if test_mex_inputs % return mex_holder, npix, field_names, field_values
+        out = cell(1,4);
+    else
+        out = cell(1,2); % retun only mex_holder, npix, field_names, field_values
+    end
+else % return mex_holder, npix, s, e, field_names, field_values for the fields
+    % requested by binning mode
+    out = cell(1,6);
+end
+
+varargout = cell(1,nargout);
 [out{:}] = bin_pixels_c(mex_code_holder,npix,s,err,other_mex_input);
-mex_code_holder = out(1);
-varargout = out(2:end);
+mex_code_holder = out{1};
+varargout{bin_out.npix} = out{2};
 
 
-out_struc = cell2struct(out_param_values,out_param_names,2);
-if test_mex_inputs
+
+if proc_mode == 1 && test_mex_inputs
     % in this case pix_ok change meaning and contains output data structure
     % directly. The structure itself contains copy of input parameters plus
     % various helper values obtained from input and used during the testing
-    pix_ok = out_struc;
+    % [mp,npix, fields, values] = bin_pixels_c(coord,npix,s,e,other_mex_input);
+
+    out_struc = cell2struct(out{4},out{3},2);
+    varargout{bin_out0.pix_ok} = out_struc;
+    % otherwise, there are no such ouputs
     return
 else
-    %[npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_c(coord,npix,s,e,other_mex_input);
+    out_struc = cell2struct(out{6},out{5},2);
+    %[mp,npix, s, e, fields, values] = bin_pixels_c(coord,npix,s,e,other_mex_input);
     pix_ok_data  = out_struc.pix_ok_data;
     pix_ok_range = out_struc.pix_ok_range;
 
     if proc_mode<4 || ~is_pix
         if ndata>=3
-            pix_ok = pix_ok_range; % redefine pix_ok_range to be npix accumulated
+            varargout{bin_out.pix_ok} = pix_ok_range; % redefine pix_ok_range to be npix accumulated
         end
         return;
     end
     if isempty(pix_ok_data)
-        pix_ok = pix_ok_data;
+        varargout{bin_out.pix_ok} = pix_ok_data;
     else
         pix_ok = PixelDataMemory();
         pix_ok = pix_ok.set_raw_data(pix_ok_data);
-        pix_ok = pix_ok.set_data_range(pix_ok_range);
+        varargout{bin_out.pix_ok} = pix_ok.set_data_range(pix_ok_range);
     end
 
-    % in modes where these values are not calculated, the code returns 
-    % empty 
-    unique_runid  = out_struc.unique_runid;
-    pix_indx      = out_struc.pix_idx;
-    selected      = out_struc.selected;
-
+    % in modes where these values are not calculated, the code returns
+    % empty
+    varargout{bin_out.unique_runid}  = out_struc.unique_runid;
+    varargout{bin_out.pix_indx}      = out_struc.pix_idx;
+    varargout{bin_out.selected}      = out_struc.selected;
 end
 
 end

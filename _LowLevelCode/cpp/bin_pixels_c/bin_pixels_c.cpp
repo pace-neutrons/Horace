@@ -9,7 +9,8 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
 bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], std::unique_ptr<class_handle<BinningArg>>& bin_par_ptr);
 
 
-// something not 0 as input from MATLAB may be easy initilized to 0
+// A constant which identifies particular instance of instantiated mex code.
+// Something not 0 as input from MATLAB may be easy initilized to 0
 static ::uint32_t CODE_SIGNATURE(0x7D58CDE3);
 // holder of the pointer to the instance of the binning arguments used in the previous call to the mex function.
 static std::unique_ptr<class_handle<BinningArg>> bin_par_ptr;
@@ -17,7 +18,9 @@ static std::unique_ptr<class_handle<BinningArg>> bin_par_ptr;
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     // identify special input requests (e.g. version or clear mex from memory) 
-    // and return if special input is found.
+    // and return if special input is found. Two special inputs, namely get code version 
+    // and "clear" -- remove existing code from memory alloweing mex to be freed from memory 
+    // are recognized here.
     if (find_special_inputs(nlhs, plhs, nrhs, prhs, bin_par_ptr)) {
         return;
     }
@@ -41,7 +44,14 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     if (bin_par_ptr->class_ptr->test_inputs) {
         // return input back if test_inputs == true is encountered
-        bin_par_ptr->class_ptr->return_inputs(plhs);
+        if (nlhs != 4) {
+            std::stringstream buf;
+            buf << "Test mode requests 4 output arguments.\n";
+            buf << "Provided : " << (short)nlhs << " output arguments\n";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+        }
+        bin_par_ptr->class_ptr->return_inputs(plhs,nlhs);
         return;
     }
 
@@ -115,7 +125,7 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
 {
     // retrieve auto-ptr to old binning calculations
     auto pBinHolder = get_handler_fromMatlab<BinningArg>(prhs[in_arg::mex_code_hldrIn], CODE_SIGNATURE, false);
-    if (pBinHolder == nullptr) {
+    if (pBinHolder == nullptr || bin_arg_holder == nullptr) {
         // create new bin_arguments holder with random signature
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -123,15 +133,17 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
 
         CODE_SIGNATURE = dist(gen);
         bin_arg_holder = std::make_unique<class_handle<BinningArg>>(CODE_SIGNATURE);
-        plhs[out_arg::mex_code_hldrOut] = bin_arg_holder->export_hanlder_toMatlab();
+
     }
+    plhs[out_arg::mex_code_hldrOut] = bin_arg_holder->export_hanlder_toMatlab();
+
     auto bin_arg_ptr = bin_arg_holder->class_ptr;
     if (bin_arg_ptr->new_binning_arguments_present(prhs)) {
         bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
-        bin_arg_ptr->check_and_init_accumulators(plhs, prhs);
     } else {
         bin_arg_ptr->parse_changed_bin_inputs(prhs[in_arg::param_struct]);
     }
+    bin_arg_ptr->check_and_init_accumulators(plhs, prhs);
     return;
 };
 

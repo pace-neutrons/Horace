@@ -96,10 +96,20 @@ classdef test_bin_pixels_mex_nomex < TestCase
 
             AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
                 'img_range',[-1,-2,-3,-10;1,2,3,40]);
-            [npix,s,e,out_data] = AB.bin_pixels(rand(4,10),'-test_mex_inputs');
-            [npix,s,e,out_data] = AB.bin_pixels(rand(4,10),npix,'-test_mex_inputs');
+            in_coord1 = rand(4,10);
+            [npix,out_data] = AB.bin_pixels(in_coord1,'-test_mex_inputs');
+            assertEqual(size(npix),[10,20,30,40]);
+            assertEqual(npix,zeros(10,20,30,40));
+            assertEqual(out_data.coord_in,in_coord1);
 
-            i=1;
+            npix(2) = 10;
+            in_coord2 = rand(4,10);
+            [npix_out,out_data] = AB.bin_pixels(in_coord2 ,npix,'-test_mex_inputs');
+
+            assertEqual(size(npix_out),[10,20,30,40]);
+            assertEqual(npix,npix_out);
+            assertEqual(out_data.coord_in,in_coord2);
+
         end
         function test_bin_pixels_AB_inputs(obj)
             if obj.no_mex
@@ -113,7 +123,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
             [npix,out_data] = AB.bin_pixels(in_coord,'-test_mex_inputs');
 
             assertEqual(size(npix),[10,20,30,40]);
-            assertEqual(npix,zeros(10,20,30,40));            
+            assertEqual(npix,zeros(10,20,30,40));
 
             assertEqual(out_data.coord_in,in_coord);
             assertEqual(out_data.binning_mode,1);
@@ -123,7 +133,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
             assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
             assertTrue(isempty(out_data.unique_runid));
             assertFalse(out_data.force_double);
-            assertFalse(out_data.return_selected);            
+            assertFalse(out_data.return_selected);
             assertTrue(out_data.test_input_parsing);
             assertTrue(isempty(out_data.alignment_matr));
             assertTrue(isempty(out_data.pix_candidates));

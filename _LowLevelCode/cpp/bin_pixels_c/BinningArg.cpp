@@ -10,13 +10,13 @@ bool BinningArg::new_binning_arguments_present(mxArray const* prhs[])
         return true;
     }
     auto inpar_structure_ptr = prhs[in_arg::param_struct];
-    
+
     // check if data range have changed. Even epsilon changes can not occur here
     std::vector<double> oldDataRange(this->data_range.begin(), this->data_range.end());
     this->set_data_range(mxGetField(inpar_structure_ptr, 0, "data_range"));
     if (oldDataRange != this->data_range)
         return true;
- 
+
     // check if binning have changed
     std::vector<uint32_t> old_nbins_all_dims(this->nbins_all_dims.begin(), this->nbins_all_dims.end());
     this->set_nbins_all_dims(mxGetField(inpar_structure_ptr, 0, "nbins_all_dims"));
@@ -35,11 +35,11 @@ void BinningArg::parse_changed_bin_inputs(mxArray const* pAllParStruct)
      * at the subsequent call to bin_pixels_c
      ** ********************************************************************************/
     //**************************************************************************
-    // 
-    // 
+    //
+    //
     switch (this->binMode) {
     case (opModes::npix_only): {
-        this->set_coord_in(mxGetField(pAllParStruct,0,"coord_in"));
+        this->set_coord_in(mxGetField(pAllParStruct, 0, "coord_in"));
         break;
     }
     default:
@@ -333,7 +333,7 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
     if (total_num_of_elements != 1) {
         std::stringstream buf;
         buf << "Structure with binning parameters have to have 1 element. \n";
-        buf << "It has: " << (short)total_num_of_elements << "elements\n";
+        buf << "It has: " << (short)total_num_of_elements << " elements\n";
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             buf.str().c_str());
     }
@@ -359,7 +359,7 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
 
 /** Copy input arguments into appropriate places of output arguments for debugging purposes
  **/
-void BinningArg::return_inputs(mxArray* plhs[])
+void BinningArg::return_inputs(mxArray* plhs[], int nlhs)
 {
     // define functions which would convert binning parameters into MATLAB data
     this->OutParList["coord_in"] = [this](mxArray* pFieldName, mxArray* pFieldValue,
@@ -457,12 +457,29 @@ void BinningArg::return_inputs(mxArray* plhs[])
      * retrieve binning parameters form BinningArg class and copy them into output array
      ** ********************************************************************************/
     auto number_of_fields = this->OutParList.size();
-    plhs[out_arg::out_par_names] = mxCreateCellMatrix(1, mwSize(number_of_fields));
-    plhs[out_arg::out_par_values] = mxCreateCellMatrix(1, mwSize(number_of_fields));
+    if (this->binMode == opModes::npix_only) {
+        if (nlhs == 4) {
+            plhs[out_arg_mode0::out_par_names0] = mxCreateCellMatrix(1, mwSize(number_of_fields));
+            plhs[out_arg_mode0::out_par_values0] = mxCreateCellMatrix(1, mwSize(number_of_fields));
+        } else {
+            return;
+        }
+    } else {
+        plhs[out_arg::out_par_names] = mxCreateCellMatrix(1, mwSize(number_of_fields));
+        plhs[out_arg::out_par_values] = mxCreateCellMatrix(1, mwSize(number_of_fields));
+    }
+
+    mxArray* pFieldNames(nullptr);
+    mxArray* pFieldValues(nullptr);
 
     // Copy BinningArg values to output cellarrays
-    auto pFieldNames = plhs[out_arg::out_par_names];
-    auto pFieldValues = plhs[out_arg::out_par_values];
+    if (this->binMode == opModes::npix_only) {
+        pFieldNames = plhs[out_arg_mode0::out_par_names0];
+        pFieldValues = plhs[out_arg_mode0::out_par_values0];
+    } else {
+        pFieldNames = plhs[out_arg::out_par_names];
+        pFieldValues = plhs[out_arg::out_par_values];
+    }
     int fld_idx(0);
     for (auto iter = this->OutParList.begin(); iter != this->OutParList.end(); iter++) {
         // call appropriate field-processing function and set up appropriate MATLAB values
@@ -483,6 +500,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
     } else {
         this->npix_ptr = mxDuplicateArray(prhs[in_arg::npixIn]);
     }
+    plhs[out_arg::npix] = this->npix_ptr;
 
     if (this->binMode != opModes::npix_only) {
         if (mxGetPr(this->signal_ptr) == nullptr || mxIsEmpty(prhs[in_arg::signalIn])) {
@@ -497,10 +515,9 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
             this->signal_ptr = mxDuplicateArray(prhs[in_arg::signalIn]);
             this->error_ptr = mxDuplicateArray(prhs[in_arg::errorIn]);
         }
+        plhs[out_arg::Signal] = this->signal_ptr;
+        plhs[out_arg::Error] = this->error_ptr;
     }
-    plhs[out_arg::npix] = this->npix_ptr;
-    plhs[out_arg::Signal] = this->signal_ptr;
-    plhs[out_arg::Error] = this->error_ptr;
 }
 /* get array of dimensions to allocate in the form appropriate for using with Matlab *mxCreateNumericArray
 ** function.
@@ -545,10 +562,14 @@ BinningArg::BinningArg()
     , n_dims(0)
     , num_threads(8)
     , coord_ptr(nullptr)
-    , in_pix_width(4)
+    , in_coord_width(4)
     , n_data_points(0)
+    , all_pix_ptr(nullptr)
+    , in_pix_width(9)
+    , check_pix_selection(false)
     , force_double(false)
     , test_inputs(false)
+    // accumulators
     , npix_ptr(nullptr)
     , signal_ptr(nullptr)
     , error_ptr(nullptr)
