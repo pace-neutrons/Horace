@@ -93,16 +93,18 @@ end
 
 num_threads = config_store.instance().get_value('parallel_config','threads');
 
+nbins_all_dims = uint32(obj.nbins_all_dims(:)');
 if size(coord,1) == 3  % 3D array binning
     pax = obj.pax;
-    data_range = obj.img_range(:,1:3);
+    data_range     = obj.img_range(:,1:3);
+    nbins_all_dims = nbins_all_dims(1:3);
     pax = pax(pax~=4);
     ndims = numel(pax);
 else
     data_range = obj.img_range;
     ndims = obj.dimensions;
 end
-nbins_all_dims = uint32(obj.nbins_all_dims(:)');
+
 other_mex_input = struct( ...
     'coord_in',    coord,...                % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
     'binning_mode',proc_mode, ...           % binning mode, what binning values to calculate and return

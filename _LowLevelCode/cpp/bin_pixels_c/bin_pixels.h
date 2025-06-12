@@ -19,7 +19,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     // what do we actually calculate
     auto opMode = bin_par->binMode;
 
-    auto coord_ptr = mxGetPr(bin_par->coord_ptr);
+    TP * const coord_ptr = reinterpret_cast<TP*>(mxGetPr(bin_par->coord_ptr));
     // if (bin_par.all_pix_ptr) {  // -----------------> this is aProjection.bin_pixels mode
     //     coord_ptr = mxGetPr(bin_par.all_pix_ptr);
     // }
@@ -61,7 +61,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
 
     for (long i = 0; i < data_size; i++) {
         // drop out coordinates outside of the binning range
-        size_t i0 = i * PIX_STRIDE;
+        size_t i0 = i * COORD_STRIDE;
         bool outside(false);
         for (size_t upix = 0; upix < COORD_STRIDE; upix++) {
             qi[upix] = double(coord_ptr[i0 + upix]);

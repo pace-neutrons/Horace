@@ -712,7 +712,7 @@ classdef AxesBlockBase < serializable
             % code and allows proper initalization of it. Attempt to start
             % binning with some values in accumulating arrays npix, s, e
             % requests defined state of binning parameters so may cause
-            % UNDEFINED BEHAVIOUR!!!
+            % UNDEFINED BEHAVIOUR!!!. May be modified later.
             %
             if numel(varargin) == 4 && iscell(varargin{4})
                 mode = 4;

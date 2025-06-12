@@ -28,7 +28,7 @@ bool BinningArg::new_binning_arguments_present(mxArray const* prhs[])
 // set up binning input changed at subsequent calls to bin pixels
 void BinningArg::parse_changed_bin_inputs(mxArray const* pAllParStruct)
 {
-    auto argType = mxGetClassID(pAllParStruct);
+
 
     /* ********************************************************************************
      * retrieve and analyse binning parameters collated into binning structure and changed
@@ -128,15 +128,15 @@ void BinningArg::set_data_range(mxArray const* const pField)
     }
     auto minmax_width = mxGetM(pField);
     auto minmax_length = mxGetN(pField);
-    if (minmax_width != 2 || minmax_length != 4) {
+    if (minmax_width != 2 || !(minmax_length == 4 || minmax_length == 3)) {
         std::stringstream buf;
-        buf << "input data range have to be represented by 2x4 - matrix\n";
+        buf << "input data range have to be represented by 2x4 or 2x3 - matrix\n";
         buf << "Provided input has: " << (short)minmax_width << "x" << (short)minmax_length << " components";
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             buf.str().c_str());
     }
     auto pData = mxGetPr(pField);
-    this->data_range.assign(pData, pData + 8);
+    this->data_range.assign(pData, pData + 2 * minmax_length);
 };
 // number of dimensions the binning should be performed on
 void BinningArg::set_dimensions(mxArray const* const pField)
@@ -179,15 +179,15 @@ void BinningArg::set_nbins_all_dims(mxArray const* const pField)
     }
     auto bins_width = mxGetM(pField);
     auto bins_length = mxGetN(pField);
-    if (bins_width != 1 || bins_length != 4) {
+    if (bins_width != 1 || !(bins_length == 4 || bins_length == 3)) {
         std::stringstream buf;
-        buf << "input binning array have to be represented by 1x4 - matrix\n";
+        buf << "input binning array have to be represented by 1x4 or 1x3 - matrix\n";
         buf << "Provided input has: " << (short)bins_width << "x" << (short)bins_length << " components";
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             buf.str().c_str());
     }
     auto pData = (uint32_t*)mxGetPr(pField);
-    this->nbins_all_dims.assign(pData, pData + 4);
+    this->nbins_all_dims.assign(pData, pData + bins_length);
 };
 // holder for the information about unique run_id-s present in the data. Set procedure is non-standard
 void BinningArg::set_unique_runid(mxArray const* const pField)
@@ -302,8 +302,15 @@ void BinningArg::set_npix_retained(mxArray* pFieldName, mxArray* pFieldValue, in
 // calculate steps used in binning over non-unit directions and numbers of these dimensions
 void BinningArg::calc_step_sizes_pax_and_strides()
 {
+    // just in case. Binning parameters shoul not be reinitialized
+    this->pax.clear();
+    this->stride.clear();
+    this->bin_step.clear();
+    this->bin_cell_range.clear();
+    //
     size_t stride(1);
-    for (size_t i = 0; i < 4; i++) {
+    size_t n_pix_dim = this->in_coord_width;
+    for (size_t i = 0; i < n_pix_dim; i++) {
         if (this->nbins_all_dims[i] > 1) {
             auto n_bins = size_t(this->nbins_all_dims[i]);
             auto step = double(n_bins) / (this->data_range[2 * i + 1] - this->data_range[2 * i]);
@@ -384,6 +391,12 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
                 buf.str().c_str());
         }
     }
+    // check if binning parameters corresponds to pixels coordinates width and adjust
+    // binning if not.
+    if (this->nbins_all_dims.size() > this->in_coord_width) {
+        this->nbins_all_dims.resize(this->in_coord_width);
+    }
+    //
     // calculate binning steps and projection axis in all binning directions
     this->calc_step_sizes_pax_and_strides();
     if (this->in_pix_width == 0) {
@@ -593,11 +606,11 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
     mwSize nDims(0);
     mwSize* dim_ptr(nullptr);
     bool init_new_accumulators(false);
-    if (mxGetPr(this->npix_ptr) == nullptr || mxIsEmpty(prhs[in_arg::npixIn])) {
+    if (mxIsEmpty(prhs[in_arg::npixIn])) {
         init_new_accumulators = true;
         nDims = this->get_Matlab_n_dimensions();
         dim_ptr = this->get_Matlab_acc_dimensions();
-        this->npix_ptr = mxCreateNumericArray(nDims, dim_ptr,mxDOUBLE_CLASS, mxREAL);
+        this->npix_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
         nullify_array(this->npix_ptr);
     } else {
         this->npix_ptr = mxDuplicateArray(prhs[in_arg::npixIn]);
@@ -679,7 +692,7 @@ BinningArg::BinningArg()
     /* initialize input Matlab parameters map with methods which  associate
      * Matlab field names with the methods, which set appropriate property value  */
     this->register_input_methods();
-    /* initialize output parameters map with methods which associate 
-    * output MATLAB field names with appropriate results to move to the structure */
+    /* initialize output parameters map with methods which associate
+     * output MATLAB field names with appropriate results to move to the structure */
     this->register_output_methods();
 };
