@@ -590,9 +590,14 @@ void BinningArg::return_results(mxArray* plhs[], mwSize nlhs)
 void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prhs[], bool force_update)
 {
 
+    mwSize nDims(0);
+    mwSize* dim_ptr(nullptr);
+    bool init_new_accumulators(false);
     if (mxGetPr(this->npix_ptr) == nullptr || mxIsEmpty(prhs[in_arg::npixIn])) {
-        this->npix_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
-            mxDOUBLE_CLASS, mxREAL);
+        init_new_accumulators = true;
+        nDims = this->get_Matlab_n_dimensions();
+        dim_ptr = this->get_Matlab_acc_dimensions();
+        this->npix_ptr = mxCreateNumericArray(nDims, dim_ptr,mxDOUBLE_CLASS, mxREAL);
         nullify_array(this->npix_ptr);
     } else {
         this->npix_ptr = mxDuplicateArray(prhs[in_arg::npixIn]);
@@ -600,14 +605,11 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
     plhs[out_arg::npix] = this->npix_ptr;
 
     if (this->binMode != opModes::npix_only) {
-        if (mxGetPr(this->signal_ptr) == nullptr || mxIsEmpty(prhs[in_arg::signalIn])) {
-            this->signal_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
-                mxDOUBLE_CLASS, mxREAL);
+        if (init_new_accumulators) {
+            this->signal_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
+            this->error_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
             nullify_array(this->signal_ptr);
-            this->error_ptr = mxCreateNumericArray(this->get_Matlab_n_dimensions(), this->get_Matlab_acc_dimensions(),
-                mxDOUBLE_CLASS, mxREAL);
             nullify_array(this->error_ptr);
-
         } else {
             this->signal_ptr = mxDuplicateArray(prhs[in_arg::signalIn]);
             this->error_ptr = mxDuplicateArray(prhs[in_arg::errorIn]);
@@ -622,7 +624,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
 **/
 mwSize* BinningArg::get_Matlab_acc_dimensions()
 {
-
+    this->accumulator_dims_holder.clear();
     if (this->n_dims == 0) {
         this->accumulator_dims_holder.push_back(1);
     } else {

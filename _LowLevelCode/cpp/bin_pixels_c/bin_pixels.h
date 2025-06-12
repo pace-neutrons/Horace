@@ -87,7 +87,6 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
         //            ok[i] = true;
         //            nGridCell[i] = il;
 
-        ////    sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
         // #pragma omp atomic   // beware C index one less then Matlab; should use enum instead
         //             s[il]   +=pixel_data[i0+7];
         ////    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);

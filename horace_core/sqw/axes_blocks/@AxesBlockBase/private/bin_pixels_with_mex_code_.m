@@ -78,10 +78,16 @@ function varargout = ...
 
 persistent mex_code_holder; % the variable contains pointer, which ensure
 % constitency of subsequent calls to mex code.
+persistent npix_retained; % number of pixels retained during sequence
+% of calls to bin pixels with persistent accumulators
 if isempty(npix)
     % clear mex code holder to reset mex code binning to defaults and start
     % binning operation over
     mex_code_holder = [];
+    npix_retained = 0;
+end
+if isempty(npix_retained)
+    npix_retained = 0;
 end
 
 
@@ -153,10 +159,12 @@ if proc_mode == 1
     % [mp,npix, fields, values] = bin_pixels_c(coord,npix,s,e,other_mex_input);
 
     out_struc = cell2struct(out{4},out{3},2);
-    varargout{bin_out0.pix_ok} = out_struc;
-    % otherwise, there are no such ouputs
-    return
-else
+    npix_retained = npix_retained + out_struc.npix_retained;
+    out_struc.npix_retained = npix_retained;    
+    if nargout > 1
+        varargout{bin_out0.pix_ok} = out_struc;
+    end
+else  % otherwise, there are no such ouputs, output structure is flattened
     out_struc = cell2struct(out{6},out{5},2);
     %[mp,npix, s, e, fields, values] = bin_pixels_c(coord,npix,s,e,other_mex_input);
     pix_ok_data  = out_struc.pix_ok_data;

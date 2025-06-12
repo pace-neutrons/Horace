@@ -223,8 +223,6 @@ classdef AxesBlockBase < serializable
             %              instance, containing information about pixels
             % unique_runid -- if mode == [5,6], input array of unique_runid-s
             %                 calculated on the previous step.
-
-
             [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
         end
@@ -702,7 +700,20 @@ classdef AxesBlockBase < serializable
             % unique_runid argument needed to get pixels sorted according
             % to bins. If it is not requested, pix_ok are returned unsorted.
             %
-
+            % IMPORTANT: 
+            % new calculations must be started from empty accumulators
+            % i.e.:
+            % npix = []; s = []; e = [];
+            % for i=1:num_pages
+            %   [npix,s,e,... ] =
+            %   axes_block_instance.bin_pixels(coord(i),npix,s,e,...);
+            % end
+            % Zero accumulators indicate initialization procedure for mex
+            % code and allows proper initalization of it. Attempt to start
+            % binning with some values in accumulating arrays npix, s, e
+            % requests defined state of binning parameters so may cause
+            % UNDEFINED BEHAVIOUR!!!
+            %
             if numel(varargin) == 4 && iscell(varargin{4})
                 mode = 4;
             else
@@ -741,6 +752,10 @@ classdef AxesBlockBase < serializable
                 [varargout{:}] = bin_pixels_( ...
                     obj,coord_transf,mode,...
                     npix,s,e,pix_cand,unique_runid,force_double,return_selected);
+                if mode == 1 && nargout == 2
+                    npix = varargout{1};
+                    varargout{2} = struct('npix_retained',sum(npix(:)));
+                end
             end
         end
         %

@@ -88,9 +88,69 @@ classdef test_bin_pixels_mex_nomex < TestCase
             assertEqualToTol(pix_ok_m,pix_ok_c);
             assertElementsAlmostEqual(unique_runid_m,unique_runid_c);
         end
+
+        function test_bin_pixels_mex_nomex_mode0_3Dmultipage(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,20,30], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+            in_coord1 = rand(4,10);
+            in_coord2 = rand(4,20);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            npix_nom = [];
+            [npix_nom,out_info_nom] = AB.bin_pixels(in_coord1,npix_nom);
+            npix_ret_nom = out_info_nom.npix_retained;
+            assertEqual(npix_ret_nom,sum(npix_nom(:)))
+            [npix_nom,out_info_nom] = AB.bin_pixels(in_coord2,npix_nom);
+            npix_ret_nom = out_info_nom.npix_retained;
+            assertEqual(npix_ret_nom,sum(npix_nom(:)))
+
+            assertEqual(size(npix_nom),[10,20,30]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            npix_mex = [];
+            [npix_mex,out_info_mex] = AB.bin_pixels(in_coord1,npix_mex);
+            npix_ret_mex = out_info_mex.npix_retained;
+            assertEqual(npix_ret_mex ,sum(npix_ret_mex(:)))
+            [npix_mex,out_info_mex] = AB.bin_pixels(in_coord2,npix_mex);
+            npix_ret_mex = out_info_mex.npix_retained;
+            assertEqual(npix_ret_mex ,sum(npix_ret_mex(:)))
+            assertEqual(size(npix_mex),[10,20,30]);
+
+            assertEqual(npix_ret_nom,npix_ret_mex)
+            assertEqual(npix_mex,npix_nom)
+        end
+
+        function test_bin_pixels_mex_nomex_mode0_0D(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+
+            AB = AxesBlockBase_tester('nbins_all_dims',[1,1,1,1], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+            in_coord1 = rand(4,10);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            [npix_nom,out_info_nom] = AB.bin_pixels(in_coord1);
+            assertEqual(size(npix_nom),[1,1]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+            [npix_mex,out_info_mex] = AB.bin_pixels(in_coord1);
+
+            assertEqual(size(npix_mex),[1,1]);
+            assertEqual(out_info_nom.npix_retained,out_info_mex.npix_retained);
+
+            assertEqual(npix_mex,npix_nom);
+        end
+
         function test_bin_pixels_mex_nomex_mode0_4D(obj)
             if obj.no_mex
-                skipTest('Can not test mex code to checko binning parameters');
+                skipTest('Can not test mex code to check binning against mex');
             end
 
             AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
@@ -98,20 +158,21 @@ classdef test_bin_pixels_mex_nomex < TestCase
             in_coord1 = rand(4,10);
 
             clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
-            npix_nom = AB.bin_pixels(in_coord1);
+            [npix_nom,out_info_nom] = AB.bin_pixels(in_coord1);
             assertEqual(size(npix_nom),[10,20,30,40]);
 
             clear clObHor
             clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
-            npix_mex = AB.bin_pixels(in_coord1);
+            [npix_mex,out_info_mex] = AB.bin_pixels(in_coord1);
 
             assertEqual(size(npix_mex),[10,20,30,40]);
+            assertEqual(out_info_nom.npix_retained,out_info_mex.npix_retained);
 
             assertEqual(npix_mex,npix_nom);
         end
         function test_bin_pixels_mex_nomex_mode0_2D(obj)
             if obj.no_mex
-                skipTest('Can not test mex code to checko binning parameters');
+                skipTest('Can not test mex code to check binning against mex');
             end
 
             AB = AxesBlockBase_tester('nbins_all_dims',[10,1,30,1], ...
@@ -119,23 +180,23 @@ classdef test_bin_pixels_mex_nomex < TestCase
             in_coord1 = rand(4,10);
 
             clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
-            [npix_nom,out_info] = AB.bin_pixels(in_coord1);
+            [npix_nom,out_info_nom] = AB.bin_pixels(in_coord1);
             assertEqual(size(npix_nom),[10,30]);
 
             clear clObHor
             clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
-            [npix_mex,out_info] = AB.bin_pixels(in_coord1);
+            [npix_mex,out_info_mex] = AB.bin_pixels(in_coord1);
 
             assertEqual(size(npix_mex),[10,30]);
-            assertEqual(sum(npix_mex(:)),out_info.npix_retained);            
+            assertEqual(out_info_nom.npix_retained,out_info_mex.npix_retained);
 
             assertEqual(npix_mex,npix_nom);
         end
-        
+
 
         function test_bin_pixels_AB_inputs_twice(obj)
             if obj.no_mex
-                skipTest('Can not test mex code to checko binning parameters');
+                skipTest('Can not test mex code to check binning parameters');
             end
             clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
 
@@ -158,7 +219,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
         end
         function test_bin_pixels_AB_inputs(obj)
             if obj.no_mex
-                skipTest('Can not test mex code to checko binning parameters');
+                skipTest('Can not test mex code to check binning parameters');
             end
             clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
 

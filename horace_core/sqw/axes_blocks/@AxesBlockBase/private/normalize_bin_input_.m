@@ -89,6 +89,11 @@ if mode == 1
     pix_cand = [];
     if use_mex
         npix = [];
+    else
+        if isempty(varargin{1})
+            npix = obj.init_accumulators(1,force_3Dbinning);            
+            varargin{1} = npix;
+        end
     end
 else
     if narg_in <7
@@ -120,7 +125,9 @@ switch narg_in
         end
     case 4
         npix = varargin{1};
-        check_size(obj,npix);
+        if not_use_mex
+            check_size(obj,npix);
+        end
     case {5, 6}
         error('HORACE:AxesBlockBase:invalid_argument',...
             'Can not request signal or signal and variance accumulation arrays without providing pixels source')

@@ -60,7 +60,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         auto error_ptr = mxGetPr(bin_par_ptr->class_ptr->error_ptr);
         auto transfType = bin_par_ptr->class_ptr->InOutTypeTransf;
 
-        size_t num_pixels_retained;
+        size_t num_pixels_retained(0);
         switch (transfType) {
         case (InOutTransf::InCrd8OutPix8):
         case (InOutTransf::InCrd4OutPix8): {
@@ -93,7 +93,7 @@ bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
 #endif
         return true;
     }
-    // special case of calling class with mex-unlock request to enable to upload it from memory
+    // special cases of calling class with mex-unlock request to enable to upload it from memory
     if (nrhs == 1 && nlhs == 0) {
         auto inType = mxGetClassID(prhs[0]);
         if (inType != mxCHAR_CLASS) {
@@ -108,12 +108,16 @@ bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
                 "Could not convert string data first input argument of bin_pixels_c into string array");
         }
         auto key = std::string(buf.begin(), buf.end());
-        if (key.compare("clear") == 0 || key.compare("reset")) {
+        if (key.compare("clear") == 0 || key.compare("reset")) { //clear mex lock and nullify binning information
             if (bin_par_ptr) {
                 bin_par_ptr->clear_mex_locks();
                 bin_par_ptr.reset();
             }
             return true;
+        } else if (key.compare("release") == 0) { // allow to clear mex code from memory
+            if (bin_par_ptr) {
+                bin_par_ptr->clear_mex_locks();
+            }
         } else {
             std::stringstream buf;
             buf << "signle char input for bin_pixels_c function may be 'clear' or 'reset' (in single dashes ') Got: " << key;
