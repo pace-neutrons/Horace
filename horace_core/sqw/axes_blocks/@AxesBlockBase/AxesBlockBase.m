@@ -717,8 +717,8 @@ classdef AxesBlockBase < serializable
             if numel(varargin) == 4 && iscell(varargin{4})
                 mode = 4;
             else
-                mode = nargout-1;
-                if mode == 0
+                mode = nargout;
+                if mode == 2
                     mode = 1;
                 end
             end
@@ -727,6 +727,9 @@ classdef AxesBlockBase < serializable
                 {'-force_double', '-return_selected','-test_mex_inputs'});
             if ~ok
                 error('HORACE:AxesBlockBase:invalid_argument',mess)
+            end
+            if test_mex_inputs && mode ~= 1
+                mode = mode-1;
             end
 
             % convert different input forms into fully expanded common form

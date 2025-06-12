@@ -79,6 +79,68 @@ classdef test_bin_pixels_mex_nomex < TestCase
         end
     end
     methods
+        function test_bin_pixels_mex_nomex_mode3_2D(obj)
+            % bin pixels no pixel sorting
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,30,1], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+            pix_coord = rand(9,10);
+            pix = PixelDataMemory(pix_coord);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            in_coord = pix.coordinates;
+            [npix_nom,s_nom,e_nom] = AB.bin_pixels(in_coord,[],[],[],pix);
+            assertEqual(size(npix_nom),[10,30]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+            [npix_mex,s_mex,e_mex] = AB.bin_pixels(in_coord,[],[],[],pix);
+            assertEqual(size(npix_mex),[10,30]);
+
+            assertEqual(npix_mex,npix_nom);
+            assertEqual(s_mex,s_nom);
+            assertEqual(e_mex,e_nom);
+        end
+        
+        function test_return_inputs_mex_mode3_2D(obj)
+            % bin pixels no pixel sorting, input/output parameters
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,20,30,40], ...
+                'img_range',[-1,-2,-3,-10;1,2,3,40]);
+            pix_coord = rand(9,10);
+            pix = PixelDataMemory(pix_coord);
+
+            in_coord = pix.coordinates;
+            [npix,s,e,out_data] = AB.bin_pixels(in_coord,[],[],[],pix,'-test_mex_inputs');
+
+            assertEqual(size(npix),[10,20,30,40]);
+            assertEqual(npix,zeros(10,20,30,40));
+            assertEqual(s,npix);
+            assertEqual(e,npix);            
+            
+            assertEqual(out_data.coord_in,in_coord);
+            assertEqual(out_data.binning_mode,3);
+            assertEqual(out_data.num_threads, ...
+                config_store.instance().get_value('parallel_config','threads'));
+            assertEqual(out_data.data_range,AB.img_range)
+            assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
+            assertTrue(isempty(out_data.unique_runid));
+            assertFalse(out_data.force_double);
+            assertFalse(out_data.return_selected);
+            assertTrue(out_data.test_input_parsing);
+            assertTrue(isempty(out_data.alignment_matr));
+            assertEqual(out_data.pix_candidates,pix.data);
+            assertTrue(out_data.check_pix_selection);            
+
+        end
+
         %==================================================================
         function performance_mex_nomex_mode0(obj)
             if obj.no_mex
@@ -86,8 +148,8 @@ classdef test_bin_pixels_mex_nomex < TestCase
             end
             % this will recover existing configuration after test have been
             % finished
-            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);            
-            % 
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            %
             AB = AxesBlockBase_tester('nbins_all_dims',[50,1,50,1], ...
                 'img_range',[0,0,0,0;1,0.8,1,0.8]);
 
@@ -98,9 +160,9 @@ classdef test_bin_pixels_mex_nomex < TestCase
 
             t_nomex = zeros(1,n_repeats);
             t_mex  = zeros(1,n_repeats);
-            disp("*** Mex/nomex performance mode0:")            
+            disp("*** Mex/nomex performance mode0:")
             for i= 1:n_repeats
-                fprintf('.')                
+                fprintf('.')
                 in_coord = rand(4,n_points);
                 config_store.instance.set_value('hor_config','use_mex',false);
                 t1 = tic();
@@ -118,9 +180,11 @@ classdef test_bin_pixels_mex_nomex < TestCase
             end
             tav_mex = sum(t_mex)/n_repeats;
             tav_nom = sum(t_nomex)/n_repeats;
-            fprintf('\n*** time of first step,    nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
+            fprintf( ...
+                '\n*** time of first step,    nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
                 t_nomex(1),t_mex(1),t_nomex(1)/t_mex(1));
-            fprintf('*** Average time per step, nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
+            fprintf( ...
+                '*** Average time per step, nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
                 tav_nom,tav_mex,tav_nom/tav_mex);
 
         end
@@ -292,7 +356,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
 
         end
 
-        function test_bin_pixels_AB_inputs(obj)
+        function test_bin_pixels_AB_inputs_mode0(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning parameters');
             end

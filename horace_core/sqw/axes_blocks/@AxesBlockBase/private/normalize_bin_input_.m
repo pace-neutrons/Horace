@@ -126,7 +126,7 @@ switch narg_in
     case 4
         npix = varargin{1};
         if not_use_mex
-            check_size(obj,npix);
+            check_size(obj,not_use_mex,npix);
         end
     case {5, 6}
         error('HORACE:AxesBlockBase:invalid_argument',...
@@ -160,14 +160,21 @@ if alloc_all
 elseif alloc_se
     s = obj.init_accumulators(1,force_3Dbinning);
     e = obj.init_accumulators(1,force_3Dbinning);
-    check_size(obj,npix,s,e);
+    check_size(obj,not_use_mex,npix,s,e);
 else
-    check_size(obj,npix,s,e);
-end
+   check_size(obj,not_use_mex,npix,s,e);
 
 end
 
-function check_size(obj,varargin)
+end
+
+function check_size(obj,not_use_mex,varargin)
+if ~not_use_mex % use mex -- all empty would work ok
+    is_empty = cellfun(@isempty,varargin);
+    if all(is_empty)
+        return;
+    end
+end
 sze = obj.dims_as_ssize();
 for i=1:numel(varargin)
     if any(size(varargin{i}) ~=sze)

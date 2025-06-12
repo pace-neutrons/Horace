@@ -44,7 +44,14 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     if (bin_par_ptr->class_ptr->test_inputs) {
         // return input back if test_inputs == true is encountered
-        if (nlhs != 4) {
+
+        int max_nlhs(4);
+        if (bin_par_ptr->class_ptr->binMode == opModes::npix_only) {
+            max_nlhs =(int)out_arg_mode0::N_OUT_Arguments0;
+        } else {
+            max_nlhs = (int)out_arg::N_OUT_Arguments;
+        }
+        if (nlhs != max_nlhs) {
             std::stringstream buf;
             buf << "Test mode requests 4 output arguments.\n";
             buf << "Provided : " << (short)nlhs << " output arguments\n";

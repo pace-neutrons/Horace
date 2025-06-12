@@ -28,16 +28,11 @@ bool BinningArg::new_binning_arguments_present(mxArray const* prhs[])
 // set up binning input changed at subsequent calls to bin pixels
 void BinningArg::parse_changed_bin_inputs(mxArray const* pAllParStruct)
 {
-
-
     /* ********************************************************************************
      * retrieve and analyse binning parameters collated into binning structure and changed
      * at the subsequent call to bin_pixels_c
      ** ********************************************************************************/
-    //**************************************************************************
-    //
-    //
-    switch (this->binMode) {
+     switch (this->binMode) {
     case (opModes::npix_only): {
         this->set_coord_in(mxGetField(pAllParStruct, 0, "coord_in"));
         break;
@@ -298,6 +293,29 @@ void BinningArg::set_npix_retained(mxArray* pFieldName, mxArray* pFieldValue, in
     mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(this->n_pix_retained));
 };
 
+// return pixel data which belong to binning range if such data were calculated in appropriate mode requested
+void BinningArg::set_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+{
+    mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+    auto pix_range = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
+    auto pix_range_ptr = mxGetPr(pix_range);
+    for (size_t i = 0; i < 2 * pix_flds::PIX_WIDTH; i++) {
+        pix_range_ptr[i] = this->pix_data_range[i];
+    }
+    mxSetCell(pFieldValue, fld_idx, pix_range);
+};
+// return pixel obtained in binning
+void BinningArg::set_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+{
+    mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+    mxArray* pix_ok(nullptr);
+    if (this->pix_ok_ptr) {
+        pix_ok = this->pix_ok_ptr;
+    } else {
+        pix_ok = mxCreateDoubleMatrix(0, 0, mxREAL);
+    }
+    mxSetCell(pFieldValue, fld_idx, pix_ok);
+};
 //===================================================================================
 // calculate steps used in binning over non-unit directions and numbers of these dimensions
 void BinningArg::calc_step_sizes_pax_and_strides()
@@ -346,6 +364,13 @@ void BinningArg::register_input_methods()
 void BinningArg::register_output_methods()
 {
     this->Mode0ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
+
+    this->Mode3ParList["npix_retained"]     = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
+    this->Mode3ParList["pix_ok_data_range"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_pix_range(p1, p2, idx, name); };
+    this->Mode3ParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_pix_ok_data(p1, p2, idx, name); };
+
+    this->out_handlers[opModes::npix_only] = &Mode0ParList;
+    this->out_handlers[opModes::sig_err] = &Mode3ParList;
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
@@ -564,7 +589,7 @@ void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
 void BinningArg::return_results(mxArray* plhs[], mwSize nlhs)
 {
     mwSize number_of_fields(0);
-    auto out_func_map = &this->Mode0ParList;
+    auto out_func_map = this->out_handlers[opModes::npix_only];
 
     mxArray* pFieldNames(nullptr);
     mxArray* pFieldValues(nullptr);
@@ -573,7 +598,7 @@ void BinningArg::return_results(mxArray* plhs[], mwSize nlhs)
         if (nlhs < out_arg_mode0::N_OUT_Arguments0 - 2) {
             return;
         }
-        number_of_fields = 1;
+        number_of_fields = out_func_map->size();
         plhs[out_arg_mode0::out_par_names0] = mxCreateCellMatrix(1, number_of_fields);
         plhs[out_arg_mode0::out_par_values0] = mxCreateCellMatrix(1, number_of_fields);
         pFieldNames = plhs[out_arg_mode0::out_par_names0];
@@ -582,8 +607,10 @@ void BinningArg::return_results(mxArray* plhs[], mwSize nlhs)
         if (nlhs < out_arg::N_OUT_Arguments - 2) {
             return;
         }
-        number_of_fields = 1;
-        out_func_map = &this->ModeNParList;
+        // retrieve map to set-up output parameters of the resulting structure
+        out_func_map = this->out_handlers[this->binMode];
+
+        number_of_fields = out_func_map->size();
         plhs[out_arg::out_par_names] = mxCreateCellMatrix(1, number_of_fields);
         plhs[out_arg::out_par_values] = mxCreateCellMatrix(1, number_of_fields);
         pFieldNames = plhs[out_arg::out_par_names];
@@ -602,7 +629,6 @@ void BinningArg::return_results(mxArray* plhs[], mwSize nlhs)
 // check if input accumulators have not been changed and initalize them appropriately
 void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prhs[], bool force_update)
 {
-
     mwSize nDims(0);
     mwSize* dim_ptr(nullptr);
     bool init_new_accumulators(false);
@@ -688,6 +714,9 @@ BinningArg::BinningArg()
     , npix_ptr(nullptr)
     , signal_ptr(nullptr)
     , error_ptr(nullptr)
+    // other possible results
+    , n_pix_retained(0)
+    , pix_ok_ptr(nullptr)
 {
     /* initialize input Matlab parameters map with methods which  associate
      * Matlab field names with the methods, which set appropriate property value  */

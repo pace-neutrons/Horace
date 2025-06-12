@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include "BinningArg.h"
 #include "bin_pixels.h"
 
@@ -19,13 +20,13 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     // what do we actually calculate
     auto opMode = bin_par->binMode;
 
-    TP * const coord_ptr = reinterpret_cast<TP*>(mxGetPr(bin_par->coord_ptr));
-    // if (bin_par.all_pix_ptr) {  // -----------------> this is aProjection.bin_pixels mode
-    //     coord_ptr = mxGetPr(bin_par.all_pix_ptr);
-    // }
+    TP const * const coord_ptr = reinterpret_cast<TP*>(mxGetPr(bin_par->coord_ptr));
+    TP const* pix_coord_ptr(nullptr);
+    if (bin_par->all_pix_ptr) {
+        pix_coord_ptr = reinterpret_cast<TP*>(mxGetPr(bin_par->all_pix_ptr));
+    }
     auto COORD_STRIDE = bin_par->in_coord_width;
     auto PIX_STRIDE = bin_par->in_pix_width;
-
 
     size_t nPixel_retained(0), nCellOccupied(0);
     /*
@@ -51,26 +52,37 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     // auto pStor = pStorHolder.get();
 
     std::vector<double> qi(COORD_STRIDE);
-    std::vector<double> cut_range(bin_par->data_range.begin(), bin_par->data_range.end());
-    std::vector<double> bin_step(bin_par->bin_step.begin(), bin_par->bin_step.end());
-    std::vector<size_t> pax(bin_par->pax.begin(), bin_par->pax.end()); // projection axis
-    std::vector<size_t> stride(bin_par->stride.begin(), bin_par->stride.end());
-    std::vector<size_t> bin_cell_range(bin_par->bin_cell_range.begin(), bin_par->bin_cell_range.end());
+    std::vector<double> cut_range = bin_par->data_range;
+    std::vector<double> bin_step = bin_par->bin_step;
+    std::vector<size_t> pax = bin_par->pax; // projection axis
+    std::vector<size_t> stride = bin_par->stride;
+    std::vector<size_t> bin_cell_range = bin_par->bin_cell_range;
 
+    std::vector<double> pix_ranges;
+    if (bin_par->binMode > opModes::npix_only) {
+        pix_ranges.resize(2 * bin_par->in_pix_width);
+        auto max_range = std::numeric_limits<double>::max();
+        auto min_range = -max_range;
+        for (size_t i = 0; i < bin_par->in_pix_width; i++) {
+            pix_ranges[2 * i] = max_range;
+            pix_ranges[2 * i + 1] = min_range;
+        }
+    }
+    auto bin_mode = bin_par->binMode;
     long data_size = bin_par->n_data_points;
 
     for (long i = 0; i < data_size; i++) {
         // drop out coordinates outside of the binning range
-        size_t i0 = i * COORD_STRIDE;
+        size_t ic0 = i * COORD_STRIDE;
         bool outside(false);
         for (size_t upix = 0; upix < COORD_STRIDE; upix++) {
-            qi[upix] = double(coord_ptr[i0 + upix]);
+            qi[upix] = double(coord_ptr[ic0 + upix]);
             if (qi[upix] < cut_range[2 * upix] || qi[upix] > cut_range[2 * upix + 1]) {
                 outside = true;
                 break;
             }
         }
-        if (outside)  // do not account for outside pixels
+        if (outside) // do not account for outside pixels
             continue;
 
         // identify the indices of the image cell, pixel belongs to
@@ -84,8 +96,18 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
         }
         nPixel_retained++;
         npix[il]++;
-        //            ok[i] = true;
-        //            nGridCell[i] = il;
+
+        if (bin_mode < opModes::npix_only)
+            continue;
+        // other binning modes process signal and error accumulators and pix ranges
+        size_t ip0 = i * PIX_STRIDE;
+        s[il] += pix_coord_ptr[ip0 + pix_flds::iSign];
+        e[il] += pix_coord_ptr[ip0 + pix_flds::iErr];
+
+        for (size_t j = 0; j < pix_flds::PIX_WIDTH; j++) {
+            pix_ranges[2 * j] = std::min(pix_ranges[2 * j], (double)pix_coord_ptr[ip0 + j]);
+            pix_ranges[2 * j + 1] = std::max(pix_ranges[2 * j + 1], (double)pix_coord_ptr[ip0 + j]);
+        }
 
         // #pragma omp atomic   // beware C index one less then Matlab; should use enum instead
         //             s[il]   +=pixel_data[i0+7];
@@ -210,5 +232,6 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
 
     //    } // end parallel region
 
+    bin_par->pix_data_range = pix_ranges;
     return nPixel_retained;
 }

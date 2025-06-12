@@ -59,6 +59,9 @@ enum opModes {
     N_OP_Modes = 8 // total number of modes code operates in. Provided for checks
 };
 
+// define the map type to keep functions which set up output parameters in a structure, specific for given binning mode;
+using OutHandlerMap = std::unordered_map<std::string, std::function<void(mxArray* p1, mxArray* p2, int idx, const std::string& name)>>;
+
 // structure describes all parameters used by binning procedure
 class BinningArg {
 public:
@@ -74,7 +77,7 @@ public:
     size_t in_coord_width; // how many pixel rows have to be binned (3 or 4)
     size_t n_data_points; // number of pixel elements to bin into image
     mxArray const* all_pix_ptr; // pointer to array of all pixels containing signal and error info for binning and
-    size_t in_pix_width; // how many non-modified pixel data rows are provided in app_pix_ptr (8)
+    size_t in_pix_width; // how many non-modified pixel data rows are provided in app_pix_ptr (9)
                         // other information may be requested to process e.g. sorted pixels, pix_idx etc...
     std::vector<double> alignment_matrix; // if defined, contains 3x3 matrix to use for aligning the pixels
     // vector of unique run-id(s) calculated from pixels data
@@ -87,19 +90,24 @@ public:
     bool return_selected;
     // logical variable with enables test mode returning input to outputs if
     bool test_inputs;
-
+    //********************************************************************************
+    // Properties which contain results, processed in various binning modes
+    //********************************************************************************
     // pointers to double accumulators used to calculate image averages (npix signal and error)
     mxArray* npix_ptr;
     mxArray* signal_ptr;
     mxArray* error_ptr;
     // number of pixels retained after binning
     size_t n_pix_retained;
-
+    // resulting range of pixels
+    std::vector<double> pix_data_range;
+    mxArray * pix_ok_ptr; // pointer to array of all pixels containing signal and error info for binning and
+    //********************************************************************************
+    // helper values
     std::vector<double> bin_step; // vector of binning sizes in all non-unit directions
     std::vector<size_t> pax; // vector of projection axes to bin pixels over
     std::vector<size_t> stride; // vector, which describes binning steps reflecting multidimensional array strides
     std::vector<size_t> bin_cell_range; // vector containing allowed ranges of the binning (with nbins_all_dims>1) cells in binning directions
-
 
     // calculate size of the binning grid
     size_t n_grid_points() { 
@@ -134,6 +142,12 @@ protected:
     void register_output_methods();
     // setters for binning results returned to MATLAB in output structure
     void set_npix_retained(mxArray* p1, mxArray* p2, int idx, const std::string& name);
+    // setter for result of calculating pixels data range
+    void set_pix_range(mxArray* p1, mxArray* p2, int idx, const std::string& name);
+    // setter for possible pixels 
+    void set_pix_ok_data(mxArray* p1, mxArray* p2, int idx, const std::string& name);
+
+
 public:
     BinningArg(); // construction
     // process binning arguments input values for new binning arguments cycle
@@ -163,6 +177,8 @@ private:
     // helper function to calculate binning sizes in all non-unit directions
     void calc_step_sizes_pax_and_strides();
 
-    std::unordered_map<std::string, std::function<void(mxArray* p1, mxArray* p2, int idx, const std::string& name)>> Mode0ParList;
-    std::unordered_map<std::string, std::function<void(mxArray* p1, mxArray* p2, int idx, const std::string& name)>> ModeNParList;
+    OutHandlerMap Mode0ParList;
+    OutHandlerMap Mode3ParList;
+
+    std::unordered_map<opModes, OutHandlerMap *> out_handlers;
 };

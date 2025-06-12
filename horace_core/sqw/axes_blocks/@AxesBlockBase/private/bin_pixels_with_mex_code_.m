@@ -171,8 +171,16 @@ if proc_mode == 1
 else  % otherwise, there are no such ouputs, output structure is flattened
     out_struc = cell2struct(out{6},out{5},2);
     %[mp,npix, s, e, fields, values] = bin_pixels_c(coord,npix,s,e,other_mex_input);
+    varargout{bin_out.s} = out{3};
+    varargout{bin_out.e} = out{4};
+    if test_mex_inputs
+        varargout{bin_out.pix_ok} = out_struc;
+        return;
+    end
+    npix_retained = npix_retained + out_struc.npix_retained;
+
     pix_ok_data  = out_struc.pix_ok_data;
-    pix_ok_range = out_struc.pix_ok_range;
+    pix_ok_range = out_struc.pix_ok_data_range;
 
     if proc_mode<4 || ~is_pix
         if ndata>=3
