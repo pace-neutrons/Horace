@@ -21,17 +21,6 @@ classdef test_bin_pixels_mex_nomex < TestCase
             obj.no_mex = n_errors > 0;
         end
 
-        function obj=setUp(obj)
-            %addpath(obj.accum_cut_folder);
-            %cd(obj.accum_cut_folder);
-        end
-
-        function tearDown(obj)
-            %cd(obj.curr_folder);
-            %rmpath(obj.accum_cut_folder);
-            set(hor_config,'use_mex',obj.use_mex);
-        end
-
         function obj=test_bin_pixels_mex_multithread(obj)
             if obj.no_mex
                 skipTest('Can not use and test mex code to bin pixels in parallel');
@@ -88,6 +77,8 @@ classdef test_bin_pixels_mex_nomex < TestCase
             assertEqualToTol(pix_ok_m,pix_ok_c);
             assertElementsAlmostEqual(unique_runid_m,unique_runid_c);
         end
+    end
+    methods
         function test_bin_pixels_mex_nomex_mode0_3D_1Dmultipage_single(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
@@ -126,7 +117,6 @@ classdef test_bin_pixels_mex_nomex < TestCase
             assertEqual(npix_mex,npix_nom)
         end
         
-
         function test_bin_pixels_mex_nomex_mode0_3Dmultipage(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
@@ -208,6 +198,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
 
             assertEqual(npix_mex,npix_nom);
         end
+        
         function test_bin_pixels_mex_nomex_mode0_2D(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
@@ -230,7 +221,6 @@ classdef test_bin_pixels_mex_nomex < TestCase
 
             assertEqual(npix_mex,npix_nom);
         end
-
 
         function test_bin_pixels_AB_inputs_twice(obj)
             if obj.no_mex
@@ -255,6 +245,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
             assertEqual(out_data.coord_in,in_coord2);
 
         end
+        
         function test_bin_pixels_AB_inputs(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning parameters');

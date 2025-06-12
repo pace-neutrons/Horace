@@ -90,7 +90,7 @@ if mode == 1
     if use_mex
         npix = [];
     else
-        if isempty(varargin{1})
+        if numel(varargin) == 0 || isempty(varargin{1})
             npix = obj.init_accumulators(1,force_3Dbinning);            
             varargin{1} = npix;
         end
