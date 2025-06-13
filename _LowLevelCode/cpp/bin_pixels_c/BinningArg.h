@@ -26,7 +26,7 @@ enum in_arg {
 };
 // enumerate output arguments of the mex function
 enum out_arg {
-    mex_code_hldrOut, // pointer to the class shared with Matlab and containing persistent
+    mex_code_hldrOut, // pointer to the class shared with Matlab and containing persistent input arguments and binning arrays
     npix, // pointer to modified npix array
     Signal, // pointer to modified signal array
     Error, // pointer to modified error array
@@ -91,7 +91,7 @@ public:
     // logical variable with enables test mode returning input to outputs if
     bool test_inputs;
     //********************************************************************************
-    // Properties which contain results, processed in various binning modes
+    // Properties which contain results, obtained in various binning modes
     //********************************************************************************
     // pointers to double accumulators used to calculate image averages (npix signal and error)
     mxArray* npix_ptr;
@@ -101,7 +101,7 @@ public:
     size_t n_pix_retained;
     // resulting range of pixels
     std::vector<double> pix_data_range;
-    mxArray * pix_ok_ptr; // pointer to array of all pixels containing signal and error info for binning and
+    mxArray * pix_ok_ptr; // pointer to array of all pixels retained after binning
     //********************************************************************************
     // helper values
     std::vector<double> bin_step; // vector of binning sizes in all non-unit directions
@@ -160,11 +160,11 @@ public:
     void return_results(mxArray* plhs[], mwSize nlhs);
     // check if input binning parameters are new or have been changed
     bool new_binning_arguments_present(mxArray const* prhs[]);
-
     // check if input accumulators have not been changed and initalize them appropriately
     void check_and_init_accumulators(mxArray* plhs[],mxArray const* prhs[], bool force_update = false);
+    // get number of dimensions for accumulator array to allocate using MATLAB methods
     mwSize get_Matlab_n_dimensions();
-    // get dimensions of accumulator array to allocate
+    // get dimensions of accumulator array to allocate using MATLAB methods
     mwSize* get_Matlab_acc_dimensions();
 
 private:

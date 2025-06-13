@@ -159,7 +159,7 @@ end
 %--------------------------------------------------------------------------
 
 if is_pix
-    ndata = 2;
+    ndata = 2; % set up number of additional in/out accumulators to process
 else % cell with data array
     ndata = numel(pix_cand);
 end

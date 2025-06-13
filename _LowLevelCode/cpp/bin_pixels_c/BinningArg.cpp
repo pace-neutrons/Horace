@@ -25,28 +25,6 @@ bool BinningArg::new_binning_arguments_present(mxArray const* prhs[])
 
     return false;
 }; //
-// set up binning input changed at subsequent calls to bin pixels
-void BinningArg::parse_changed_bin_inputs(mxArray const* pAllParStruct)
-{
-    /* ********************************************************************************
-     * retrieve and analyse binning parameters collated into binning structure and changed
-     * at the subsequent call to bin_pixels_c
-     ** ********************************************************************************/
-     switch (this->binMode) {
-    case (opModes::npix_only): {
-        this->set_coord_in(mxGetField(pAllParStruct, 0, "coord_in"));
-        break;
-    }
-    default:
-        std::stringstream buf;
-        buf << "operational mode" << (short)(this->binMode);
-        buf << "have not been implemented yet";
-        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
-            buf.str().c_str());
-        break;
-    }
-    return;
-}
 
 void BinningArg::set_coord_in(mxArray const* const pField)
 {
@@ -296,11 +274,16 @@ void BinningArg::set_npix_retained(mxArray* pFieldName, mxArray* pFieldValue, in
 // return pixel data which belong to binning range if such data were calculated in appropriate mode requested
 void BinningArg::set_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
 {
+    mxArray *pix_range;
     mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
-    auto pix_range = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
-    auto pix_range_ptr = mxGetPr(pix_range);
-    for (size_t i = 0; i < 2 * pix_flds::PIX_WIDTH; i++) {
-        pix_range_ptr[i] = this->pix_data_range[i];
+    if (this->pix_data_range.size() == 0) {
+        pix_range = mxCreateDoubleMatrix(2, 0, mxREAL);
+    } else {
+        pix_range = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
+        auto pix_range_ptr = mxGetPr(pix_range);
+        for (size_t i = 0; i < 2 * pix_flds::PIX_WIDTH; i++) {
+            pix_range_ptr[i] = this->pix_data_range[i];
+        }
     }
     mxSetCell(pFieldValue, fld_idx, pix_range);
 };
@@ -456,6 +439,29 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
         return;
     }
 };
+
+// set up binning inputs changed at subsequent calls to bin pixels routine
+void BinningArg::parse_changed_bin_inputs(mxArray const* pAllParStruct)
+{
+    // not checking validity of input pointer type as this is subsequent call, so
+    // should already be valid
+    /* ********************************************************************************
+     * retrieve and analyse binning parameters collated into binning structure and changed
+     * at the subsequent call to bin_pixels_c
+     ** ********************************************************************************/
+    switch (this->binMode) {
+    case (opModes::npix_only): {
+        this->set_coord_in(mxGetField(pAllParStruct, 0, "coord_in"));
+        break;
+    }
+    default:
+        this->set_coord_in(mxGetField(pAllParStruct, 0, "coord_in"));
+        this->set_all_pix(mxGetField(pAllParStruct, 0, "pix_candidates"));
+        // unique_runid, if provided, will be initilized in accumulators
+        break;
+    }
+    return;
+}
 
 /** Copy input arguments into appropriate places of output arguments for debugging purposes
  **/
