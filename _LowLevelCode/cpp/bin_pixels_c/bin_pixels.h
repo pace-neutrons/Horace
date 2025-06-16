@@ -106,7 +106,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
                 continue;
             nPixel_retained++;
 
-            // calculate location of pixel within 
+            // calculate location of pixel within the image grid
             auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_range, stride);
             npix[il]++;
         }
@@ -121,8 +121,11 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
             size_t ip0 = i * PIX_STRIDE;
             if (check_pix_selection && pix_coord_ptr[ip0 + pix_flds::idet] < 0)
                 continue;
+            nPixel_retained++;
 
+            // calculate location of pixel within the image grid
             auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_range, stride);
+            // calculate npix accumulators
             npix[il]++;
             // calculate signal and error accumulators
             s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
