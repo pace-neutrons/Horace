@@ -79,12 +79,20 @@ classdef test_bin_pixels_mex_nomex < TestCase
         end
     end
     methods
+        function test_mex_nomex_mode4(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+        end
+        %==================================================================
         function performance_mex_nomex_mode3(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
             end
             % this will recover existing configuration after test have been
-            % finished
+            % finished and temporary mex/nomex values will be set within
+            % the loop.
             clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
             %
             AB = AxesBlockBase_tester('nbins_all_dims',[50,1,50,1], ...
@@ -129,8 +137,6 @@ classdef test_bin_pixels_mex_nomex < TestCase
                 tav_nom,tav_mex,tav_nom/tav_mex);
 
         end
-
-
 
         function test_bin_pixels_mex_nomex_mode3_2Dmultipage(obj)
             if obj.no_mex
