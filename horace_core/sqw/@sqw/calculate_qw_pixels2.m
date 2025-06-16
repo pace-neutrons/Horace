@@ -33,11 +33,9 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 %           in the dataset. Arrays are packaged as cell array of column
 %           vectors for convenience with fitting routines etc.
 %               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
-%
-% Get some 'average' quantities for use in calculating transformations and
-% bin boundaries.
-% *** assumes that all the contributing spe files had the same lattice
-% parameters and projection axes This could be generalised later
+
+% NOTE: Routine assumes that all the contributing spe files have the same
+% lattice parameters. This could be generalised later
 % - but with repercussions in many routines
 
 if ~isscalar(win)
@@ -58,9 +56,9 @@ det_id  = idx(2,:)';
 en_id   = idx(3,:)';
 experiment = win.experiment_info;
 
-% convert run_id in pixels into number of IX_experiment, corresponding to
-% this pixel. After that irun represents number of IX_experiment element in
-% Experiment.expdata array or number of transformation matrix in list of
+% convert run_id in pixels into index of IX_experiment corresponding to
+% this pixel. After that irun represents index of IX_experiment element in
+% Experiment.expdata array or index of transformation matrix in list of
 % all transformations (spec_to_rlu)
 remapper   = experiment.runid_map;
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment array indices
@@ -85,11 +83,13 @@ angdeg = win.data.angdeg;
 
 
 ix_exper   = experiment.expdata;
-if coord_in_rlu % coordinates in rlu, lattice is aligned with beam in
-    % a direction specified in IX_experiment
-    n_matrix = 3;
-else % coordinates in Crystan Cartesian
-    n_matrix = 1;
+if coord_in_rlu % Requests coordinates in rlu, lattice is aligned with beam
+    % in a direction specified in IX_experiment.
+    matrix_id = 3; % this is defined by matrix_idx == 3 of
+    % oriented_lattice.calc_proj_matrix method
+else % Requests coordinates in Crystan Cartesian.
+    matrix_id = 1; % this is defined by matrix_idx == 1 of
+    % oriented_lattice.calc_proj_matrix method
 end
 % energies:
 % compact_array containing incident for direct or analysis for indirect
@@ -110,10 +110,10 @@ undet_info = compact_array(unique_det_run_idx,unique_det);
 n_unique_det_arrays = undet_info.n_unique;
 
 
-% unique energy transfers arrays. Despite it is common that runs have the
-% same energy transf value, it may often happen (e.g. data reduced with
+% unique energy transfers arrays. Although it is common that runs have the
+% same energy transf value, it can often happen (e.g. data reduced with
 % auto-ei and relative bin edges) that every run has its own energy
-% transfer value:
+% transfer values:
 en_tr_info   = experiment.get_en_transfer(true,true);
 
 %----------------- Generic code
@@ -129,10 +129,10 @@ en_tr_info   = experiment.get_en_transfer(true,true);
 % into common coordinate system related to crystal (hkl or crystal
 % Cartesian depending on input)
 spec_to_rlu  = arrayfun(...
-    @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
+    @(ex) calc_proj_matrix(ex,alatt, angdeg,matrix_id), ix_exper, 'UniformOutput', false);
 
 % allocate common space for result. Improves performance.
-qw = zeros(4,numel(run_id));
+qw = zeros(4,numel(run_id)); % number of run_id is always equal to number of pixels processed
 %
 for i=1:n_unique_det_arrays
     run_idx_selected = undet_info.nonunq_idx{i};
@@ -141,13 +141,14 @@ for i=1:n_unique_det_arrays
     idet_4_runs = unique(det_id_selected);    % unique detector ids contribured into runs with these detectors
 
     % calculate detectors directions in instrument coordinate frame.
-    % Ideally, the values here should be precalculated before call to
+    % Possible future improvements:
+    % [Ideally, the values here should be precalculated before call to
     % cacluate_qw_pixels2 and call here would just picks up cached
-    % values
+    % values]
     detdcn= unique_det{i}.calc_detdcn(idet_4_runs);
 
     % allocate caches for intermediate calculations
-    n_runs = numel(run_idx_selected);  % runs which correspond to a
+    n_runs = numel(run_idx_selected);  % runs which correspond to current detectors array
     qspec_i_cache  = cell(1,n_runs);
     eni_i_cache    = cell(1,n_runs);
     short_idx_cache= cell(1,n_runs);
@@ -164,15 +165,18 @@ for i=1:n_unique_det_arrays
     % allocate optimization array for known number of elements to insert
     mapper = mapper.optimize([0,n_unique_entr*n_unique_efix-1]);
     for run_id_number=1:n_runs
+        % obtain efixed and information if this efixed was used before
         [efix,efix_info_i,unique_efix_num,used_efix]  = efix_info_i.get(run_id_number);
+        % obtain energy transfer and information if these transfer values
+        % were used before
         [en_tr,en_tr_info_i,unique_en_tr_num,used_en] = en_tr_info_i.get(run_id_number);
         % calculate unique number which define unique incident
         % energy/energy transfer scales
         q_spec_idx = n_unique_efix*(unique_en_tr_num-1)+unique_efix_num-1;
         en_tr_idx_per_run = en_tr_idx_i{unique_en_tr_num};
 
-        % check if the incident energy/energy transfer scale was calculated
-        % before in the else block below.
+        % check if the incident energy and energy transfer scales were
+        % calculated before in the else block below.
         if used_efix && used_en
             spec_idx = mapper.get(q_spec_idx);
             qspec_     = qspec_i_cache{spec_idx};
@@ -201,12 +205,12 @@ for i=1:n_unique_det_arrays
             calc_idx_  = {Y(:)',X(:)'};
             short_idx_cache{run_id_number} = calc_idx_;
         end
-        % MUST BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP on the basis of
-        % mtimesx_horace with pivot which will calculate matrix production 
+        % MUST BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP [on the basis of
+        % mtimesx_horace with pivot which will calculate matrix production
         % using cellarray of input oritnation martices and input kf_de
         % matrices (which do contain multiple pointers to the same matrices).
         % Sorting and duplicate dropping should be also included
-        % into C routine for performance.
+        % into C routine for performance.]
         %
         % found indices of the run, energy bins and detector used in q-dE
         % calculations in the frame of the input indices
