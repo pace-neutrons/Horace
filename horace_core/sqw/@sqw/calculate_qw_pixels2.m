@@ -12,7 +12,9 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 %
 % Input:
 % ------
-%  win         -- Input sqw object
+%  win         -- Input sqw object containing metadata about experiment and
+%                 pixels page. Image information is not used and may be
+%                 omitted.
 % Optional:
 % coord_in_rlu --  default true. Returns pixel coordinates in reciprocal
 %                  lattice units (projection onto rotated hkl coordinate
@@ -33,6 +35,10 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 %           in the dataset. Arrays are packaged as cell array of column
 %           vectors for convenience with fitting routines etc.
 %               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
+%
+%  This method currently fully maintains initial order of pixels present in
+%  input sqw object.
+%  
 
 % NOTE: Routine assumes that all the contributing spe files have the same
 % lattice parameters. This could be generalised later
@@ -71,9 +77,9 @@ idx(1,:)   = run_id;
 res_reorder_map = fast_map(double(lng_idx),1:numel(lng_idx));
 
 
-%----------------- Partially generic code -- the methods used here may
-%  use caches precalculated before the calling here and running calculations
-%  over pixels pages. See also one in runid loop below, around row 145
+%----------------- the methods used below may use caches precalculated
+% before the calling here and running calculations
+% over pixels pages. See also one in runid loop below, around row 145
 %
 % if we want possible change in alatt during experiment, go to sampe in
 % experiment and add it here. Currently lattice is unchanged during
@@ -116,7 +122,11 @@ n_unique_det_arrays = undet_info.n_unique;
 % transfer values:
 en_tr_info   = experiment.get_en_transfer(true,true);
 
-%----------------- Generic code
+%----------------- Code is operating on the basis of metadata and caches,
+% constructed above. If such metadata and caches are available, it would
+% work fully independently of sqw object provided as input for this
+% routine.
+%
 % identify bunch of incident energies and energy transfer values,
 % corresponding to each bunch of unique detectors
 [efix_info,en_tr_info,en_tr_idx] = retrieve_en_ranges( ...
@@ -205,7 +215,7 @@ for i=1:n_unique_det_arrays
             calc_idx_  = {Y(:)',X(:)'};
             short_idx_cache{run_id_number} = calc_idx_;
         end
-        % MUST BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP [on the basis of
+        % TODO: MUST BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP [on the basis of
         % mtimesx_horace with pivot which will calculate matrix production
         % using cellarray of input oritnation martices and input kf_de
         % matrices (which do contain multiple pointers to the same matrices).
