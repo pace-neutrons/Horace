@@ -48,15 +48,16 @@ enum opModes {
     npix_only = 0, // calculate npix array only binning coordinates over
     invalid_mode = 1, // this mode is not supported by binning routine
     sig_err = 2, // calculate npix, signal and error
-    sort_pix = 3, // in additional to binning, return pixels sorted by bins
-    sort_and_id = 4, // in additional to binning and sorting, return unique pixels id
-    nosort = 5, // do binning but do not sort pixels but return array which defines pixels position
+    sigerr_cell = 3, // signal and error for binning are presented in cellarrays of data rather then pixel data array
+    sort_pix = 4, // in additional to binning, return pixels sorted by bins
+    sort_and_id = 5, // in additional to binning and sorting, return unique pixels id
+    nosort = 6, // do binning but do not sort pixels but return array which defines pixels position
     //                   within the image grid
-    nosort_sel = 6, // like 6, but return ?logical? array which specifies what pixels have been selected
+    nosort_sel = 7, // like 6, but return ?logical? array which specifies what pixels have been selected
     //                   and what were rejected by binning operations
-    test_inputs = 7, // do not do calculations but just return parsed inputs for
+    test_inputs = 8, // do not do calculations but just return parsed inputs for
     //                   unit testing
-    N_OP_Modes = 8 // total number of modes code operates in. Provided for checks
+    N_OP_Modes = 9 // total number of modes code operates in. Provided for checks
 };
 
 // define the map type to keep functions which set up output parameters in a structure, specific for given binning mode;
@@ -76,9 +77,11 @@ public:
     mxArray const* coord_ptr;
     size_t in_coord_width; // how many pixel rows have to be binned (3 or 4)
     size_t n_data_points; // number of pixel elements to bin into image
-    mxArray const* all_pix_ptr; // pointer to array of all pixels containing signal and error info for binning and
+    mxArray const* all_pix_ptr; // pointer to array or cellarray of all pixels containing signal and error
+    // info for binning and sorting if necessary
     size_t in_pix_width; // how many non-modified pixel data rows are provided in app_pix_ptr (9)
                         // other information may be requested to process e.g. sorted pixels, pix_idx etc...
+    size_t n_Cells_to_bin; // number of cells to bin in opModes::sigerr_cell mode
     std::vector<double> alignment_matrix; // if defined, contains 3x3 matrix to use for aligning the pixels
     // vector of unique run-id(s) calculated from pixels data
     bool check_pix_selection; // if true, verify if pixels have been previously selected by a symmetry operation

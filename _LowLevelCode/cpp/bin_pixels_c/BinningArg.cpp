@@ -210,21 +210,72 @@ void BinningArg::set_all_pix(mxArray const* const pField)
     auto nDims = mxGetNumberOfDimensions(pField);
     if (nDims != 2) { // get value for computational mode the alogrithm should run
         std::stringstream buf;
-        buf << "input pixel data have to be represented by 2 - dimensional matrix\n";
+        buf << "input pixel data have to be represented by 2 - dimensional matrix or cellarray of data vectors\n";
         buf << "Provided input " << (short)nDims << " dimensional array";
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             buf.str().c_str());
     }
     this->all_pix_ptr = pField;
-    this->in_pix_width = mxGetM(pField);
-    this->n_data_points = mxGetN(pField); // should be dedined in set_coord too and values must be equal
-    // no check, as Matlab will call it from routine which does this check
-    if (this->in_pix_width != size_t(pix_flds::PIX_WIDTH)) {
-        std::stringstream buf;
-        buf << "Full input pixel coordinates to bin have to be represented by a matrix with 8 rows\n";
-        buf << "Support for provided input with " << (short)this->in_pix_width << " rows is not implemented";
-        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
-            buf.str().c_str());
+    auto type = mxGetClassID(pField);
+    if (type == mxCELL_CLASS) {
+        // check cell input and identify number of points stored in cell class
+        this->binMode = opModes::sigerr_cell;
+        auto nCells = mxGetNumberOfElements(pField);
+        if (nCells > 2) {
+            std::stringstream buf;
+            buf << "Binning for more than 2 arrays of values is not supported \n";
+            buf << "Provided " << (short)nCells << " cells to bin";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
+                buf.str().c_str());
+        }
+        size_t n_data_points(0);
+        for (auto i = 0; i < nCells; i++) {
+            auto a_cell_ptr = mxGetCell(pField, i);
+            auto data_type = mxGetClassID(a_cell_ptr);
+            if (data_type != mxDOUBLE_CLASS) {
+                std::stringstream buf;
+                buf << "Binning the dataype N " << data_type << " have not been implemented yet";
+                mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
+                    buf.str().c_str());
+            }
+            auto Mi = mxGetM(a_cell_ptr);
+            auto Ni = mxGetN(a_cell_ptr);
+            if (i == 0) {
+                n_data_points = std::max(Mi, Ni);
+            } else {
+                auto n_dp = std::max(Mi, Ni);
+                if (n_dp != n_data_points) {
+                    std::stringstream buf;
+                    buf << "Each cell in data to bin must contain the same number of elements\n";
+                    buf << "Cell N " << (short)i << " contains " << (short)n_dp << " elements which differs fron "
+                        <<(short)n_data_points<< " in the firdst cell element";
+                    mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                        buf.str().c_str());
+                }
+            }
+            auto n_rows = std::min(Mi, Ni);
+            if (n_rows != 1) {
+                std::stringstream buf;
+                buf << "Each cell in data to bin must contain 1D array of data\n";
+                buf << "Cell N " << (short)i << " contains " << (short)n_rows << " rows";
+                mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                    buf.str().c_str());
+            }
+        }
+        this->n_data_points = n_data_points;
+        this->in_pix_width = 1;
+        this->n_Cells_to_bin = nCells;
+    } else { // single or double precision array of full pixel coordinates
+        this->in_pix_width = mxGetM(pField);
+        this->n_data_points = mxGetN(pField); // should be dedined in set_coord too and values must be equal
+        // no check, as Matlab will call it from routine which does this check
+        if (this->in_pix_width != size_t(pix_flds::PIX_WIDTH)) {
+            std::stringstream buf;
+            buf << "Full input pixel coordinates to bin have to be represented by a matrix with 8 rows\n";
+            buf << "Support for provided input with " << (short)this->in_pix_width << " rows is not implemented";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
+                buf.str().c_str());
+        }
     }
 }
 //
@@ -274,7 +325,7 @@ void BinningArg::set_npix_retained(mxArray* pFieldName, mxArray* pFieldValue, in
 // return pixel data which belong to binning range if such data were calculated in appropriate mode requested
 void BinningArg::set_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
 {
-    mxArray *pix_range;
+    mxArray* pix_range;
     mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
     if (this->pix_data_range.size() == 0) {
         pix_range = mxCreateDoubleMatrix(2, 0, mxREAL);
@@ -348,7 +399,7 @@ void BinningArg::register_output_methods()
 {
     this->Mode0ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
 
-    this->Mode3ParList["npix_retained"]     = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
+    this->Mode3ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
     this->Mode3ParList["pix_ok_data_range"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_pix_range(p1, p2, idx, name); };
     this->Mode3ParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_pix_ok_data(p1, p2, idx, name); };
 
@@ -404,6 +455,13 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
     if (this->nbins_all_dims.size() > this->in_coord_width) {
         this->nbins_all_dims.resize(this->in_coord_width);
     }
+    // check consistency between cell input and binning mode
+    if (this->n_Cells_to_bin > 0 && this->binMode != opModes::sigerr_cell) {
+        std::stringstream buf;
+        buf << "Binning mode " << this->binMode << " is inconsistent with input binning data provided as a cell";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
     //
     // calculate binning steps and projection axis in all binning directions
     this->calc_step_sizes_pax_and_strides();
@@ -414,9 +472,33 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
     // Identify what types of input-output transformation should be deployed
     // while binning pixels
     auto coord_type = mxGetClassID(this->coord_ptr);
+
+    // check if coord_type corresponts to pix type
+    mxClassID pix_type;
     if (this->all_pix_ptr) {
-        coord_type = mxGetClassID(this->all_pix_ptr);
+        pix_type = mxGetClassID(this->all_pix_ptr);
+    } else {
+        pix_type = mxUNKNOWN_CLASS;
     }
+    if (pix_type == mxCELL_CLASS) { // cell class contains double value for binning. This verified on pix input
+        if (coord_type != mxDOUBLE_CLASS) {
+            std::stringstream buf;
+            buf << "Coordinates array in the binning mode " << this->binMode << " have to be defined by double precision array";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+        }
+    } else if(pix_type != mxUNKNOWN_CLASS) {
+        // This will be different in mode when coordinates are calculated from pixels
+        // but this mode is not implemented yet
+        if (coord_type != pix_type) {
+            std::stringstream buf;
+            buf << "Coordinates array type: " << coord_type << " must be equal to pixels array type: " << pix_type << "\n";
+            buf << "Actually they are different";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+        }
+    }
+
     switch (coord_type) {
     case (mxSINGLE_CLASS): {
         if (this->force_double) {
@@ -652,9 +734,18 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
     if (this->binMode != opModes::npix_only) {
         if (init_new_accumulators) {
             this->signal_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
-            this->error_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
             nullify_array(this->signal_ptr);
-            nullify_array(this->error_ptr);
+            if (this->binMode != opModes::sigerr_cell) {
+                this->error_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
+                nullify_array(this->error_ptr);
+            } else {
+                if (this->n_Cells_to_bin == 2) {
+                    this->error_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
+                    nullify_array(this->error_ptr);
+                } else {
+                    this->error_ptr = mxCreateDoubleMatrix(0,0, mxREAL);
+                }
+            }
         } else {
             this->signal_ptr = mxDuplicateArray(prhs[in_arg::signalIn]);
             this->error_ptr = mxDuplicateArray(prhs[in_arg::errorIn]);
@@ -713,6 +804,7 @@ BinningArg::BinningArg()
     , n_data_points(0)
     , all_pix_ptr(nullptr)
     , in_pix_width(9)
+    , n_Cells_to_bin(0)
     , check_pix_selection(false)
     , force_double(false)
     , test_inputs(false)

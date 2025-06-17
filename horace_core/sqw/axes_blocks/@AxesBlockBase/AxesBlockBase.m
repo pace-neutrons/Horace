@@ -700,7 +700,7 @@ classdef AxesBlockBase < serializable
             % unique_runid argument needed to get pixels sorted according
             % to bins. If it is not requested, pix_ok are returned unsorted.
             %
-            % IMPORTANT: 
+            % IMPORTANT:
             % new calculations must be started from empty accumulators
             % i.e.:
             % npix = []; s = []; e = [];
@@ -714,22 +714,21 @@ classdef AxesBlockBase < serializable
             % requests defined state of binning parameters so may cause
             % UNDEFINED BEHAVIOUR!!!. May be modified later.
             %
-            if numel(varargin) == 4 && iscell(varargin{4})
-                mode = 4;
-            else
-                mode = nargout;
-                if mode == 2
-                    mode = 1;
-                end
-            end
 
             [ok,mess,force_double,return_selected,test_mex_inputs,argi]=parse_char_options(varargin, ...
                 {'-force_double', '-return_selected','-test_mex_inputs'});
             if ~ok
                 error('HORACE:AxesBlockBase:invalid_argument',mess)
             end
-            if test_mex_inputs && mode ~= 1
-                mode = mode-1;
+            if numel(argi)<4
+                mode = numel(argi)+1;
+                if mode==2 % first mode may have 0 empty arguments as input
+                    mode = 1;
+                end                
+            elseif numel(argi) == 4 && iscell(argi{4})
+                mode = 4;
+            else
+                mode = numel(argi)-1;
             end
 
             % convert different input forms into fully expanded common form
