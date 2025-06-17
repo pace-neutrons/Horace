@@ -1,25 +1,96 @@
 # ========================================================================
 # ========================================================================
 # ===                                                                  ===
-# ===  Please ensure that any alterations you make to the directories  ===
-# ===  in TEST_DIRECTORIES_HORACE are  also made in validate_horace.m  ===
+# ===  Test directories should appear in one of:                       ===
+# ===   - HERBERT_TESTS         (Herbert code unit tests)              ===
+# ===   - HERBERT_SYSTEM_TESTS  (Herbert code system tests)            ===
+# ===   - HORACE_TESTS          (Horace code unit tests)               ===
+# ===   - HORACE_SYSTEM_TESTS   (Horace code system tests)             ===
 # ===                                                                  ===
-# ===  This will ensure that they perform the same tests.              ===
+# ===  These CMake variables are read from this file by                ===
+# ===  validate_horace.m and enable options of validate_horace to      ===
+# ===  select just the Horace or the Herbert tests, or all tests;      ===
+# ===  and whether or not to include the system tests                  ===
 # ===                                                                  ===
-# ===  [Automatic synchronisation by e.g. reading this file            ===
-# ===   would solve the manual unreliability of this step]             ===
+# ===  A given test should only appear in one of the variables.        ===
+# ===  It doesn't do any harm to appear more than one, but the         ===
+# ===  tests will be unnecessarily repeated by CMake.                  ===
 # ===                                                                  ===
+# ===  Do not put tests in any other variables, because otherwise      ===
+# ===  validate_horace will not run them.                              ===
 # ===                                                                  ===
 # ========================================================================
 # ========================================================================
 
-set(TEST_DIRECTORIES_HORACE
+set(HERBERT_TESTS
+    "test_admin"
+    "test_data_loaders"
+    "test_config"
+    "test_IX_classes"
     "test_map_mask"
-    "test_utilities"
+    "test_multifit_herbert"
+    "test_utilities_her_geometry"
+    "test_utilities_herbert"
+    "test_serializers"
+    "test_instrument_classes"
+    "test_object_containers"
+    "test_docify"
+    "test_xunit_framework"
+    "test_mpi_wrappers"
 )
-# "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
 
+set(HERBERT_SYSTEM_TESTS
+    "test_mpi/test_ParpoolMPI_Framework"
+    "test_mpi/test_job_dispatcher_herbert"
+    "test_mpi/test_job_dispatcher_mpiexec"
+    "test_mpi/test_job_dispatcher_parpool"
+    "test_mpi/test_job_dispatcher_slurm"
+)
 
+set(HORACE_TESTS
+    "test_algorithms"
+    "test_ascii_column_data"
+    "test_change_crystal"
+    "test_combine"
+    "test_dnd_class"
+    "test_experiment"
+    "test_gen_sqw_for_powders"
+    "test_rebin"
+    "test_mex_nomex"
+    "test_main_header"
+    "test_sqw"
+    "test_sqw_class"
+    "test_sqw_pageOpMethods"
+    "test_sqw_file"
+    "test_sqw_pixels"
+    "test_sym_op"
+    "test_symmetrisation"
+    "test_transformation"
+    "test_utilities"
+    "test_multifit"
+)
+
+set(HORACE_SYSTEM_TESTS
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_slurm"
+    "test_TF_components"
+    "test_TF_let"
+    "test_TF_refine_crystal"
+)
+
+#-------------------------------------------------------------------------------
+# Combine all the tests into single variable
+set(TEST_SUITES
+    "${HERBERT_TESTS}"
+    "${HERBERT_SYSTEM_TESTS}"
+    "${HORACE_TESTS}"
+    "${HORACE_SYSTEM_TESTS}"
+)
+
+# ------------------------------------------------------------------------------
 # Add the local_init directory - which contains worker_v4 and herbert_on -
 # to the MATLABPATH environment variable when tests are run.
 # This adds the paths to every new Matlab session, so parallel workers can
@@ -41,7 +112,7 @@ set(ENV_VARIABLES
 
 set(TEST_TIMEOUT_LENGTH "600") # 10 minutes
 
-foreach(_test_dir ${TEST_DIRECTORIES_HORACE})
+foreach(_test_dir ${TEST_SUITES})
     if("${_test_dir}" STREQUAL "test_sqw")
         set(TEST_TIMEOUT_LENGTH "2000")  # 33.3 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex")
