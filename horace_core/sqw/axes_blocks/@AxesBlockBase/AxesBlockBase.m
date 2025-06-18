@@ -720,15 +720,12 @@ classdef AxesBlockBase < serializable
             if ~ok
                 error('HORACE:AxesBlockBase:invalid_argument',mess)
             end
-            if numel(argi)<4
-                mode = numel(argi)+1;
-                if mode==2 % first mode may have 0 empty arguments as input
-                    mode = 1;
-                end                
-            elseif numel(argi) == 4 && iscell(argi{4})
+            mode = nargout;
+            if (test_mex_inputs || mode ==2) % Test mode adds one output field containing
+                mode = mode-1;   % structure to test and mode 1 may return additional structure without test mode
+            end
+            if mode == 3 && ~isempty(argi) && iscell(argi{end})
                 mode = 4;
-            else
-                mode = numel(argi)-1;
             end
 
             % convert different input forms into fully expanded common form
