@@ -20,6 +20,127 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             [~,n_errors] = check_horace_mex();
             obj.no_mex = n_errors > 0;
         end
+        %==================================================================        
+        function performance_mex_nomex_mode4(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            % this will recover existing configuration after test have been
+            % finished and temporary mex/nomex values will be set within
+            % the loop.
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            %
+            AB = AxesBlockBase_tester('nbins_all_dims',[50,1,50,1], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+
+            n_points = 50000000;
+            n_repeats = 10;
+            npix_nomex = []; s_nomex = [];e_nomex=[];
+            npix_mex   = []; s_mex = [];  e_mex=[];
+
+            t_nomex = zeros(1,n_repeats);
+            t_mex  = zeros(1,n_repeats);
+            disp("*** Mex/nomex performance mode4 (binning cellarrays of data over coordinate frame):")
+            for i= 1:n_repeats
+                fprintf('.')
+                coord = rand(4,n_points);
+                sig = rand(1,n_points);
+                err = rand(1,n_points);                
+
+                config_store.instance.set_value('hor_config','use_mex',false);
+                t1 = tic();
+                [npix_nomex,s_nomex,e_nomex] = AB.bin_pixels(coord,npix_nomex,s_nomex,e_nomex,{sig,err});
+                t_nomex(i) = toc(t1);
+                fprintf('.')
+
+                config_store.instance.set_value('hor_config','use_mex',true);
+
+                t1 = tic();
+                [npix_mex,s_mex,e_mex] = AB.bin_pixels(coord,npix_mex,s_mex,e_mex,{sig,err});
+                t_mex(i) = toc(t1);
+
+                assertEqual(npix_nomex,npix_mex)
+                assertEqualToTol(s_nomex,s_mex,'tol',[1.e-9,1.e-9])
+                assertEqualToTol(e_nomex,e_mex,'tol',[1.e-9,1.e-9])
+            end
+            tav_mex = sum(t_mex)/n_repeats;
+            tav_nom = sum(t_nomex)/n_repeats;
+            fprintf( ...
+                '\n*** time of first step,    nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
+                t_nomex(1),t_mex(1),t_nomex(1)/t_mex(1));
+            fprintf( ...
+                '*** Average time per step, nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
+                tav_nom,tav_mex,tav_nom/tav_mex);
+
+        end
+        
+        function test_bin_pixels_mex_nomex_mode4_3Dmultipage(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,15,20,1], ...
+                'img_range',[0,0,0,0;0.8,0.8,1,0.8]);
+            in_coord1 = rand(4,30);
+            in_coord2 = rand(4,20);
+            sig1 = rand(1,30);
+            sig2 = rand(1,20);
+            err1 = rand(1,30);
+            err2 = rand(1,20);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+
+            npix_nom = [];   s_nom    = [];   e_nom    = [];
+            [npix_nom,s_nom,e_nom] = AB.bin_pixels(in_coord1,npix_nom,s_nom,e_nom,{sig1,err1});
+            [npix_nom,s_nom,e_nom] = AB.bin_pixels(in_coord2,npix_nom,s_nom,e_nom,{sig2,err2});
+            assertEqual(size(npix_nom),[10,15,20]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            npix_mex = []; s_mex    = [];   e_mex    = [];
+            [npix_mex,s_mex,e_mex] = AB.bin_pixels(in_coord1,npix_mex,s_mex,e_mex,{sig1,err1});
+            [npix_mex,s_mex,e_mex] = AB.bin_pixels(in_coord2,npix_mex,s_mex,e_mex,{sig2,err2});
+            assertEqual(size(npix_nom),[10,15,20]);
+
+            assertEqual(npix_mex,npix_nom);
+            assertEqual(s_mex,s_nom);
+            assertEqual(e_mex,e_nom);
+        end
+
+        function test_mex_nomex_mode4_one_array_in(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,20,1], ...
+                'img_range',[0,0,0,0;0.8,0.8,1,0.8]);
+            in_coord1 = rand(4,10);
+            bin_sig    = rand(1,10);
+            bin_err    = rand(1,10);
+
+            npix_nom = []; s_nom    = [];   e_nom    = [];
+            [npix_nom,s_nom,e_nom] = AB.bin_pixels(in_coord1 ,npix_nom,s_nom, e_nom,{bin_sig});
+            assertEqual(size(npix_nom),[10,20]);
+            assertEqual(size(s_nom),[10,20]);
+            assertEqual(size(e_nom),[10,20]);
+            assertEqual(e_nom,zeros(10,20)); %  inefficent but code is much
+            % simple. This accumulator is not used but allocated.
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            [npix_mex,s_mex,e_mex] = AB.bin_pixels(in_coord1,[],[],[],{bin_sig});
+            assertEqual(size(npix_mex),[10,20]);
+            assertEqual(size(s_mex),[10,20]);
+            assertTrue(isempty(e_mex));
+
+
+            assertEqual(npix_mex,npix_nom);
+            assertEqual(s_mex,s_nom);
+            %assertEqual(e_mex,e_nom); TODO: for efficiency, may be worth
+            %change nomex e not to allocate memory in this case, but we
+            %have mex for efficiency so this would be low priority.
+        end
 
         function test_mex_nomex_mode4_two_arrays_in(obj)
             if obj.no_mex
@@ -51,6 +172,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(s_mex,s_nom);
             assertEqual(e_mex,e_nom);
         end
+
         function test_bin_pixels_inputs_mode4_twice(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning parameters');
