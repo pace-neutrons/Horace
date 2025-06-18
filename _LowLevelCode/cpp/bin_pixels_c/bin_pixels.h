@@ -81,6 +81,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     auto COORD_STRIDE = bin_par_ptr->in_coord_width;
     auto PIX_STRIDE = bin_par_ptr->in_pix_width;
 
+    // internal loop variables (firstprivate)
     size_t nPixel_retained(0), nCellOccupied(0);
 
     std::vector<double> qi(COORD_STRIDE);
@@ -91,7 +92,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     std::vector<size_t> bin_cell_range = bin_par_ptr->bin_cell_range;
 
     std::vector<double> pix_ranges;
-    if (bin_par_ptr->binMode > opModes::sig_err) { // higher modes process pixel ranges
+    if (bin_par_ptr->binMode > opModes::sigerr_cell) { // higher modes process pixel ranges
         pix_ranges = init_min_max_range_calc(bin_par_ptr);
     }
     bool check_pix_selection = bin_par_ptr->check_pix_selection && (pix_coord_ptr != nullptr);
@@ -130,6 +131,39 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
             // calculate signal and error accumulators
             s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
             e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
+        }
+        break;
+    }
+    case (opModes::sigerr_cell): {
+        std::vector<double*> accum_ptr(2);
+        accum_ptr[0] = s;
+        accum_ptr[1] = e;
+
+        auto n_cells_to_bin = bin_par_ptr->n_Cells_to_bin;
+        std::vector<const double*> cell_data_ptr(n_cells_to_bin,nullptr);
+
+        // fill in cell_data_ptr with pointers to contents of cell data to bin
+        for (auto i = 0; i < n_cells_to_bin; i++) {
+            const mxArray* cell_array_ptr = mxGetCell(bin_par_ptr->all_pix_ptr, i);
+            cell_data_ptr[i] = mxGetPr(cell_array_ptr);
+        }
+
+        for (long i = 0; i < data_size; i++) {
+            // drop out coordinates outside of the binning range
+            if (out_of_ranges<TP>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
+                continue;
+            nPixel_retained++;
+
+            // calculate location of pixel within the image grid
+            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_range, stride);
+            // calculate npix accumulators
+            npix[il]++;
+            // calculate signal and, if necessary error accumulators
+            for (auto j = 0; j < n_cells_to_bin; j++) {
+                auto acc_ptr = accum_ptr[j];
+                auto data_ptr = cell_data_ptr[j];
+                acc_ptr[il] += data_ptr[i];
+            }
         }
         break;
     }

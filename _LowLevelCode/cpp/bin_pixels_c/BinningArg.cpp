@@ -405,6 +405,7 @@ void BinningArg::register_output_methods()
 
     this->out_handlers[opModes::npix_only] = &Mode0ParList;
     this->out_handlers[opModes::sig_err] = &Mode3ParList;
+    this->out_handlers[opModes::sigerr_cell] = &Mode3ParList;
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
