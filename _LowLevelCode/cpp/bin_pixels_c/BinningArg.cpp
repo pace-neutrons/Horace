@@ -721,11 +721,12 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
 {
     mwSize nDims(0);
     mwSize* dim_ptr(nullptr);
+    size_t distr_size(0);
     bool init_new_accumulators(false);
     if (mxIsEmpty(prhs[in_arg::npixIn])) {
         init_new_accumulators = true;
         nDims = this->get_Matlab_n_dimensions();
-        dim_ptr = this->get_Matlab_acc_dimensions();
+        dim_ptr = this->get_Matlab_acc_dimensions(distr_size);
         this->npix_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
         nullify_array(this->npix_ptr);
     } else {
@@ -759,21 +760,29 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         if (this->n_data_points > this->pix_ok_bin_idx.size()) {
             this->pix_ok_bin_idx.resize(this->n_data_points);
         }
+        if (this->npix_bin_start.size() != distr_size) {
+            this->npix_bin_start.resize(distr_size);
+        }
         this->pix_data_range_ptr = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
     }
 }
 
 /* get array of dimensions to allocate in the form appropriate for using with Matlab *mxCreateNumericArray
-** function.
+** function. 
+* Returns:
+* pointer to MATLAB array which defines dimensions for mxCreateNumericArray function
+* distr_size -- total number of elements in this numerical array (product of all its dimensions)
 **/
-mwSize* BinningArg::get_Matlab_acc_dimensions()
+mwSize* BinningArg::get_Matlab_acc_dimensions(size_t &distr_size)
 {
+    distr_size = 1;
     this->accumulator_dims_holder.clear();
     if (this->n_dims == 0) {
         this->accumulator_dims_holder.push_back(1);
     } else {
         for (auto& element : this->nbins_all_dims) {
             if (element > 1) {
+                distr_size *= element;
                 this->accumulator_dims_holder.push_back(mwSize(element));
             }
         }

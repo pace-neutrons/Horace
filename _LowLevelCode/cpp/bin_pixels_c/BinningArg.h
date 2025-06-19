@@ -109,14 +109,17 @@ public:
     // resulting range of pixels
     mxArray* pix_data_range_ptr;
     mxArray* pix_ok_ptr; // pointer to array of all pixels retained after binning
-    // auxiliary array containing pixel indices over bins
-    std::vector<size_t> pix_ok_bin_idx;
     //********************************************************************************
     // helper values
     std::vector<double> bin_step; // vector of binning sizes in all non-unit directions
     std::vector<size_t> pax; // vector of projection axes to bin pixels over
     std::vector<size_t> stride; // vector, which describes binning steps reflecting multidimensional array strides
     std::vector<size_t> bin_cell_range; // vector containing allowed ranges of the binning (with nbins_all_dims>1) cells in binning directions
+    // auxiliary array containing pixel indices over bins
+    std::vector<size_t> pix_ok_bin_idx;
+    // auxiliary array defining ranges of the bins to sort pixels over
+    std::vector<size_t> npix_bin_start;
+
 
     // calculate size of the binning grid
     size_t n_grid_points()
@@ -174,7 +177,7 @@ public:
     // get number of dimensions for accumulator array to allocate using MATLAB methods
     mwSize get_Matlab_n_dimensions();
     // get dimensions of accumulator array to allocate using MATLAB methods
-    mwSize* get_Matlab_acc_dimensions();
+    mwSize* get_Matlab_acc_dimensions(size_t &distr_size);
 
 private:
     // map to keep list of function to process input values from MATLAB structure

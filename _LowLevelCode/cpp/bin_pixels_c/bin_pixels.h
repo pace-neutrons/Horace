@@ -8,8 +8,8 @@
 
 
 // return true if input coordinates lie outside of the ranges specified as input
-template <class TP>
-bool inline out_of_ranges(TP const* const coord_ptr, long i, size_t COORD_STRIDE, const std::vector<double>& cut_range, std::vector<double>& qi)
+template <class TT>
+bool inline out_of_ranges(TT const* const coord_ptr, long i, size_t COORD_STRIDE, const std::vector<double>& cut_range, std::vector<double>& qi)
 {
     size_t ic0 = i * COORD_STRIDE;
     for (size_t upix = 0; upix < COORD_STRIDE; upix++) {
@@ -39,9 +39,10 @@ size_t inline pix_position(const std::vector<double>& qi, const std::vector<size
 /** Procedure calculates positions of the input pixels coordinates within specified
  *   image box and various other values related to distributions of pixels over the image
  *   bins, including signal per image box, error per image box and distribution of pixels
- *   according to the image.
+ *   according to the image. Template instantiacted on the basis of ST (size of source type)
+ *   and TT (target type)
  */
-template <class TP>
+template <class ST,class TT>
 size_t bin_pixels(double* const npix, double* const s, double* const e, BinningArg* const bin_par_ptr)
 {
     // numbers of bins in the grid
@@ -50,10 +51,10 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     // what do we actually calculate
     auto opMode = bin_par_ptr->binMode;
 
-    TP const* const coord_ptr = reinterpret_cast<TP*>(mxGetPr(bin_par_ptr->coord_ptr));
-    TP const* pix_coord_ptr(nullptr);
+    ST const* const coord_ptr = reinterpret_cast<ST*>(mxGetPr(bin_par_ptr->coord_ptr));
+    ST const* pix_coord_ptr(nullptr);
     if (bin_par_ptr->all_pix_ptr) {
-        pix_coord_ptr = reinterpret_cast<TP*>(mxGetPr(bin_par_ptr->all_pix_ptr));
+        pix_coord_ptr = reinterpret_cast<ST*>(mxGetPr(bin_par_ptr->all_pix_ptr));
     }
     auto COORD_STRIDE = bin_par_ptr->in_coord_width;
     auto PIX_STRIDE = bin_par_ptr->in_pix_width;
@@ -82,7 +83,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     case (opModes::npix_only): {
         for (long i = 0; i < data_size; i++) {
             // drop out coordinates outside of the binning range
-            if (out_of_ranges<TP>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
+            if (out_of_ranges<ST>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
                 continue;
             nPixel_retained++;
 
@@ -95,7 +96,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     case (opModes::sig_err): {
         for (long i = 0; i < data_size; i++) {
             // drop out coordinates outside of the binning range
-            if (out_of_ranges<TP>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
+            if (out_of_ranges<ST>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
                 continue;
             // drop out already selected pixels, if requested
             size_t ip0 = i * PIX_STRIDE;
@@ -129,7 +130,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
 
         for (long i = 0; i < data_size; i++) {
             // drop out coordinates outside of the binning range
-            if (out_of_ranges<TP>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
+            if (out_of_ranges<ST>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
                 continue;
             nPixel_retained++;
 
@@ -148,10 +149,12 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     }
     case (opModes::sort_pix): {
         std::vector<size_t> pix_idx;
+        std::vector<size_t> bin_start;
         pix_idx.swap(bin_par_ptr->pix_ok_bin_idx);
+        bin_start.swap(bin_par_ptr->npix_bin_start);
         for (long i = 0; i < data_size; i++) {
             // drop out coordinates outside of the binning range
-            if (out_of_ranges<TP>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
+            if (out_of_ranges<ST>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
                 continue;
             // drop out already selected pixels, if requested
             size_t ip0 = i * PIX_STRIDE;
@@ -167,9 +170,26 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
             s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
             e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
             pix_idx[nPixel_retained] = il;
+            // calculate pix ranges
+            calc_pix_ranges<ST>(pix_ranges, pix_coord_ptr, PIX_STRIDE, i);
         }
-
+        // allocate memory for resulting pixels
+        TT* sorted_pix_ptr(nullptr);
+        bin_par_ptr->pix_ok_ptr = allocate_pix_memory<TT>(PIX_STRIDE, nPixel_retained, sorted_pix_ptr);
+        // calculate bin ranges to sort pixels over
+        bin_start[0] = 0;
+        for (size_t i = 1; i < distribution_size; i++) {
+            bin_start[i] = bin_start[i - 1] + npix[i];
+        }
+        // actually sort pixels and copy then into target array
+        for (size_t i = 0; i < nPixel_retained; i++) {
+            size_t ind = pix_idx[i];
+            auto cell_pix_ind = bin_start[ind]++; // pixel position within a cell
+            copy_pixels<ST, TT>(pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); // copy all pixel data into the location requested
+        }
+        // swap memory of working arrays back to binning_arguments to keep it for the next call
         bin_par_ptr->pix_ok_bin_idx.swap(pix_idx);
+        bin_par_ptr->npix_bin_start.swap(bin_start);
         break;
     }
     default: {

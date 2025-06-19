@@ -12,6 +12,7 @@
 #include <memory>
 #include <mutex>
 #include <span>
+#include <type_traits>
 //#include <omp_guard.hpp>
 
 #ifndef _OPENMP
@@ -98,7 +99,36 @@ void inline calc_pix_ranges(std::span<double>& pix_ranges, TP const* const pix_c
         pix_ranges[2 * j] = std::min(pix_ranges[2 * j], (double)pix_coord_ptr[ip0 + j]);
         pix_ranges[2 * j + 1] = std::max(pix_ranges[2 * j + 1], (double)pix_coord_ptr[ip0 + j]);
     }
-}
+};
+// allocate pixels memory 
+template<class TP> 
+mxArray* allocate_pix_memory(size_t PIX_WIDTH, size_t N_ELEMENTS, TP*& data_ptr) { 
+    mxArray* pix_ptr(nullptr);
+    if constexpr (std::is_same_v<TP, double>) {
+        pix_ptr = mxCreateDoubleMatrix(PIX_WIDTH, N_ELEMENTS, mxREAL);
+        if (pix_ptr == nullptr) {
+            std::stringstream buf;
+            buf << "Can not allocate memory for: " << N_ELEMENTS << " resuting binned pixels";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
+                buf.str().c_str());
+        }
+        data_ptr = mxGetPr(pix_ptr);
+    } else if constexpr (std::is_same_v<TP,float>) {
+        pix_ptr = mxCreateNumericMatrix(PIX_WIDTH, N_ELEMENTS, mxSINGLE_CLASS, mxREAL);
+        if (pix_ptr == nullptr) {
+            std::stringstream buf;
+            buf << "Can not allocate memory for: " << N_ELEMENTS << " resuting binned pixels";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
+                buf.str().c_str());
+        }
+        data_ptr = reinterpret_cast<float*>(mxGetPr(pix_ptr));
+    } else {
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
+            "Attempt to allocate memory for unsupported type of variable. Only float and double are supported");
+    }
+    return pix_ptr;
+};
+
 
 // nullify input mxArray (used as accumulator)
 inline void nullify_array(const mxArray* mxData_ptr) {

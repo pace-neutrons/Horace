@@ -69,13 +69,17 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
         size_t num_pixels_retained(0);
         switch (transfType) {
-        case (InOutTransf::InCrd8OutPix8):
+        case (InOutTransf::InCrd8OutPix8): {
+            num_pixels_retained = bin_pixels<double, double>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+            break;
+        }
         case (InOutTransf::InCrd4OutPix8): {
-            num_pixels_retained = bin_pixels<double>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+            num_pixels_retained = bin_pixels<float,double>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
             break;
         }
         case (InOutTransf::InCrd4OutPix4): {
-            num_pixels_retained = bin_pixels<float>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+            num_pixels_retained = bin_pixels<float,float>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+            break;
         }
         }
         bin_par_ptr->class_ptr->n_pix_retained = num_pixels_retained;
