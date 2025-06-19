@@ -117,7 +117,7 @@ std::string  verify_pix_array(const mxArray* pix_cell_array_ptr, bool& single_pr
             auto dims = mxGetDimensions(cell_element_ptr);
             if (number_of_dimensions != 2)return "Input pixels array contains non-2D block of pixels";
 
-            if (dims[0] != pix_fields::PIX_WIDTH)return "Input pixels array contains block of pixels with dimension 1 not equal to 9. Can not process this";
+            if (dims[0] != pix_flds::PIX_WIDTH)return "Input pixels array contains block of pixels with dimension 1 not equal to 9. Can not process this";
             // retrieve pixels block data
             n_tot_pixels += dims[1];
             pix_block_sizes[ind] = dims[1];
@@ -307,7 +307,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     double* pPixelRange(nullptr);
     if (nlhs == 2) {
         try {
-            plhs[Pixels_range] = mxCreateDoubleMatrix(2, pix_fields::PIX_WIDTH, mxREAL);
+            plhs[Pixels_range] = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
             if (!plhs[Pixels_range]) {
                 mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
                     "Can not allocate memory for output pixels ranges");
@@ -334,7 +334,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
             throw("Sort_pixels_by_bins: memory allocation error for auxiliary array of indexes");
         }
         //---------------------------------------------------------------------------------------------
-
+        std::vector<double> pix_range;
         switch (type_requested) {
         case Pix8IndIOut8: {
             double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);

@@ -165,8 +165,8 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
 };
 
 
-#undef OMP_VERSION_3
-#undef C_MUTEXES
+//#undef OMP_VERSION_3
+//#undef C_MUTEXES
 
 
 

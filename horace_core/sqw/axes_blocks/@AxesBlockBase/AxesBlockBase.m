@@ -723,9 +723,13 @@ classdef AxesBlockBase < serializable
             mode = nargout;
             if (test_mex_inputs || mode ==2) % Test mode adds one output field containing
                 mode = mode-1;   % structure to test and mode 1 may return additional structure without test mode
+            end            
+            if mode >= 4 % mode 4 and mode 3 both have 3 outputs and differ
+                % by input arguments. All higher defined by  nargout+1 formula
+                mode = mode+1;
             end
-            if mode == 3 && ~isempty(argi) && iscell(argi{end})
-                mode = 4;
+            if mode == 3 && ~isempty(argi) && iscell(argi{end}) % mode 3 and mode 4 have equal number of outputs
+                mode = 4; % and differ by type of input
             end
 
             % convert different input forms into fully expanded common form

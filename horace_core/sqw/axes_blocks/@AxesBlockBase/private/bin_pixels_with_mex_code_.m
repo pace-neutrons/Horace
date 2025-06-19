@@ -166,7 +166,7 @@ if proc_mode == 1
         out_struc.npix_retained = npix_retained;
     end
     if nargout > 1
-        varargout{bin_out0.pix_ok} = out_struc;
+        varargout{end} = out_struc;
     end
 else  % otherwise, there are no such ouputs, output structure is flattened
     out_struc = cell2struct(out{6},out{5},2);
@@ -174,8 +174,7 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     varargout{bin_out.s} = out{3};
     varargout{bin_out.e} = out{4};
     if test_mex_inputs
-        varargout{bin_out.pix_ok} = out_struc;
-        return;
+        varargout{end} = out_struc;
     end
     npix_retained = npix_retained + out_struc.npix_retained;
 
@@ -186,8 +185,11 @@ else  % otherwise, there are no such ouputs, output structure is flattened
         if ndata>=3
             varargout{bin_out.pix_ok} = pix_ok_range; % redefine pix_ok_range to be npix accumulated
         end
+    end
+    if proc_mode<5
         return;
     end
+
     if isempty(pix_ok_data)
         varargout{bin_out.pix_ok} = pix_ok_data;
     else
@@ -195,7 +197,10 @@ else  % otherwise, there are no such ouputs, output structure is flattened
         pix_ok = pix_ok.set_raw_data(pix_ok_data);
         varargout{bin_out.pix_ok} = pix_ok.set_data_range(pix_ok_range);
     end
-
+    if proc_mode<6
+        return;
+    end
+    
     % in modes where these values are not calculated, the code returns
     % empty
     varargout{bin_out.unique_runid}  = out_struc.unique_runid;

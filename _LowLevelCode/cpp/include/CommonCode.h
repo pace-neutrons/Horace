@@ -11,6 +11,7 @@
 #include <sstream>
 #include <memory>
 #include <mutex>
+#include <span>
 //#include <omp_guard.hpp>
 
 #ifndef _OPENMP
@@ -62,15 +63,43 @@ enum pix_flds
 };
 
 // Copy pixels from source to target array
-inline void copy_pixels(double* pixel_data, long j, double* pPixelSorted, size_t j0) {
+template<class SRC,class TRG> 
+inline void copy_pixels(SRC const* const pixel_data, long source_pos, TRG * const pPixelSorted, size_t targ_pos)
+{
     //
-    j0 *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-    size_t i0 = j * pix_flds::PIX_WIDTH;
+    targ_pos *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+    // in the pixels array
+    source_pos *= pix_flds::PIX_WIDTH;
 
     for (size_t i = 0; i < pix_flds::PIX_WIDTH; i++) {
-        pPixelSorted[j0 + i] = pixel_data[i0 + i];
+        pPixelSorted[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
+    }
+};
+
+/* Initialize pixel ranges for calculating correct range.
+ *  This means assigning to min/max holders values which are completely invalid, namely
+ *  minima equal to maximal double value and maxima equal to minimal double value */
+inline void init_min_max_range_calc(std::span<double>& pix_ranges, size_t PIX_STRIDE)
+{
+    auto max_range = std::numeric_limits<double>::max();
+    auto min_range = -max_range;
+    for (size_t i = 0; i < PIX_STRIDE; i++) {
+        pix_ranges[2 * i] = max_range;
+        pix_ranges[2 * i + 1] = min_range;
+    }
+};
+
+// identify range of all pixel coordinates for given inital pixels position
+template <class TP>
+void inline calc_pix_ranges(std::span<double>& pix_ranges, TP const* const pix_coord_ptr, size_t PIX_STRIDE, size_t i)
+{
+    size_t ip0 = i * PIX_STRIDE;
+    for (size_t j = 0; j < PIX_STRIDE; j++) {
+        pix_ranges[2 * j] = std::min(pix_ranges[2 * j], (double)pix_coord_ptr[ip0 + j]);
+        pix_ranges[2 * j + 1] = std::max(pix_ranges[2 * j + 1], (double)pix_coord_ptr[ip0 + j]);
     }
 }
+
 // nullify input mxArray (used as accumulator)
 inline void nullify_array(const mxArray* mxData_ptr) {
 

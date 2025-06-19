@@ -281,7 +281,7 @@ classdef test_sort_pix_mex_nomex < TestCase
         end
 
 
-        function profile_sort_pix(obj)
+        function perfomance_sort_pix(obj)
             if obj.no_mex
                 skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
             end

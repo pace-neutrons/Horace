@@ -1,9 +1,10 @@
 #pragma once
 #include <functional>
-#include <numeric>
+
 #include <include/CommonCode.h>
 #include <include/MatlabCppClassHolder.hpp>
 #include <map>
+#include <numeric>
 #include <string>
 #include <utility/version.h>
 
@@ -42,7 +43,6 @@ enum out_arg_mode0 {
     N_OUT_Arguments0
 };
 
-
 // enumerate operational modes bin pixels operates in
 enum opModes {
     npix_only = 0, // calculate npix array only binning coordinates over
@@ -52,18 +52,22 @@ enum opModes {
     sort_pix = 4, // in additional to binning, return pixels sorted by bins
     sort_and_id = 5, // in additional to binning and sorting, return unique pixels id
     nosort = 6, // do binning but do not sort pixels but return array which defines pixels position
-    //                   within the image grid
+    //              within the image grid
     nosort_sel = 7, // like 6, but return ?logical? array which specifies what pixels have been selected
     //                   and what were rejected by binning operations
     test_inputs = 8, // do not do calculations but just return parsed inputs for
-    //                   unit testing
+    //                  unit testing
     N_OP_Modes = 9 // total number of modes code operates in. Provided for checks
 };
 
 // define the map type to keep functions which set up output parameters in a structure, specific for given binning mode;
 using OutHandlerMap = std::unordered_map<std::string, std::function<void(mxArray* p1, mxArray* p2, int idx, const std::string& name)>>;
 
-// structure describes all parameters used by binning procedure
+/* class describes all parameters used by binning procedure
+ * use Matlab pointers for all transient array, which may change from call to call to mex function
+ * and update these pointers on each call or vectors to all parameters which expect to be retained
+ * between calls
+ */
 class BinningArg {
 public:
     opModes binMode; // the operation mode, binning routine would operate
@@ -80,7 +84,7 @@ public:
     mxArray const* all_pix_ptr; // pointer to array or cellarray of all pixels containing signal and error
     // info for binning and sorting if necessary
     size_t in_pix_width; // how many non-modified pixel data rows are provided in app_pix_ptr (9)
-                        // other information may be requested to process e.g. sorted pixels, pix_idx etc...
+                         // other information may be requested to process e.g. sorted pixels, pix_idx etc...
     size_t n_Cells_to_bin; // number of cells to bin in opModes::sigerr_cell mode
     std::vector<double> alignment_matrix; // if defined, contains 3x3 matrix to use for aligning the pixels
     // vector of unique run-id(s) calculated from pixels data
@@ -103,8 +107,10 @@ public:
     // number of pixels retained after binning
     size_t n_pix_retained;
     // resulting range of pixels
-    std::vector<double> pix_data_range;
-    mxArray * pix_ok_ptr; // pointer to array of all pixels retained after binning
+    mxArray* pix_data_range_ptr;
+    mxArray* pix_ok_ptr; // pointer to array of all pixels retained after binning
+    // auxiliary array containing pixel indices over bins
+    std::vector<size_t> pix_ok_bin_idx;
     //********************************************************************************
     // helper values
     std::vector<double> bin_step; // vector of binning sizes in all non-unit directions
@@ -113,7 +119,8 @@ public:
     std::vector<size_t> bin_cell_range; // vector containing allowed ranges of the binning (with nbins_all_dims>1) cells in binning directions
 
     // calculate size of the binning grid
-    size_t n_grid_points() { 
+    size_t n_grid_points()
+    {
         size_t product = std::accumulate(
             nbins_all_dims.begin(), nbins_all_dims.end(),
             size_t(1), // promote to size_t
@@ -128,28 +135,27 @@ protected:
     void register_input_methods();
     // setters for all binning properties retrieved from MATLAB
     void set_coord_in(mxArray const* const pField); //   // Input pixels coordinates to bin. May be empty in modes where they are produced from pixels coordinates
-    void set_binning_mode(mxArray const* const pField);  // what parameters calculate during the binning
-    void set_num_threads(mxArray const* const pField);   // how many computational threads to deploy for calculations
-    void set_data_range(mxArray const* const pField);    // the range of data to bin in
-    void set_dimensions(mxArray const* const pField);    // number of dimensions the binning should be performed on
+    void set_binning_mode(mxArray const* const pField); // what parameters calculate during the binning
+    void set_num_threads(mxArray const* const pField); // how many computational threads to deploy for calculations
+    void set_data_range(mxArray const* const pField); // the range of data to bin in
+    void set_dimensions(mxArray const* const pField); // number of dimensions the binning should be performed on
     void set_nbins_all_dims(mxArray const* const pField); //
-    void set_unique_runid(mxArray const* const pField);  // holder for the information about unique run_id-s present in the data. Set procedure is non-standard
-    void set_force_double(mxArray const* const pField);  // boolean parameters which would request output transformed pixels always been double regardless of input pixels
+    void set_unique_runid(mxArray const* const pField); // holder for the information about unique run_id-s present in the data. Set procedure is non-standard
+    void set_force_double(mxArray const* const pField); // boolean parameters which would request output transformed pixels always been double regardless of input pixels
     void set_return_selected(mxArray const* const pField);
     void set_test_input_mode(mxArray const* const pField); // intialize testing mode (or not)
-    void set_all_pix(mxArray const* const pField);       //  pointer to all pixels to sort or use as binning arguments
+    void set_all_pix(mxArray const* const pField); //  pointer to all pixels to sort or use as binning arguments
     void set_alignment_matrix(mxArray const* const pField); // matrix which have to be applied to raw pixels to bring them into Crystal Cartesian coordinate system
     void set_check_pix_selection(mxArray const* const pField); // if true, check if detector_id are negative which may suggest that pixels have been alreary used in previous binning operation
 
-    // register with parameters map all methods which 
+    // register with parameters map all methods which
     void register_output_methods();
     // setters for binning results returned to MATLAB in output structure
     void set_npix_retained(mxArray* p1, mxArray* p2, int idx, const std::string& name);
     // setter for result of calculating pixels data range
     void set_pix_range(mxArray* p1, mxArray* p2, int idx, const std::string& name);
-    // setter for possible pixels 
+    // setter for possible pixels
     void set_pix_ok_data(mxArray* p1, mxArray* p2, int idx, const std::string& name);
-
 
 public:
     BinningArg(); // construction
@@ -158,13 +164,13 @@ public:
     // process binning arguments which have changed during followitng call to binning procedure
     void parse_changed_bin_inputs(mxArray const* pAllParStruct);
     // generate test output which would echo input values
-    void return_test_inputs(mxArray* plhs[],int nlhs);
-    // return various inputs 
+    void return_test_inputs(mxArray* plhs[], int nlhs);
+    // return various inputs
     void return_results(mxArray* plhs[], mwSize nlhs);
     // check if input binning parameters are new or have been changed
     bool new_binning_arguments_present(mxArray const* prhs[]);
     // check if input accumulators have not been changed and initalize them appropriately
-    void check_and_init_accumulators(mxArray* plhs[],mxArray const* prhs[], bool force_update = false);
+    void check_and_init_accumulators(mxArray* plhs[], mxArray const* prhs[], bool force_update = false);
     // get number of dimensions for accumulator array to allocate using MATLAB methods
     mwSize get_Matlab_n_dimensions();
     // get dimensions of accumulator array to allocate using MATLAB methods
@@ -183,5 +189,5 @@ private:
     OutHandlerMap Mode0ParList;
     OutHandlerMap Mode3ParList;
 
-    std::unordered_map<opModes, OutHandlerMap *> out_handlers;
+    std::unordered_map<opModes, OutHandlerMap*> out_handlers;
 };
