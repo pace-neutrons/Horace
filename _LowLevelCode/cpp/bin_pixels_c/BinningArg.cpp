@@ -353,7 +353,7 @@ void BinningArg::calc_step_sizes_pax_and_strides()
     this->pax.clear();
     this->stride.clear();
     this->bin_step.clear();
-    this->bin_cell_range.clear();
+    this->bin_cell_idx_range.clear();
     //
     size_t stride(1);
     size_t n_pix_dim = this->in_coord_width;
@@ -364,7 +364,7 @@ void BinningArg::calc_step_sizes_pax_and_strides()
             auto step = double(n_bins) / (this->data_range[2 * i + 1] - this->data_range[2 * i]);
             this->pax.push_back(i);
             this->bin_step.push_back(step);
-            this->bin_cell_range.push_back(n_bins - 1);
+            this->bin_cell_idx_range.push_back(n_bins-1);
 
             this->stride.push_back(stride);
             stride *= n_bins;
@@ -721,12 +721,11 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
 {
     mwSize nDims(0);
     mwSize* dim_ptr(nullptr);
-    size_t distr_size(0);
     bool init_new_accumulators(false);
     if (mxIsEmpty(prhs[in_arg::npixIn])) {
         init_new_accumulators = true;
         nDims = this->get_Matlab_n_dimensions();
-        dim_ptr = this->get_Matlab_acc_dimensions(distr_size);
+        dim_ptr = this->get_Matlab_acc_dimensions(this->distr_size);
         this->npix_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
         nullify_array(this->npix_ptr);
     } else {
@@ -763,9 +762,11 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         // fill all positions of the pix_ok vector with certainly invalid value. Index can not be negative
         // this will indicate invalid elements
         std::fill(this->pix_ok_bin_idx.begin(), this->pix_ok_bin_idx.end(), -1);
-        if (this->npix_bin_start.size() != distr_size) {
-            this->npix_bin_start.resize(distr_size);
+        if (this->npix_bin_start.size() != this->distr_size) {
+            this->npix_bin_start.resize(this->distr_size);
+            this->npix1.resize(this->distr_size);
         }
+        std::fill(this->npix1.begin(), this->npix1.end(), 0); //nullify accumulators for npix1
         // ranges calculated per each pixels block, i.e. calculations per call to bin_pixels_c
         this->pix_data_range_ptr = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
     }
@@ -830,6 +831,7 @@ BinningArg::BinningArg()
     , force_double(false)
     , test_inputs(false)
     // accumulators
+    , distr_size(0)  // number of elements in accumulators array
     , npix_ptr(nullptr)
     , signal_ptr(nullptr)
     , error_ptr(nullptr)

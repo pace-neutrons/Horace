@@ -100,6 +100,7 @@ public:
     //********************************************************************************
     // Properties which contain results, obtained in various binning modes
     //********************************************************************************
+    size_t distr_size; // number of elements in the arrays below
     // pointers to double accumulators used to calculate image averages (npix signal and error)
     mxArray* npix_ptr;
     mxArray* signal_ptr;
@@ -114,11 +115,12 @@ public:
     std::vector<double> bin_step; // vector of binning sizes in all non-unit directions
     std::vector<size_t> pax; // vector of projection axes to bin pixels over
     std::vector<size_t> stride; // vector, which describes binning steps reflecting multidimensional array strides
-    std::vector<size_t> bin_cell_range; // vector containing allowed ranges of the binning (with nbins_all_dims>1) cells in binning directions
+    std::vector<size_t> bin_cell_idx_range; // vector containing allowed maximal indixes of the binning (with nbins_all_dims>1) cells in binning directions
     // auxiliary array containing pixel indices over bins
     std::vector<long> pix_ok_bin_idx;
     // auxiliary array defining ranges of the bins to sort pixels over
     std::vector<size_t> npix_bin_start;
+    std::vector<size_t> npix1; // pixel distribution over bins calculated in single call to bin_pixels routine;
 
 
     // calculate size of the binning grid

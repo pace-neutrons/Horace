@@ -4,8 +4,7 @@
 #include <algorithm>
 
 // use C-mutexes while binning the data
-//#define C_MUTEXES
-
+// #define C_MUTEXES
 
 // return true if input coordinates lie outside of the ranges specified as input
 template <class TRG>
@@ -23,14 +22,14 @@ bool inline out_of_ranges(TRG const* const coord_ptr, long i, size_t COORD_STRID
 // identify the image cell where the particular pixel belongs to
 size_t inline pix_position(const std::vector<double>& qi, const std::vector<size_t>& pax,
     const std::vector<double>& cut_range, const std::vector<double>& bin_step,
-    const std::vector<size_t>& bin_cell_range, const std::vector<size_t>& stride)
+    const std::vector<size_t>& bin_cell_idx_range, const std::vector<size_t>& stride)
 {
     size_t il(0);
     for (size_t j = 0; j < pax.size(); j++) {
         auto bin_idx = pax[j];
         auto cell_idx = (size_t)std::floor((qi[bin_idx] - cut_range[2 * bin_idx]) * bin_step[j]);
-        if (cell_idx > bin_cell_range[j])
-            cell_idx = bin_cell_range[j];
+        if (cell_idx > bin_cell_idx_range[j])
+            cell_idx = bin_cell_idx_range[j];
         il += cell_idx * stride[j];
     }
     return il;
@@ -42,8 +41,8 @@ size_t inline pix_position(const std::vector<double>& qi, const std::vector<size
  *   according to the image. Template instantiacted on the basis of SRC (source type)
  *   and TRG (target type)
  */
-template <class SRC,class TRG>
-size_t bin_pixels(double* const npix, double* const s, double* const e, BinningArg* const bin_par_ptr)
+template <class SRC, class TRG>
+size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<double>& e, BinningArg* const bin_par_ptr)
 {
     // numbers of bins in the grid
     auto distribution_size = bin_par_ptr->n_grid_points();
@@ -67,12 +66,12 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     std::vector<double> bin_step = bin_par_ptr->bin_step;
     std::vector<size_t> pax = bin_par_ptr->pax; // projection axis
     std::vector<size_t> stride = bin_par_ptr->stride;
-    std::vector<size_t> bin_cell_range = bin_par_ptr->bin_cell_range;
+    std::vector<size_t> bin_cell_idx_range = bin_par_ptr->bin_cell_idx_range;
 
     // initialize space for calculating pixel data ranges
     auto pix_range_ids = (bin_par_ptr->pix_data_range_ptr == nullptr) ? 0 : 2 * pix_flds::PIX_WIDTH;
     std::span<double> pix_ranges(mxGetPr(bin_par_ptr->pix_data_range_ptr), pix_range_ids);
-    if (bin_par_ptr->binMode > opModes::sigerr_cell && pix_range_ids>0) { // higher modes process pixel ranges
+    if (bin_par_ptr->binMode > opModes::sigerr_cell && pix_range_ids > 0) { // higher modes process pixel ranges
         init_min_max_range_calc(pix_ranges, pix_flds::PIX_WIDTH);
     }
     bool check_pix_selection = bin_par_ptr->check_pix_selection && (pix_coord_ptr != nullptr);
@@ -88,7 +87,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_range, stride);
+            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
             npix[il]++;
         }
         break;
@@ -105,7 +104,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_range, stride);
+            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
             // calculate npix accumulators
             npix[il]++;
             // calculate signal and error accumulators
@@ -116,11 +115,11 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
     }
     case (opModes::sigerr_cell): {
         std::vector<double*> accum_ptr(2);
-        accum_ptr[0] = s;
-        accum_ptr[1] = e;
+        accum_ptr[0] = s.data();
+        accum_ptr[1] = e.data();
 
         auto n_cells_to_bin = bin_par_ptr->n_Cells_to_bin;
-        std::vector<const double*> cell_data_ptr(n_cells_to_bin,nullptr);
+        std::vector<const double*> cell_data_ptr(n_cells_to_bin, nullptr);
 
         // fill in cell_data_ptr with pointers to contents of cell data to bin
         for (auto i = 0; i < n_cells_to_bin; i++) {
@@ -135,7 +134,7 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_range, stride);
+            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
             // calculate npix accumulators
             npix[il]++;
             // calculate signal and, if necessary error accumulators
@@ -148,9 +147,10 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
         break;
     }
     case (opModes::sort_pix): {
-        std::vector<long> pix_ok_binidx;
-        std::vector<size_t> bin_start;
-        pix_ok_binidx.swap(bin_par_ptr->pix_ok_bin_idx);
+        std::vector<long> pix_ok_bin_idx;
+        pix_ok_bin_idx.swap(bin_par_ptr->pix_ok_bin_idx);
+        std::vector<size_t> npix1;
+        npix1.swap(bin_par_ptr->npix1);
         for (long i = 0; i < data_size; i++) {
             // drop out coordinates outside of the binning range
             if (out_of_ranges<SRC>(coord_ptr, i, COORD_STRIDE, cut_range, qi))
@@ -162,37 +162,44 @@ size_t bin_pixels(double* const npix, double* const s, double* const e, BinningA
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_range, stride);
-            // calculate npix accumulators
-            npix[il]++;
+            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            // calculate npix accumulators for sinle page of pixels
+            npix1[il]++;
             // calculate signal and error accumulators
             s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
             e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
-            pix_ok_binidx[i] = il;
+            pix_ok_bin_idx[i] = il;
             // calculate pix ranges
             calc_pix_ranges<SRC>(pix_ranges, pix_coord_ptr, PIX_STRIDE, i);
         }
-        // allocate memory for resulting pixels
-        TRG* sorted_pix_ptr(nullptr);
-        bin_par_ptr->pix_ok_ptr = allocate_pix_memory<TRG>(PIX_STRIDE, nPixel_retained, sorted_pix_ptr);
+        // allocate memory for pixels to retain.
+        TRG* sorted_pix_ptr(nullptr); // pointer to the actual data position.
+        bin_par_ptr->pix_ok_ptr = allocate_pix_memory<TRG>(pix_flds::PIX_WIDTH, nPixel_retained, sorted_pix_ptr);
         // calculate ranges of cells to place pixels
+        std::vector<size_t> bin_start;
         bin_start.swap(bin_par_ptr->npix_bin_start);
         bin_start[0] = 0;
-        for (size_t i = 1; i < distribution_size; i++) {
-            bin_start[i] = bin_start[i - 1] + npix[i];
+        if (distribution_size > 1) {
+            for (size_t i = 1; i < distribution_size; i++) {
+                bin_start[i] = bin_start[i - 1] + npix1[i - 1]; // range of cell to place pixels
+                npix[i] += npix1[i]; // increase multicall accumulators
+            }
+        } else {
+            npix[0] += npix1[0];
         }
         // actually sort pixels and copy selected pixels into proper locations within the target array
         for (size_t i = 0; i < data_size; i++) {
-            if (pix_ok_binidx[i] < 0) // drop pixels with have not been inculded above
+            if (pix_ok_bin_idx[i] < 0) // drop pixels with have not been inculded above
                 continue;
 
-            size_t il = (size_t)pix_ok_binidx[i];  // number of cell pixel should go to
+            size_t il = (size_t)pix_ok_bin_idx[i]; // number of cell pixel should go to
             auto cell_pix_ind = bin_start[il]++; // pixel position within the array defined by cell
             copy_pixels<SRC, TRG>(pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); // copy all pixel data into the location requested
         }
         // swap memory of working arrays back to binning_arguments to retain it for the next call
-        bin_par_ptr->pix_ok_bin_idx.swap(pix_ok_binidx);
+        bin_par_ptr->pix_ok_bin_idx.swap(pix_ok_bin_idx);
         bin_par_ptr->npix_bin_start.swap(bin_start);
+        bin_par_ptr->npix1.swap(npix1);
         break;
     }
     default: {

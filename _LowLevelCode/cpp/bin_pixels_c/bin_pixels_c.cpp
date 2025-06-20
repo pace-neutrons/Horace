@@ -62,23 +62,24 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         return;
     }
     try {
-        auto npix_ptr = mxGetPr(bin_par_ptr->class_ptr->npix_ptr);
-        auto signal_ptr = mxGetPr(bin_par_ptr->class_ptr->signal_ptr);
-        auto error_ptr = mxGetPr(bin_par_ptr->class_ptr->error_ptr);
+        auto distr_size = bin_par_ptr->class_ptr->distr_size;
+        std::span<double> npix(mxGetPr(bin_par_ptr->class_ptr->npix_ptr), distr_size);
+        std::span<double> signal(mxGetPr(bin_par_ptr->class_ptr->signal_ptr),distr_size);
+        std::span<double> error(mxGetPr(bin_par_ptr->class_ptr->error_ptr),distr_size);
         auto transfType = bin_par_ptr->class_ptr->InOutTypeTransf;
 
         size_t num_pixels_retained(0);
         switch (transfType) {
         case (InOutTransf::InCrd8OutPix8): {
-            num_pixels_retained = bin_pixels<double, double>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+            num_pixels_retained = bin_pixels<double, double>(npix, signal, error, bin_par_ptr->class_ptr);
             break;
         }
         case (InOutTransf::InCrd4OutPix8): {
-            num_pixels_retained = bin_pixels<float,double>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+            num_pixels_retained = bin_pixels<float,double>(npix, signal, error, bin_par_ptr->class_ptr);
             break;
         }
         case (InOutTransf::InCrd4OutPix4): {
-            num_pixels_retained = bin_pixels<float,float>(npix_ptr, signal_ptr, error_ptr, bin_par_ptr->class_ptr);
+            num_pixels_retained = bin_pixels<float,float>(npix, signal, error, bin_par_ptr->class_ptr);
             break;
         }
         }

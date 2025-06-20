@@ -20,6 +20,87 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             [~,n_errors] = check_horace_mex();
             obj.no_mex = n_errors > 0;
         end
+        %==================================================================        
+        function test_bin_pixels_mex_nomex_mode5_multipage0Dim(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            AB = AxesBlockBase_tester('nbins_all_dims',[1,1,1,1], ...
+                'img_range',[0,0,0,0;0.8,0.8,1,0.8]);
+            pix_coord1 = rand(9,20);
+            pix_coord2 = rand(9,15);
+            pix1 = PixelDataMemory(pix_coord1);
+            pix2 = PixelDataMemory(pix_coord2);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+
+            npix_nom = [];   s_nom    = [];   e_nom    = [];
+            in_coord = pix1.coordinates;
+            [npix_nom,s_nom,e_nom,pix_ok_nom1] = AB.bin_pixels(in_coord,npix_nom,s_nom,e_nom,pix1);
+            in_coord = pix2.coordinates;
+            [npix_nom,s_nom,e_nom,pix_ok_nom2] = AB.bin_pixels(in_coord,npix_nom,s_nom,e_nom,pix2);
+            assertEqual(size(npix_nom),[1,1]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            npix_mex = []; s_mex    = [];   e_mex    = [];
+
+            in_coord = pix1.coordinates;
+            [npix_mex,s_mex,e_mex,pix_ok_mex1] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix1);
+            assertEqual(pix_ok_nom1,pix_ok_mex1);            
+            in_coord = pix2.coordinates;
+            [npix_mex,s_mex,e_mex,pix_ok_mex2] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix2);
+            assertEqual(size(npix_nom),[1,1]);
+
+            assertEqual(npix_mex,npix_nom);
+            assertEqualToTol(s_mex,s_nom,'tol',[1.e-12,1.e-12]);
+            assertEqualToTol(e_mex,e_nom,'tol',[1.e-12,1.e-12]);
+
+            assertEqual(pix_ok_nom2,pix_ok_mex2);
+        end
+        
+
+        function test_bin_pixels_mex_nomex_mode5_multipage(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,20,1], ...
+                'img_range',[0,0,0,0;0.8,0.8,1,0.8]);
+            pix_coord1 = rand(9,10);
+            pix_coord2 = rand(9,20);
+            pix1 = PixelDataMemory(pix_coord1);
+            pix2 = PixelDataMemory(pix_coord2);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+
+            npix_nom = [];   s_nom    = [];   e_nom    = [];
+            in_coord = pix1.coordinates;
+            [npix_nom,s_nom,e_nom,pix_ok_nom1] = AB.bin_pixels(in_coord,npix_nom,s_nom,e_nom,pix1);
+            in_coord = pix2.coordinates;
+            [npix_nom,s_nom,e_nom,pix_ok_nom2] = AB.bin_pixels(in_coord,npix_nom,s_nom,e_nom,pix2);
+            assertEqual(size(npix_nom),[10,20]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            npix_mex = []; s_mex    = [];   e_mex    = [];
+
+            in_coord = pix1.coordinates;
+            [npix_mex,s_mex,e_mex,pix_ok_mex1] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix1);
+            assertEqual(pix_ok_nom1,pix_ok_mex1);            
+            in_coord = pix2.coordinates;
+            [npix_mex,s_mex,e_mex,pix_ok_mex2] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix2);
+            assertEqual(size(npix_nom),[10,20]);
+
+            assertEqual(npix_mex,npix_nom);
+            assertEqualToTol(s_mex,s_nom);
+            assertEqualToTol(e_mex,e_nom);
+
+
+            assertEqual(pix_ok_nom2,pix_ok_mex2);
+        end
+
         function test_bin_pixels_mode5_sorting(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to bin pixels in mode 5');
@@ -42,7 +123,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(npix_mex,npix_nom);
             assertEqual(s_mex,s_nom);
             assertEqual(e_mex,e_nom);
-            assertEqualToTol(pix_ok_nom,pix_ok_mex);            
+            assertEqualToTol(pix_ok_nom,pix_ok_mex);
         end
 
         function test_bin_pixels_inputs_mode5_twice(obj)
@@ -65,7 +146,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             % range matrix have been allocated and probably contains zeros
             % but this is not guaranteed.
             assertEqual(size(out_data.pix_ok_data_range),[2,9]);
-            
+
 
             assertEqual(size(npix),[10,20,30,40]);
             assertEqual(npix,zeros(10,20,30,40));
@@ -88,7 +169,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(pix_ok.data_range,out_data.pix_ok_data_range);
             % range matrix have been allocated and probably contains zeros
             % but this is not guaranteed.
-            assertEqual(size(out_data.pix_ok_data_range),[2,9]);           
+            assertEqual(size(out_data.pix_ok_data_range),[2,9]);
 
             assertEqual(size(npix_out),[10,20,30,40]);
             assertEqual(npix,npix_out);
@@ -98,7 +179,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(out_data.coord_in,in_coord);
             assertEqual(out_data.pix_candidates,pix_coord2);
         end
-        
+
         function test_return_inputs_mex_mode5_2D(obj)
             % bin pixels and sort pixels, input/output parameters
             if obj.no_mex

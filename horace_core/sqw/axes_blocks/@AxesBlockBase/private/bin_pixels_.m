@@ -181,7 +181,7 @@ end
 
 if ndims == 0
     for i=1:ndata
-        out{i} = out{i}+sum(bin_values{i});
+        out{i} = out{i}+sum(bin_values{i}(ok));
     end
 else
     for i=1:ndata
