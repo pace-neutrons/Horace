@@ -186,6 +186,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
                 npix[i] += npix1[i]; // increase multicall accumulators
             }
         }
+        bool align_result = bin_par_ptr->alignment_matrix.size() == 9;
         // actually sort pixels and copy selected pixels into proper locations within the target array
         for (size_t i = 0; i < data_size; i++) {
             if (pix_ok_bin_idx[i] < 0) // drop pixels with have not been inculded above
@@ -193,7 +194,13 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
 
             size_t il = (size_t)pix_ok_bin_idx[i]; // number of cell pixel should go to
             auto cell_pix_ind = bin_start[il]++; // pixel position within the array defined by cell
-            copy_pixels<SRC, TRG>(pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); // copy all pixel data into the location requested
+            if (align_result) {
+                // align q-coordinates and copy all other pixel data into the location requested
+                align_and_copy_pixels<SRC, TRG>(bin_par_ptr->alignment_matrix,pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); 
+            } else {
+                copy_pixels<SRC, TRG>(pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); // copy all pixel data into the location requested
+            }
+
         }
         // swap memory of working arrays back to binning_arguments to retain it for the next call
         bin_par_ptr->pix_ok_bin_idx.swap(pix_ok_bin_idx);

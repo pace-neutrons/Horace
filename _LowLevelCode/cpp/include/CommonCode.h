@@ -76,6 +76,35 @@ inline void copy_pixels(SRC const* const pixel_data, long source_pos, TRG * cons
         pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
     }
 };
+// Align and copy pixels from source to target array template <class SRC, class TRG>
+template <class SRC, class TRG>
+inline void align_and_copy_pixels(std::vector<double> &al_matr,SRC const* const pixel_data, long source_pos, TRG* const pix_sorted_ptr, size_t targ_pos)
+{
+    //
+    targ_pos *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+    // in the pixels array
+    source_pos *= pix_flds::PIX_WIDTH;
+    for (size_t i = 0; i < 3; i++) {
+        pix_sorted_ptr[targ_pos + i] = 0;
+        for (size_t j = 0; j < 3; j++) {
+            pix_sorted_ptr[targ_pos + i] += static_cast<TRG>((double)(pixel_data[source_pos + j]) * al_matr[j*3+i]);
+        }
+    }
+
+    for (size_t i = 3; i < pix_flds::PIX_WIDTH; i++) {
+        pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
+    }
+};
+/*
+void vec_to_mat_multiply() {
+    // Multiply: result[j] = sum over i of vec[i] * A[i][j]
+    for (size_t j = 0; j < M; ++j) {
+        for (size_t i = 0; i < N; ++i) {
+            result[j] += vec[i] * mat[i * M + j]; // A[i][j] = mat[i * M + j]
+        }
+    }
+}
+*/
 
 /* Initialize pixel ranges for calculating correct range.
  *  This means assigning to min/max holders values which are completely invalid, namely
@@ -156,6 +185,7 @@ T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
     }
     return static_cast<T>(*mxGetPr(pPar));
 };
+
 
 
 class omp_storage
