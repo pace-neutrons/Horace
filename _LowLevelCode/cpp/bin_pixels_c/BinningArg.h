@@ -116,7 +116,7 @@ public:
     std::vector<size_t> stride; // vector, which describes binning steps reflecting multidimensional array strides
     std::vector<size_t> bin_cell_range; // vector containing allowed ranges of the binning (with nbins_all_dims>1) cells in binning directions
     // auxiliary array containing pixel indices over bins
-    std::vector<size_t> pix_ok_bin_idx;
+    std::vector<long> pix_ok_bin_idx;
     // auxiliary array defining ranges of the bins to sort pixels over
     std::vector<size_t> npix_bin_start;
 

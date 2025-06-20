@@ -81,7 +81,7 @@ void sort_pixels_by_bins( TG * const pPixelSorted, size_t nPixelsSorted, double 
             auto cell_pix_ind = ppInd[ind]++;       // pixel position within a cell
 
             if (calc_pix_range) {
-                calc_pix_ranges<ST>(pix_range, pPixData, j);
+                calc_pix_ranges<ST>(pix_range, pPixData,pix_flds::PIX_WIDTH, j);
             }
             copy_pixels<ST, TG>(pPixData, j, pPixelSorted, cell_pix_ind); // copy all pixel data into the location requested
         }

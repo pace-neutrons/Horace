@@ -760,20 +760,24 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         if (this->n_data_points > this->pix_ok_bin_idx.size()) {
             this->pix_ok_bin_idx.resize(this->n_data_points);
         }
+        // fill all positions of the pix_ok vector with certainly invalid value. Index can not be negative
+        // this will indicate invalid elements
+        std::fill(this->pix_ok_bin_idx.begin(), this->pix_ok_bin_idx.end(), -1);
         if (this->npix_bin_start.size() != distr_size) {
             this->npix_bin_start.resize(distr_size);
         }
+        // ranges calculated per each pixels block, i.e. calculations per call to bin_pixels_c
         this->pix_data_range_ptr = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
     }
 }
 
 /* get array of dimensions to allocate in the form appropriate for using with Matlab *mxCreateNumericArray
-** function. 
+** function.
 * Returns:
 * pointer to MATLAB array which defines dimensions for mxCreateNumericArray function
 * distr_size -- total number of elements in this numerical array (product of all its dimensions)
 **/
-mwSize* BinningArg::get_Matlab_acc_dimensions(size_t &distr_size)
+mwSize* BinningArg::get_Matlab_acc_dimensions(size_t& distr_size)
 {
     distr_size = 1;
     this->accumulator_dims_holder.clear();

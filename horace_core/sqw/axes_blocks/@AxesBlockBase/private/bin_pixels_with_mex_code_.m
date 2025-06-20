@@ -149,6 +149,10 @@ else % return mex_holder, npix, s, e, field_names, field_values for the fields
     out = cell(1,6);
 end
 
+% mex code preserves its state between calls unless mex_code_holder is
+% changed or input npix array provided as input is empty or bin_pixels_c('clear') 
+% is called explicitly somewhere from MATLAB session. 
+% This behaviour should be accounted for whien binning is used in a loop !!!
 varargout = cell(1,nargout);
 [out{:}] = bin_pixels_c(mex_code_holder,npix,s,err,other_mex_input);
 mex_code_holder = out{1};

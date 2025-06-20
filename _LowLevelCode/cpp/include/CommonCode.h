@@ -65,7 +65,7 @@ enum pix_flds
 
 // Copy pixels from source to target array
 template<class SRC,class TRG> 
-inline void copy_pixels(SRC const* const pixel_data, long source_pos, TRG * const pPixelSorted, size_t targ_pos)
+inline void copy_pixels(SRC const* const pixel_data, long source_pos, TRG * const pix_sorted_ptr, size_t targ_pos)
 {
     //
     targ_pos *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
@@ -73,7 +73,7 @@ inline void copy_pixels(SRC const* const pixel_data, long source_pos, TRG * cons
     source_pos *= pix_flds::PIX_WIDTH;
 
     for (size_t i = 0; i < pix_flds::PIX_WIDTH; i++) {
-        pPixelSorted[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
+        pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
     }
 };
 
@@ -91,40 +91,38 @@ inline void init_min_max_range_calc(std::span<double>& pix_ranges, size_t PIX_ST
 };
 
 // identify range of all pixel coordinates for given inital pixels position
-template <class TP>
-void inline calc_pix_ranges(std::span<double>& pix_ranges, TP const* const pix_coord_ptr, size_t PIX_STRIDE, size_t i)
+template <class SRC>
+void inline calc_pix_ranges(std::span<double>& pix_ranges, SRC const* const pix_data_ptr, size_t PIX_STRIDE, size_t i)
 {
     size_t ip0 = i * PIX_STRIDE;
     for (size_t j = 0; j < PIX_STRIDE; j++) {
-        pix_ranges[2 * j] = std::min(pix_ranges[2 * j], (double)pix_coord_ptr[ip0 + j]);
-        pix_ranges[2 * j + 1] = std::max(pix_ranges[2 * j + 1], (double)pix_coord_ptr[ip0 + j]);
+        pix_ranges[2 * j] = std::min(pix_ranges[2 * j], (double)pix_data_ptr[ip0 + j]);
+        pix_ranges[2 * j + 1] = std::max(pix_ranges[2 * j + 1], (double)pix_data_ptr[ip0 + j]);
     }
 };
+
 // allocate pixels memory 
-template<class TP> 
-mxArray* allocate_pix_memory(size_t PIX_WIDTH, size_t N_ELEMENTS, TP*& data_ptr) { 
+template<class TRG> 
+mxArray* allocate_pix_memory(size_t PIX_WIDTH, size_t N_ELEMENTS, TRG*& data_ptr)
+{ 
     mxArray* pix_ptr(nullptr);
-    if constexpr (std::is_same_v<TP, double>) {
+    if constexpr (std::is_same_v<TRG, double>) {
         pix_ptr = mxCreateDoubleMatrix(PIX_WIDTH, N_ELEMENTS, mxREAL);
-        if (pix_ptr == nullptr) {
-            std::stringstream buf;
-            buf << "Can not allocate memory for: " << N_ELEMENTS << " resuting binned pixels";
-            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
-                buf.str().c_str());
-        }
-        data_ptr = mxGetPr(pix_ptr);
-    } else if constexpr (std::is_same_v<TP,float>) {
+        if (pix_ptr)
+            data_ptr = mxGetPr(pix_ptr);
+    } else if constexpr (std::is_same_v<TRG, float>) {
         pix_ptr = mxCreateNumericMatrix(PIX_WIDTH, N_ELEMENTS, mxSINGLE_CLASS, mxREAL);
-        if (pix_ptr == nullptr) {
-            std::stringstream buf;
-            buf << "Can not allocate memory for: " << N_ELEMENTS << " resuting binned pixels";
-            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
-                buf.str().c_str());
-        }
-        data_ptr = reinterpret_cast<float*>(mxGetPr(pix_ptr));
+        if (pix_ptr)
+            data_ptr = reinterpret_cast<float*>(mxGetPr(pix_ptr));
     } else {
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
             "Attempt to allocate memory for unsupported type of variable. Only float and double are supported");
+    }
+    if (pix_ptr == nullptr) {
+        std::stringstream buf;
+        buf << "Can not allocate memory for: " << N_ELEMENTS << " resuting binned pixels";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
+            buf.str().c_str());
     }
     return pix_ptr;
 };
@@ -159,12 +157,6 @@ T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
     return static_cast<T>(*mxGetPr(pPar));
 };
 
-/** Identify type of MATLAB's provided input array and retrieve appropriate pointer to its data
-//plus size and shape of the pixels array
-void get_pix_info(void) {
-
-};
-*/
 
 class omp_storage
     /** Class to manage dynamical storage used in OMP loops

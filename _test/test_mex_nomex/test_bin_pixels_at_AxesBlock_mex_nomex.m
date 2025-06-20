@@ -20,7 +20,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             [~,n_errors] = check_horace_mex();
             obj.no_mex = n_errors > 0;
         end
-        function test_bin_pixels_mode5(obj)
+        function test_bin_pixels_mode5_sorting(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to bin pixels in mode 5');
             end
@@ -42,7 +42,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(npix_mex,npix_nom);
             assertEqual(s_mex,s_nom);
             assertEqual(e_mex,e_nom);
-            assertEqual(pix_ok_nom,pix_ok_mex);            
+            assertEqualToTol(pix_ok_nom,pix_ok_mex);            
         end
 
         function test_bin_pixels_inputs_mode5_twice(obj)
