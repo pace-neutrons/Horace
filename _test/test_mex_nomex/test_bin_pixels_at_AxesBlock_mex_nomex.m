@@ -20,7 +20,97 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             [~,n_errors] = check_horace_mex();
             obj.no_mex = n_errors > 0;
         end
-        %==================================================================        
+        %==================================================================
+        function performance_mex_mode5_for_profile(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            % this will recover existing configuration after test have been
+            % finished and temporary mex/nomex values will be set within
+            % the loop.
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true,'log_level',-1);
+            %
+            AB = AxesBlockBase_tester('nbins_all_dims',[50,20,50,20], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+
+            n_points = 20000000;
+            n_repeats = 5;
+            npix_mex   = []; s_mex = [];  e_mex=[];
+
+            t_mex  = zeros(1,n_repeats);
+            pix = PixelDataMemory();
+            disp("*** Mex performance mode5 (bin and sort pixels):")
+            for i= 1:n_repeats
+                fprintf('.')
+                pix_data = rand(9,n_points);
+                pix = pix.set_raw_data(pix_data);
+                coord = pix.coordinates;
+
+                t1 = tic();
+                [npix_mex,s_mex,e_mex,pix_ok_mex] = AB.bin_pixels(coord,npix_mex,s_mex,e_mex,pix);
+                t_mex(i) = toc(t1);
+
+            end
+            tav_mex = sum(t_mex)/n_repeats;
+            fprintf( ...
+                '\n*** time of first step : %4.2g(sec)  av time per step: %4.2g(sec)\n', ...
+                t_mex(1),tav_mex);
+
+        end
+        
+        function performance_mex_nomex_mode5(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            % this will recover existing configuration after test have been
+            % finished and temporary mex/nomex values will be set within
+            % the loop.
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false,'log_level',-1);
+            %
+            AB = AxesBlockBase_tester('nbins_all_dims',[50,20,50,20], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+
+            n_points = 20000000;
+            n_repeats = 5;
+            npix_nomex = []; s_nomex = [];e_nomex=[];
+            npix_mex   = []; s_mex = [];  e_mex=[];
+
+            t_nomex = zeros(1,n_repeats);
+            t_mex  = zeros(1,n_repeats);
+            disp("*** Mex/nomex performance mode5 (bin and sort pixels):")
+            for i= 1:n_repeats
+                fprintf('.')
+                pix_data = rand(9,n_points);
+                pix = PixelDataMemory(pix_data);
+                coord = pix.coordinates;
+                config_store.instance.set_value('hor_config','use_mex',false);
+                t1 = tic();
+                [npix_nomex,s_nomex,e_nomex,pix_ok_nom] = AB.bin_pixels(coord,npix_nomex,s_nomex,e_nomex,pix);
+                t_nomex(i) = toc(t1);
+                fprintf('.')
+
+                config_store.instance.set_value('hor_config','use_mex',true);
+
+                t1 = tic();
+                [npix_mex,s_mex,e_mex,pix_ok_mex] = AB.bin_pixels(coord,npix_mex,s_mex,e_mex,pix);
+                t_mex(i) = toc(t1);
+
+                assertEqual(npix_nomex,npix_mex)
+                assertEqualToTol(s_nomex,s_mex,'tol',[1.e-9,1.e-9])
+                assertEqualToTol(e_nomex,e_mex,'tol',[1.e-9,1.e-9])
+                assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-9,1.e-9])
+            end
+            tav_mex = sum(t_mex)/n_repeats;
+            tav_nom = sum(t_nomex)/n_repeats;
+            fprintf( ...
+                '\n*** time of first step,    nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
+                t_nomex(1),t_mex(1),t_nomex(1)/t_mex(1));
+            fprintf( ...
+                '*** Average time per step, nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
+                tav_nom,tav_mex,tav_nom/tav_mex);
+
+        end
+
         function test_bin_pixels_mex_nomex_mode5_multipage0Dim(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
@@ -48,7 +138,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
 
             in_coord = pix1.coordinates;
             [npix_mex,s_mex,e_mex,pix_ok_mex1] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix1);
-            assertEqual(pix_ok_nom1,pix_ok_mex1);            
+            assertEqual(pix_ok_nom1,pix_ok_mex1);
             in_coord = pix2.coordinates;
             [npix_mex,s_mex,e_mex,pix_ok_mex2] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix2);
             assertEqual(size(npix_nom),[1,1]);
@@ -59,7 +149,6 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
 
             assertEqual(pix_ok_nom2,pix_ok_mex2);
         end
-        
 
         function test_bin_pixels_mex_nomex_mode5_multipage(obj)
             if obj.no_mex
@@ -88,7 +177,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
 
             in_coord = pix1.coordinates;
             [npix_mex,s_mex,e_mex,pix_ok_mex1] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix1);
-            assertEqual(pix_ok_nom1,pix_ok_mex1);            
+            assertEqual(pix_ok_nom1,pix_ok_mex1);
             in_coord = pix2.coordinates;
             [npix_mex,s_mex,e_mex,pix_ok_mex2] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix2);
             assertEqual(size(npix_nom),[10,20]);
@@ -498,7 +587,6 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             fprintf( ...
                 '*** Average time per step, nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
                 tav_nom,tav_mex,tav_nom/tav_mex);
-
         end
 
         function test_bin_pixels_mex_nomex_mode3_2Dmultipage(obj)

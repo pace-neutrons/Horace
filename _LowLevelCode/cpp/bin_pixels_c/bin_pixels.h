@@ -179,13 +179,12 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         std::vector<size_t> bin_start;
         bin_start.swap(bin_par_ptr->npix_bin_start);
         bin_start[0] = 0;
+        npix[0] += npix1[0];
         if (distribution_size > 1) {
             for (size_t i = 1; i < distribution_size; i++) {
                 bin_start[i] = bin_start[i - 1] + npix1[i - 1]; // range of cell to place pixels
                 npix[i] += npix1[i]; // increase multicall accumulators
             }
-        } else {
-            npix[0] += npix1[0];
         }
         // actually sort pixels and copy selected pixels into proper locations within the target array
         for (size_t i = 0; i < data_size; i++) {
