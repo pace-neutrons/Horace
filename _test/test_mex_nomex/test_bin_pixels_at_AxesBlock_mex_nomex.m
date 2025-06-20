@@ -57,7 +57,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
                 t_mex(1),tav_mex);
 
         end
-        
+
         function performance_mex_nomex_mode5_and_align(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
@@ -75,15 +75,20 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             npix_nomex = []; s_nomex = [];e_nomex=[];
             npix_mex   = []; s_mex = [];  e_mex=[];
 
+            al_matr = rotvec_to_rotmat([10,20,15]);
 
             t_nomex = zeros(1,n_repeats);
             t_mex  = zeros(1,n_repeats);
-            disp("*** Mex/nomex performance mode5 (bin and sort pixels):")
+            disp("*** Mex/nomex performance mode5 (bin and sort pixels applying alignment):")
             for i= 1:n_repeats
                 fprintf('.')
                 pix_data = rand(9,n_points);
-                pix = PixelDataMemory(pix_data);
+                pix = PixelDataMemAlTester(pix_data);
                 coord = pix.coordinates;
+                % set alignment matrix but do not apply alignment.
+                % (Simulate filebased pixels)
+                pix.alignment_matr = al_matr;
+
                 config_store.instance.set_value('hor_config','use_mex',false);
                 t1 = tic();
                 [npix_nomex,s_nomex,e_nomex,pix_ok_nom] = AB.bin_pixels(coord,npix_nomex,s_nomex,e_nomex,pix);
@@ -97,9 +102,9 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
                 t_mex(i) = toc(t1);
 
                 assertEqual(npix_nomex,npix_mex)
-                assertEqualToTol(s_nomex,s_mex,'tol',[1.e-9,1.e-9])
-                assertEqualToTol(e_nomex,e_mex,'tol',[1.e-9,1.e-9])
-                assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-9,1.e-9])
+                assertEqualToTol(s_nomex,s_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(e_nomex,e_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-12,1.e-12])
             end
             tav_mex = sum(t_mex)/n_repeats;
             tav_nom = sum(t_nomex)/n_repeats;
@@ -110,7 +115,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
                 '*** Average time per step, nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
                 tav_nom,tav_mex,tav_nom/tav_mex);
 
-        end        
+        end
         function performance_mex_nomex_mode5(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
@@ -149,9 +154,9 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
                 t_mex(i) = toc(t1);
 
                 assertEqual(npix_nomex,npix_mex)
-                assertEqualToTol(s_nomex,s_mex,'tol',[1.e-9,1.e-9])
-                assertEqualToTol(e_nomex,e_mex,'tol',[1.e-9,1.e-9])
-                assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-9,1.e-9])
+                assertEqualToTol(s_nomex,s_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(e_nomex,e_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-12,1.e-12])
             end
             tav_mex = sum(t_mex)/n_repeats;
             tav_nom = sum(t_nomex)/n_repeats;
@@ -270,7 +275,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(e_mex,e_nom);
             assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-12,1.e-12]);
         end
-        
+
         function test_bin_pixels_mode5_sorting(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to bin pixels in mode 5');

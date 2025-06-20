@@ -85,10 +85,11 @@ inline void align_and_copy_pixels(std::vector<double> &al_matr,SRC const* const 
     // in the pixels array
     source_pos *= pix_flds::PIX_WIDTH;
     for (size_t i = 0; i < 3; i++) {
-        pix_sorted_ptr[targ_pos + i] = 0;
+        double accum(0);
         for (size_t j = 0; j < 3; j++) {
-            pix_sorted_ptr[targ_pos + i] += static_cast<TRG>((double)(pixel_data[source_pos + j]) * al_matr[j*3+i]);
+            accum += double((pixel_data[source_pos + j])) * al_matr[j*3+i];
         }
+        pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(accum);
     }
 
     for (size_t i = 3; i < pix_flds::PIX_WIDTH; i++) {
