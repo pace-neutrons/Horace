@@ -37,7 +37,9 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 %               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
 %
 %  This method currently fully maintains initial order of pixels present in
-%  input sqw object.
+%  input sqw object. This may change if pixels are processed in parallel
+%  but this, in turn, will request usage of sqw objet's image (npix field)
+%  currenlty not used by the routine.
 %  
 
 % NOTE: Routine assumes that all the contributing spe files have the same
@@ -77,6 +79,7 @@ idx(1,:)   = run_id;
 res_reorder_map = fast_map(double(lng_idx),1:numel(lng_idx));
 
 
+% TODO: possible improvement.
 %----------------- the methods used below may use caches precalculated
 % before the calling here and running calculations
 % over pixels pages. See also one in runid loop below, around row 145
@@ -141,8 +144,8 @@ en_tr_info   = experiment.get_en_transfer(true,true);
 spec_to_rlu  = arrayfun(...
     @(ex) calc_proj_matrix(ex,alatt, angdeg,matrix_id), ix_exper, 'UniformOutput', false);
 
-% allocate common space for result. Improves performance.
-qw = zeros(4,numel(run_id)); % number of run_id is always equal to number of pixels processed
+% allocate common space for result with size equal to number of pixels processed.
+qw = zeros(4,size(idx,2)); %  Improves performance.
 %
 for i=1:n_unique_det_arrays
     run_idx_selected = undet_info.nonunq_idx{i};
@@ -151,7 +154,7 @@ for i=1:n_unique_det_arrays
     idet_4_runs = unique(det_id_selected);    % unique detector ids contribured into runs with these detectors
 
     % calculate detectors directions in instrument coordinate frame.
-    % Possible future improvements:
+    % TODO: Possible future improvements:
     % [Ideally, the values here should be precalculated before call to
     % cacluate_qw_pixels2 and call here would just picks up cached
     % values]
