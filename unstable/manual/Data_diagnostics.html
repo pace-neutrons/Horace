@@ -16,6 +16,7 @@
       <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
       <script src="../_static/doctools.js?v=888ff710"></script>
       <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -53,6 +54,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#run-inspector">3.1. run_inspector</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#split">3.2. split</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#join">3.3. join</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#instrument-view-cut">3.4. Instrument view cut</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
@@ -192,6 +194,112 @@ using <code class="docutils literal notranslate"><span class="pre">split</span><
 <p>The output is:</p>
 <p><code class="docutils literal notranslate"><span class="pre">wout</span></code> - an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object formed of from the <code class="docutils literal notranslate"><span class="pre">w</span></code> input.</p>
 </section>
+<section id="instrument-view-cut">
+<h2><span class="section-number">3.4. </span>Instrument view cut<a class="headerlink" href="#instrument-view-cut" title="Permalink to this heading"></a></h2>
+<p>Normally Horace works with <span class="math notranslate nohighlight">\(S(\vec{Q},\omega)\)</span> scattering function build in reciprocal coordinate system related to a crystal. If sample is not sufficiently large to allow neutrons thermalization or instrument have various problems with its detectors or background scattering, some scattering artefacts may add noise or unrelated signals to measured  <span class="math notranslate nohighlight">\(S(\vec{Q},\omega)\)</span> function.
+These artefacts will have spherical symmetry around the beam direction. To clearly identify such artefacts one may use
+<code class="docutils literal notranslate"><span class="pre">instrument_view_cut</span></code> algorithm:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">instrument_view_cut</span><span class="p">(</span><span class="n">sqw_source</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="n">theta_step</span><span class="p">,</span><span class="n">theta_max</span><span class="p">],[</span><span class="n">En_min</span><span class="p">,</span><span class="n">En_step</span><span class="p">,</span><span class="n">En_max</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p>Where <em>sqw_source</em> is an source <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object with pixels, and two other arguments define binning in two directions. <code class="docutils literal notranslate"><span class="pre">theta</span></code> – the angle between beam and detector directions and <code class="docutils literal notranslate"><span class="pre">En</span></code> are the energy transfer values.
+The algorithm makes the cut in the spherical coordinate system wich z-axis is aligned along the beam direction.
+According to Horace agreement, beam in Horace is directed along <span class="math notranslate nohighlight">\(e_{x}\)</span> coordinate or direction <span class="math notranslate nohighlight">\(\vec{u}\)</span> of the crystal (see Chapter on <a class="reference internal" href="Generating_SQW_files.html#generating-sqw-files"><span class="std std-ref">Generating SQW files</span></a> for details):</p>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../_images/kf_sphere_coordinate_system.png"><img alt="../_images/kf_sphere_coordinate_system.png" src="../_images/kf_sphere_coordinate_system.png" style="width: 500px;" /></a>
+<figcaption>
+<p><span class="caption-text">Spherical coordinate system aligned with the beam and used by <code class="docutils literal notranslate"><span class="pre">instrument_view_cut</span></code>.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The algorithm processes whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> source so takes a while to complete. Picture below shows the result
+of executing this algorithm on two old (2010) MAPS <cite>sqw</cite> files produced without diagnostics running over contributing <code class="docutils literal notranslate"><span class="pre">nxspe</span></code> files.
+There are various instrument artefacts clearly observable on the images. The noisy ADC are not even identifiable by diagnostics.</p>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/InstrumentView_issues.png"><img alt="../_images/InstrumentView_issues.png" src="../_images/InstrumentView_issues.png" style="width: 1200px;" /></a>
+<figcaption>
+<p><span class="caption-text">Various issues identified on instrument view.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The best way of dealing with these kind of issues if they can not be clearly observable from a single run is to use Mantid
+to add together all workspaces intended to use as Horace source data, display them on Mantid instrument view and create hard mask there.</p>
+<p>There is another issue which can be identified by this algorithm usually while diagnosing old <code class="docutils literal notranslate"><span class="pre">sqw</span></code> data, as this issue have been hopefully fully fixed in Horace-4. You may notice, that cut applied over the whole sqw file range suddenly start loosing substantial fraction of pixels. For example, normal cut log for a cut applied over whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file range will look like:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>*** Cutting file-backed sqw object; returning result in file –&gt; ignored as cut contains no pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 1 of 196; Read data for 20000000 pixels – processing data… —–&gt; included  20000000 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>*** Step 2 of 196; Read data for 20000000 pixels – processing data… —–&gt; included  20000000 pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 3 of 196; Read data for 20000000 pixels – processing data… —–&gt;  included  20000000 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>*** Step 4 of 196; Read data for 20000000 pixels – processing data… —–&gt;  included  20000000 pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 5 of 196; Read data for 20000000 pixels – processing data… —–&gt;  included  20000000 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>*** Step 6 of 196; Read data for 20000000 pixels – processing data… —–&gt;  included  20000000 pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 7 of 196; Read data for 20000000 pixels – processing data… —–&gt;  included  20000000 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>*** Step 8 of 196; Read data for 20000000 pixels – processing data… —–&gt;  included  20000000 pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 9 of 196; Read data for 20000000 pixels – processing data… —–&gt;  included  20000000 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>....</p></td>
+</tr>
+</tbody>
+</table>
+<p>Sometimes running cut on old Horace data, despite making <code class="docutils literal notranslate"><span class="pre">instrument_view_cut</span></code> over whole instrument ranges will produce log which look like:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>*** Cutting file-backed sqw object; returning result in file –&gt; ignored as cut contains no pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 1 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included   5162352 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>*** Step 2 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included  10791836 pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 3 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included   5338109 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>*** Step 4 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included         0 pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 5 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included         0 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>*** Step 6 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included    191651 pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 7 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included   7974898 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>*** Step 8 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included  12112223 pixels</p></td>
+</tr>
+<tr class="row-even"><td><p>*** Step 9 of 264; Read data for 20000000 pixels – processing data… —–&gt;  included   1943239 pixels</p></td>
+</tr>
+<tr class="row-odd"><td><p>....</p></td>
+</tr>
+</tbody>
+</table>
+<p>despite the cut is performed over whole instrument ranges. This indicates subtle issue in Horace <code class="docutils literal notranslate"><span class="pre">sqw</span></code> files,
+where they lost synchronization between pixels information and information about crystal orientation.
+To clarify this issue exactly, one may run <code class="docutils literal notranslate"><span class="pre">instrument_view_cut</span></code> with <code class="docutils literal notranslate"><span class="pre">-check_correspondence</span></code> option.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">instrument_view_cut</span><span class="p">(</span><span class="n">source_sqw</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">140</span><span class="p">],[],</span><span class="s">&#39;-check_correspondence&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">wout</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This option force 2D cut in <span class="math notranslate nohighlight">\(|k_{f}|\)</span> - <span class="math notranslate nohighlight">\(dE\)</span> coordinates. As these values are connected by
+arithmetic relationship, the cut in these coordinates should represent a line. If one see a 2-dimensional image instead,
+the correspondence between pixel information describing neutron “pseudo-events” and experiment information describing
+runs and crystal orientation is violated. The following figure represents two <code class="docutils literal notranslate"><span class="pre">sqw</span></code> datasets, where the first one
+was build with correct correspondence between experiment and pixels information and the second one – where
+this correspondence have been broken.</p>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="../_images/InstrumetViewCut_kf_dE_coordinates.png"><img alt="../_images/InstrumetViewCut_kf_dE_coordinates.png" src="../_images/InstrumetViewCut_kf_dE_coordinates.png" style="width: 1200px;" /></a>
+<figcaption>
+<p><span class="caption-text">Correct – a) and broken – b) relationship between experiment information and pixels information.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The dataset with broken pixel-experiment correspondence can be cut, sliced and multifitted, but Tobyfit would not
+produce correct result on it. To use Tobyfit, one needs to rebuild such <code class="docutils literal notranslate"><span class="pre">sqw</span></code> dataser using Horace-4. If you do not
+have original data to reproduce such <code class="docutils literal notranslate"><span class="pre">sqw</span></code> dataset and need to use Tobyfit, contact <a class="reference external" href="mailto:HoraceHelp&#37;&#52;&#48;stfc&#46;ac&#46;uk">HoraceHelp<span>&#64;</span>stfc<span>&#46;</span>ac<span>&#46;</span>uk</a>. The team should
+be able to help you rebuilding such <code class="docutils literal notranslate"><span class="pre">sqw</span></code> dataset.</p>
+</section>
 </section>
 
 
@@ -206,7 +314,7 @@ using <code class="docutils literal notranslate"><span class="pre">split</span><
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Jun 4, 2025, 1:39:40 PM.
+      <span class="lastupdated">Last updated on Jun 24, 2025, 2:16:36 PM.
       </span></p>
   </div>
 
