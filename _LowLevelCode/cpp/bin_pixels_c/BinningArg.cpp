@@ -220,7 +220,7 @@ void BinningArg::set_all_pix(mxArray const* const pField)
         // check cell input and identify number of points stored in cell class
         this->binMode = opModes::sigerr_cell;
         auto nCells = mxGetNumberOfElements(pField);
-        if (nCells > 2) {
+        if (nCells > 3) {
             std::stringstream buf;
             buf << "Binning for more than 2 arrays of values is not supported \n";
             buf << "Provided " << (short)nCells << " cells to bin";
@@ -349,7 +349,7 @@ void BinningArg::set_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, int 
 // calculate steps used in binning over non-unit directions and numbers of these dimensions
 void BinningArg::calc_step_sizes_pax_and_strides()
 {
-    // just in case. Binning parameters shoul not be reinitialized
+    // just in case. Binning parameters should not be reinitialized so these array should be clean anyway
     this->pax.clear();
     this->stride.clear();
     this->bin_step.clear();
@@ -387,6 +387,7 @@ void BinningArg::register_input_methods()
     this->BinParInfo["pix_candidates"] = [this](mxArray const* const pField) { this->set_all_pix(pField); };
     this->BinParInfo["check_pix_selection"] = [this](mxArray const* const pField) { this->set_check_pix_selection(pField); };
     this->BinParInfo["alignment_matr"] = [this](mxArray const* const pField) { this->set_alignment_matrix(pField); };
+    this->BinParInfo["unique_runid"] = [this](mxArray const* const pField) { this->set_unique_runid(pField); };
     this->BinParInfo["test_input_parsing"] = [this](mxArray const* const pField) { this->set_test_input_mode(pField); };
 };
 // register functions used to set output parameters of the binning code
@@ -741,7 +742,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
                 this->error_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
                 nullify_array(this->error_ptr);
             } else {
-                if (this->n_Cells_to_bin == 2) {
+                if (this->n_Cells_to_bin > 1) {
                     this->error_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
                     nullify_array(this->error_ptr);
                 } else {
@@ -769,6 +770,10 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         std::fill(this->npix1.begin(), this->npix1.end(), 0); //nullify accumulators for npix1
         // ranges calculated per each pixels block, i.e. calculations per call to bin_pixels_c
         this->pix_data_range_ptr = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
+        if (init_new_accumulators) {
+            // just in case, clear unique run-id-s set (should be empty anyway at this stage)
+            this->unique_runID.clear();
+        }
     }
 }
 

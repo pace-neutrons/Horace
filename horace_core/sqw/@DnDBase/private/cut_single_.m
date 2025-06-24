@@ -81,7 +81,7 @@ npix = obj.npix;
 s = obj.s.*npix;
 e = obj.e.*npix.^2;
 % rebin data over realigned regions
-data_out = obj.axes.rebin_data({s,e,npix},realigned_axes);
+data_out = obj.axes.rebin_data({s(:),e(:),npix(:)},realigned_axes);
 
 npix = data_out{3};
 [s, e] = normalize_signal(data_out{1}, data_out{2}, npix);

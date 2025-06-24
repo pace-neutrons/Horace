@@ -114,11 +114,13 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         break;
     }
     case (opModes::sigerr_cell): {
-        std::vector<double*> accum_ptr(2);
+        std::vector<double*> accum_ptr(3);
         accum_ptr[0] = s.data();
         accum_ptr[1] = e.data();
-
+        accum_ptr[2] = npix.data();
         auto n_cells_to_bin = bin_par_ptr->n_Cells_to_bin;
+        bool npix_acc_separate = n_cells_to_bin < 3; // values for npix accumulators may be provided in separate array
+        // if they are not, calculate this value anyway
         std::vector<const double*> cell_data_ptr(n_cells_to_bin, nullptr);
 
         // fill in cell_data_ptr with pointers to contents of cell data to bin
@@ -135,8 +137,12 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
 
             // calculate location of pixel within the image grid
             auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
-            // calculate npix accumulators
-            npix[il]++;
+
+            if (npix_acc_separate) {
+                // calculate npix accumulators separately if their value is not provided as input
+                npix[il]++;
+            }
+
             // calculate signal and, if necessary error accumulators
             for (auto j = 0; j < n_cells_to_bin; j++) {
                 auto acc_ptr = accum_ptr[j];
