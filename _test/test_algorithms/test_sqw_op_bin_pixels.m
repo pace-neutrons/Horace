@@ -185,7 +185,6 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
         end
 
         function test_input_binning_pars_accepted(obj)
-
             lp = line_proj;
             out_par = sqw_op_bin_pixels(obj.sqw_2d_obj, ...
                 obj.gauss_sqw_fun,obj.gauss_sigma,lp ,[0,1],[0,1],[0,2],[0,1,10],'-test_input_parsing');
@@ -229,11 +228,87 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             assertEqualToTol(out_par.targ_proj,obj.sqw_2d_obj.data.proj,1.e-7)
             assertEqualToTol(out_par.targ_ax_block,obj.sqw_2d_obj.data.axes,1.e-7,'-ignore_str')
         end
-
     end
     %----------------------------------------------------------------------
-    % DND tests or some undefined input -- test fails gracefully
+    % DND tests, input parametes tests or some undefined input
+    % -- test fails gracefully
     methods
+        %----------------------------------------------------------------------
+        % Test combine options
+        function test_combine_array_accepts_option_combined(obj)
+            out_par = sqw_op_bin_pixels([obj.sqw_2d_obj,obj.sqw_2d_obj], ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,'-combine','-test_input_parsing');
+
+            assertTrue(isstruct(out_par));
+            assertTrue(out_par.test_input_parsing);
+            assertTrue(isfield(out_par,'input_objects'));
+            assertTrue(isa(out_par.input_objects,'sqw'));
+            assertFalse(isfield(out_par,'input_ldrs'));
+            assertEqual(numel(out_par.input_objects),1);
+
+            in_sqw = out_par.input_objects;
+            assertEqual(numel(in_sqw.data.npix),2)
+            assertEqual(in_sqw.data.npix(1),obj.sqw_2d_obj.pix.num_pixels);
+            assertEqual(in_sqw.data.npix(2),obj.sqw_2d_obj.pix.num_pixels);
+            assertTrue(isa(in_sqw.pix,'pixobj_combine_info'))
+        end
+
+        function test_combine_ignored_for_single_input(obj)
+            out_par = sqw_op_bin_pixels(obj.sqw_2d_file, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,'-combine','-test_input_parsing');
+
+            assertTrue(isstruct(out_par));
+            assertTrue(out_par.test_input_parsing);
+            assertTrue(isfield(out_par,'input_objects'));
+            assertTrue(isa(out_par.input_objects,'sqw'));
+            assertTrue(isa(out_par.input_ldrs{1},'sqw_binfile_common'));
+            assertEqual(numel(out_par.input_objects),1);
+
+            in_sqw = out_par.input_objects;
+            assertTrue(isa(in_sqw.pix,'PixelDataMemory'))
+        end
+        function test_combine_accepts_key_value_combined(obj)
+            out_par = sqw_op_bin_pixels({obj.sqw_2d_obj,obj.sqw_2d_obj}, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,'combine',true,'-test_input_parsing');
+
+            assertTrue(isstruct(out_par));
+            assertTrue(out_par.test_input_parsing);
+            assertTrue(isfield(out_par,'input_objects'));
+            assertTrue(isa(out_par.input_objects,'sqw'));
+            assertTrue(isa(out_par.input_ldrs{1},'sqw'));
+            assertEqual(numel(out_par.input_objects),1);
+
+            in_sqw = out_par.input_objects;
+            assertEqual(numel(in_sqw.data.npix),2)
+            assertEqual(in_sqw.data.npix(1),obj.sqw_2d_obj.pix.num_pixels);
+            assertEqual(in_sqw.data.npix(2),obj.sqw_2d_obj.pix.num_pixels);
+            assertTrue(isa(in_sqw.pix,'pixobj_combine_info'))
+        end
+
+        function test_combine_accepts_option_combined(obj)
+            out_par = sqw_op_bin_pixels({obj.sqw_2d_obj,obj.sqw_2d_obj}, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma,'-combine','-test_input_parsing');
+
+            assertTrue(isstruct(out_par));
+            assertTrue(out_par.test_input_parsing);
+            assertTrue(isfield(out_par,'input_objects'));
+            assertTrue(isa(out_par.input_objects,'sqw'));
+            assertTrue(isa(out_par.input_ldrs{1},'sqw'));
+            assertEqual(numel(out_par.input_objects),1);
+
+            in_sqw = out_par.input_objects;
+            assertEqual(numel(in_sqw.data.npix),2)
+            assertEqual(in_sqw.data.npix(1),obj.sqw_2d_obj.pix.num_pixels);
+            assertEqual(in_sqw.data.npix(2),obj.sqw_2d_obj.pix.num_pixels);
+            assertTrue(isa(in_sqw.pix,'pixobj_combine_info'))
+        end
+
+        function test_double_key_pair_option_throw(obj)
+            assertExceptionThrown(@()sqw_op_bin_pixels({obj.sqw_2d_obj,obj.sqw_2d_obj}, ...
+                obj.gauss_sqw_fun,obj.gauss_sigma, ...
+                '-combine','combine',false), ...
+                'HORACE:sqw_op_bin_pixels:invalid_argument');
+        end
         function test_sqw_op_on_dnd_fails(obj)
             fake_dnd = {d4d()};
 

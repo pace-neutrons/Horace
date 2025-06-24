@@ -815,13 +815,9 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         end
 
         function obj = set_full_filename(obj,val)
-            % main part of file path setter. Need checks/modification
-            if ~istext(val)
-                error('HORACE:PixelDataBase:invalid_argument',...
-                    'full_filename must be a string. Received: %s', ...
-                    class(val));
-            end
-            obj.full_filename_ = val;
+            % main part of file path setter.
+            [flpth_,flnm_] = parse_full_filename(val);
+            obj.full_filename_ = fullfile(flpth_,flnm_);
         end
         %
         function obj =  set_metadata(obj,val)

@@ -1,6 +1,6 @@
 function [chunks, idxs, cumulative_sum] = split_vector_max_sum_or_numel(numeric_vector, max_chunk_sum,max_numel)
 %SPLIT_VECTOR_MAX_SUM_OR_NUMEL Split the given vector into a set of sub-vectors such that the
-% sum of each sub-vector has a maximum of max_chunk_sum and less then provided number of elements
+% sum of each sub-vector has a maximum of max_chunk_sum and smaller then provided number of elements
 % or the sub-vector has  length 1.
 %
 % If a value in `numeric_vector` is greater than max_chunk_sum, then that value

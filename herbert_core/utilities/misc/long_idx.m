@@ -1,22 +1,24 @@
 function [idx_lng,minmax_idx] = long_idx(idx_short,minmax_idx)
-%long_idx  construct long index built from array or cellarray of indices in
+%long_idx  construct long index build from array or cellarray of indices in
 % 1 to 3 dimensions to use in data compression and pixels identification
 %
 % Input:
 %  idx_short
-%     either -- [N x numel] array of short indices
-%     or     -- N element cellarray of 1 dimensional arrays representing
-%               indices to process. The indices are interpreted as axes of
-%               N-dimensional box. In this case N currently implemented to
-%               be in the range [1, 3].
+%     either -- [ND x M] array of short indices where ND describes number
+%               of box dimensions and M is the number of short indices to
+%               convert to long for each dimension. ND currently selected
+%               to be 3, though can be modified in a future.
+%     or     -- ND element cellarray of 1 dimensional arrays representing
+%               indices to process. The indices are interpreted as indices
+%               along integer axis points of ND-dimensional box.
 % Optional:
-% minmax_idx -- [N x 2] array of min-max values for input indices.
+% minmax_idx -- [ND x 2] array of min-max values for input indices.
 %               where minmax_idx(:,1) represent minimal and minmax_idx(:,2)
 %               maximal values of input index array.
 %               If not provided, this value is calulated from input indices
-%               using min_max function.
+%               using minmax function.
 %Returns:
-%  idx_lng  -- linear indices of the n-dimensional box built on input
+%  idx_lng  -- linear indices of the n-dimensional box build on input
 %              indices provided.
 %
 
