@@ -21,13 +21,12 @@ function q = calculate_q (ki, kf, detdcn, spec_to_rlu)
 %               i.e. q{1}=qh, q{2}=qk, q{3}=ql
 
 % Use in-place working to save memory (note: bsxfun not needed from 2016b an onwards)
-qtmp = bsxfun(@times,-kf',detdcn);      % -kf in spectrometer axes
-qtmp(1,:) = ki' + qtmp(1,:);            % qspec proper now
-qtmp = mtimesx_horace (spec_to_rlu,reshape(qtmp,[3,1,numel(ki)]));
-qtmp = squeeze(qtmp);
+q = -kf' .* detdcn;
+q(1,:) = ki' + q(1,:);            % qspec proper now
+q = mtimesx_horace (spec_to_rlu, reshape(q, [3, 1, numel(ki)]));
+q = squeeze(q);
 
 % Package output
-q = cell(1,3);
-q{1} = qtmp(1,:)';
-q{2} = qtmp(2,:)';
-q{3} = qtmp(3,:)';
+q = num2cell(q', 1);
+
+end

@@ -4,7 +4,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %
 if numel(varargin)==1 && isstruct(varargin{1})
     % the function is called within a sqw object and the input have been
-    % already processed by parse_funceval_args
+    % already processed by parse_eval_args
     opts = varargin{1};
 else
     [func_handle, pars, opts] = parse_eval_args(win, func_handle, pars, varargin{:});

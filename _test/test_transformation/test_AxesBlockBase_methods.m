@@ -30,20 +30,50 @@ classdef test_AxesBlockBase_methods < TestCase
             obj = obj@TestCase(name);
             obj.working_dir = fileparts(mfilename("fullpath"));
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         %------------------------------------------------------------------
         function test_invalid_binning_arg(~)
             function thrower()
-                ab = AxesBlockBase_tester();                
-                pbin={1:1:10,[],[],[]};                
+                ab = AxesBlockBase_tester();
+                pbin={1:1:10,[],[],[]};
                 abDef = ab.build_from_input_binning(line_axes(),...
-                cell(1,4),pbin);                
+                    cell(1,4),pbin);
             end
-            assertExceptionThrown(@thrower,'HORACE:AxesBlockBase:invalid_argument')
-    
-
+            assertExceptionThrown(@thrower,'HORACE:AxesBlockBase:invalid_argument');
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
+        function test_init_accumulators_3d_opt(~)
+            abt = AxesBlockBase_tester('nbins_all_dims',[10,20,30,5],'img_range',[-1,-2,-3,0;1,2,3,10]);
+            [nbins,s,e] = abt.init_accumulators(3,true);
+            assertEqual(size(nbins),[10,20,30]);
+            assertEqual(size(s),[10,20,30]);
+            assertEqual(size(e),[10,20,30]);
+        end
+        
+        function test_init_accumulators_4d(~)
+            abt = AxesBlockBase_tester('nbins_all_dims',[10,20,30,5],'img_range',[-1,-2,-3,0;1,2,3,10]);
+            [nbins,s,e] = abt.init_accumulators(2,false);
+            assertEqual(size(nbins),[10,20,30,5]);
+            assertEqual(size(s),[10,20,30,5]);
+            assertEqual(size(e),[10,20,30,5]);
+        end
+        
+        function test_init_accumulators_1N_3Dopt(~)
+            abt = AxesBlockBase_tester('nbins_all_dims',[10,20,30,5],'img_range',[-1,-2,-3,0;1,2,3,10]);
+            [nbins,s,e] = abt.init_accumulators(1,true);
+            assertEqual(size(nbins),[10,20,30]);
+            assertTrue(isempty(s));
+            assertTrue(isempty(e));
+        end
+        
+        function test_init_accumulators_1N(~)
+            abt = AxesBlockBase_tester('nbins_all_dims',[10,20,30,5],'img_range',[-1,-2,-3,0;1,2,3,10]);
+            [nbins,s,e] = abt.init_accumulators(1,false);
+            assertEqual(size(nbins),[10,20,30,5]);
+            assertTrue(isempty(s));
+            assertTrue(isempty(e));
+        end
+        %------------------------------------------------------------------
         function test_get_char_size_sphere_proj_col(~)
             pr = sphere_proj('alatt',2*pi,'angdeg',90);
             ax = pr.get_proj_axes_block(cell(1,4),{[0,0.1,1],[45,1,75],[0,10],[0,10]});
@@ -82,7 +112,7 @@ classdef test_AxesBlockBase_methods < TestCase
             sz = ax.get_char_size(pr);
             assertElementsAlmostEqual(sz,[0.3,0.3,6,10]);
         end
-        
+
         function test_get_char_size_line_proj_col(~)
             pr = line_proj('alatt',2*pi,'angdeg',90);
             ax = pr.get_proj_axes_block(cell(1,4),{[-1,0.1,1],[-2,0.2,2],[-3,3],[0,10]});

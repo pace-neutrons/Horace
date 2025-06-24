@@ -1,18 +1,27 @@
 function bin_range = get_cut_range(obj,varargin)
 % return binning range of existing data object, so that cut without
 % parameters, performed within this range would return the same cut
-% as the original object
-% 
+% as the original object i.e:
+%    >>bin_range = sqw_obj.data.axes.get_cut_range();
+%    >>sqw_obj1 = cut(sqw_obj,bin_range{:})
+%    >>assertEqual(sqw_obj1,sqw_obj) % True
+%
 % Optional:
 % -full_range -- if provided, returns 4-element cell array, containing
 %                binning ranges and integration ranges along all 4-D axes.
 %
-% Returns:
+%                To obtain the same cut as the original object, one needs
+%                to retrieve the objects projection i.e.:
+%                >>bin_range = sqw_obj.data.axes.get_cut_range('-full_range');
+%                >>sqw_obj1 = cut(sqw_obj,sqw_obj.data.proj,bin_range{:})
+%                >>assertEqual(sqw_obj1,sqw_obj) % True
 %
+% Returns:
 % bin_range  -- Cellarray of bin ranges in the form [min,step,max] so that
-%               cut(bin_range{:}) would return the same cut, as the
-%               original cut
-% 
+%               cut(sqw_obj,bin_range{:}) would return the same cut, as the
+%               original cut.
+%
+
 [ok,mess,full_range] = parse_char_options(varargin,{'-full_range'});
 if ~ok
     error('HORACE:AxesBlockBase:invalid_argument',mess);
@@ -22,7 +31,7 @@ end
 ndims = numel(obj.pax);
 bin_range = cell(ndims,1);
 if full_range
-    fl_range = cell(4,1);    
+    fl_range = cell(4,1);
 end
 
 for i=1:ndims

@@ -1,16 +1,16 @@
-function [J0_ff,varargout] = getInterpolant(self,IonName)
+function [J0_ff,varargout] = getInterpolant(IonName)
 % Method returns set of functions handles used to
 % calculate magnetic form factor in up to sextupole
 % approximation. Some ions have all coefficients of six order
 % momentum equal to zero.
 %
 %>> Usage:
-%>>mi = MagneticIons('Fe0');
-%>>[J0_ff,J2_ff]=mi.getInterpolant()
-% or 
-%>>[J0_ff,J2_ff,J4_ff]=mi.getInterpolant()
+%
+%>>[J0_ff,J2_ff]=MagneticIons.getInterpolant('Fe0')
 % or
-%>>[J0_ff,J2_ff,J4_ff,J6_ff]=mi.getInterpolant()
+%>>[J0_ff,J2_ff,J4_ff]=MagneticIons.getInterpolant('Fe0')
+% or
+%>>[J0_ff,J2_ff,J4_ff,J6_ff]=MagneticIons.getInterpolant('Fe3')
 %
 % Returns functions, calculating magnetic moment of Fe0 ion
 % up to the sextupole approximation. (all odd decomposition terms
@@ -23,19 +23,11 @@ function [J0_ff,varargout] = getInterpolant(self,IonName)
 %
 %e.g.:
 %>>FF=J0_ff(Q2).^2+J2_ff(Q2).^2;
-%  where Q2==Q.*Q and J0_ff calculates magnetic form factor in zero and
-%  J2_ff -- dipole approximation correspondingly
+%  where Q2==Q.*Q (without 4*pi^2 factor)  and J0_ff calculates magnetic
+%  form factor in zero and J2_ff -- dipole approximation correspondingly
 %
 %
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-
-%
-if ~exist('IonName','var')
-    IonName = self.currentIon;
-end
-par = self.IonParMap_(IonName);
+par = MagneticIons.IonParMap_(IonName);
 
 %ion            A      a     B      b     C      c     D
 %J0_ff = @(x2)((A*exp(-a*x2)+B*exp(-b*x2)+C*exp(-c*x2)+D));
@@ -46,6 +38,3 @@ if nargout>1
         varargout{i}=@(x2)(((par(i+1,1)*exp(-par(i+1,2)*x2)+par(i+1,3)*exp(-par(i+1,4)*x2)+par(i+1,5)*exp(-par(i+1,6)*x2)+par(i+1,7)).*x2));
     end
 end
-
-
-

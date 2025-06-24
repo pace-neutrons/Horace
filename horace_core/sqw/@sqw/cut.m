@@ -131,7 +131,7 @@ return_cut = nargout > 0;
 % Set up new projection properties, related to lattice. This together with
 % projection inputs defines pixels-to-image transformation.
 [targ_proj, pbin, sym, opt] = SQWDnDBase.process_and_validate_cut_inputs(...
-    obj.data,return_cut, varargin{:});
+    obj,return_cut, varargin{:});
 
 
 sz = size(pbin);
