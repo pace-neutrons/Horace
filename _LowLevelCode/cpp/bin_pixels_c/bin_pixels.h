@@ -152,7 +152,9 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         }
         break;
     }
-    case (opModes::sort_pix): {
+    case (opModes::sort_pix):
+    case (opModes::sort_and_uid):
+    {
         std::vector<long> pix_ok_bin_idx;
         pix_ok_bin_idx.swap(bin_par_ptr->pix_ok_bin_idx);
         std::vector<size_t> npix1;
@@ -193,6 +195,8 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             }
         }
         bool align_result = bin_par_ptr->alignment_matrix.size() == 9;
+        size_t targ_pix_pos(0);
+        bool keep_unique_id = bin_par_ptr->binMode == sort_and_uid;
         // actually sort pixels and copy selected pixels into proper locations within the target array
         for (size_t i = 0; i < data_size; i++) {
             if (pix_ok_bin_idx[i] < 0) // drop pixels with have not been inculded above
@@ -202,11 +206,13 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             auto cell_pix_ind = bin_start[il]++; // pixel position within the array defined by cell
             if (align_result) {
                 // align q-coordinates and copy all other pixel data into the location requested
-                align_and_copy_pixels<SRC, TRG>(bin_par_ptr->alignment_matrix,pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); 
+                targ_pix_pos = align_and_copy_pixels<SRC, TRG>(bin_par_ptr->alignment_matrix, pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); 
             } else {
-                copy_pixels<SRC, TRG>(pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); // copy all pixel data into the location requested
+                targ_pix_pos = copy_pixels<SRC, TRG>(pix_coord_ptr, i, sorted_pix_ptr, cell_pix_ind); // copy all pixel data into the location requested
             }
-
+            if (keep_unique_id) {
+                bin_par_ptr->unique_runID.insert(uint32_t(sorted_pix_ptr[targ_pix_pos + pix_flds::irun]));
+            }
         }
         // swap memory of working arrays back to binning_arguments to retain it for the next call
         bin_par_ptr->pix_ok_bin_idx.swap(pix_ok_bin_idx);

@@ -112,12 +112,11 @@ other_mex_input = struct( ...
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
     'nbins_all_dims',nbins_all_dims, ...    % dimensions of binning lattice
-    'unique_runid', unique_runid, ...       % unique run indices of pixels contributing into cut
+    'unique_runid', uint32(unique_runid), ... % unique run indices of pixels contributing into cut
     'force_double', force_double, ...       % make result double precision regardless of input data
     'return_selected',return_selected,...   %
     'test_input_parsing',test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
     );
-other_mex_input.unique_runid = unique_runid;
 
 is_pix = isa(pix_cand,'PixelDataBase');
 if is_pix
@@ -144,27 +143,34 @@ end
 if proc_mode == bin_mode.npix_only
     % return mex_holder, npix, field_names, field_values
     out = cell(1,4);
+    val_num = 4;
+    flds_num  = 3;
 else % return mex_holder, npix, s, e, field_names, field_values for the fields
     % requested by binning mode
     out = cell(1,6);
+    val_num   = 6;
+    flds_num  = 5;
 end
 
 % mex code preserves its state between calls unless mex_code_holder is
-% changed or input npix array provided as input is empty or bin_pixels_c('clear') 
-% is called explicitly somewhere from MATLAB session. 
+% changed or input npix array provided as input is empty or bin_pixels_c('clear')
+% is called explicitly somewhere from MATLAB session.
 % This behaviour should be accounted for whien binning is used in a loop !!!
 varargout = cell(1,nargout);
 [out{:}] = bin_pixels_c(mex_code_holder,npix,s,err,other_mex_input);
 mex_code_holder = out{1};
 varargout{bin_out.npix} = out{2};
 
+out_struc = cell2struct(out{val_num},out{flds_num},2);
+if test_mex_inputs
+    out_struc.binning_mode = bin_mode(out_struc.binning_mode); % convert number returned from C-mex into mode-s enum
+end
+
 if proc_mode == bin_mode.npix_only
     % in this case pix_ok change meaning and contains output data structure
     % directly. The structure itself contains copy of input parameters plus
     % various helper values obtained from input and used during the testing
     % [mp,npix, fields, values] = bin_pixels_c(coord,npix,s,e,other_mex_input);
-
-    out_struc = cell2struct(out{4},out{3},2);
     if ~test_mex_inputs
         npix_retained = npix_retained + out_struc.npix_retained;
         out_struc.npix_retained = npix_retained;
@@ -173,7 +179,6 @@ if proc_mode == bin_mode.npix_only
         varargout{end} = out_struc;
     end
 else  % otherwise, there are no such ouputs, output structure is flattened
-    out_struc = cell2struct(out{6},out{5},2);
     %[mp,npix, s, e, fields, values] = bin_pixels_c(coord,npix,s,e,other_mex_input);
     varargout{bin_out.s} = out{3};
     varargout{bin_out.e} = out{4};
@@ -204,10 +209,13 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if proc_mode< bin_mode.sort_and_uid
         return;
     end
-    
+
     % in modes where these values are not calculated, the code returns
     % empty
     varargout{bin_out.unique_runid}  = out_struc.unique_runid;
+    if proc_mode < bin_mode.nosort
+        return;
+    end
     varargout{bin_out.pix_indx}      = out_struc.pix_idx;
     varargout{bin_out.selected}      = out_struc.selected;
 end

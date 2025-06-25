@@ -65,7 +65,7 @@ enum pix_flds
 
 // Copy pixels from source to target array
 template<class SRC,class TRG> 
-inline void copy_pixels(SRC const* const pixel_data, long source_pos, TRG * const pix_sorted_ptr, size_t targ_pos)
+inline size_t copy_pixels(SRC const* const pixel_data, long source_pos, TRG * const pix_sorted_ptr, size_t targ_pos)
 {
     //
     targ_pos *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
@@ -75,10 +75,11 @@ inline void copy_pixels(SRC const* const pixel_data, long source_pos, TRG * cons
     for (size_t i = 0; i < pix_flds::PIX_WIDTH; i++) {
         pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
     }
+    return targ_pos;
 };
 // Align and copy pixels from source to target array template <class SRC, class TRG>
 template <class SRC, class TRG>
-inline void align_and_copy_pixels(std::vector<double> &al_matr,SRC const* const pixel_data, long source_pos, TRG* const pix_sorted_ptr, size_t targ_pos)
+inline size_t align_and_copy_pixels(std::vector<double> &al_matr,SRC const* const pixel_data, long source_pos, TRG* const pix_sorted_ptr, size_t targ_pos)
 {
     //
     targ_pos *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
@@ -95,6 +96,7 @@ inline void align_and_copy_pixels(std::vector<double> &al_matr,SRC const* const 
     for (size_t i = 3; i < pix_flds::PIX_WIDTH; i++) {
         pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
     }
+    return targ_pos;
 };
 /*
 void vec_to_mat_multiply() {

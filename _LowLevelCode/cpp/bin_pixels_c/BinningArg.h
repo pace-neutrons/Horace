@@ -111,7 +111,7 @@ public:
     // resulting range of pixels
     mxArray* pix_data_range_ptr;
     mxArray* pix_ok_ptr; // pointer to array of all pixels retained after binning
-    std::unordered_set<size_t> unique_runID; // set containing unique run_id-s of the
+    std::unordered_set<uint32_t> unique_runID; // set containing unique run_id-s of the
     // processed pixels
     //********************************************************************************
     // helper values
@@ -159,11 +159,13 @@ protected:
     // register with parameters map all methods which
     void register_output_methods();
     // setters for binning results returned to MATLAB in output structure
-    void set_npix_retained(mxArray* p1, mxArray* p2, int idx, const std::string& name);
+    void return_npix_retained(mxArray* p1, mxArray* p2, int idx, const std::string& name);
     // setter for result of calculating pixels data range
-    void set_pix_range(mxArray* p1, mxArray* p2, int idx, const std::string& name);
+    void return_pix_range(mxArray* p1, mxArray* p2, int idx, const std::string& name);
     // setter for possible pixels
-    void set_pix_ok_data(mxArray* p1, mxArray* p2, int idx, const std::string& name);
+    void return_pix_ok_data(mxArray* p1, mxArray* p2, int idx, const std::string& name);
+    // setter to return unique run_id,.calculated in the call
+    void return_unique_runid(mxArray* p1, mxArray* p2, int idx, const std::string& name);
 
 public:
     BinningArg(); // construction

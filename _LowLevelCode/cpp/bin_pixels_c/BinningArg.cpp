@@ -164,6 +164,40 @@ void BinningArg::set_nbins_all_dims(mxArray const* const pField)
 // holder for the information about unique run_id-s present in the data. Set procedure is non-standard
 void BinningArg::set_unique_runid(mxArray const* const pField)
 {
+    if (mxIsEmpty(pField)) {
+        return;
+    }
+    auto nDims = mxGetNumberOfDimensions(pField);
+    if (nDims != 2) { // get value for computational mode the alogrithm should run
+        std::stringstream buf;
+        buf << "input unique run_id(s) must have to be represented by 1 - dimensional array of values\n";
+        buf << "Provided input is: " << (short)nDims << " dimensional array";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    auto type = mxGetClassID(pField);
+    if (type != mxUINT32_CLASS) {
+        std::stringstream buf;
+        buf << "input unique run_id(s) must have uint32_t type\n";
+        buf << "Provided input has : " << (short)type << " mx - class type";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    auto n_elements = mxGetNumberOfElements(pField);
+    if (n_elements != this->unique_runID.size()) {
+        std::stringstream buf;
+        buf << "Number of input unique run_id(s) " << n_elements << " is different from expected" << this->unique_runID.size() << "\n";
+        buf << "Resetting internal accumulators to the provided values";
+        mexWarnMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+
+        this->unique_runID.clear();
+        uint32_t* unique_runid_ptr = reinterpret_cast<uint32_t*>(mxGetPr(pField));
+        std::span<uint32_t> uique_runid(unique_runid_ptr, n_elements);
+        for (auto runid : uique_runid) {
+            this->unique_runID.insert(runid);
+        }
+    }
 }
 // boolean parameters which would request output transformed pixels always been double regardless of input pixels
 void BinningArg::set_force_double(mxArray const* const pField)
@@ -314,15 +348,39 @@ void BinningArg::set_check_pix_selection(mxArray const* const pField)
     this->check_pix_selection = bool(check_selection);
 }
 //===================================================================================
+// return unique run-id(s) identified during calculations
+void BinningArg::return_unique_runid(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+{
+    mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+    mxArray* unique_runid_ptr(nullptr);
+    if (this->unique_runID.size() == 0) {
+        unique_runid_ptr = mxCreateNumericMatrix(0, 0, mxUINT32_CLASS, mxREAL);
+    } else {
+        // create memory for sorted result
+        unique_runid_ptr = mxCreateNumericMatrix(1, this->unique_runID.size(), mxUINT32_CLASS, mxREAL);
+        auto ids = reinterpret_cast<uint32_t*>(mxGetPr(unique_runid_ptr));
+        // copy data from unordered set to unique_runid
+        std::span<uint32_t> unique_runid(ids, this->unique_runID.size());
+        size_t ic = 0;
+        for (auto it_ids : this->unique_runID) {
+            unique_runid[ic] = it_ids;
+            ic++;
+        }
+        // sort data on unique_runid
+        std::sort(unique_runid.begin(), unique_runid.end());
+    }
+    mxSetCell(pFieldValue, fld_idx, unique_runid_ptr);
+};
+//
 // return number of pixels retained in binning
-void BinningArg::set_npix_retained(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+void BinningArg::return_npix_retained(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
 {
     mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
     mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(this->n_pix_retained));
 };
 
 // return pixel data which belong to binning range if such data were calculated in appropriate mode requested
-void BinningArg::set_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+void BinningArg::return_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
 {
     mxArray* pix_range;
     mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
@@ -334,7 +392,7 @@ void BinningArg::set_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int fl
     mxSetCell(pFieldValue, fld_idx, pix_range);
 };
 // return pixel obtained after binning and may be sorting.Sets up empty matrix if algorithm have not been using pixels
-void BinningArg::set_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+void BinningArg::return_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
 {
     mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
     mxArray* pix_ok(nullptr);
@@ -364,7 +422,7 @@ void BinningArg::calc_step_sizes_pax_and_strides()
             auto step = double(n_bins) / (this->data_range[2 * i + 1] - this->data_range[2 * i]);
             this->pax.push_back(i);
             this->bin_step.push_back(step);
-            this->bin_cell_idx_range.push_back(n_bins-1);
+            this->bin_cell_idx_range.push_back(n_bins - 1);
 
             this->stride.push_back(stride);
             stride *= n_bins;
@@ -393,16 +451,18 @@ void BinningArg::register_input_methods()
 // register functions used to set output parameters of the binning code
 void BinningArg::register_output_methods()
 {
-    this->Mode0ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
+    this->Mode0ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_npix_retained(p1, p2, idx, name); };
 
-    this->Mode3ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
-    this->Mode3ParList["pix_ok_data_range"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_pix_range(p1, p2, idx, name); };
-    this->Mode3ParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_pix_ok_data(p1, p2, idx, name); };
+    this->Mode3ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_npix_retained(p1, p2, idx, name); };
+    this->Mode3ParList["pix_ok_data_range"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_range(p1, p2, idx, name); };
+    this->Mode3ParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_ok_data(p1, p2, idx, name); };
+    this->Mode3ParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
 
     this->out_handlers[opModes::npix_only] = &Mode0ParList;
     this->out_handlers[opModes::sig_err] = &Mode3ParList;
     this->out_handlers[opModes::sigerr_cell] = &Mode3ParList;
     this->out_handlers[opModes::sort_pix] = &Mode3ParList;
+    this->out_handlers[opModes::sort_and_uid] = &Mode3ParList;
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
@@ -555,7 +615,7 @@ void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
     };
 
     this->OutParList["binning_mode"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
-        auto mode = double(this->binMode + 1); // C-modes are smaller then MATLAB modes by 1
+        auto mode = double(this->binMode); //
         mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, mxCreateDoubleScalar(mode));
     };
@@ -638,11 +698,12 @@ void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
         }
         mxSetCell(pFieldValue, fld_idx, al_matr);
     };
-    this->OutParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_npix_retained(p1, p2, idx, name); };
-    this->OutParList["pix_ok_data_range"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_pix_range(p1, p2, idx, name); };
+    this->OutParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_npix_retained(p1, p2, idx, name); };
+    this->OutParList["pix_ok_data_range"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_range(p1, p2, idx, name); };
 
     this->pix_ok_ptr = mxDuplicateArray(this->all_pix_ptr);
-    this->OutParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->set_pix_ok_data(p1, p2, idx, name); };
+    this->OutParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_ok_data(p1, p2, idx, name); };
+    this->OutParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
 
     /* ********************************************************************************
      * retrieve binning parameters form BinningArg class and copy them into output array
@@ -767,7 +828,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
             this->npix_bin_start.resize(this->distr_size);
             this->npix1.resize(this->distr_size);
         }
-        std::fill(this->npix1.begin(), this->npix1.end(), 0); //nullify accumulators for npix1
+        std::fill(this->npix1.begin(), this->npix1.end(), 0); // nullify accumulators for npix1
         // ranges calculated per each pixels block, i.e. calculations per call to bin_pixels_c
         this->pix_data_range_ptr = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
         if (init_new_accumulators) {
@@ -836,7 +897,7 @@ BinningArg::BinningArg()
     , force_double(false)
     , test_inputs(false)
     // accumulators
-    , distr_size(0)  // number of elements in accumulators array
+    , distr_size(0) // number of elements in accumulators array
     , npix_ptr(nullptr)
     , signal_ptr(nullptr)
     , error_ptr(nullptr)

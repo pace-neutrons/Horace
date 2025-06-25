@@ -69,7 +69,8 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 %         npix bins.
 %
 % selected
-%      -- in num_outputs == 7, contains indices of kept pixels
+%      -- in num_outputs == 7, contains logical array with true in place of
+%         kept pixels
 
 pix_ok = [];
 pix_indx = [];
@@ -200,9 +201,10 @@ if mode_to_bin== bin_mode.sigerr_cell
 end
 
 if mode_to_bin > bin_mode.sort_and_uid
-    selected = find(ok);
+    selected = ok;
 elseif return_selected
-    pix_ok = find(ok);
+    pix_ok = ok; % This is mode when instead of resulting pixels one returns
+    % ok array with true where pixels were selected
     return
 end
 
@@ -235,11 +237,11 @@ if ~isa(pix.data,'double') && force_double
     pix = PixelDataBase.create(double(pix.data));
 end
 
-if mode_to_bin < 6 && ndims > 0
+if mode_to_bin < bin_mode.sort_and_uid && ndims > 0
     pix = sort_pix(pix,pix_indx,npix1,[],~force_double);
 end
 
-if mode_to_bin == 6 && ndims == 0
+if mode_to_bin == bin_mode.sort_and_uid && ndims == 0
     pix_indx = ones(pix.num_pixels,1);
 end
 
