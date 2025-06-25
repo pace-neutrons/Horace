@@ -25,12 +25,19 @@ function [info, sym] = get_syms(arg)
 % in the Python environment you supply to Matlab using the pyenv function.
 % On DAaaS you can use the Mantid environment:
 %
-%>>pyenv('Version', '/opt/mantidworkbenchnightly/bin/python')
+%>> pyenv('Version', '/opt/mantidworkbenchnightly/bin/python')
 %
 % or Euphonic one:
 %
-%pyenv('Version', '/mnt/ceph/auxiliary/excitations/isis_direct_soft/euphonic_env/bin/python')
+%>> pyenv('Version', '/mnt/ceph/auxiliary/excitations/isis_direct_soft/euphonic_env/bin/python')
 %
+% Usage example:
+% [info, symops] = get_syms('Fd-3m');
+% proj = line_proj([1 1 0], [-1 1 0]);
+% w1 = cut(sqwfile, proj, [0.01], [-1, 1], [-1, 1], [0.2], symops)
+%
+% Note, that ranges defined in "cut" have to be transformed to each other
+% wrt the projection provided using symmetries obtained from get_syms.
 
 pth = fullfile(horace_paths().horace, 'admin');
 if count(py.sys.path, pwd) == 0
