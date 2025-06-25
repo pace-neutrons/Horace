@@ -53,7 +53,7 @@ void BinningArg::set_binning_mode(mxArray const* const pField)
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             "Binning mode can be defined only by scalar values");
     }
-    auto mode = (opModes)(mxGetScalar(pField) - 1); // C-modes are smaller then MATLAB modes by 1
+    auto mode = (opModes)(mxGetScalar(pField)); // get binning mode from MATLAB
     if (mode < opModes::npix_only || mode >= opModes::N_OP_Modes) {
         std::stringstream buf;
         buf << "Operational modes should be in range from 1 to 7\n";

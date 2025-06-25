@@ -720,17 +720,9 @@ classdef AxesBlockBase < serializable
             if ~ok
                 error('HORACE:AxesBlockBase:invalid_argument',mess)
             end
-            mode = nargout;
-            if (test_mex_inputs || mode ==2) % Test mode adds one output field containing
-                mode = mode-1;   % structure to test and mode 1 may return additional structure without test mode
-            end            
-            if mode >= 4 % mode 4 and mode 3 both have 3 outputs and differ
-                % by input arguments. All higher defined by  nargout+1 formula
-                mode = mode+1;
-            end
-            if mode == 3 && ~isempty(argi) && iscell(argi{end}) % mode 3 and mode 4 have equal number of outputs
-                mode = 4; % and differ by type of input
-            end
+            % identify binning mode as function of number of input
+            % arguments
+            mode = bin_mode.from_narg(nargout-1,test_mex_inputs,argi{:});
 
             % convert different input forms into fully expanded common form
             [npix,s,e,pix_cand,unique_runid,use_mex]=...
@@ -739,7 +731,7 @@ classdef AxesBlockBase < serializable
             % unknown options
             % keep unused argi parameter to tell parse_char_options to ignore
             % unknown options
-            if return_selected && mode ~= 4
+            if return_selected && mode ~= bin_mode.sigerr_cell
                 error('HORACE:AxesBlockBase:invalid_argument', ...
                     'return_selected requested for non pixel cut')
             end
@@ -755,8 +747,8 @@ classdef AxesBlockBase < serializable
                 [varargout{:}] = bin_pixels_( ...
                     obj,coord_transf,mode,...
                     npix,s,e,pix_cand,unique_runid,force_double,return_selected);
-                if mode == 1 && nargout == 2
-                    npix = varargout{1};
+                if mode == bin_mode.npix_only && nargout == 2
+                    npix = varargout{1}; % maintain consistency with mex code which calculates sum(npix(:)) in this case
                     varargout{2} = struct('npix_retained',sum(npix(:)));
                 end
             end
@@ -995,7 +987,7 @@ classdef AxesBlockBase < serializable
             end
         end
         function [npix,s,e,pix_cand,unique_runid,use_mex]=...
-                normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
+                normalize_bin_input(obj,pix_coord_transf,mode_to_bin,varargin)
             % verify inputs of the bin_pixels function and convert various
             % forms of the inputs of this function into a common form,
             % where the missing inputs are returned as empty.
@@ -1004,15 +996,15 @@ classdef AxesBlockBase < serializable
             % pix_coord_transf -- the array of pixels coordinates
             %                     transformed into this AxesBlockBase
             %                      coordinate system
-            % n_argout         -- number of argument, requested by the
+            % bin_mode         -- binning mode, requested by the
             %                     calling function
             % Optional:
-            % Optional:
-            % npix or nothing if mode == 1
-            % npix,s,e accumulators if mode is [4,5,6]
-            % pix_cand  -- if mode == [4,5,6], must be present as a PixelData class
-            %              instance, containing information about pixels
-            % unique_runid -- if mode == [5,6], input array of unique_runid-s
+            % npix or nothing if mode == npix_only
+            % npix,s,e accumulators if mode is higher then sigerr_cell
+            % pix_cand  -- if mode is higher than sigerr_cell. It must be 
+            %              present as a PixelData class instance, 
+            %              containing information about pixels
+            % unique_runid -- if mode == sort_and_id or higher, input array of unique_runid-s
             %                 calculated on the previous step.
             force_3Dbinning = false;
             if size(pix_coord_transf,1) ==3  % Q(3D) binning only. Third axis is always missing
@@ -1020,7 +1012,7 @@ classdef AxesBlockBase < serializable
             end
             [npix,s,e,pix_cand,unique_runid,use_mex]=...
                 normalize_bin_input_(obj,...
-                force_3Dbinning,pix_coord_transf,n_argout,varargin{:});
+                force_3Dbinning,pix_coord_transf,mode_to_bin,varargin{:});
         end
         function obj = set_axis_bins(obj,ndims,p1,p2,p3,p4)
             % Calculates and sets plot and integration axes from binning information

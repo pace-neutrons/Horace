@@ -80,11 +80,15 @@ realigned_axes = obj.axes.realign_bin_edges(target_axes);
 npix = obj.npix;
 s = obj.s.*npix;
 e = obj.e.*npix.^2;
+sz = size(npix);
 % rebin data over realigned regions
-data_out = obj.axes.rebin_data({s(:),e(:),npix(:)},realigned_axes);
+[npix,s,e] = obj.axes.rebin_data({s(:),e(:),npix(:)},realigned_axes);
 
-npix = data_out{3};
-[s, e] = normalize_signal(data_out{1}, data_out{2}, npix);
+
+[s, e] = normalize_signal(s, e, npix);
+s = reshape(s,sz);
+e = reshape(e,sz);
+npix = resape(npix,sz);
 
 
 function [s, e, npix] =  cut_interpolate_data_(obj, targ_proj, targ_axes)

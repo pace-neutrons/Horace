@@ -1,4 +1,4 @@
-function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(obj,coord,bin_mode,...
+function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(obj,coord,mode_to_bin,...
     npix,s,e,pix_cand,unique_runid,force_double,return_selected)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
@@ -10,7 +10,7 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 % obj   -- the initialized AxesBlockBase object with the grid defined
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          AxesBlockBase coordinate system
-% bin_mode
+% mode_to_bin
 %       -- the mode, binning algorithm is working in. Depending
 %          on this number, additional parts of the algorithm will be
 %          deployed.
@@ -79,7 +79,9 @@ selected = [];
 bin_array_size  = obj.nbins_all_dims; % arrays of this size will be allocated too
 ndims           = obj.dimensions;
 data_range      = obj.img_range;
-is_pix = isa(pix_cand,'PixelDataBase');
+is_pix = isa(pix_cand,'PixelDataBase'); % pixel candidates may be either
+% Pixels or cellarray of data to bin size of each array coinciedes with
+% size(coord,2)
 
 pax = obj.pax;
 if size(coord,1) == 4
@@ -94,14 +96,14 @@ end
 
 % collapse first dimension, all along it should be ok for pixel be ok
 if is_pix
-    % Add filter for duplicated pix
+    % Add filter to ignore pix, used previously through symmetry and binning operation
     ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx >= 0;
 else
     ok = all(coord>=r1 & coord<=r2,1);
 end
 
 if ~any(ok)
-    if bin_mode>3 % no further calculations are necessary, so all
+    if mode_to_bin> bin_mode.sig_err % no further calculations are necessary, so all
         % following outputs are processed.
         if iscell(pix_cand)
             npix = zeros(size(s));
@@ -117,6 +119,12 @@ if ~any(ok)
 end
 
 coord = coord(:,ok);
+if is_pix
+    ndata = 2; % set up number of additional in/out accumulators to process
+else % cell with data arrays. so, npix + s+e
+    ndata = numel(pix_cand); % npix + number of arrays in cellarray of data
+    % or just number of arrays in celarray of data depending on mode.
+end
 
 % bin only points in dimensions, containing more then one bin
 n_bins  = bin_array_size(pax);
@@ -144,40 +152,32 @@ else
             pix_indx(on_edge(:,i),i) = n_bins(i);
         end
     end
-    if bin_mode ~= 4
+    if ~(mode_to_bin==bin_mode.sigerr_cell && ndata==3) % npix is always calculated
+        % except this special case, where npix are redistributed.
         % mex code, if deployed below, needs pixels collected during this
-        % particular accumulation.         
+        % particular accumulation i.e. separate npix1.
         [npix,npix1] = cut_data_from_file_job.calc_npix_distribution(pix_indx,npix);
     end
 end
 
-if bin_mode<3
-    return;
+if mode_to_bin == bin_mode.npix_only
+    return; % all done, npix calculated
 end
-
 %--------------------------------------------------------------------------
 % more then 1 output
 % Calculating signal and error
 %--------------------------------------------------------------------------
-
-if is_pix
-    ndata = 2; % set up number of additional in/out accumulators to process
-else % cell with data array
-    ndata = numel(pix_cand);
-end
-
 out = cell(1,ndata);
 out{1} = s;
 out{2} = e;
 
 if is_pix
     bin_values = {pix_cand.signal;pix_cand.variance};
-else % cellarray of arrays to accumulate
+else % cellarray of arrays to accumulate; mode sigerr_cell only?
     bin_values = pix_cand;
-    if ndata>=3 % Output changes type and meaning. Nasty.
-        % Needs something better in a future
-        pix_ok = zeros(size(s));
-        out{3} = pix_ok;
+    if ndata==3 % 
+        npix = zeros(size(s));
+        out{3} = npix;
     end
 end
 
@@ -190,17 +190,16 @@ else
         out{i} = out{i}+accumarray(pix_indx,bin_values{i}(ok),size(npix));
     end
 end
-
 s = out{1};
 e = out{2};
-if bin_mode<4 || ~is_pix
-    if ndata>=3
-        pix_ok = out{3}; % redefine pix_ok to be npix accumulated
+if mode_to_bin== bin_mode.sigerr_cell 
+    if ndata==3
+        npix = out{3};
     end
     return;
 end
 
-if bin_mode > 6
+if mode_to_bin > bin_mode.sort_and_uid
     selected = find(ok);
 elseif return_selected
     pix_ok = find(ok);
@@ -213,7 +212,7 @@ end
 %--------------------------------------------------------------------------
 % s,e,pix_ok,unique_runid,pix_indx
 pix_ok = pix_cand.get_pixels(ok,'-align');
-if bin_mode<5
+if mode_to_bin<bin_mode.sort_and_uid
     return;
 end
 
@@ -236,11 +235,11 @@ if ~isa(pix.data,'double') && force_double
     pix = PixelDataBase.create(double(pix.data));
 end
 
-if bin_mode < 6 && ndims > 0
+if mode_to_bin < 6 && ndims > 0
     pix = sort_pix(pix,pix_indx,npix1,[],~force_double);
 end
 
-if bin_mode == 6 && ndims == 0
+if mode_to_bin == 6 && ndims == 0
     pix_indx = ones(pix.num_pixels,1);
 end
 

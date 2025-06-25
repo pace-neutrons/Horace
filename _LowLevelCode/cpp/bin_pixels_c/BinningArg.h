@@ -4,6 +4,7 @@
 #include <include/CommonCode.h>
 #include <include/MatlabCppClassHolder.hpp>
 #include <map>
+#include <unordered_set>
 #include <numeric>
 #include <string>
 #include <utility/version.h>
@@ -50,7 +51,7 @@ enum opModes {
     sig_err = 2, // calculate npix, signal and error
     sigerr_cell = 3, // signal and error for binning are presented in cellarrays of data rather then pixel data array
     sort_pix = 4, // in additional to binning, return pixels sorted by bins
-    sort_and_id = 5, // in additional to binning and sorting, return unique pixels id
+    sort_and_uid = 5, // in additional to binning and sorting, return unique pixels id
     nosort = 6, // do binning but do not sort pixels but return array which defines pixels position
     //              within the image grid
     nosort_sel = 7, // like 6, but return ?logical? array which specifies what pixels have been selected
@@ -89,7 +90,7 @@ public:
     std::vector<double> alignment_matrix; // if defined, contains 3x3 matrix to use for aligning the pixels
     // vector of unique run-id(s) calculated from pixels data
     bool check_pix_selection; // if true, verify if pixels have been previously selected by a symmetry operation
-    std::vector<double> unique_runID;
+
     // logical variable which request to return transformed pixel data as double precision regardless
     // of their input accuracy.
     bool force_double;
@@ -110,6 +111,8 @@ public:
     // resulting range of pixels
     mxArray* pix_data_range_ptr;
     mxArray* pix_ok_ptr; // pointer to array of all pixels retained after binning
+    std::unordered_set<size_t> unique_runID; // set containing unique run_id-s of the
+    // processed pixels
     //********************************************************************************
     // helper values
     std::vector<double> bin_step; // vector of binning sizes in all non-unit directions

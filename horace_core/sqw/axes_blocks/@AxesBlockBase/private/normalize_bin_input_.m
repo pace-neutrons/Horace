@@ -1,5 +1,5 @@
 function [npix,s,e,pix_cand,unique_runid,use_mex]=...
-    normalize_bin_input_(obj,force_3Dbinning,pix_coord,mode,varargin)
+    normalize_bin_input_(obj,force_3Dbinning,pix_coord,mode_to_bin,varargin)
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
 % inputs are presented as empty outputs or zero-values arrays of the
@@ -12,16 +12,18 @@ function [npix,s,e,pix_cand,unique_runid,use_mex]=...
 %
 % pix_coord -- [3,npix] or [4,npix] or [4x3] numeric array of the pixel
 %               coordinates. If
-% mode       -- operation mode specifying what the following routine should
+% mode_to_bin
+%          -- operation mode specifying what the following routine should
 %              process. The mode is defined by number of output arguments.
 %              Depending on the requested outputs, different inputs have
 %              to be provided.
 % Optional:
-% npix or nothing if mode == 1
-% npix,s,e accumulators if mode is [4,5,6]
-% pix_cand  -- if mode == [4,5,6], must be present as a PixelData class
-%              instance, containing information about pixels
-% unique_runid -- if mode == [5,6], input array of unique_runid-s
+% npix or nothing if mode == npix_only
+% npix,s,e accumulators if mode is higher then sigerr_cell
+% pix_cand  -- if mode is higher than sigerr_cell. It must be
+%              present as a PixelData class instance,
+%              containing information about pixels
+% unique_runid -- if mode == sort_and_id or higher, input array of unique_runid-s
 %                 calculated on the previous step.
 %
 % Outputs:
@@ -39,33 +41,42 @@ function [npix,s,e,pix_cand,unique_runid,use_mex]=...
 % the function of the input arguments are presented below:
 %
 % Usage:
-%   mode:  1  -------------- 2(inputs)
+%   mode:  0, npix_only  -------------- 2-3(inputs)
 % >>npix = bin_pixels(obj,coord);
+% >>npix = bin_pixels(obj,coord,npix);
 %                                        3(inputs)
 %          normalize_bin_input_(obj,coord,mode)
-%   mode:  3    -------------------   5(inputs)
-% >>[npix,s,e] = bin_pixels(obj,coord,npix,s,e);
-%                                        6(inputs)
-%          normalize_bin_input_(obj,coord,mode,npix,s,e)
-%   mode:  3    -------------------   5(inputs)
-% >>[npix] = bin_pixels(obj,coord,npix);
-%                                        4(inputs)
-%          normalize_bin_input_(obj,coord,mode,npix)
-
-%   mode:  4    -------------------    6(inputs)
-% >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+%   mode:  2,sig_err  -------------------   6(inputs)
+% >>[npix,s,e] = bin_pixels(obj,coord,npix,s,e,pix_candidates);
+%                                           7(inputs)
+%          normalize_bin_input_(obj,coord,mode,npix,s,e,pix_candidates)
+%   mode:  3 sigerr_cell   -------------------    6(inputs)
+% >>[npix,s,e] = bin_pixels(obj,coord,npix,s,e,cellarray_to_bin) but
+%                                                 7(inputs)
+%                      normalize_bin_input_(obj,coord,mode,npix,s,e,cellarray_to_bin)
+%   mode:  4 sort_pix  -------------------             6(inputs)
+% >>[npix,s,e,pix_ok_sorted] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
 %                                        7(inputs)
 %                      normalize_bin_input_(obj,coord,mode,npix,s,e,pix_candidates)
-%   mode:  5     -------------------                   6(inputs)
+
+%   mode:  5  sort_and_id   -------------------                       6(inputs)
 % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
 %                                        7(inputs)
 %                      normalize_bin_input_(obj,coord,mode,npix,s,e,pix_candidates)
+%   mode:  5  sort_and_id   -------------------                       7(inputs)
+% >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unique_runid)
+%                                        8(inputs)
+%                      normalize_bin_input_(obj,coord,mode,npix,s,e,pix_candidates,unique_runid)
 
-%   mode:  6     -------------------                       6(inputs)
-% >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+%   mode:  6  nosort_and_idx   -------------------                       6(inputs)
+% >>[npix,s,e,pix_ok,unque_runid,pix_id] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
 %                                        7(inputs)
 %                      normalize_bin_input_(obj,coord,mode,npix,s,e,pix_candidates)
-%   mode:  6     -------------------                       7(inputs)
+% >>[npix,s,e,pix_ok,unque_runid,pix_id] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unique_runid)
+%                                        8(inputs)
+%                      normalize_bin_input_(obj,coord,mode,npix,s,e,pix_candidates,unique_runid)
+
+%   mode:  7    -------------------                       7(inputs)
 % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unque_runid)
 %                                        8(inputs)
 %                      normalize_bin_input_(obj,coord,mode,npix,s,e,pix_candidates,unque_runid)
@@ -74,37 +85,29 @@ if ~isnumeric(pix_coord)
         'first argument of the routine have to be 4xNpix or 3xNpix numeric array of pixel coordinates')
 end
 
-if ~(size(pix_coord,1) == 4 || (mode == 1 && size(pix_coord,1) == 3))
+if ~(size(pix_coord,1) == 4 || (mode_to_bin == bin_mode.npix_only && size(pix_coord,1) == 3))
     error('HORACE:AxesBlockBase:invalid_argument',...
         'first argument of the routine have to be 4xNpix or 3xNpix array of pixel coordinates')
 end
 s = [];
 e = [];
 unique_runid = [];
-narg_in = numel(varargin)+3;
+narg_in = numel(varargin);
 use_mex = config_store.instance().get_value('hor_config','use_mex');
 not_use_mex = ~use_mex;
 
-if mode == 1
+if mode_to_bin == bin_mode.npix_only
     pix_cand = [];
     if use_mex
         npix = [];
     else
         if numel(varargin) == 0 || isempty(varargin{1})
-            npix = obj.init_accumulators(1,force_3Dbinning);            
+            npix = obj.init_accumulators(1,force_3Dbinning);
             varargin{1} = npix;
         end
     end
 else
-    if narg_in <7
-        error('HORACE:AxesBlockBase:invalid_argument',...
-            'PixelData have to be provided as 7-th argument if cell-average signal and erros are requested');
-    end
-    if ~ismember(mode,[1,3,4,5,6,7])
-        error('HORACE:AxesBlockBase:invalid_argument',...
-            'The procedure accepts 1,3,4,5,6 or 7 output arguments')
-    end
-    if mode>1 && numel(varargin)<4
+    if mode_to_bin>bin_mode.npix_only && numel(varargin)<4
         error('HORACE:AxesBlockBase:invalid_argument',...
             'Calculating signal and error requests providing full pixel information, and this information is missing')
     end
@@ -115,35 +118,42 @@ else
             class(pix_coord));
     end
 end
-
+if mode_to_bin == bin_mode.sigerr_cell
+    n_accumulators = numel(varargin{end});
+    if n_accumulators ~=3
+        n_accumulators = n_accumulators +1;
+    end
+else
+    n_accumulators = 3;
+end
 
 % Analyze the number of input arguments
 switch narg_in
-    case 3
+    case 0
         if not_use_mex
             [npix,s,e] = obj.init_accumulators(1,force_3Dbinning);
         end
-    case 4
+    case 1
         npix = varargin{1};
         if not_use_mex
             check_size(obj,not_use_mex,npix);
         end
-    case {5, 6}
+    case {2, 3}
         error('HORACE:AxesBlockBase:invalid_argument',...
             'Can not request signal or signal and variance accumulation arrays without providing pixels source')
-    case 7
-        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
-    case 8
-        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
+    case 4
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},n_accumulators,force_3Dbinning);
+    case 5
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},n_accumulators,force_3Dbinning);
         unique_runid = varargin{5};
     otherwise
-        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},3,force_3Dbinning);
+        [npix,s,e] = check_and_alloc_accum(obj,not_use_mex,varargin{1:3},n_accumulators,force_3Dbinning);
         unique_runid = varargin{5};
         %argi = varargin{6:end};
 end
 
 % initiate accumulators to 0, as no input value is provied
-if mode>1 && isempty(npix) && not_use_mex
+if mode_to_bin>bin_mode.npix_only && isempty(npix) && not_use_mex
     [npix,s,e] = obj.init_accumulators(3,force_3Dbinning);
 end
 
@@ -162,7 +172,7 @@ elseif alloc_se
     e = obj.init_accumulators(1,force_3Dbinning);
     check_size(obj,not_use_mex,npix,s,e);
 else
-   check_size(obj,not_use_mex,npix,s,e);
+    check_size(obj,not_use_mex,npix,s,e);
 
 end
 

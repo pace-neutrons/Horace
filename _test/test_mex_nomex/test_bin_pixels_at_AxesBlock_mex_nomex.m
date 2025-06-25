@@ -495,15 +495,12 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
                 'img_range',[0,0,0,0;0.8,0.8,1,0.8]);
             in_coord1 = rand(4,10);
             bin_sig    = rand(1,10);
-            bin_err    = rand(1,10);
 
             npix_nom = []; s_nom    = [];   e_nom    = [];
             [npix_nom,s_nom,e_nom] = AB.bin_pixels(in_coord1 ,npix_nom,s_nom, e_nom,{bin_sig});
             assertEqual(size(npix_nom),[10,20]);
             assertEqual(size(s_nom),[10,20]);
-            assertEqual(size(e_nom),[10,20]);
-            assertEqual(e_nom,zeros(10,20)); %  inefficent but code is much
-            % simple. This accumulator is not used but allocated.
+            assertTrue(isempty(e_nom));
 
             clear clObHor
             clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
@@ -516,11 +513,40 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
 
             assertEqual(npix_mex,npix_nom);
             assertEqual(s_mex,s_nom);
-            %assertEqual(e_mex,e_nom); TODO: for efficiency, may be worth
-            %change nomex e not to allocate memory in this case, but we
-            %have mex for efficiency so this would be low priority.
         end
 
+        function test_mex_nomex_mode4_three_arrays_in(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            AB = AxesBlockBase_tester('nbins_all_dims',[1,1,40,1], ...
+                'img_range',[0,0,0,0;0.8,0.8,1,0.8]);
+            in_coord1 = rand(4,10);
+            bin_sig    = rand(1,10);
+            bin_err    = rand(1,10);
+            npix_to_bin    = rand(1,10);            
+
+            npix_nom = []; s_nom    = [];   e_nom    = [];
+            [npix_nom,s_nom,e_nom] = AB.bin_pixels(in_coord1 ,npix_nom,s_nom, e_nom,{bin_sig,bin_err,npix_to_bin});
+            assertEqual(size(npix_nom),[40,1]);
+            assertEqual(size(s_nom),[40,1]);
+            assertEqual(size(e_nom),[40,1]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            [npix_mex,s_mex,e_mex] = AB.bin_pixels(in_coord1,[],[],[],{bin_sig,bin_err,npix_to_bin});
+            assertEqual(size(npix_mex),[40,1]);
+            assertEqual(size(s_mex),[40,1]);
+            assertEqual(size(e_mex),[40,1]);
+
+
+            assertEqual(npix_mex,npix_nom);
+            assertEqual(s_mex,s_nom);
+            assertEqual(e_mex,e_nom);
+        end
+        
         function test_mex_nomex_mode4_two_arrays_in(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
