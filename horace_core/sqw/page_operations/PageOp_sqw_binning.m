@@ -159,15 +159,18 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
             % Inputs:
-            % idx         -- indices of image cells to read
-            % npix_blocks -- cellarray of 
+            % idx         -- indices of image cells to read pixels for.
+            % npix_blocks -- cellarray of npix blocks containing
+            %                information about sizes of npix image
+            %                contributing to a page of data.
             if isa(obj.pix_,'MultipixBase')
-                % knowlege of all pixel coordinates in a cell.
+                % Then it contains knowlege of all pixel coordinates 
+                % in a target cell collected from all contributing images
                 n_dataset = obj.npix_idx_(1,idx);
 
                 pix_ = obj.pix_.infiles{n_dataset};
                 pix_idx_0 = obj.pix_idx_start_(n_dataset);
-                pix_idx_1 = obj.pix_idx_start_(n_dataset)+npix_blocks{idx}-1;
+                pix_idx_1 = pix_idx_0 + npix_blocks{idx}-1;
 
                 obj.page_data_ = pix_.get_pixels( ...
                     pix_idx_0:pix_idx_1,'-raw','-align');

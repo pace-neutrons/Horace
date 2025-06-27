@@ -63,7 +63,7 @@ classdef pixobj_combine_info < MultipixBase
             %          - the string or array containing information on the
             %            treatment of the run_ids, identifying each
             %            pixel of the PixelData. It may be equal
-            %      equal to:
+            %      to:
             %          - 'nochange' the string stating that the pixel id-s
             %             should be kept as provided within contributing
             %             files
