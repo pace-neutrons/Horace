@@ -186,9 +186,9 @@ void BinningArg::set_unique_runid(mxArray const* const pField)
     auto n_elements = mxGetNumberOfElements(pField);
     if (n_elements != this->unique_runID.size()) {
         std::stringstream buf;
-        buf << "Number of input unique run_id(s) " << n_elements << " is different from expected" << this->unique_runID.size() << "\n";
+        buf << "Number of input unique run_id(s) " << n_elements << " is different from expected: " << this->unique_runID.size() << "\n";
         buf << "Resetting internal accumulators to the provided values";
-        mexWarnMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+        mexWarnMsgIdAndTxt("HORACE:bin_pixels_c:internal_accumulator_reset",
             buf.str().c_str());
 
         this->unique_runID.clear();
@@ -594,6 +594,11 @@ void BinningArg::parse_changed_bin_inputs(mxArray const* pAllParStruct)
         this->set_coord_in(mxGetField(pAllParStruct, 0, "coord_in"));
         break;
     }
+    case (opModes::sort_and_uid):
+    case (opModes::nosort):
+    case (opModes::nosort_sel): {
+        this->set_unique_runid(mxGetField(pAllParStruct, 0, "unique_runid"));
+    }
     default:
         this->set_coord_in(mxGetField(pAllParStruct, 0, "coord_in"));
         this->set_all_pix(mxGetField(pAllParStruct, 0, "pix_candidates"));
@@ -648,16 +653,6 @@ void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
         }
         mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, pNBins);
-    };
-    this->OutParList["unique_runid"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
-        // incomplete!!!
-        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
-        if (this->unique_runID.size() == 0) {
-            mxSetCell(pFieldValue, fld_idx, mxCreateDoubleMatrix(0, 0, mxREAL));
-        } else {
-            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
-                "unique run_id retrieval have not been implemented yet");
-        }
     };
     this->OutParList["test_input_parsing"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
         auto test_inputs = this->test_inputs;

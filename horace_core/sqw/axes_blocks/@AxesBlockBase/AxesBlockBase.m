@@ -735,6 +735,10 @@ classdef AxesBlockBase < serializable
                 error('HORACE:AxesBlockBase:invalid_argument', ...
                     'return_selected requested for non pixel cut')
             end
+            if mode>bin_mode.sort_and_uid
+                % temporary, until ticket #896 is completed
+                use_mex = false;
+            end
 
             % bin pixels
             varargout  = cell(1,nargout);
