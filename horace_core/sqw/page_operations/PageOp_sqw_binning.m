@@ -20,8 +20,8 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % maximal size of pixel array to keep in memory until it should
         % be stored in file
         buf_size_;
-        % cahce for npix indices, defined here to access it from npix_data
-        % which does not have then as a standard input
+        % cache for npix indices, defined here to access it from npix_data
+        % which does not have it as a standard input
         npix_idx_;
     end
 
@@ -158,7 +158,9 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         end
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
-            %
+            % Inputs:
+            % idx         -- indices of image cells to read
+            % npix_blocks -- cellarray of 
             if isa(obj.pix_,'MultipixBase')
                 % knowlege of all pixel coordinates in a cell.
                 n_dataset = obj.npix_idx_(1,idx);
