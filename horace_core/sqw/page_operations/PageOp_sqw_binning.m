@@ -20,12 +20,16 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % maximal size of pixel array to keep in memory until it should
         % be stored in file
         buf_size_;
+        % cahce for npix indices, defined here to access it from npix_data
+        % which does not have then as a standard input
+        npix_idx_;
     end
 
     methods
         function obj = PageOp_sqw_binning(varargin)
             obj = obj@PageOp_sqw_eval(varargin{:});
             obj.op_name_ = 'sqw_op_bin_pixels';
+            obj.split_at_bin_edges = false;
         end
         function obj = init(obj,sqw_obj,operation,op_param, ...
                 targ_ax_block,targ_proj,pop_options)
@@ -83,8 +87,6 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             obj.img_.s = [];
             obj.img_.e = [];
 
-            obj.split_at_bin_edges = true;
-
             [obj.npix_acc_,obj.sig_acc_,obj.var_acc_] = targ_ax_block.init_accumulators(3,false);
             %
             obj.pix_page_ = PixelDataMemory();
@@ -105,7 +107,26 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % npix_idx    -- [2,n_chunks] array of indices of the chunks in
             %                the npix array.
             % See split procedure for more details
-            [npix_chunks, npix_idx,obj] = split_into_pages@PageOpBase(obj,npix,chunk_size);
+            if isa(obj.pix_,'MultipixBase')
+                n_blocks    = numel(npix);             % Number of blocks
+                obj.pix_idx_start_ = ones(1,n_blocks); % is equal to number
+                %                                      % of pixels datasets
+                chunks_cell = cell(1,n_blocks);
+                idx_cell    = cell(1,n_blocks);
+                for i=1:n_blocks
+                    [chunks_cell{i},idx_cell{i}]= split_vector_fixed_sum(npix(i), chunk_size);
+                    idx_cell{i} = idx_cell{i}+i-1;
+                end
+                npix_chunks = [chunks_cell{:}];
+                npix_idx    = cat(2,idx_cell);
+                npix_idx    = [npix_idx{:}];
+
+                obj.init_filebacked_output_ = true;
+            else
+                [npix_chunks, npix_idx] = split_vector_fixed_sum(npix, chunk_size);
+            end
+            obj.npix_idx_ = npix_idx;
+
             if obj.do_nopix_ || ~obj.init_filebacked_output_
                 return;
             end
@@ -124,17 +145,40 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % disable standard filebacked output used by PageOp,
             % as it will be performed by cut write algorithm, used by cut.
             if isempty(obj.outfile)
+                if isempty(obj.write_handle_)
+                    return;
+                end
                 obj.outfile_ = obj.write_handle_.write_file_name;
             end
             % this will delete existing tmp file if any is there
-            obj.write_handle_.delete();
-            obj.write_handle_ = [];
+            if ~isempty(obj.write_handle_)
+                obj.write_handle_.delete();
+                obj.write_handle_ = [];
+            end
+        end
+        function obj = get_page_data(obj,idx,npix_blocks)
+            % return block of data used in page operation
+            %
+            if isa(obj.pix_,'MultipixBase')
+                % knowlege of all pixel coordinates in a cell.
+                n_dataset = obj.npix_idx_(1,idx);
 
+                pix_ = obj.pix_.infiles{n_dataset};
+                pix_idx_0 = obj.pix_idx_start_(n_dataset);
+                pix_idx_1 = obj.pix_idx_start_(n_dataset)+npix_blocks{idx}-1;
 
+                obj.page_data_ = pix_.get_pixels( ...
+                    pix_idx_0:pix_idx_1,'-raw','-align');
+                obj.pix_idx_start_(n_dataset) = pix_idx_1+1;
+            else
+                obj.pix_.page_num = idx;
+                obj.page_data_    = obj.pix_.data;
+            end
         end
         function obj = common_page_op(obj)
             % Overloaded code which runs for every page_op_bin_pixels
-            % operation.
+            % operation after specific operation over page itself have
+            % been performed.
             %
             % Input:
             % obj   -- pageOp object, containing modified pixel_data page
@@ -254,6 +298,11 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 if isa(obj.pix_,'MultipixBase')
                     pix_cmbn_info = obj.pix_;
                 end
+                % HACK. Here we set it to true to suppress "filebacked in memory"
+                % issued by finish_core_op method
+                % warning which does not make sence in case when we
+                % combine multiple input datasets
+                obj.init_filebacked_output_ = false;
             end
             % if filebacked, this will create sqw object with
             % combine_pixel_data object in sqw_obj.pix_ field

@@ -36,7 +36,7 @@ function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix
 
 persistent n_writ_files; % written files counter
 % npix buffer
-persistent npix_prev;      % npix at previous flush step
+persistent npix_prev;      % npix (pixels over bin distribution) at previous flush step
 
 % data buffer:
 persistent n_mem_blocks;   % number of data blocks retained in memory
@@ -111,7 +111,7 @@ end
             else
                 % not keeping precision here as this will be memory-based result
                 pix_comb_info  = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
-                    npix_in_mem,pix_comb_info.data_range);
+                    npix_in_mem,pix_comb_info.data_range,false);
                 % pix_comb_info in this case are memory-based pixels
                 % themselves.
             end
@@ -133,7 +133,7 @@ end
         % keep sorted pixels precision as they came from file and go to
         % file
         pix_2write = sort_pix(pix_mem_retained,pix_mem_ix_retained,...
-            npix_distr_in_mem,pix_comb_info.data_range,'-keep_precision');
+            npix_distr_in_mem,pix_comb_info.data_range,true);
         % clear current memory buffer state;
         n_mem_blocks = 0;
         clear pix_mem_retained pix_mem_ix_retained;

@@ -1,4 +1,5 @@
-function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(obj,coord,num_outputs,...
+function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
+    bin_pixels_with_mex_code_(obj,coord,num_outputs,...
     npix,s,e,pix_cand,unique_runid,force_double,return_selected)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
@@ -35,13 +36,13 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 %      -- The unique indices, contributing into the cut. Empty on first
 %         call.
 % varargin may contain the following parameters:
-% '-force_double'
-%              -- if provided, the routine changes type of pixels
+% force_double -- if true, the routine changes type of pixels
 %                 it gets on input, into double. if not, output
 %                 pixels will keep their initial type.
-% '-return_selected'
-%              -- sets pix_ok to return the indices of selected pixels
-%                 for use with DnD cuts where fewer args are requested
+% return_selected
+%              -- if true sets pix_ok to return the indices of selected
+%                 pixels for use with DnD cuts where fewer args are
+%                 requested
 %--------------------------------------------------------------------------
 % Outputs:
 % npix  -- the array of size of this grid, accumulating the information
@@ -145,7 +146,7 @@ else
         end
     end
     % mex code, if deployed below, needs pixels collected during this
-    % particular accumulation.    
+    % particular accumulation.
     [npix,npix1] = cut_data_from_file_job.calc_npix_distribution(pix_indx,npix);
 end
 

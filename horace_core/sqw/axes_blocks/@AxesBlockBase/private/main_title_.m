@@ -50,7 +50,7 @@ if ~isempty(obj.iax)
     title_main{iline}=title_main_iax{1};
     if length(title_main_iax)>1
         for i=2:length(title_main_iax)
-            title_main{iline}=[title_main{iline},' , ',title_main_iax{i}];
+            title_main{iline}=sprintf('%s , %s',title_main{iline},title_main_iax{i});
         end
     end
     iline = iline + 1;
@@ -65,7 +65,7 @@ if ~isempty(obj.pax)
     title_main{iline}=title_main_pax{1};
     if length(title_main_pax)>1
         for i=2:length(title_main_pax)
-            title_main{iline}=[title_main{iline},' , ',title_main_pax{i}];
+            title_main{iline}=sprintf('%s , %s',title_main{iline},title_main_pax{i});
         end
     end
 end
