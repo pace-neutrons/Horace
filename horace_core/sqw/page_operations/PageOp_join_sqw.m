@@ -54,6 +54,7 @@ classdef PageOp_join_sqw < PageOpBase
             if obj.pix_combine_info.num_pixels > mcs*fb || ...
                     ~isempty(obj.outfile) || isa(obj.pix_combine_info,'pixfile_combine_info')
                 pix = PixelDataFileBacked();
+                obj.init_filebacked_output = true;
             else
                 pix = PixelDataMemory();
             end

@@ -114,8 +114,8 @@ classdef test_faccess_sqw_v3< TestCase
 
             [exp_info,~] = to.get_exp_info();
 
-            assertEqual(exp_info.runid_map.keys(),{1})
-            assertEqual(exp_info.runid_map.values(),{1})
+            assertEqual(exp_info.runid_map.keys,1)
+            assertEqual(exp_info.runid_map.values,1)
 
             assertTrue(isa(exp_info,'Experiment'));
             inf = exp_info.expdata(1);

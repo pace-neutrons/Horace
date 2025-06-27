@@ -1,8 +1,10 @@
-function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
+function [title_pax, title_iax,title_main_pax,title_main_iax,...
+    display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
-%   >> [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
+%   >> [title_pax, title_iax, title_main_pax, title_main_iax,
+%       display_pax, display_iax, energy_axis] = data_plot_titles_(obj)
 %
 % Input:
 % ------
@@ -13,6 +15,10 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %   title_main      Main title (cell array of character strings)
 %   title_pax       Cell array containing axes annotations for each of the plot axes
 %   title_iax       Cell array containing annotations for each of the integration axes
+%   title_main_pax  Cell array containing general information for each the
+%                   projectin axes used in titles
+%   title_main_iax  Cell array containing general information for each the
+%                   integration axes used in titles
 %   display_pax     Cell array containing axes annotations for each of the plot axes suitable
 %                  for printing to the screen
 %   display_iax     Cell array containing axes annotations for each of the integration axes suitable
@@ -27,10 +33,6 @@ function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axi
 %
 
 Angstrom=char(197);     % Angstrom symbol
-
-% Prepare input arguments
-file = fullfile(obj.filepath,obj.filename);
-title = obj.title;
 
 offset     = obj.offset;
 img_scales = obj.img_scales;
@@ -256,38 +258,6 @@ for j=1:4
         else
             error ('HORACE:sqw:runtime_error', ...
                 'ERROR: Axis is neither plot axis nor integration axis')
-        end
-    end
-end
-
-
-% Main title
-iline = 1;
-if ~isempty(file)
-    title_main{iline}=avoidtex(file);
-else
-    title_main{iline}='';
-end
-iline = iline + 1;
-
-if ~isempty(title)
-    title_main{iline}=title;
-    iline = iline + 1;
-end
-if ~isempty(iax)
-    title_main{iline}=title_main_iax{1};
-    if length(title_main_iax)>1
-        for i=2:length(title_main_iax)
-            title_main{iline}=[title_main{iline},' , ',title_main_iax{i}];
-        end
-    end
-    iline = iline + 1;
-end
-if ~isempty(pax)
-    title_main{iline}=title_main_pax{1};
-    if length(title_main_pax)>1
-        for i=2:length(title_main_pax)
-            title_main{iline}=[title_main{iline},' , ',title_main_pax{i}];
         end
     end
 end

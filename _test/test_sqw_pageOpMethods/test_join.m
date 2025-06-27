@@ -24,7 +24,7 @@ classdef test_join < TestCase
             for i = 1:n_parts
                 id = obj.sqw_to_join(i).runid_map.keys;
                 [~,fn] = fileparts(obj.sqw_to_join(i).main_header.filename);
-                fn = sprintf('%s_runID%d',fn,id{1});
+                fn = sprintf('%s_runID%d',fn,id(1));
                 fn = fullfile(obj.work_dir,fn);
                 obj.files_to_join{i} = fn;
                 if isfile(fn)
@@ -70,7 +70,9 @@ classdef test_join < TestCase
                 'en', 10, ...
                 'run_id', 1);
             sqw_obj.main_header.nfiles = 2;
-            sqw_obj.experiment_info.runid_map(2) = 2;
+            rm  = sqw_obj.experiment_info.runid_map;
+            rm  = rm.add(2,2);
+            sqw_obj.experiment_info.runid_map = rm;
 
             split_obj = sqw_obj.split();
 
@@ -78,7 +80,8 @@ classdef test_join < TestCase
 
             reformed_obj = sqw.join(split_obj,sqw_obj);
 
-            assertEqualToTol(sqw_obj, reformed_obj,'ignore_str',true);
+            assertEqualToTol(sqw_obj, reformed_obj, ...
+                '-ignore_str', '-ignore_date');
         end
         %------------------------------------------------------------------
         function test_join_eq_write_nsqw_to_sqw(obj)
@@ -102,7 +105,7 @@ classdef test_join < TestCase
             reformed_obj = sqw.join(obj.files_to_join,'-recalc');
 
             runid = reformed_obj.runid_map.keys();
-            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+            assertEqual(double(runid),1:reformed_obj.main_header.nfiles);
 
             sobj = obj.sample_obj;
             pix_data = sobj.pix.data;
@@ -195,7 +198,7 @@ classdef test_join < TestCase
             % to compare filebacked and memory backed object properly, here
             % we need to have compatible page sizes. The comparison will
             % fail otherwise. Re #1147 -- should fix that.
-            clear clConf; % this removes restriction on filebacked 
+            clear clConf; % this removes restriction on filebacked
             % page size and makes page sizes for membased and filebased
             % compatible. Proper solution should work with any page size.
             assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
@@ -232,7 +235,7 @@ classdef test_join < TestCase
             reformed_obj = sqw.join(split_obj,'-recalc_runid');
 
             runid = reformed_obj.runid_map.keys();
-            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+            assertEqual(double(runid),1:reformed_obj.main_header.nfiles);
 
             sobj = obj.sample_obj;
             pix_data = sobj.pix.data;
@@ -241,7 +244,8 @@ classdef test_join < TestCase
             sobj.pix.data = pix_data;
             sobj.experiment_info.runid_map  = 1:numel(split_obj);
 
-            assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+            assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], ...
+                '-ignore_str','-ignore_date')
         end
 
         function test_join_changes_runid_on_requests_in_mem_with_sample(obj)
@@ -252,8 +256,8 @@ classdef test_join < TestCase
 
             reformed_obj = sqw.join(split_obj,obj.sample_obj,'-recalc_runid');
 
-            runid = reformed_obj.runid_map.keys();
-            assertEqual([runid{:}],1:reformed_obj.main_header.nfiles);
+            runid = reformed_obj.runid_map.keys;
+            assertEqual(double(runid),1:reformed_obj.main_header.nfiles);
 
             sobj = obj.sample_obj;
             pix_data = sobj.pix.data;
@@ -262,7 +266,8 @@ classdef test_join < TestCase
             sobj.pix.data = pix_data;
             sobj.experiment_info.runid_map  = 1:numel(split_obj);
 
-            assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+            assertEqualToTol(sobj, reformed_obj, [1e-7, 1e-7], ...
+                '-ignore_str','-ignore_date')
         end
 
         function test_split_and_join_returns_same_obj_in_mem(obj)
@@ -273,7 +278,8 @@ classdef test_join < TestCase
 
             reformed_obj = sqw.join(split_obj);
 
-            assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], 'ignore_str', true)
+            assertEqualToTol(obj.sample_obj, reformed_obj, [1e-7, 1e-7], ...
+                '-ignore_str','-ignore_date')
         end
 
         function test_collect_metadata_works_on_membased(obj)
@@ -281,7 +287,7 @@ classdef test_join < TestCase
             assertEqual(sqw_t.main_header.nfiles,24)
 
             assertEqualToTol(sqw_t.data,obj.sample_obj.data, ...
-                'ignore_str',true,'tol',[1.e-7,1.e-7])
+                '-ignore_str','-ignore_date','tol',[1.e-7,1.e-7])
             assertTrue(isa(sqw_t.pix,'pixobj_combine_info'))
         end
 
@@ -290,7 +296,7 @@ classdef test_join < TestCase
             assertEqual(sqw_t.main_header.nfiles,24)
 
             assertEqualToTol(sqw_t.data,obj.sample_obj.data, ...
-                'ignore_str',true,'tol',[1.e-7,1.e-7])
+                '-ignore_str','tol',[1.e-7,1.e-7])
             assertTrue(isa(sqw_t.pix,'pixfile_combine_info'))
         end
     end

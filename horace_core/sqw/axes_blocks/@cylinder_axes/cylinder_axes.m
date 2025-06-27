@@ -91,6 +91,8 @@ classdef cylinder_axes < AxesBlockBase
             obj.label = {'Q_{\perp}','Q_{||}','\phi','En'};
             obj.type_ = 'aade';
             obj.changes_aspect_ratio_ = false;
+            obj = obj.add_proj_description_function(...
+                @(x)sprintf('Cylindrical projection at centre: %s(hklE)',mat2str(x.offset)));
             if nargin == 0
                 return;
             end
@@ -126,8 +128,11 @@ classdef cylinder_axes < AxesBlockBase
                 data_plot_titles(obj)
             % Get titling and caption information for the sqw data
             % structure containing cylindrical projection
-            [title_main, title_pax, title_iax, display_pax, display_iax,energy_axis]=...
+            [title_pax, title_iax,title_main_pax,title_main_iax,...
+                display_pax, display_iax,energy_axis]=...
                 data_plot_titles_(obj);
+            % Main title
+            title_main = obj.main_title(title_main_pax,title_main_iax);
         end
         %
         function anr = get.angular_unit_is_rad(obj)

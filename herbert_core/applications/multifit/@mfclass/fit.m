@@ -100,7 +100,7 @@ perform_fit = true;
 pm = get(hpc_config, 'parallel_multifit');
 selected = obj.options_.selected;
 if selected
-    % All initiliasation is up to date, as evaluating over the same data as was fitted
+    % All initialisation is up to date, as evaluating over the same data as was fitted
     % Now compute output
     if pm
         try

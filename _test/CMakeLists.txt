@@ -30,6 +30,7 @@ set(HERBERT_TESTS
     "test_map_mask"
     "test_multifit_herbert"
     "test_utilities_her_geometry"
+    "test_utilities_her_scientific"
     "test_utilities_herbert"
     "test_serializers"
     "test_instrument_classes"

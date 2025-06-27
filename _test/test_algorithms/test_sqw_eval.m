@@ -50,7 +50,7 @@ classdef test_sqw_eval < TestCase
 
         function test_notEnoughOutputs_error_if_no_ret_value_and_no_outfile(obj)
             f = @() sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params);
-            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs');
+            assertExceptionThrown(f, 'HORACE:sqw_eval:invalid_argument');
         end
 
         function test_notEnoughOutputs_error_if_no_ret_value_and_filebacked(obj)
@@ -60,7 +60,7 @@ classdef test_sqw_eval < TestCase
                 obj.gauss_params, ...
                 'filebacked', true ...
                 );
-            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs');
+            assertExceptionThrown(f, 'HORACE:sqw_eval:invalid_argument');
         end
 
         function test_error_if_num_outfiles_ne_to_num_input_objects(obj)
@@ -70,7 +70,7 @@ classdef test_sqw_eval < TestCase
                 obj.gauss_params, ...
                 'outfile', 'some_path' ...
                 );
-            assertExceptionThrown(f, 'HORACE:sqw:invalid_arguments');
+            assertExceptionThrown(f, 'HORACE:sqw:invalid_argument');
         end
 
         %% SQW object tests
@@ -82,6 +82,16 @@ classdef test_sqw_eval < TestCase
                 'ignore_str', true ...
                 );
         end
+        %
+        function test_gauss_on_sqw_with_nopix_matches_reference_dnd(obj)
+            out_dnd = sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params,'-nopix');
+
+            assertEqualToTol( ...
+                out_dnd, obj.sqw_2d_sqw_eval_ref_obj.data, obj.FLOAT_TOL, ...
+                'ignore_str', true ...
+                );
+        end
+        
 
         function test_gauss_on_array_of_sqw_objects_matches_reference_file(obj)
             sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
@@ -121,14 +131,15 @@ classdef test_sqw_eval < TestCase
             assertEqual(out_sqw.data.e, zeros(size(obj.sqw_2d_obj.data.npix)))
         end
 
-        function test_output_is_file_if_filebacked_true_and_pix_in_memory(obj)
+        function test_output_isnot_file_anymore_if_flbckd_true_and_pix_in_memory(obj)
+            clWarn = set_temporary_warning('off','HORACE:filebacked_ignored');
             out_sqw = sqw_eval( ...
                 obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, 'filebacked', true ...
                 );
 
             assertEqualToTol( ...
                 out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true,'-ignore_date' ...
+                '-ignore_str','-ignore_date' ...
                 );
         end
 
@@ -138,8 +149,7 @@ classdef test_sqw_eval < TestCase
 
             assertEqualToTol( ...
                 out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true ...
-                );
+                '-ignore_str');
         end
 
         function test_gauss_on_sqw_file_with_all_flag_ignores_the_flag(obj)
@@ -177,14 +187,13 @@ classdef test_sqw_eval < TestCase
                 obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
                 'filebacked', true ...
                 );
-            assertTrue(isa(out_sqw.pix,'PixelDataFileBacked'));
+            assertTrue(out_sqw.is_filebacked);
 
             ref_obj = obj.sqw_2d_sqw_eval_ref_obj;
 
-            assertEqualToTol( ...
-                out_sqw, ref_obj, obj.FLOAT_TOL, ...
-                'ignore_str', true,'-ignore_date' ...
-                );
+            assertEqualToTol(out_sqw, ref_obj, ...
+                obj.FLOAT_TOL,'-ignore_str','-ignore_date');
+
         end
 
         function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
@@ -200,19 +209,17 @@ classdef test_sqw_eval < TestCase
                 obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
                 'average', true, 'filebacked', true ...
                 );
-            assertTrue(isa(fb_out_sqw.pix,'PixelDataFileBacked'));
+            assertTrue(fb_out_sqw.is_filebacked);
 
             ref_out_sqw = sqw_eval( ...
                 obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, ...
                 'average', true ...
                 );
-            assertTrue(isa(ref_out_sqw.pix,'PixelDataMemory'));
+            assertFalse(ref_out_sqw.is_filebacked);
 
             assertEqualToTol( ...
                 fb_out_sqw, ref_out_sqw, ...
-                'tol', obj.FLOAT_TOL, ...
-                'ignore_str', true,'-ignore_date' ...
-                );
+                'tol', obj.FLOAT_TOL,'-ignore_str','-ignore_date');
         end
 
         %% DND tests

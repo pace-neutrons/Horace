@@ -254,6 +254,29 @@ classdef MultipixBase < serializable
         function obj = set.run_label(obj,val)
             obj = set_runlabel_(obj,val);
         end
+        function obj=clean_up_tmp_files(obj)
+            % delete temporary files, described by infiles property
+            % and clear up file combine info.
+            % Method identical to delete operator and should be called
+            % after dealing with file combine.
+            % Named differently for historical reasons
+            for nfile = 1:obj.nfiles
+                if is_file(obj.infiles{nfile})
+                    delete(obj.infiles{nfile});
+                end
+            end
+            obj.infiles_ = {};
+            obj.num_pixels_ = 0;
+            obj.npix_each_file_ = [];
+            %
+            obj.nbins_ = 0;
+            % Global range of all pixels, intended for combining
+            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
+            %
+            obj.run_label_ = 'nochange';
+            %
+            obj.filenum_ = [];
+        end
 
     end
     %----------------------------------------------------------------------
