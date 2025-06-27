@@ -12,9 +12,10 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 %
 % Input:
 % ------
-%  win         -- Input sqw object containing metadata about experiment and
-%                 pixels page. Image information is not used and may be
-%                 omitted.
+%  win         --  Input sqw object which works as container for pixelData
+%                  and Experiment info used for processing pixel's coordinates 
+%                  from pixel's indices and experiment information. SQW
+%                  object's imags is not used.
 % Optional:
 % coord_in_rlu --  default true. Returns pixel coordinates in reciprocal
 %                  lattice units (projection onto rotated hkl coordinate
@@ -82,7 +83,7 @@ res_reorder_map = fast_map(double(lng_idx),1:numel(lng_idx));
 % TODO: possible improvement.
 %----------------- the methods used below may use caches precalculated
 % before the calling here and running calculations
-% over pixels pages. See also one in runid loop below, around row 145
+%  over pixels pages. See also one in runid loop below, around row 145
 %
 % if we want possible change in alatt during experiment, go to sampe in
 % experiment and add it here. Currently lattice is unchanged during

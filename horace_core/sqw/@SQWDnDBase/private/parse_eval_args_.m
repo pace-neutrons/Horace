@@ -11,8 +11,8 @@ else
     argi = varargin;
 end
 
-flags = {'-all', '-average', '-filebacked','-nopix','-test_input_parsing'};
-[~, ~, all_flag, ave_flag, filebacked_flag,nopix_flag,test_inputs, args] =...
+flags = {'-all', '-average', '-filebacked','-combine','-nopix','-test_input_parsing'};
+[~, ~, all_flag, ave_flag, filebacked_flag,do_combine_flag,nopix_flag,test_inputs, args] =...
     parse_char_options(argi, flags);
 
 parser = inputParser();
@@ -21,6 +21,7 @@ parser.addRequired('pars');
 parser.addParameter('average', ave_flag, @islognumscalar);
 parser.addParameter('all', all_flag, @islognumscalar);
 parser.addParameter('filebacked', filebacked_flag, @islognumscalar);
+parser.addParameter('combine', do_combine_flag, @islognumscalar);
 parser.addParameter('nopix', nopix_flag, @islognumscalar);
 parser.addParameter('test_input_parsing', test_inputs, @islognumscalar);
 parser.addParameter('outfile', {}, @(x) iscellstr(x) || istext(x));
