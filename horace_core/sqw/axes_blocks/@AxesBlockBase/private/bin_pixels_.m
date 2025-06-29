@@ -176,7 +176,7 @@ if is_pix
     bin_values = {pix_cand.signal;pix_cand.variance};
 else % cellarray of arrays to accumulate; mode sigerr_cell only?
     bin_values = pix_cand;
-    if ndata==3 % 
+    if ndata==3 %
         npix = zeros(size(s));
         out{3} = npix;
     end
@@ -193,7 +193,7 @@ else
 end
 s = out{1};
 e = out{2};
-if mode_to_bin== bin_mode.sigerr_cell 
+if mode_to_bin== bin_mode.sigerr_cell
     if ndata==3
         npix = out{3};
     end
@@ -214,8 +214,26 @@ end
 %--------------------------------------------------------------------------
 % s,e,pix_ok,unique_runid,pix_indx
 pix_ok = pix_cand.get_pixels(ok,'-align');
-if mode_to_bin<bin_mode.sort_and_uid
-    return;
+if ~isa(pix_ok.data,'double') && force_double
+    pix_ok= PixelDataBase.create(double(pix_ok.data));
+end
+
+if ndims > 1 % convert to 1D indices for sorting pixels or return as it is
+    stride = cumprod(n_bins);
+    pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
+elseif ndims ==0
+    pix_indx =  ones(pix_ok.num_pixels,1);
+end
+
+if mode_to_bin < bin_mode.nosort
+    % sort pixels according to bins
+    if ndims>0
+        pix_ok= sort_pix(pix_ok,pix_indx,npix1,[],~force_double);
+    end
+end
+
+if mode_to_bin < bin_mode.sort_and_uid
+    return
 end
 
 %--------------------------------------------------------------------------
@@ -224,27 +242,5 @@ end
 loc_unique   = unique(pix_ok.run_idx);
 unique_runid = unique([unique_runid,loc_unique]);
 clear ok;
-
-%-------------------------------------------------------------------------
-% sort pixels according to bins
-if ndims > 1 % convert to 1D indices
-    stride = cumprod(n_bins);
-    pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
-end
-pix = pix_ok;
-
-if ~isa(pix.data,'double') && force_double
-    pix = PixelDataBase.create(double(pix.data));
-end
-
-if mode_to_bin < bin_mode.sort_and_uid && ndims > 0
-    pix = sort_pix(pix,pix_indx,npix1,[],~force_double);
-end
-
-if mode_to_bin == bin_mode.sort_and_uid && ndims == 0
-    pix_indx = ones(pix.num_pixels,1);
-end
-
-pix_ok = pix;
 
 end
