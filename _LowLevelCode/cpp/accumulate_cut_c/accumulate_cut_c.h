@@ -122,7 +122,7 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
     size_t distribution_size = nDimLength;
 
     omp_set_num_threads(num_OMP_Threads);
-    int PIXEL_data_width = pix_fields::PIX_WIDTH;
+    int PIXEL_data_width = pix_flds::PIX_WIDTH;
 #ifdef _DEBUG
     size_t ntot_pix0(0); // number of pixels containing within the distribution at the start of the algorithm
     for (size_t i = 0; i < distribution_size; i++)
