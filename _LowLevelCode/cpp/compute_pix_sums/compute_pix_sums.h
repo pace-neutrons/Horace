@@ -39,9 +39,9 @@ void compute_pix_sums(double *const pSignal, double *const pVariance,
         pixProcessed += npix_in_bin;
       }
       for (size_t ip = 0; ip < npix_in_bin; ip++) {
-        size_t index = (pix0 + ip) * pix_fields::PIX_WIDTH;
-        pSignal[i] += pPixelData[index + pix_fields::iSign];
-        pVariance[i] += pPixelData[index + pix_fields::iErr];
+        size_t index = (pix0 + ip) * pix_flds::PIX_WIDTH;
+          pSignal[i] += pPixelData[index + pix_flds::iSign];
+        pVariance[i] += pPixelData[index + pix_flds::iErr];
       }
     }
   } // end parallel block
