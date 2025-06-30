@@ -6,7 +6,7 @@ function [npix,s,e] = init_accumulators_(obj,n_accum,force_3D)
 % obj     -- initialized instance of AxesBlockBase class
 % n_accum -- number of accumulator arrays to initialize.
 %            may be 1 or 3 (2 transformed to 3)
-% force_3D-- if true, return only 3-dimensional 
+% force_3D-- if true, return only 3-dimensional
 %            accumulator arrays ignoring last (energy transfer) dimension.
 %
 % Returns:   Depending on n_accum, 1 or 3 empty arrays
@@ -25,17 +25,19 @@ else
     sz = obj.dims_as_ssize();
 end
 npix = zeros(sz);
-if force_3D
-    npix = squeeze(npix);
-end
+
 if n_accum == 1
     s = []; e=[];
+elseif n_accum ==2
+    s = zeros(sz);
+    e = [];
 else
     s = zeros(sz);
     e = zeros(sz);
-    if force_3D
-        s= squeeze(s);
-        e= squeeze(e);
-    end
+end
+if force_3D
+    npix = squeeze(npix);    
+    s= squeeze(s);
+    e= squeeze(e);
 end
 end
