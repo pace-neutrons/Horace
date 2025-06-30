@@ -8,7 +8,7 @@ function out = rebin_data_(obj,data_in,other_ax)
 data_nodes = obj.get_bin_nodes('-bin_centre');
 out = cell(1,3);
 %
-[out{3},out{1},out{2}] = other_ax.bin_pixels(data_nodes,[],[],[],data_in);
+[out{1},out{2},out{3}] = other_ax.bin_pixels(data_nodes,[],[],[],data_in);
 
 
 if config_store.instance().get_value('hor_config','use_mex')

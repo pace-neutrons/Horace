@@ -537,12 +537,21 @@ classdef AxesBlockBase < serializable
             end
         end
 
-        function data_out = rebin_data(obj,data_in,other_ax)
+        function varargout = rebin_data(obj,data_in,other_ax)
             % Rebin data,defined on this axes grid into other axes grid
             %
             % The other axes grid has to be aligned with this axes block
             % according to realigh_axes method of this axes block
+            if nargout ~= numel(data_in)
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                    'Number of output arguments (%d) is not equel to the number of data to rebin (%d)', ...
+                    nargout,numel(data_in));
+            end
             data_out = rebin_data_(obj,data_in,other_ax);
+            varargout = cell(1,numel(data_in));
+            for i=1:numel(data_in)
+                varargout{i} = data_out{i};
+            end
         end
         %
         function ax_block_al = realign_bin_edges(obj,ax_block)
@@ -1005,8 +1014,8 @@ classdef AxesBlockBase < serializable
             % Optional:
             % npix or nothing if mode == npix_only
             % npix,s,e accumulators if mode is higher then sigerr_cell
-            % pix_cand  -- if mode is higher than sigerr_cell. It must be 
-            %              present as a PixelData class instance, 
+            % pix_cand  -- if mode is higher than sigerr_cell. It must be
+            %              present as a PixelData class instance,
             %              containing information about pixels
             % unique_runid -- if mode == sort_and_id or higher, input array of unique_runid-s
             %                 calculated on the previous step.

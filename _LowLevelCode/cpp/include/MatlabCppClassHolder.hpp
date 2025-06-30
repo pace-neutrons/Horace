@@ -1,5 +1,6 @@
 #pragma once
 #include <memory> // to wrap all this in unique pointer
+#include <cstring>
 //
 /* throws Matlab error.  There are two tested modes: one calling the framework from Matlab in single process without
  deploying MPI, and the second one -- unit tests for the framework.
