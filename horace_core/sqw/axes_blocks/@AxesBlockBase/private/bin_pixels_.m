@@ -96,7 +96,7 @@ else % 3D array binning
 end
 
 % collapse first dimension, all along it should be ok for pixel be ok
-if is_pix
+if is_pix && mode_to_bin == bin_mode.nosort_sel
     % Add filter to ignore pix, used previously through symmetry and binning operation
     ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx >= 0;
 else
@@ -241,6 +241,5 @@ end
 % more then 5 outputs apparently requested to obtain sorted pixels
 loc_unique   = unique(pix_ok.run_idx);
 unique_runid = unique([unique_runid,loc_unique]);
-clear ok;
 
 end

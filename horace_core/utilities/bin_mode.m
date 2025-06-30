@@ -37,7 +37,7 @@ classdef bin_mode < uint32
             if mode == bin_mode.sig_err && ~isempty(varargin) && iscell(varargin{end}) % mode sig_err and sigerr_cell have equal number of outputs
                 mode = bin_mode.sigerr_cell; % and differ by type of input
             end
-            if ~ismember(uint32(mode),[0,2,3,4,5,6])
+            if ~ismember(uint32(mode),[0,2,3,4,5,6,7])
                 error('HORACE:bin_mode:invalid_argument',...
                     'Binning modes return 1,3,4,5,6 or 7 output arguments. Provided: %d ', ...
                     num_arguments+1);

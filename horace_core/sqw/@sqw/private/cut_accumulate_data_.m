@@ -224,18 +224,21 @@ for iter = 1:num_chunks
     for i = 1:num_proj
         % Pix not sorted here. They will be sorted when accumulate cache
         % is emptied either when pixels are written combined and returned
-        [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
-            targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
         % if there are symmetries, we need to transform pixels and tag used
         % pixels to avoid multiple usage of the same pixels.
         if apply_symmetries
+            [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
+                targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e,unique_runid);
+
             candidate_pix = sym{i}.transform_pix(candidate_pix, {}, selected, true);
             candidate_pix = candidate_pix.tag(selected);
+        else
+            [npix, s, e, pix_ok, unique_runid, pix_indx] = ...
+                targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e,unique_runid);
         end
-
         npix_step_retained = pix_ok.num_pixels; % just for logging the progress
-        unique_runid = unique([unique_runid, unique_runid_l(:)']);
+
 
         if ll >= 1
             if ll>=2

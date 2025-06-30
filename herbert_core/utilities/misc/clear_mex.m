@@ -5,5 +5,9 @@ try
     bin_pixels_c('clear');
 catch
 end
+try
+    cpp_communicator('finalize',0);
+catch
+end
 clear mex;
 end
