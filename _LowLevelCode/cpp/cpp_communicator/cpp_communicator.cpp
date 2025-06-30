@@ -200,7 +200,6 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     if (nlhs > 0) {
         plhs[(int)labIndex_Out::comm_ptr] = pCommunicatorHolder->export_hanlder_toMatlab();
-        pCommunicatorHolder.release();
     }
 }
 /* If appropriate number of output arguments are available, set up the mex routine output arguments to mpi_numLab and mpi_labNum values

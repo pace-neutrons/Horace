@@ -147,6 +147,7 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
 {
     // retrieve auto-ptr to old binning calculations
     auto pBinHolder = get_handler_fromMatlab<BinningArg>(prhs[in_arg::mex_code_hldrIn], CODE_SIGNATURE, false);
+    bool force_update(false);
     if (pBinHolder == nullptr || bin_arg_holder == nullptr) {
         // create new bin_arguments holder with random signature
         std::random_device rd;
@@ -155,6 +156,7 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
 
         CODE_SIGNATURE = dist(gen);
         bin_arg_holder = std::make_unique<class_handle<BinningArg>>(CODE_SIGNATURE);
+        force_update = true;
 
     }
     plhs[out_arg::mex_code_hldrOut] = bin_arg_holder->export_hanlder_toMatlab();
@@ -162,10 +164,11 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
     auto bin_arg_ptr = bin_arg_holder->class_ptr;
     if (bin_arg_ptr->new_binning_arguments_present(prhs)) {
         bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
+        force_update = true;
     } else {
         bin_arg_ptr->parse_changed_bin_inputs(prhs[in_arg::param_struct]);
     }
-    bin_arg_ptr->check_and_init_accumulators(plhs, prhs);
+    bin_arg_ptr->check_and_init_accumulators(plhs, prhs,force_update);
     return;
 };
 

@@ -779,7 +779,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
     mwSize nDims(0);
     mwSize* dim_ptr(nullptr);
     bool init_new_accumulators(false);
-    if (mxIsEmpty(prhs[in_arg::npixIn])) {
+    if (mxIsEmpty(prhs[in_arg::npixIn]) || force_update) {
         init_new_accumulators = true;
         nDims = this->get_Matlab_n_dimensions();
         dim_ptr = this->get_Matlab_acc_dimensions(this->distr_size);
