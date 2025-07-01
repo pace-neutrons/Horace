@@ -196,7 +196,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         }
         bool align_result = bin_par_ptr->alignment_matrix.size() == 9;
         size_t targ_pix_pos(0);
-        bool keep_unique_id = bin_par_ptr->binMode == sort_and_uid;
+        bool keep_unique_id = bin_par_ptr->binMode == opModes::sort_and_uid;
         // actually sort pixels and copy selected pixels into proper locations within the target array
         for (size_t i = 0; i < data_size; i++) {
             if (pix_ok_bin_idx[i] < 0) // drop pixels with have not been inculded above

@@ -20,8 +20,12 @@ bool BinningArg::new_binning_arguments_present(mxArray const* prhs[])
     // check if binning have changed
     std::vector<uint32_t> old_nbins_all_dims(this->nbins_all_dims.begin(), this->nbins_all_dims.end());
     this->set_nbins_all_dims(mxGetField(inpar_structure_ptr, 0, "nbins_all_dims"));
-
-    return (old_nbins_all_dims != this->nbins_all_dims);
+    if (old_nbins_all_dims != this->nbins_all_dims) {
+        return true;
+    }
+    auto oldMode = this->binMode;
+    this->set_binning_mode(mxGetField(inpar_structure_ptr, 0, "binning_mode"));
+    return (oldMode != this->binMode);
 
 }; //
 
@@ -773,34 +777,40 @@ void BinningArg::return_results(mxArray* plhs[], mwSize nlhs)
     }
 };
 
+// take input array, and allocate new one if input is empty or duplicate input if input is not empty
+mxArray* duplicate_or_allocate_array(mxArray const* const origin_ptr, mwSize nDims, mwSize* dim_ptr)
+{
+    mxArray* target_ptr(nullptr);
+    if (mxIsEmpty(origin_ptr)) {
+        target_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
+        nullify_array(target_ptr);
+    } else {
+        target_ptr = mxDuplicateArray(origin_ptr);
+    }
+    return target_ptr;
+};
+
 // check if input accumulators have not been changed and initalize them appropriately
 void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prhs[], bool force_update)
 {
-    mwSize nDims(0);
-    mwSize* dim_ptr(nullptr);
+    auto nDims = this->get_Matlab_n_dimensions();
+    mwSize* dim_ptr = this->get_Matlab_acc_dimensions(this->distr_size);
     bool init_new_accumulators(false);
     if (mxIsEmpty(prhs[in_arg::npixIn]) || force_update) {
         init_new_accumulators = true;
-        nDims = this->get_Matlab_n_dimensions();
-        dim_ptr = this->get_Matlab_acc_dimensions(this->distr_size);
-        this->npix_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
-        nullify_array(this->npix_ptr);
-    } else {
-        this->npix_ptr = mxDuplicateArray(prhs[in_arg::npixIn]);
     }
+    this->npix_ptr = duplicate_or_allocate_array(prhs[in_arg::npixIn], nDims, dim_ptr);
     plhs[out_arg::npix] = this->npix_ptr;
 
     if (this->binMode != opModes::npix_only) {
         if (init_new_accumulators) {
-            this->signal_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
-            nullify_array(this->signal_ptr);
+            this->signal_ptr = duplicate_or_allocate_array(prhs[in_arg::signalIn], nDims, dim_ptr);
+
             if (this->binMode != opModes::sigerr_cell) {
-                this->error_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
-                nullify_array(this->error_ptr);
+                this->error_ptr = duplicate_or_allocate_array(prhs[in_arg::errorIn], nDims, dim_ptr);
             } else {
                 if (this->n_Cells_to_bin > 1) {
-                    this->error_ptr = mxCreateNumericArray(nDims, dim_ptr, mxDOUBLE_CLASS, mxREAL);
-                    nullify_array(this->error_ptr);
+                    this->error_ptr = duplicate_or_allocate_array(prhs[in_arg::errorIn], nDims, dim_ptr);
                 } else {
                     this->error_ptr = mxCreateDoubleMatrix(0, 0, mxREAL);
                 }
