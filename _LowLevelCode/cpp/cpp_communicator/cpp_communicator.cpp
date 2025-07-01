@@ -102,7 +102,7 @@ Outputs:
   3     -- size of the MPI pool current worker is the part of.
 */
 
-static std::unique_ptr<class_handle<MPI_wrapper>> pCommunicatorHolder;
+static std::unique_ptr<class_handle<MPI_wrapper>> mpi_comm_ptr;
 
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
@@ -122,15 +122,13 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     InitParamHolder InitPar;
     size_t nbytes_to_transfer;
-    input_types work_type;
 
-
-    pCommunicatorHolder = parse_inputs(nlhs, nrhs, prhs,
-        work_type, data_addresses, data_tag, is_synchronous,
+    input_types  work_type = parse_inputs(nlhs, nrhs, prhs,
+        mpi_comm_ptr, data_addresses, data_tag, is_synchronous,
         data_buffer, nbytes_to_transfer, InitPar);
 
     // avoid problem with multiple finalization
-    if (pCommunicatorHolder == nullptr) { // this can happen only if close_mpi is selected and the framework had been already finalized
+    if (mpi_comm_ptr == nullptr) { // this can happen only if close_mpi is selected and the framework had been already finalized
         if (nlhs > 0)
             plhs[(int)labIndex_Out::comm_ptr] = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL);
         return;
@@ -140,35 +138,35 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     switch (work_type)
     {
     case(init_mpi): { // Initialize MPI communications and return labIndex and numLabs
-        pCommunicatorHolder->class_ptr->init(InitPar);
-        set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
+        mpi_comm_ptr->class_ptr->init(InitPar);
+        set_numlab_and_nlabs(mpi_comm_ptr, nlhs, plhs, nrhs, prhs);
         break;
     }
     case(init_test_mode): {
         // init test mode providing init parameters as input to init function
-        pCommunicatorHolder->class_ptr->init(InitPar);
-        set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
+        mpi_comm_ptr->class_ptr->init(InitPar);
+        set_numlab_and_nlabs(mpi_comm_ptr, nlhs, plhs, nrhs, prhs);
         break;
     }
     case(labIndex): {  // return labIndex and number of workers
-        set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
+        set_numlab_and_nlabs(mpi_comm_ptr, nlhs, plhs, nrhs, prhs);
         break;
     }
     case(labBarrier): { // wait at barrier. Should not return anything
-        pCommunicatorHolder->class_ptr->barrier();
+        mpi_comm_ptr->class_ptr->barrier();
         return;
     }
     case(labSend): {
-        pCommunicatorHolder->class_ptr->labSend(data_addresses[0], data_tag[0], is_synchronous, data_buffer, nbytes_to_transfer);
+        mpi_comm_ptr->class_ptr->labSend(data_addresses[0], data_tag[0], is_synchronous, data_buffer, nbytes_to_transfer);
         break;
     }
     case(labReceive): {
-        pCommunicatorHolder->class_ptr->labReceive(data_addresses[0], data_tag[0], is_synchronous, plhs, nlhs);
+        mpi_comm_ptr->class_ptr->labReceive(data_addresses[0], data_tag[0], is_synchronous, plhs, nlhs);
         break;
     }
     case(labProbe): {
         std::vector<int32_t> address_present, tag_present;
-        pCommunicatorHolder->class_ptr->labProbe(data_addresses, data_tag, address_present, tag_present);
+        mpi_comm_ptr->class_ptr->labProbe(data_addresses, data_tag, address_present, tag_present);
         size_t n_present = address_present.size();
         if (n_present == 0) {
             plhs[(int)labProbe_Out::addr_tag_array] = mxCreateNumericMatrix(1, 0, mxINT32_CLASS, mxREAL);
@@ -184,12 +182,12 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         break;
     }
     case(clearAll): { // receive and discard all messages, directed to the framework
-        pCommunicatorHolder->class_ptr->clearAll();
+        mpi_comm_ptr->class_ptr->clearAll();
         break;
     }
     case(close_mpi): {
-        pCommunicatorHolder->clear_mex_locks();
-        pCommunicatorHolder.reset();
+        mpi_comm_ptr->clear_mex_locks();
+        mpi_comm_ptr.reset();
 
         for (int i = 0; i < nlhs; ++i) {
             plhs[i] = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL);
@@ -199,7 +197,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     } // end switch
 
     if (nlhs > 0) {
-        plhs[(int)labIndex_Out::comm_ptr] = pCommunicatorHolder->export_hanlder_toMatlab();
+        plhs[(int)labIndex_Out::comm_ptr] = mpi_comm_ptr->export_hanlder_toMatlab();
     }
 }
 /* If appropriate number of output arguments are available, set up the mex routine output arguments to mpi_numLab and mpi_labNum values

@@ -19,7 +19,8 @@ enum input_types {
     labProbe,
     labIndex,
     labBarrier,
-    clearAll  // run labReceive until all existing messages received and discarded
+    clearAll,  // run labReceive until all existing messages received and discarded
+    undefined_state
 };
 
 // Enum various versions of input/output parameters, different for different kinds of input options
@@ -114,10 +115,10 @@ struct InitParamHolder {
 // Declarations for input_parser functions
 class MPI_wrapper;
 
-std::unique_ptr<class_handle<MPI_wrapper> > parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
-    input_types& work_mode, std::vector<int32_t> &data_addresses, std::vector<int32_t> &data_tag, bool& is_synchroneous,
+input_types parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
+    std::unique_ptr<class_handle<MPI_wrapper> > &, std::vector<int32_t>& data_addresses, std::vector<int32_t>& data_tag, bool& is_synchroneous,
     uint8_t*& data_buffer, size_t &nbytes_to_transfer,
     InitParamHolder & addPar);
 
-std::unique_ptr<class_handle<MPI_wrapper> > process_init_mode(const char* ModeName, bool is_test_mode,
-    const mxArray* prhs[], int nrhs,InitParamHolder& init_par);
+void process_init_mode(const char* ModeName, bool is_test_mode,
+    const mxArray* prhs[], int nrhs, std::unique_ptr<class_handle<MPI_wrapper>> &mpi_holder,InitParamHolder& init_par);
