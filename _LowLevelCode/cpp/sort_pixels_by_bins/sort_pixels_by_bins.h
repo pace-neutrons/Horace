@@ -1,16 +1,48 @@
-#ifndef H_SORT_PIXELS_BY_BINS
-#define H_SORT_PIXELS_BY_BINS
+#pragma once
 
 
-#include "../CommonCode.h"
+#include <include/CommonCode.h>
 #include <algorithm>
+enum Input_Arguments {
+    Pixel_data,
+    Pixel_Indexes,
+    Pixel_Distribution,
+    keep_type,
+    N_INPUT_Arguments
+};
+enum Out_Arguments {
+    Pixels_Sorted,
+    Pixels_range,
+    N_OUTPUT_Arguments
+};
+/* What kind of input/output types the routine supports*/
+enum InputOutputTypes {
+    Pix8IndIOut8, // Double pixels, Int64 indexes, double output
+    Pix8IndDOut8, // Double pixels, Double indexes, double output
+    Pix4IndIOut8,
+    Pix4IndDOut8, // Float pixels Int64 indexes double output
+    Pix4IndIOut4, // Float pixels Int64 indexes float output
+    Pix4IndDOut4,
+    Pix4Ind4Out4, // float pixels float indexes, fload output
+    Pix4Ind4Out8, // float pixels float indexes, double output
+    Pix8Ind4Out8, // double pixels float indexes, double output
+    ERROR,
+    N_InputCases
+};
+enum InputIndexesType {
+    IndI64,  // input indexes are unit64 type
+    IndD64,  // input indexes are double64 type
+    IndF32,  // input indexes are float32 type.
+    N_InputIndexes
+};
 
 #define iRound(x)  (int)floor((x)+0.5)
 
+InputOutputTypes process_types(bool float_pix, InputIndexesType index_type, bool double_out);
 
 //
-template<class T, class N, class K>
-void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *const pPixRange,
+template<class ST, class N, class TG>
+void sort_pixels_by_bins( TG * const pPixelSorted, size_t nPixelsSorted, double *const pPixRange,
     std::vector<const void *> &PixelData, std::vector<size_t> &NPixels,
     std::vector<const void *> &PixelIndexes, std::vector<size_t> NIndexes,
     double const *const pCellDens, size_t distribution_size,
@@ -25,12 +57,11 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *
         throw("Sort_pixels_by_bins: pixels data and their cell distributions are inconsistent ");
     }
     bool calc_pix_range(false);
+    std::span<double> pix_range;
     if (pPixRange) {
         calc_pix_range = true;
-        for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {
-            pPixRange[2 * i]     =  std::numeric_limits<double>::max();
-            pPixRange[2 * i + 1] = -std::numeric_limits<double>::max();
-        }
+        pix_range = std::span<double>(pPixRange, 2 * pix_flds::PIX_WIDTH);
+        init_min_max_range_calc(pix_range, (size_t)pix_flds::PIX_WIDTH);
     }
 
 
@@ -41,30 +72,20 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *
         const N* pCellInd = reinterpret_cast<const N*>(PixelIndexes[nblock]);
         if (pCellInd == nullptr)continue;
 
-        const T* pPixData= reinterpret_cast<const T*>(PixelData[nblock]);
+        const ST* pPixData= reinterpret_cast<const ST *>(PixelData[nblock]);
         if (pPixData == nullptr)continue;
 
-        for (size_t j = 0; j < nBlockInd ; j++) {    // sort pixels according to cells
-            size_t i0 = j*pix_fields::PIX_WIDTH;
+        // sort pixels according to cells
+        for (size_t j = 0; j < nBlockInd ; j++) {
             size_t ind = (size_t)(pCellInd[j] - 1); // -1 as Matlab arrays start from one;
-            size_t jBase = ppInd[ind] * pix_fields::PIX_WIDTH;
-            ppInd[ind]++;
-            if (calc_pix_range) {
-                for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {
-                    double pix_val = static_cast<double>(pPixData[i0 + i]);
-                    pPixRange[2 * i]     = std::min(pPixRange[2 * i], pix_val);
-                    pPixRange[2 * i + 1] = std::max(pPixRange[2 * i + 1], pix_val);
-                }
-            }
+            auto cell_pix_ind = ppInd[ind]++;       // pixel position within a cell
 
-            for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {  // copy all pixel data into the location requested
-                pPixelSorted[jBase + i] = static_cast<K>(pPixData[i0 + i]);
+            if (calc_pix_range) {
+                calc_pix_ranges<ST>(pix_range, pPixData,pix_flds::PIX_WIDTH, j);
             }
+            copy_pixels<ST, TG>(pPixData, j, pPixelSorted, cell_pix_ind); // copy all pixel data into the location requested
         }
     }
 
 
 }
-
-
-#endif

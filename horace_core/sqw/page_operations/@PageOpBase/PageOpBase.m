@@ -202,6 +202,7 @@ classdef PageOpBase
             obj = init_(obj,in_obj);
             obj.pix_idx_start_ = 1;
         end
+        %
         function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
             % Method used to split input npix array into pages
             % Inputs:
@@ -256,7 +257,8 @@ classdef PageOpBase
         %
         function obj = common_page_op(obj)
             % Method contains the code which runs for any page operation,
-            % inheriting from this one.
+            % inheriting from this one after the particular page
+            % transformation have been performed over a page.
             %
             % Input:
             % obj   -- pageOp object, containing modified pixel_data page
@@ -337,7 +339,8 @@ classdef PageOpBase
             % Complete image modifications which would happen only if you
             % were processing the image and using accumulators
             obj = obj.update_image(obj.sig_acc_,obj.var_acc_);
-            % transfer modifications of new image and pixels to the target object
+            % transfer modifications of new image and pixels to the target
+            % object
             [out_obj,obj] = obj.finish_core_op(in_obj);
         end
         function [out_obj,obj] = finish_core_op(obj,in_obj)
@@ -351,8 +354,8 @@ classdef PageOpBase
             % part of finis_op code except update_image
             %
             %
-            %
-            % transfer modifications of new image and pixels to the target object
+            % transfer modifications of new image and pixels to the target
+            % object
             [out_obj,obj] = finish_op_(obj,in_obj);
         end
         %

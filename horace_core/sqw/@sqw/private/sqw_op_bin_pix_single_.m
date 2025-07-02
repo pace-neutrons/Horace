@@ -12,9 +12,9 @@ function obj = sqw_op_bin_pix_single_(obj, sqwfunc, pars,targ_ax_block,targ_proj
 %                for the calculation
 %
 %   sqwfunc   -- Handle to function that executes operation and modifies
-%                pixels, namely changs signal and error as function of
+%                pixels, namely changes signal and error as function of
 %                function parameters and pixels coordinates including the
-%                possibilty to change pixels coordinates.
+%                possibility to change pixels coordinates.
 %
 %   pars      --  Arguments and parameters used by the function.
 %   opts  -   The structure, containing parameters, used to change
