@@ -843,6 +843,32 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
             assertTrue(hpc.parallel_multifit);
             assertEqualWithSave(obj,corr,'',1.e-8)
         end
+        function test_bragg_pos_no_parallel(obj)
+            % ensure that bragg_pos is not failing regardless of parallel
+            % mutlifit enabled or not
+            clOb = set_temporary_config_options(hpc_config,'parallel_multifit',true);
+            bragg_pos= [...
+                0, -1, 0; ...
+                1, 2, 0; ...
+                0, -1, 1];
+
+            radial_cut_length = 1.5;
+            radial_bin_width  = 0.02;
+            radial_thickness  = 0.4;
+            trans_cut_length = 1.5;
+            trans_bin_width  = 0.02;
+            trans_thickness  = 2;
+
+            [rlu_real, width, wcut, wpeak]=bragg_positions(obj.misaligned_sqw_file, ...
+                bragg_pos, radial_cut_length, radial_bin_width, radial_thickness, ...
+                trans_cut_length, trans_bin_width, trans_thickness, 'gauss');
+            rlu_sample = ...
+                [0.04   -0.9999    0.05;...
+                0.90     2.       -0.16;...
+                0.10    -0.95       1.0];
+            assertElementsAlmostEqual(rlu_real, rlu_sample, 'absolute', 1.e-1);
+
+        end
 
         function test_bragg_pos(obj)
             bragg_pos= [...
