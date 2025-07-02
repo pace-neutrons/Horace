@@ -169,6 +169,7 @@ void BinningArg::set_nbins_all_dims(mxArray const* const pField)
 void BinningArg::set_unique_runid(mxArray const* const pField)
 {
     if (mxIsEmpty(pField)) {
+        this->unique_runID.clear();
         return;
     }
     auto nDims = mxGetNumberOfDimensions(pField);

@@ -4,6 +4,12 @@ classdef test_bin_pixels_mex_nomex < TestCase
     properties
         this_folder;
         no_mex;
+
+        nPolar=99;
+        nAzim =101;
+        nDet;
+        nEn  = 102;
+        efix=100;
     end
 
     methods
@@ -16,6 +22,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
             obj = obj@TestCase(name);
 
             obj.this_folder = fileparts(which('test_bin_pixels_mex_nomex.m'));
+            obj.nDet=obj.nPolar*obj.nAzim;
 
             [~,n_errors] = check_horace_mex();
             obj.no_mex = n_errors > 0;
@@ -75,7 +82,7 @@ classdef test_bin_pixels_mex_nomex < TestCase
             assertElementsAlmostEqual(e_m,e_c);
             assertElementsAlmostEqual(npix_m,npix_c,'absolute',1.e-12);
             assertEqualToTol(pix_ok_m,pix_ok_c);
-            assertElementsAlmostEqual(unique_runid_m,unique_runid_c);
+            assertElementsAlmostEqual(unique_runid_m,double(unique_runid_c));
         end
     end
     methods(Access=protected)
