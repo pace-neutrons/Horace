@@ -228,6 +228,7 @@ end
 
 close all
 clear config_store;
+clear_mex;
 
 err = ~all(test_ok);
 
