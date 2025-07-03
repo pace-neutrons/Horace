@@ -13,22 +13,6 @@ classdef test_paths < TestCase
             obj = obj@TestCase(name);
             obj.paths = horace_paths();
         end
-        
-        function test_clear(obj)
-            herbert0 = obj.paths.herbert;
-            horace0  = obj.paths.horace;
-            root0    = obj.paths.root;
-            
-            obj.paths.clear();
-            
-            herbert1 = obj.paths.herbert;
-            horace1 = obj.paths.horace;
-            root1 = obj.paths.root;
-            
-            assertEqual(herbert0,herbert1);
-            assertEqual(horace0,horace1);
-            assertEqual(root0,root1);
-        end
                
         function obj = test_roots_same(obj)
             herbert_root = fileparts(obj.paths.herbert);

@@ -1,17 +1,13 @@
-function herbert_init(nobaner)
+function herbert_init(no_banner)
 % Adds the paths needed by Herbert.
 %
-% In your startup.m, add the Horace root path and call horace_on, do not
-% call this directly
+% Optional input:
 %
-% Is PC and Unix compatible.
+%  no_banner   -- if the variable is present, routine does not print the Herbert
+%                 banner
 
-% T.G.Perring
 
-
-% Root directory is assumed to be that in which this function resides
-% (keep this path, as may be removed by call to application_off)
-global herbert_path
+% Root Herbert directory is assumed to be that in which this function resides
 herbert_path = fileparts(which('herbert_init'));
 
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
@@ -36,7 +32,9 @@ addgenpath_message (herbert_path,'graphics')
 % Applications definitions
 addgenpath_message (herbert_path,'applications')
 
-print_banner();
+if nargin == 0
+    print_banner();
+end
 
 end
 

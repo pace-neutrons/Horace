@@ -1,18 +1,10 @@
 function horace_init(no_banner)
-% Adds the paths needed by Horace - sqw version
+% Adds the paths needed by Horace.
 %
-% In your startup.m, add the Horace root path and call horace_init, e.g.
-%       addpath('c:\mprogs\horace')
-%       horace_init
-% Is PC and Unix compatible.
+% Optional input:
 %
-%Optional input:
-%
-%  no_banner   -- if the variable is present, routine does not print Horace baner
-%
-% Initial author:
-% T.G.Perring
-%
+%  no_banner   -- if the variable is present, routine does not print the Horace
+%                 banner
 %
 % -----------------------------------------------------------------------------
 % Check if supporting Herbert package is available
@@ -29,10 +21,11 @@ if isempty(which('herbert_init'))
 end
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % -----------------------------------------------------------------------------
-% Root directory is assumed to be that in which this function resides
-global horace_path
+% Root Horace (as opposed to Herbert) directory is assumed to be that in which
+% this function resides
 horace_path = fileparts(which('horace_init'));
-global root_path
+
+% Overall Horace root directory is assumed to be the next folder up
 root_path = fileparts(horace_path);
 addpath(horace_path)  % MUST have horace_path so that horace_init, horace_off included
 
