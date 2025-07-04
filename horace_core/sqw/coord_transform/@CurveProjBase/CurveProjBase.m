@@ -80,8 +80,7 @@ classdef CurveProjBase <aProjectionBase
                 obj = obj.check_combo_arg();
                 return
             end
-            nargi = numel(varargin);
-            if nargi== 1 && (isstruct(varargin{1})||isa(varargin{1},'CurveProjBase'))
+            if isscalar(varargin) && (isstruct(varargin{1})||isa(varargin{1},'CurveProjBase'))
                 if isstruct(varargin{1})
                     obj = serializable.loadobj(varargin{1});
                 else

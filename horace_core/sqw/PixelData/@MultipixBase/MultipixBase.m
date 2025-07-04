@@ -21,7 +21,7 @@ classdef MultipixBase < serializable
         data_range   % Global range of all pixel data, i.e. coordinates, signal error and other pixel parameters
 
         %   run_label   Indicates how to re-label the run index (pix(5,...)
-        %          'fileno'      relabel run index as the index of the file
+        %          'filenum'      relabel run index as the index of the file
         %                        in the list infiles
         %          'nochange'    use the run index as in the input file
         %                        numeric array  offset run numbers for ith
@@ -35,9 +35,6 @@ classdef MultipixBase < serializable
         %          be offset to give the run indices into the collective list of run parameters
         run_label;
 
-        % numbers of files used as run_label for pixels if relabel_with_fnum
-        % and change_fileno are set to true
-        filenum
         %
         % true if pixel id from each contributing file should be replaced by contributing file number
         relabel_with_fnum;
@@ -64,6 +61,12 @@ classdef MultipixBase < serializable
         % from components during join/combine operation.
         is_corrected
         %------------------------------------------------------------------
+        % Part of PixelData interface, not very important on multipix but
+        % need to be defined to use multipix alongside with pixelData
+        % if operation shoud conserve pixel dataset precision. Part of
+        % pixel_data interface.
+        keep_precision
+        old_file_format
     end
     %
     %
@@ -83,8 +86,8 @@ classdef MultipixBase < serializable
         full_filename_;
         %
         run_label_ = 'nochange';
-        %
-        filenum_ = [];
+        %------------------------------------------------------------------
+        keep_precision_ = true;
     end
     methods
         %
@@ -146,8 +149,9 @@ classdef MultipixBase < serializable
             npix_tot = obj.npix_each_file_;
         end
         function obj= set.npix_each_file(obj,val)
-            % If defined, accepts a numeric array which defines number
-            % of pixels in each file or single value if total number of
+            % If defined, accepts a numeric array which defines pixel
+            % distribution over image bin per each file
+            % or single value if total number of
             % pixels in each file is the same
             obj = set_npix_each_file(obj,val);
         end
@@ -214,11 +218,21 @@ classdef MultipixBase < serializable
             is = false;
         end
         %
+        function do = get.keep_precision(obj)
+            do = obj.keep_precision_;
+        end
+        function obj = set.keep_precision(obj,val)
+            obj.keep_precision_ = logical(val);
+        end
+        function is = get.old_file_format(~)
+            is = false;
+        end
+        %
         function is = get.relabel_with_fnum(obj)
             % true if pixel id from each contributing file
             % should be replaced by contributing file number
             if istext(obj.run_label)
-                if strcmpi(obj.run_label,'fileno')
+                if strncmpi(obj.run_label,'filen',5)
                     is  = true;
                 else
                     is = false;
@@ -234,30 +248,67 @@ classdef MultipixBase < serializable
             is = get_change_fileno_(obj);
         end
         %
-        function fn = get.filenum(obj)
-            if isempty(obj.filenum_)
-                fn = 1:obj.nfiles;
-            else
-                fn = obj.filenum_;
-            end
-        end
-        function obj = set.filenum(obj,val)
-            if ~isnumeric(val)
-                error('HORACE:MultipixBase:invalid_argument', ...
-                    'filenum property should be numeric array with number of elements equal to number of files')
-            end
-            obj.filenum_ = val(:)';
-        end
         function rl= get.run_label(obj)
             rl = obj.run_label_;
         end
         function obj = set.run_label(obj,val)
+            % Sets the value describing the way to treat run_id (run_index)
+            % of input pixels datasets while combining them together.
+            %
+            % Acceptable values are:
+            % 1) string containing 'nochange' or 'fileno' keys. Any other strings are not
+            %    acceptable.
+            % "nochange" -- means that runlabels present in input pixels data do not
+            %              change
+            % "filenum"  -- runlables present in input pixels data change to the number
+            %              of the file (dataset) in the list of input datasets(files)
+            %              used by the class
+            % 2) array of numbers, with numel equal to the number of input
+            %    datasets(files)
+            %              in this case, run_id-s of input datasets will be changed to
+            %              the numbers provided in this array.
+            %
+            % DEFAULT: "nochange"
             obj = set_runlabel_(obj,val);
         end
-
+        function obj=clean_up_tmp_files(obj)
+            % delete temporary files, described by infiles property
+            % and clear up file combine info.
+            % Method identical to delete operator and should be called
+            % after dealing with file combine.
+            % Named differently for historical reasons
+            for nfile = 1:obj.nfiles
+                if is_file(obj.infiles{nfile})
+                    delete(obj.infiles{nfile});
+                end
+            end
+            obj.infiles_ = {};
+            obj.num_pixels_ = 0;
+            obj.npix_each_file_ = [];
+            %
+            obj.nbins_ = 0;
+            % Global range of all pixels, intended for combining
+            obj.data_range_ = PixelDataBase.EMPTY_RANGE;
+            %
+            obj.run_label_ = 'nochange';
+        end
+        function wout = copy(win)
+            % satisty pixels interface and copy pixel data object
+            %
+            % It looks like cow works in this case, though need to
+            % think about more complicated cases
+            wout = win;
+        end
     end
     %----------------------------------------------------------------------
     methods(Static)
+        function obj_out = apply_op(obj_in,page_op)
+            % Until paging interface is fully implemented on PixelDataBase
+            % here we are working with PixelDataFilebacked algorithm as it
+            % has advanced paging operations
+            obj_out = PixelDataFileBacked.apply_op(obj_in,page_op);
+
+        end
         function data_range = recalc_data_range_from_loaders(ldrs,keep_runid)
             % Recalculate pixels range using list of defined loaders
             if nargin == 1

@@ -22,9 +22,9 @@ classdef Experiment < serializable
     properties(Access=private)
         % String input here (a) invalid value so should be caught if not
         % redefined later (b) describes what the construction process is.
-        instruments_ = 'global storage; refernece initialised in constructor';
-        detector_arrays_ = 'global storage; refernece initialised in constructor';
-        samples_ = 'global storage; refernece initialised in constructor';
+        instruments_ = 'global storage; referenece initialised in constructor';
+        detector_arrays_ = 'global storage; referenece initialised in constructor';
+        samples_ = 'global storage; referenece initialised in constructor';
         samples_set_ = false; % Two properties used to harmonize lattice
         expdata_set_ = false; % which stored both in sample and in expdata
         %holder to store old sample lattice if the new lattice is set

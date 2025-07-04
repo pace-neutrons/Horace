@@ -1,4 +1,4 @@
-classdef test_PixelAlignment < TestCase & common_pix_class_state_holder
+classdef test_PixelAlignment < TestCase
 
     properties
         stored_config

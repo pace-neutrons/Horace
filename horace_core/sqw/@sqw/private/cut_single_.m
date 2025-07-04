@@ -134,10 +134,3 @@ else
     data_out.pix = PixelDataBase.create();
 end
 end
-%
-function clean_up_tmp_files(pix_comb_info)
-% Manually clean-up temporary files created by a pixfile_combine_info object
-for nfile = 1:numel(pix_comb_info.infiles)
-    delete(pix_comb_info.infiles{nfile});
-end
-end

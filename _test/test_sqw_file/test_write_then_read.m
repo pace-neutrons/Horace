@@ -1,5 +1,4 @@
-classdef test_write_then_read < TestCase & common_sqw_file_state_holder
-
+classdef test_write_then_read < TestCase
     properties
         old_warn_state;
 
@@ -15,6 +14,16 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             hp = horace_paths;
             obj.test_sqw_file_path = fullfile(hp.test_common,obj.test_sqw_file_path);
         end
+        function setUp(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'off','off'});
+            warning(ws);
+        end
+        function tearDown(~)
+            ws = struct('identifier',{'HORACE:old_file_format','SQW_FILE:old_version'}, ...
+                'state',{'on','on'});
+            warning(ws);
+        end      
 
         function test_read_dnd_v3_with_empty_sample(obj)
             % prepare test file with empty sample
@@ -105,7 +114,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
                     if matlab_version_num() < 24.01
                         open_fids = fopen('all');
                     else
-                        open_fids = openFiles();
+                        open_fids = openedFiles();
                     end
                     for i = 1:numel(open_fids)
                         fpath = fopen(open_fids(i));

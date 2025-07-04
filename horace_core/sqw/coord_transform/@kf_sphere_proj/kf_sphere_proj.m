@@ -1,10 +1,31 @@
 classdef kf_sphere_proj<sphere_proj
-    % Class defines spherical coordinate projection, used by cut_sqw
-    % to make spherical cuts.
+    % Class defines special projection, used by cut_sqw
+    % to make spherical cut in special spherical coordinate system
+    % related to the spectrometer frame.
     %
-    % Unlike sphere_proj, which calculates spherical coordinates of scattrgint
-    % vector Q, kf_sphere_proj, calculates spherical coordinates of
-    % scattering vector kf, where Q = ki-kf;
+    % Unlike sphere_proj, which calculates spherical coordinates of
+    % scattering vector Q, kf_sphere_proj, calculates spherical coordinates
+    % of scattering vector kf, where Q = RM*(ki-kf), where RM is rotation
+    % matrix which describes the crystal rotation from axis qx to
+    % beam direction in Crystal Cartesian coordinate system (see
+    % "rundatah/calc_projections" for the details of this transformation)
+    %
+    %
+    % Using simple calculations one may found out that this projection is a
+    % degenerated projection, as its two axis dE and kf are bound by
+    % arithmetic relation so projection's transformation from pixels to image
+    % destroys information about crystal orientation and inverse
+    % transformation is ill defined. Having this transformation defined is
+    % prerequest of working with normal projection, so this projection can
+    % be used in special cuts only, with generic projection property
+    % disable_pix_preselection set to true.
+    %
+    % Currently in the code it should and can be used as part of
+    % transformation which provides instrument view only. The instrument
+    % view can be obtained for sqw objects only so cuts with this
+    % projection will fail on DnD objects.
+    %
+    % Tested on direct instruments only.
     %
     % Usage (with positional parameters):
     %
@@ -14,6 +35,11 @@ classdef kf_sphere_proj<sphere_proj
     % >>sp = kf_sphere_proj(Ei,u,v,type);
     % >>sp = kf_sphere_proj(Ei,u,v,type,alatt,angdeg);
     % >>sp = kf_sphere_proj(Ei,u,v,type,alatt,angdeg,offset,label,title);
+    % >>sp = kf_sphere_proj(Ei,....,emode,cc_to_spec_mat,run_id_mapper)
+    %
+    % As for any serializable, the positional parameters may be replaced by
+    % random set of key-values pairs where keys are the names of the
+    % properties to set.
     %
     % Where:
     % Ei -- Incident energy in direct spectrometer. Will work for indirect
@@ -24,11 +50,6 @@ classdef kf_sphere_proj<sphere_proj
     %        The axis to calculate theta angle from.
     % v  -- [1,3] vector of hkl direction of x-axis of the spherical
     %       coordinate system, the axis to calculate Phi angle from.
-    % NOTE:
-    %       the idea of this projection is that u and v should be set to
-    %       the values of u,v vectors, used to obtain sqw object i.e. u
-    %       should coicide with beam direction and v selected to define the
-    %       uv plane, where rotation occurs.
     %
     % type-- 3-letter character array, defining the spherical
     %        coordinate system units (see type property below)
@@ -40,40 +61,29 @@ classdef kf_sphere_proj<sphere_proj
     % label - 4-element cellarray, which defines axes labels
     % title - character string to title the plots of cuts, obtained
     %         using this projection.
+    % emode - instrument operation mode. Only direct (value 1) has been
+    %         tested so far.
+    % cc_to_spec_mat
+    %       - cellarray of martices which convert vectors from spectrometer
+    %         frame to Crystal cartesian coordinate system. See Experiment.
     %
     % all parameters may be provided as 'key',value pairs appearing in
     % arbitrary order after positional parameters
-    % e.g.:
-    % >>sp = kf_sphere_proj(10,[1,0,0],[0,1,0],'arr','offset',[1,1,0]);
-    % >>sp = kf_sphere_proj(10,[1,0,0],'type','arr','v',[0,1,0],'offset',[1,1,0]);
     %
-    % Default angular coordinates names and meaning of the coordinate system,
-    % defined by sphere_proj are chosen as follows:
-    % |kf|    -- coordinate 1 is the modulus of the scattering momentum.
-    % theta   -- coordinate 2, the angle between axis u
-    %            and the direction of the kf.
-    % phi     -- coordinate 3 is the angle between the projection of the
-    %            scattering vector to the plane defined by vector v and
-    %            perpendicular to u.
-    % dE      -- coordinate 4 the energy transfer direction
-    %
-    % parent's class "type" property describes which scales are avaliable for
-    % each direction:
-    % for |Q|:
-    % 'a' -- Angstrom,
-    % 'r' -- scale = max(\vec{u}*\vec{e_h,e_k,e_l}) -- projection of u to
-    %                                       unit vectors in hkl directions
-    % 'p' -- |u| = 1 -- i.e. scale = |u|
-    % 'h','k' or 'l' -- i.e. scale = (a*,b* or c*);
-    % for angular units theta, phi:
-    % 'd' - degree, 'r' -- radians
-    % For energy transfer:
-    % 'e'-energy transfer in meV (no other scaling so may be missing)
+    % NOTE 1:
+    %       the idea of this projection is that u and v should be set to
+    %       the values of u,v vectors, used to obtain sqw object i.e. u
+    %       should coicide with beam direction and v selected to define the
+    %       uv plane, where rotation occurs.
+    % NOTE 2:
+    %       This is special projection which would not work without
+    %       cc_to_spec_mat and run_id_mapper being defined.
     %
     properties(Dependent)
-        Ei  % incident for direct or analyzer for indirect energy.
-        ki_mod % modulo of vector ki in A^-1. Used for debugging and easy
-        % cut range estimation
+        Ei  % incident energy for direct spectrometer or analyzer energy 
+        % for indirect spectrometer.
+        ki_mod % read-only parameter. Modulo of vector ki in A^-1.
+        % Used for debugging and easy cut range estimation
         %
         emode % data processing mode (1-direct, 2-indirect, 0 -- elastic)
     end
@@ -104,6 +114,9 @@ classdef kf_sphere_proj<sphere_proj
             if nargin>0
                 obj = obj.init(varargin{:});
             end
+            % Disable pixels preselection, as this projection can not do
+            % inverse image->pixels transformation correctly.
+            obj.disable_pix_preselection = true;
         end
         function obj = copy_proj_param_from_source(obj,cut_source)
             % overloaded aProjectionBase method, which sets up
@@ -119,6 +132,36 @@ classdef kf_sphere_proj<sphere_proj
             obj = copy_proj_param_from_source@aProjectionBase(obj,cut_source);
             obj = copy_proj_param_from_source_(obj,cut_source);
         end
+        function ax_bl = get_proj_axes_block(obj,default_bin_ranges,requested_bin_ranges)
+            % Construct the axes block, corresponding to this projection class
+            % Returns projection-specific AxesBlockBase class, built from the
+            % block ranges or the binning ranges.
+            %
+            % Overloaded for kf_sphere_projection to add different
+            % axes_block title, which highlights limited usage of
+            % this projection.
+            %
+            % Inputs:
+            % default_bin_ranges --
+            %           cellarray of the binning ranges used as defaults
+            %           if requested binning ranges are undefined or
+            %           infinite. Usually it is the range of the existing
+            %           axes block, transformed into the system
+            %           coordinates, defined by cut projection using
+            %           dnd.get_targ_range(targ_proj) method.
+            % requested_bin_ranges --
+            %           cellarray of cut bin ranges, requested by user and
+            %           expressed in source coordinate system.
+            %
+            % Returns:
+            % ax_bl -- initialized, i.e. containing defined ranges and
+            %          numbers of  bins in each direction, AxesBlockBase
+            %          corresponding to the kf_sphere projection.
+            %
+            ax_bl   = get_proj_axes_block@aProjectionBase(obj,default_bin_ranges,requested_bin_ranges);
+            ax_bl   = ax_bl.add_proj_description_function(@(x)sprintf('Instument view along beam direction'));
+        end
+
         %------------------------------------------------------------------
         function emode = get.emode(obj)
             emode = obj.emode_;
@@ -200,6 +243,7 @@ classdef kf_sphere_proj<sphere_proj
                 end
                 input_is_obj = false;
             end
+            % get indices of transformation martices per each run
             run_id = obj.run_id_mapper_.get_values_for_keys(run_id,true,1);
 
             np = numel(run_id);
@@ -234,7 +278,14 @@ classdef kf_sphere_proj<sphere_proj
         function pix_cc = transform_img_to_pix(obj,pix_transformed,varargin)
             % Transform pixels in image (spherical) coordinate system
             % into crystal Cartesian system of pixels
+            %
+            % This is fake transformation to satisfy the interface. No
+            % sufficient information about about reverse transformation is
+            % currently stored within the image
             kf = transform_img_to_pix@sphere_proj(obj,pix_transformed,varargin{:});
+            % this should be multiplied to appropriate rotation matrix but
+            % no into about the matrix is currently present in the
+            % image. Image is degenerated.
             pix_cc = obj.ki_-kf;
             if size(pix_transformed,1) > 3
                 pix_cc = [pix_cc;kf(4,:)];
@@ -269,12 +320,26 @@ classdef kf_sphere_proj<sphere_proj
             mf = obj.cc_to_spec_mat_;
         end
         function obj = set.cc_to_spec_mat(obj,val)
+            if ~iscell(val)
+                error('HORACE:kf_sphere_proj:invalid_argument',[ ...
+                    'Input for cc_to_spec_mat must be celarray of matrices,\n' ...
+                    'which convert pixels from crystal cartesian to spectrometer coordinate systen.\n' ...
+                    'Provided class is %s'], ...
+                    class(val));
+            end
             obj.cc_to_spec_mat_ = val;
         end
         function mp = get.run_id_mapper(obj)
             mp = obj.run_id_mapper_;
         end
         function obj = set.run_id_mapper(obj,val)
+            if ~isa(val,'fast_map')
+                error('HORACE:kf_sphere_proj:invalid_argument',[ ...
+                    'Input for run_id_mapper must be instance of fast_map class\n' ...
+                    'which sets relationship between pixel''s run-id and number of spectrometer matrix.\n' ...
+                    'Provided class is %s'], ...
+                    class(val));
+            end
             obj.run_id_mapper_ = val;
         end
 

@@ -17,7 +17,7 @@ function obj = update_image_(obj,sig_acc,var_acc,npix_acc)
 [calc_sig,calc_var] = normalize_signal( ...
     sig_acc(:),var_acc(:),npix_acc(:));
 
-sz = size(obj.img_.s);
+sz = obj.img_.axes.dims_as_ssize;
 img = obj.img_;
 img.do_check_combo_arg = false;
 

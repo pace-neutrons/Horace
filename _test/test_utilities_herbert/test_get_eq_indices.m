@@ -16,7 +16,7 @@ classdef test_get_eq_indices < TestCase
             val3 = 5;
             val ={val1,val2,val3,val2,val2,val3};
 
-            idx = calc_eq_indices(val,[1.e-8,1.e-8]);
+            idx = calc_idx_for_eq_to_tol(val,[1.e-8,1.e-8]);
             assertTrue(iscell(idx));
             assertEqual(numel(idx),3);
             assertEqual(idx{1},1);
@@ -29,7 +29,7 @@ classdef test_get_eq_indices < TestCase
             val3 = 5;
             val ={val1,val2,val3};
 
-            idx = calc_eq_indices(val,[1.e-8,1.e-8]);
+            idx = calc_idx_for_eq_to_tol(val,[1.e-8,1.e-8]);
             assertTrue(iscell(idx));
             assertEqual(numel(idx),3);
             assertEqual(idx{1},1);
@@ -42,7 +42,7 @@ classdef test_get_eq_indices < TestCase
             val2 = 6*ones(1,3);
             val = [num2cell(val1),num2cell(val2),num2cell(val1),num2cell(val2)];
 
-            idx = calc_eq_indices(val,[1.e-8,1.e-8]);
+            idx = calc_idx_for_eq_to_tol(val,[1.e-8,1.e-8]);
             assertTrue(iscell(idx));
             assertEqual(numel(idx),2);
             assertEqual(idx{1},[1:3,7:9]);
@@ -53,7 +53,7 @@ classdef test_get_eq_indices < TestCase
             val2 = 6*ones(1,5);
             val = [num2cell(val1),num2cell(val2)];
 
-            idx = calc_eq_indices(val,[1.e-8,1.e-8]);
+            idx = calc_idx_for_eq_to_tol(val,[1.e-8,1.e-8]);
             assertTrue(iscell(idx));
             assertEqual(numel(idx),2);
             assertEqual(idx{1},1:5);
@@ -63,7 +63,7 @@ classdef test_get_eq_indices < TestCase
             val = 10*ones(1,10);
             val = num2cell(val);
 
-            idx = calc_eq_indices(val,[1.e-8,1.e-8]);
+            idx = calc_idx_for_eq_to_tol(val,[1.e-8,1.e-8]);
             assertTrue(iscell(idx));
             assertEqual(numel(idx),1);
             assertEqual(idx{1},1:10);
@@ -72,7 +72,7 @@ classdef test_get_eq_indices < TestCase
             val = 1:10;
             val = num2cell(val);
 
-            idx = calc_eq_indices(val,[1.e-8,1.e-8]);
+            idx = calc_idx_for_eq_to_tol(val,[1.e-8,1.e-8]);
             assertTrue(iscell(idx));
             assertEqual(numel(idx),10);
             assertEqual(idx,val);

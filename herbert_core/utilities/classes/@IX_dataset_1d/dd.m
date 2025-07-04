@@ -1,5 +1,5 @@
 function varargout = dd(w,varargin)
-% Draws a plot of markers, error bars and lines of a spectrum or array of spectra
+% Draws a plot of markers, error bars and lines of an IX_dataset_1d object or array of objects.
 %
 %   >> dd(w)
 %   >> dd(w,xlo,xhi)
@@ -11,10 +11,8 @@ function varargout = dd(w,varargin)
 % Return figure, axes and plot handles:
 %   >> [fig_handle, axes_handle, plot_handle] = dd(w,...)
 
+new_axes = true;
+force_current_axes = false;
 
-[fig_,axes_,plot_] = plot_1d_nd_(w,'d',varargin{:});
-
-% Output only if requested
-if nargout>0
-    varargout = data_plot_interface.set_argout(nargout,fig_,axes_,plot_);
-end
+varargout = cell(1, nargout);   % output only if requested
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'd', varargin{:});

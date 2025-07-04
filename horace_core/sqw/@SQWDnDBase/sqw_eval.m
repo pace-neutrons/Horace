@@ -1,5 +1,5 @@
-function obj = sqw_eval(obj, sqwfunc, pars, varargin)
-% Calculate sqw for a model scattering function
+function wout = sqw_eval(obj, sqwfunc, pars, varargin)
+% Calculate sqw for a model scattering function over input sqw object
 %
 %   >> wout = sqw_eval(win, sqwfunc, p)
 %   >> wout = sqw_eval(___, '-all')
@@ -44,12 +44,12 @@ function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 %
 % Keyword Arguments:
 % ------------------
-%   outfile    If present, the outputs will be written to the file of the given
-%              name/path.
+%   outfile    If present (followed by actual name of the file), the outputs 
+%              will be written to the file of the given  name/path.
 %              If numel(win) > 1, outfile must either be omitted or be a cell
 %              array of file paths with equal number of elements as win.
 %
-%   all        If true, requests that the calculated sqw be returned over
+%   -all       If present, requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If false, then
 %              the function will be returned only at those points of the dataset
 %              that contain data_.
@@ -57,14 +57,14 @@ function obj = sqw_eval(obj, sqwfunc, pars, varargin)
 %              full sqw object.
 %              [default = false]
 %
-%   average    If true, requests that the calculated sqw be computed for the
+%   -average   If present, requests that the calculated sqw be computed for the
 %              average values of h, k, l of the pixels in a bin, not for each
 %              pixel individually. Reduces cost of expensive calculations.
 %              Applies only to the case of sqw object with pixel information
 %              - it is ignored if dnd type object.
 %              [default = false]
 %
-%   filebacked  If true, the result of the function will be saved to file and
+%  -filebacked  If present, the result of the function will be saved to file and
 %               the output will be a file path. If no `outfile` is specified,
 %               a unique path within `tempdir()` will be generated.
 %               Default is false.
@@ -95,13 +95,16 @@ if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1}))
     end
 end
 
+wout = cell(1,numel(obj));
 for i=1:numel(obj)
     if has_pixels(obj(i))   % determine if object contains pixel data
-        obj(i) = obj(i).sqw_eval_pix(sqwfunc, opts.average, pars, ...
-            opts.outfile{i},opts.filebacked);
+        optl = opts;
+        optl.outfile = opts.outfile{i};
+        wout{i} = obj(i).sqw_eval_pix(sqwfunc,pars,optl);
     else
-        obj(i) = obj(i).sqw_eval_nopix(sqwfunc, opts.all, pars);
+        wout{i} = obj(i).sqw_eval_nopix(sqwfunc, pars,opts);
     end
 end
+wout = [wout{:}];
 
 end
