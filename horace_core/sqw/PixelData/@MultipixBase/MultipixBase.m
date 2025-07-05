@@ -1,6 +1,6 @@
 classdef MultipixBase < serializable
-    % The class-base for helper classes, used to keep information about multiple
-    % pixels datasets before they are combined together.
+    % The class-base for auxiliary classes, used to keep information about
+    % multiple pixels datasets before they are combined together.
     %
     properties(Dependent)
         nfiles;       % number of files or objects contributing into final

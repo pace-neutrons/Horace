@@ -4,7 +4,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
     properties(Access=protected)
         % accumulator for number of pixels contributing to each cell.
         % unlike other PageOp, this operation changes this number so source
-        % npix arry is not appropriate for this purpose and additional
+        % npix array is not appropriate for this purpose and additional
         % accumulator is requested.
         npix_acc_;
         % storage for PixelDataMemory class used as target for page of
@@ -99,11 +99,14 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % Inputs:
             % npix  -- image npix array, which defines the number of pixels
             %           contributing into each image bin and the pixels
-            %           ordering in the linear array
+            %           ordering in the linear array or array containing
+            %           number of pixels in each cut to combine togeter in
+            %           combine cuts mode.
             % chunk_size
             %       -- sized of chunks to split pixels
             % Returns:
-            % npix_chunks -- cellarray, containing the npix parts
+            % npix_chunks -- cellarray, containing the npix parts, divided
+            %                into chunk_size blocks
             % npix_idx    -- [2,n_chunks] array of indices of the chunks in
             %                the npix array.
             % See split procedure for more details
@@ -159,23 +162,39 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         function obj = get_page_data(obj,idx,npix_blocks)
             % return block of data used in page operation
             % Inputs:
-            % idx         -- indices of image cells to read pixels for.
+            % idx         -- either:
+            %                indices of image cells to read their correspondent 
+            %                pixels if data are obtained from single file
+            %                in bin_pixels mode
+            %                or:
+            %                numbers of dataset to combibe pixels pages from
+            %                in bin_pixels "-combine" mode
+            %
             % npix_blocks -- cellarray of npix blocks containing
-            %                information about sizes of npix image
+            %                information about sizes of pixels blocks
             %                contributing to a page of data.
-            if isa(obj.pix_,'MultipixBase')
-                % Then it contains knowlege of all pixel coordinates 
-                % in a target cell collected from all contributing images
+            if isa(obj.pix_,'MultipixBase') % Then pix_ contains pixobj_combine_info
+                % class with knowlege about all pixel datasets to combine
+                % and npix_idx refer to pages extracted from these datasets
+                % and how the datasets are divided into pages to combine.
+                % In this case npix_idx in fact contains references to
+                % a number of each contributing pixels dataset (as many
+                % references per datases as many pages this dataset is
+                % divided into)
                 n_dataset = obj.npix_idx_(1,idx);
 
+                % retrieve current dataset (or pages from this datset) to
+                % combine
                 pix_ = obj.pix_.infiles{n_dataset};
                 pix_idx_0 = obj.pix_idx_start_(n_dataset);
+                % size of pixels block to process in signle page operation
                 pix_idx_1 = pix_idx_0 + npix_blocks{idx}-1;
 
                 obj.page_data_ = pix_.get_pixels( ...
                     pix_idx_0:pix_idx_1,'-raw','-align');
                 obj.pix_idx_start_(n_dataset) = pix_idx_1+1;
-            else
+            else  % standard PageOp binning mode. idx refers to page of
+                % single pixels dataset 
                 obj.pix_.page_num = idx;
                 obj.page_data_    = obj.pix_.data;
             end
