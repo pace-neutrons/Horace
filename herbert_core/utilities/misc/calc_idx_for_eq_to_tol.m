@@ -1,27 +1,29 @@
-function eq_idx = calc_eq_indices(data,error)
-%CALC_EQ_INDICES Calculate indices of equal input cellarray elements
+function eq_idx = calc_idx_for_eq_to_tol(data,tolerance)
+%CALC_IDX_FOR_EQ_TO_TOL found indices of equal to tolerance 
+% input cellarray elements
 %
 % Inputs:
-% data    -- cellarray containing arrays of data
-% error   -- 2 element array containing absolute and relative limits
-%            acceptable to assume the object same. If the difference
-%            between two elemens of data is smaller then
-%            absolute or relative error between these elements and the arrays
-%            have the same number of members the data elements are
-%            considered equal and their indices get stored in eq_idx
-%            cellarray.
+% data      -- cellarray containing values or arrays of values to compare
+%              with each other.
+% tolerance -- 2 element array containing absolute and relative limits
+%              acceptable to assume elements equal. If the difference
+%              between two elements of data is smaller then
+%              absolute or relative difference between these elements and the
+%              arrays have the same number of elements the data elements are
+%              considered equal and their indices get stored in eq_idx
+%              cellarray.
 %
 % Returns:
-% eq_idx  --  cellarry of arrays of indices for unique data.
+% eq_idx  --  cellarray of arrays of indices for unique data.
 %             If all data are the same,
 %             this cellarray will contain single cell and this cell contains
 %             all data indices.
-%             I.e. if there are 10 data elements:
+%             I.e. if data hold 10 equal elements (e.g. A1):
 %             eq_idx == {1:10}.
-%             If eq_idx contain two different values, first five A1 and
+%             If data contain two different values, first five A1 and
 %             second five - A2:
 %             eq_idx == {1:5,6:10}
-%             All different data will return cellarray:
+%             All different data elements will return cellarray:
 %             eq_idx = {1,2,3,...9,10};
 
 n_elements = numel(data);
@@ -35,7 +37,7 @@ for i = 1:n_elements
     eq_bunch            = zeros(1,n_elements-i+1);
     eq_bunch(ic)        = i;
     for j=i+1:n_elements
-        same = calc_difference(data{i},data{j},error);
+        same = calc_difference(data{i},data{j},tolerance);
         if same
             ic = ic+1;
             eq_bunch(ic) = j;
@@ -52,6 +54,9 @@ function same = calc_difference(efix1,efix2,Diff)
 % and return true if absolute or relative difference is smaller than input
 % Diff. Diff contains 2 elements, 1-st defines absolute and second --
 % values of relative difference.
+% 
+% Similar to checks provided in equal_to_tol, but removed all fluff for speed
+% and efficiency.
 
 same = true;
 if numel(efix1) ~= numel(efix2)
@@ -62,7 +67,7 @@ abserr = abs(efix1-efix2);
 if all(abserr<Diff(1))
     return
 end
-relerr = 0.5*max(abserr./(efix1+efix2));
+relerr = 0.5*max(abserr./(abs(efix1)+abs(efix2)));
 if any(relerr>Diff(2))
     same = false;
 end

@@ -3,7 +3,7 @@ function [efix,unique_idx,obj] = get_efix(obj,extract_unique)
 % experiment.
 %
 % the output cellarray form is necessary for indirect instruments, which
-% may have multiple efix. (it is analyzer energy there).  Efix may also
+% may have multiple efix. (it is analyser energy there).  Efix may also
 % change from run to run.
 %
 % Inputs:
@@ -15,10 +15,10 @@ function [efix,unique_idx,obj] = get_efix(obj,extract_unique)
 % Returns:
 % efix  
 %   either
-%      --  cellrarray or array of incident energies or crystal analyzer
+%      --  cellarray or array of incident energies or crystal analyser
 %          energies for indirect instrument one array per run. If number of
 %          incident energy values for each element in cellarray is equal to
-%          one, the celarray is converted to array of energies.
+%          one, the cellarray is converted to array of energies.
 %   or 
 %      --  If extract_unique == true efix returned in the form of 
 %          compact_array of data highlighting equal and unique elements
@@ -38,7 +38,7 @@ end
 efix = arrayfun(@(x)x.efix(:)',obj.expdata_,'UniformOutput',false);
 if extract_unique  % calculate indices for equal values
     Diff =[1.e-8,1.e-8];
-    unique_idx = calc_eq_indices(efix,Diff);
+    unique_idx = calc_idx_for_eq_to_tol(efix,Diff);
     n_unique = numel(unique_idx);
     ef_selected = cell(1,n_unique);
     for i=1:n_unique

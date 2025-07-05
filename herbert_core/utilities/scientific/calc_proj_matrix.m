@@ -46,9 +46,10 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %   gs          Small goniometer arc angle (rad)
 %
 % Optional:
-% n_martix    -- if present and lies in the range 1-3, return only one
-%                matrix out of 3 possible as output. All matices are asgned
-%                to first output matrix
+% n_matrix    -- if present and lies in the range 1-3, result of the
+%                function is only one matrix out of 3 returned if this input
+%                is absent. Selected matrice is returned as first 
+%                output argument.
 %
 % Output:
 % -------
@@ -67,6 +68,10 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %              r.l.u.:
 %                   v_rlu = spec_to_rlu * v_spec
 %              (This matrix is entirely equivalent to u_to_rlu*spec_to_u)
+% OR:
+%              if n_matrix is present only one martice out of these three.
+%              The value of this matrice is defined by the n_matrix number,
+%              i.e. 1 -- spec_to_cc, 2 -- u_to_rlu or 3 -- spec_to_rlu.
 
 % T.G.Perring 15/6/07
 

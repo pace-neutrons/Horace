@@ -2,9 +2,8 @@ function res = min_max(input)
 %MIN_MAX Ranges of matrix rows.
 %
 %  <a href="matlab:doc minmax">min_max</a>(X) takes a single matrix of
-%  size NxM (or cell array of such matrices) and returns
-%  an Nx2 value of min and max values for each row of the matrix (or row
-%  of matrices).
+%  size NxM and returns an Nx2 value of min and max values for each row
+%  of the matrix.
 %
 %  Here min_max is calculated for a random matrix:
 %
