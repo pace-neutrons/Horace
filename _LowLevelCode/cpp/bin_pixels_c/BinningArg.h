@@ -197,7 +197,8 @@ private:
     void calc_step_sizes_pax_and_strides();
 
     OutHandlerMap Mode0ParList;
-    OutHandlerMap Mode3ParList;
+    OutHandlerMap Mode4ParList;
+    OutHandlerMap Mode5ParList;
 
     std::unordered_map<opModes, OutHandlerMap*> out_handlers;
 };

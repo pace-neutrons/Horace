@@ -186,6 +186,9 @@ else  % otherwise, there are no such ouputs, output structure is flattened
         varargout{end} = out_struc;
     end
     npix_retained = npix_retained + out_struc.npix_retained;
+    if proc_mode< bin_mode.sort_pix && ~test_mex_inputs
+        return;
+    end
 
     pix_ok_data  = out_struc.pix_ok_data;
     pix_ok_range = out_struc.pix_ok_data_range;
@@ -198,7 +201,6 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if proc_mode< bin_mode.sort_pix
         return;
     end
-
     if isempty(pix_ok_data)
         varargout{bin_out.pix_ok} = pix_ok_data;
     else

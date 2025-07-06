@@ -458,16 +458,18 @@ void BinningArg::register_output_methods()
 {
     this->Mode0ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_npix_retained(p1, p2, idx, name); };
 
-    this->Mode3ParList["npix_retained"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_npix_retained(p1, p2, idx, name); };
-    this->Mode3ParList["pix_ok_data_range"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_range(p1, p2, idx, name); };
-    this->Mode3ParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_ok_data(p1, p2, idx, name); };
-    this->Mode3ParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
+    this->Mode4ParList = this->Mode0ParList;
+    this->Mode4ParList["pix_ok_data_range"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_range(p1, p2, idx, name); };
+    this->Mode4ParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_ok_data(p1, p2, idx, name); };
+
+    this->Mode5ParList = this->Mode4ParList;
+    this->Mode5ParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
 
     this->out_handlers[opModes::npix_only] = &Mode0ParList;
-    this->out_handlers[opModes::sig_err] = &Mode3ParList;
-    this->out_handlers[opModes::sigerr_cell] = &Mode3ParList;
-    this->out_handlers[opModes::sort_pix] = &Mode3ParList;
-    this->out_handlers[opModes::sort_and_uid] = &Mode3ParList;
+    this->out_handlers[opModes::sig_err] = &Mode0ParList;
+    this->out_handlers[opModes::sigerr_cell] = &Mode0ParList;
+    this->out_handlers[opModes::sort_pix] = &Mode4ParList;
+    this->out_handlers[opModes::sort_and_uid] = &Mode5ParList;
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
@@ -841,6 +843,10 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
             // just in case, clear unique run-id-s set (should be empty anyway at this stage)
             this->unique_runID.clear();
         }
+    } else {
+        // clear ranges left from previous call to binning functions
+        // as they are not needed for this call but may confuse output routines
+        this->pix_data_range_ptr = nullptr;
     }
 }
 

@@ -68,10 +68,11 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
     std::vector<size_t> stride = bin_par_ptr->stride;
     std::vector<size_t> bin_cell_idx_range = bin_par_ptr->bin_cell_idx_range;
 
-    // initialize space for calculating pixel data ranges
+    // initialize space for calculating pixel data ranges if necessary
+    std::span<double> pix_ranges;
     auto pix_range_ids = (bin_par_ptr->pix_data_range_ptr == nullptr) ? 0 : 2 * pix_flds::PIX_WIDTH;
-    std::span<double> pix_ranges(mxGetPr(bin_par_ptr->pix_data_range_ptr), pix_range_ids);
     if (bin_par_ptr->binMode > opModes::sigerr_cell && pix_range_ids > 0) { // higher modes process pixel ranges
+        pix_ranges  = std::span<double>(mxGetPr(bin_par_ptr->pix_data_range_ptr), pix_range_ids);
         init_min_max_range_calc(pix_ranges, pix_flds::PIX_WIDTH);
     }
     bool check_pix_selection = bin_par_ptr->check_pix_selection && (pix_coord_ptr != nullptr);
