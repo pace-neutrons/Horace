@@ -467,7 +467,7 @@ classdef test_line_axes < TestCase
             npix = zeros(11,1);
 
             [npix_r,s,e,pix_candidates,argi]= ...
-                ab.get_bin_inputs(pix_data,1,npix);
+                ab.get_bin_inputs(pix_data,bin_mode.npix_only,npix);
             assertEqual(size(npix_r),size(npix));
             assertTrue(isempty(s));
             assertTrue(isempty(e));
@@ -509,7 +509,7 @@ classdef test_line_axes < TestCase
             pix = PixelDataBase.create();
 
             [npix,s,e,pix_candidates,argi]= ...
-                ab.get_bin_inputs(pix_data,3,[],[],[],pix);
+                ab.get_bin_inputs(pix_data,bin_mode.sort_pix,[],[],[],pix);
             assertEqual(size(npix),[11,1]);
             assertEqual(size(s),[11,1]);
             assertEqual(size(e),[11,1]);
@@ -529,7 +529,7 @@ classdef test_line_axes < TestCase
             pix_data = ones(4,10);
 
             [npix,s,e,pix_candidates,argi]= ...
-                ab.get_bin_inputs(pix_data,1);
+                ab.get_bin_inputs(pix_data,bin_mode.npix_only);
             assertEqual(size(npix),[11,1]);
             assertTrue(isempty(s));
             assertTrue(isempty(e));
@@ -543,7 +543,7 @@ classdef test_line_axes < TestCase
             npix = 0;
 
             [npix,s,e,pix_candidates,argi]= ...
-                ab.get_bin_inputs(pix_data,1,npix);
+                ab.get_bin_inputs(pix_data,bin_mode.npix_only,npix);
             assertEqual(size(npix),[1,1]);
             assertTrue(isempty(s));
             assertTrue(isempty(e));
@@ -561,7 +561,7 @@ classdef test_line_axes < TestCase
             e = 0;
 
             [npix,s,e,pix_candidates,argi]= ...
-                ab.get_bin_inputs(pix_data,3,npix,s,e,pix);
+                ab.get_bin_inputs(pix_data,bin_mode.sort_pix,npix,s,e,pix);
             assertEqual(size(npix),[1,1]);
             assertEqual(size(s),[1,1]);
             assertEqual(size(e),[1,1]);
@@ -578,7 +578,7 @@ classdef test_line_axes < TestCase
             pix = PixelDataBase.create();
 
             [npix,s,e,pix_candidates,argi]= ...
-                ab.get_bin_inputs(pix_data,3,[],[],[],pix);
+                ab.get_bin_inputs(pix_data,bin_mode.sort_pix,[],[],[],pix);
             assertEqual(size(npix),[1,1]);
             assertEqual(size(s),[1,1]);
             assertEqual(size(e),[1,1]);
@@ -594,7 +594,7 @@ classdef test_line_axes < TestCase
             pix_data = ones(4,10);
 
             [npix,s,e,pix_candidates,argi]= ...
-                ab.get_bin_inputs(pix_data,1);
+                ab.get_bin_inputs(pix_data,bin_mode.npix_only);
             assertEqual(size(npix),[1,1]);
             assertTrue(isempty(s));
             assertTrue(isempty(e));

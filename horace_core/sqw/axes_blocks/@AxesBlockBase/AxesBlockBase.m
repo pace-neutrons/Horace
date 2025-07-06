@@ -878,13 +878,14 @@ classdef AxesBlockBase < serializable
             % Inputs:
             % obj     -- initialized instance of AxesBlockBase class
             % n_accum -- number of accumulator arrays to initialize.
-            %            may be 1 or 3 (if naccum~=1, n_accum == 3)
+            %            may be 1,2 or 3.
             % force_3D-- if true, return only 3-dimensional
             %            accumulator arrays ignoring last (energy transfer)
             %            dimension.
             %
-            % Returns:   Depending on n_accum, 1 or 3 arrays of zeros
-            %            if n_accum == 1, two other arrays are empty
+            % Returns:   Depending on n_accum, 1,2 or 3 arrays of zeros
+            %            if n_accum == 1, two other arrays are empty,
+            %            if n_accum == 2, e array is empty.
             %            The size of the arrays is defined by
             %            obj.dims_as_ssize property's value.
             % npix    -- npix array  initialized to zeros and used to
