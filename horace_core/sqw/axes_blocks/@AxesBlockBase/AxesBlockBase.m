@@ -724,6 +724,8 @@ classdef AxesBlockBase < serializable
             % UNDEFINED BEHAVIOUR!!!. May be modified later.
             %
 
+            % keep unused argi parameter to tell parse_char_options to ignore
+            % unknown options                        
             [ok,mess,force_double,return_selected,test_mex_inputs,argi]=parse_char_options(varargin, ...
                 {'-force_double', '-return_selected','-test_mex_inputs'});
             if ~ok
@@ -731,19 +733,11 @@ classdef AxesBlockBase < serializable
             end
             % identify binning mode as function of number of input
             % arguments
-            mode = bin_mode.from_narg(nargout-1,test_mex_inputs,argi{:});
+            mode = bin_mode.from_narg(nargout-1,test_mex_inputs,return_selected,argi{:});
 
             % convert different input forms into fully expanded common form
             [npix,s,e,pix_cand,unique_runid,use_mex]=...
                 obj.normalize_bin_input(coord_transf,mode,argi{:});
-            % keep unused argi parameter to tell parse_char_options to ignore
-            % unknown options
-            % keep unused argi parameter to tell parse_char_options to ignore
-            % unknown options
-            if return_selected && mode ~= bin_mode.sigerr_cell
-                error('HORACE:AxesBlockBase:invalid_argument', ...
-                    'return_selected requested for non pixel cut')
-            end
             if mode>bin_mode.sort_and_uid
                 % temporary, until ticket #896 is completed
                 use_mex = false;
@@ -755,11 +749,11 @@ classdef AxesBlockBase < serializable
                 [varargout{:}] = bin_pixels_with_mex_code_( ...
                     obj,coord_transf,mode,...
                     npix,s,e,pix_cand,unique_runid, ...
-                    force_double,return_selected,test_mex_inputs);
+                    force_double,test_mex_inputs);
             else
                 [varargout{:}] = bin_pixels_( ...
                     obj,coord_transf,mode,...
-                    npix,s,e,pix_cand,unique_runid,force_double,return_selected);
+                    npix,s,e,pix_cand,unique_runid,force_double);
                 if mode == bin_mode.npix_only && nargout == 2
                     npix = varargout{1}; % maintain consistency with mex code which calculates sum(npix(:)) in this case
                     varargout{2} = struct('npix_retained',sum(npix(:)));

@@ -1,5 +1,5 @@
 function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(obj,coord,mode_to_bin,...
-    npix,s,e,pix_cand,unique_runid,force_double,return_selected)
+    npix,s,e,pix_cand,unique_runid,force_double)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
@@ -35,13 +35,10 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 %      -- The unique indices, contributing into the cut. Empty on first
 %         call.
 % varargin may contain the following parameters:
-% '-force_double'
-%              -- if provided, the routine changes type of pixels
+% force_double
+%              -- if true, the routine changes type of pixels
 %                 it gets on input, into double. if not, output
 %                 pixels will keep their initial type.
-% '-return_selected'
-%              -- sets pix_ok to return the indices of selected pixels
-%                 for use with DnD cuts where fewer args are requested
 %--------------------------------------------------------------------------
 % Outputs:
 % npix  -- the array of size of this grid, accumulating the information
@@ -109,8 +106,8 @@ if ~any(ok)
         if iscell(pix_cand)
             npix = zeros(size(s));
             selected = [];
-        elseif return_selected
-            pix_ok = [];
+        elseif mode_to_bin == bin_mode.sigerr_sel
+            pix_ok = ok;
         else
             pix_ok = PixelDataBase.create();
             selected = [];
@@ -199,13 +196,13 @@ if mode_to_bin== bin_mode.sigerr_cell
     end
     return;
 end
-
-if mode_to_bin > bin_mode.sort_and_uid
-    selected = ok;
-elseif return_selected
+if mode_to_bin == bin_mode.sigerr_sel
     pix_ok = ok; % This is mode when instead of resulting pixels one returns
     % ok array with true where pixels were selected
     return
+end
+if mode_to_bin > bin_mode.sort_and_uid
+    selected = ok;
 end
 
 %--------------------------------------------------------------------------

@@ -56,9 +56,10 @@ enum opModes {
     //              within the image grid
     nosort_sel = 7, // like 6, but return ?logical? array which specifies what pixels have been selected
     //                   and what were rejected by binning operations
-    test_inputs = 8, // do not do calculations but just return parsed inputs for
+    siger_selected = 8, // the same as sig_err but return logical array of selected piels instead of pix_ok array
+    test_inputs = 9, // do not do calculations but just return parsed inputs for
     //                  unit testing
-    N_OP_Modes = 9 // total number of modes code operates in. Provided for checks
+    N_OP_Modes = 10 // total number of modes code operates in. Provided for checks
 };
 
 // define the map type to keep functions which set up output parameters in a structure, specific for given binning mode;
@@ -94,8 +95,6 @@ public:
     // logical variable which request to return transformed pixel data as double precision regardless
     // of their input accuracy.
     bool force_double;
-    //
-    bool return_selected;
     // logical variable with enables test mode returning input to outputs if
     bool test_inputs;
     //********************************************************************************

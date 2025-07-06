@@ -1,6 +1,6 @@
 function varargout = ...
     bin_pixels_with_mex_code_(obj,coord,proc_mode,...
-    npix,s,err,pix_cand,unique_runid,force_double,return_selected,test_mex_inputs)
+    npix,s,err,pix_cand,unique_runid,force_double,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
@@ -114,7 +114,6 @@ other_mex_input = struct( ...
     'nbins_all_dims',nbins_all_dims, ...    % dimensions of binning lattice
     'unique_runid', uint32(unique_runid), ... % unique run indices of pixels contributing into cut
     'force_double', force_double, ...       % make result double precision regardless of input data
-    'return_selected',return_selected,...   %
     'test_input_parsing',test_mex_inputs ...% Run mex code in test mode validating the way input have been parsed by mex code and doing no caclculations.
     );
 

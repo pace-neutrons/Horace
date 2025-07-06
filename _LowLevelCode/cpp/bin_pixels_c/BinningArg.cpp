@@ -215,16 +215,6 @@ void BinningArg::set_force_double(mxArray const* const pField)
     this->force_double = bool(force_double);
 };
 
-// check property which would verify if "selected" array is returned
-void BinningArg::set_return_selected(mxArray const* const pField)
-{
-    if (!mxIsScalar(pField)) {
-        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
-            "return_selected parameters should be defined by scalar value");
-    }
-    auto return_selected = mxGetScalar(pField);
-    this->return_selected = bool(return_selected);
-};
 
 // intialize testing input mode (or not)
 void BinningArg::set_test_input_mode(mxArray const* const pField)
@@ -446,7 +436,6 @@ void BinningArg::register_input_methods()
     this->BinParInfo["dimensions"] = [this](mxArray const* const pField) { this->set_dimensions(pField); };
     this->BinParInfo["nbins_all_dims"] = [this](mxArray const* const pField) { this->set_nbins_all_dims(pField); };
     this->BinParInfo["force_double"] = [this](mxArray const* const pField) { this->set_force_double(pField); };
-    this->BinParInfo["return_selected"] = [this](mxArray const* const pField) { this->set_return_selected(pField); };
     this->BinParInfo["pix_candidates"] = [this](mxArray const* const pField) { this->set_all_pix(pField); };
     this->BinParInfo["check_pix_selection"] = [this](mxArray const* const pField) { this->set_check_pix_selection(pField); };
     this->BinParInfo["alignment_matr"] = [this](mxArray const* const pField) { this->set_alignment_matrix(pField); };
@@ -670,11 +659,6 @@ void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
         auto force_double = this->force_double;
         mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
         mxSetCell(pFieldValue, fld_idx, mxCreateLogicalScalar(force_double));
-    };
-    this->OutParList["return_selected"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
-        auto return_selected = this->return_selected;
-        mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
-        mxSetCell(pFieldValue, fld_idx, mxCreateLogicalScalar(return_selected));
     };
     this->OutParList["pix_candidates"] = [this](mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name) {
         auto all_pix_ptr = this->all_pix_ptr;

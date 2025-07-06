@@ -258,7 +258,6 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
             assertTrue(isempty(out_data.unique_runid));
             assertFalse(out_data.force_double);
-            assertFalse(out_data.return_selected);
             assertTrue(out_data.test_input_parsing);
             assertTrue(isempty(out_data.alignment_matr));
             assertEqual(out_data.pix_candidates,pix.data);
@@ -649,7 +648,6 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
             assertTrue(isempty(out_data.unique_runid));
             assertFalse(out_data.force_double);
-            assertFalse(out_data.return_selected);
             assertTrue(out_data.test_input_parsing);
             assertTrue(isempty(out_data.alignment_matr));
             assertEqual(out_data.pix_candidates,pix.data);
@@ -901,7 +899,6 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
             assertTrue(isempty(out_data.unique_runid));
             assertFalse(out_data.force_double);
-            assertFalse(out_data.return_selected);
             assertTrue(out_data.test_input_parsing);
             assertTrue(isempty(out_data.alignment_matr));
             assertEqual(out_data.pix_candidates,{bin_sig});
@@ -1115,7 +1112,6 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
             assertTrue(isempty(out_data.unique_runid));
             assertFalse(out_data.force_double);
-            assertFalse(out_data.return_selected);
             assertTrue(out_data.test_input_parsing);
             assertTrue(isempty(out_data.alignment_matr));
             assertEqual(out_data.pix_candidates,pix.data);
@@ -1358,7 +1354,6 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
             assertTrue(isempty(out_data.unique_runid));
             assertFalse(out_data.force_double);
-            assertFalse(out_data.return_selected);
             assertTrue(out_data.test_input_parsing);
             assertTrue(isempty(out_data.alignment_matr));
             assertTrue(isempty(out_data.pix_candidates));

@@ -10,18 +10,32 @@ classdef bin_mode < uint32
         sort_pix     (4) % in additional to binning pixels coordinates, return pixels sorted by bins
         sort_and_uid (5) % in additional to binning and sorting, return unique pixels id
         nosort       (6) % do binning but do not sort pixels but return array which defines pixels position
-        %              within the image grid
+        %                %  within the image grid
         nosort_sel   (7) % like nosort, but return ?logical? array which specifies what pixels have been selected
-        %                   and what were rejected by binning operations
-        N_OP_Modes   (8) % total number of modes code operates in. Provided for checks
+        %                  and what were rejected by binning operations
+        sigerr_sel   (8) % like sig_err but also return logical array of selected pixels
+        N_OP_Modes   (9) % total number of modes code operates in. Provided for checks
     end
     methods(Static)
-        function mode = from_narg(num_arguments,test_inputs,varargin)
+        function mode = from_narg(num_arguments,test_inputs,sigerr_and_selected,varargin)
             % retrieve binning mode from number of arguments, requested to
             % process
 
             if test_inputs
                 num_arguments = num_arguments-1; % test inputs adds one output artument to requested inputs
+            end
+            if sigerr_and_selected
+                if num_arguments == 3 % one argument have been removed when calling this funtion
+                    mode = bin_mode.sigerr_sel;
+                    return
+                else
+                    if test_inputs
+                        num_arguments = num_arguments+1;
+                    end
+                    error('HORACE:bin_mode:invalid_argument',...
+                        'mode requesting to return "selectied" arguments needs 4 output arguments. Provided %d arguments', ...
+                        num_arguments+1);
+                end
             end
             if num_arguments == 1 && numel(varargin)<2 %  mode.npix_only may request 2 outputs and may contain second input (accumulator)
                 num_arguments = 0; % assume 0 as an exception for npix_only mode
