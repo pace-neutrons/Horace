@@ -19,10 +19,7 @@ classdef bin_mode < uint32
         function mode = from_narg(num_arguments,test_inputs,varargin)
             % retrieve binning mode from number of arguments, requested to
             % process
-            % if narg_in <7
-            %     error('HORACE:AxesBlockBase:invalid_argument',...
-            %         'PixelData have to be provided as 7-th argument if cell-average signal and erros are requested');
-            % end
+
             if test_inputs
                 num_arguments = num_arguments-1; % test inputs adds one output artument to requested inputs
             end
@@ -31,7 +28,7 @@ classdef bin_mode < uint32
             end
             mode = bin_mode(num_arguments);
             if mode >= bin_mode.sigerr_cell % mode 4 and mode 3 both have 3 outputs and differ
-                % by input arguments. All higher defined by  nargout+1 formula
+                % by input arguments. All higher modes are defined by nargout+1 formula
                 mode = bin_mode(num_arguments+1);
             end
             if mode == bin_mode.sig_err && ~isempty(varargin) && iscell(varargin{end}) % mode sig_err and sigerr_cell have equal number of outputs
