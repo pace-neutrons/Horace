@@ -296,6 +296,7 @@ void BinningArg::set_all_pix(mxArray const* const pField)
     } else { // single or double precision array of full pixel coordinates
         this->in_pix_width = mxGetM(pField);
         this->n_data_points = mxGetN(pField); // should be dedined in set_coord too and values must be equal
+        this->n_Cells_to_bin = 0;
         // no check, as Matlab will call it from routine which does this check
         if (this->in_pix_width != size_t(pix_flds::PIX_WIDTH)) {
             std::stringstream buf;
@@ -304,6 +305,7 @@ void BinningArg::set_all_pix(mxArray const* const pField)
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
                 buf.str().c_str());
         }
+
     }
 }
 //

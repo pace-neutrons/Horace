@@ -547,7 +547,7 @@ classdef AxesBlockBase < serializable
                     'Number of output arguments (%d) is not equel to the number of data to rebin (%d)', ...
                     nargout,numel(data_in));
             end
-            % standard output from rebin_data_ is npix,bin(data_in{1}),bin(data_in{2}) 
+            % standard output from rebin_data_ is npix,bin(data_in{1}),bin(data_in{2})
             % if there are 1 or 2 inputs or
             % bin(data_in{3}),bin(data_in{1}),bin(data_in{2}) if 3 inputs
             % are provided
@@ -556,9 +556,9 @@ classdef AxesBlockBase < serializable
             if n_inputs == 1
                 idx = [2,1,3];
             elseif n_inputs == 2
-                idx = [2,3,1];                
+                idx = [2,3,1];
             else
-                idx = [3,1,2];                                
+                idx = [1,2,3];
             end
             varargout = cell(1,n_inputs);
             for i=1:n_inputs
@@ -737,7 +737,7 @@ classdef AxesBlockBase < serializable
             %
 
             % keep unused argi parameter to tell parse_char_options to ignore
-            % unknown options                        
+            % unknown options
             [ok,mess,force_double,return_selected,test_mex_inputs,argi]=parse_char_options(varargin, ...
                 {'-force_double', '-return_selected','-test_mex_inputs'});
             if ~ok
