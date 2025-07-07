@@ -113,7 +113,7 @@ Returns:
 pointer to handle, containing MPI communicator.
 */
 void process_init_mode(const char* ModeName, bool is_test_mode, const mxArray* prhs[], int nrhs,
-    std::unique_ptr<class_handle<MPI_wrapper>> &mpi_holder_ptr,InitParamHolder& init_par)
+    class_handle<MPI_wrapper> *& mpi_holder_ptr,InitParamHolder& init_par)
 {
     if (nrhs > 5 || nrhs < 1) {
         std::stringstream err;
@@ -122,7 +122,7 @@ void process_init_mode(const char* ModeName, bool is_test_mode, const mxArray* p
         throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
     }
     if (mpi_holder_ptr == nullptr) {
-        mpi_holder_ptr = std::make_unique<class_handle<MPI_wrapper>>(CLASS_HANDLE_SIGNATURE);
+        mpi_holder_ptr = new  class_handle<MPI_wrapper>(CLASS_HANDLE_SIGNATURE);
     } else {
     }
     init_par.is_tested = is_test_mode;
@@ -171,7 +171,7 @@ work_mode         -- retrieved IO operations mode.
 
 */
 input_types parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
-    std::unique_ptr<class_handle<MPI_wrapper>> &mpi_holder_ptr, std::vector<int>& data_addresses, std::vector<int>& data_tag, bool& is_synchronous,
+    class_handle<MPI_wrapper> *& mpi_holder_ptr, std::vector<int>& data_addresses, std::vector<int>& data_tag, bool& is_synchronous,
     uint8_t*& data_buffer, size_t& nbytes_to_transfer,
     InitParamHolder& AddPar)
 {
@@ -180,38 +180,9 @@ input_types parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
     std::string mex_mode;
     input_types work_mode(input_types::undefined_state);
     retrieve_string(prhs[0], mex_mode, "MPI mode description");
-    // get handlder from Matlab. Throw if a problem
-    auto pCommunicator = get_handler_fromMatlab<MPI_wrapper>(
-        prhs[(int)CloseOrInfoInputs::comm_ptr], CLASS_HANDLE_SIGNATURE, false);
-    if (pCommunicator == nullptr) {
-        if (mpi_holder_ptr == nullptr ){
-            if (mex_mode == "finalize") { // framework have not been initialized and is cleared from memory
-                return close_mpi;
-            } else if (!(mex_mode == "init" || mex_mode == "init_test_mode")) {
-                std::stringstream buf;
-                buf << "Attempt to apply communication mode: " << mex_mode << " on non-initialized MPI framework";
-                mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
-                    buf.str().c_str());
-            }
-        } else {
-            std::stringstream buf;
-            buf << "Matlab lost pointer to cpp_communicator but mex code keeps it. Will try to use mex code's cpp_communicator instance";
-            mexWarnMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
-                buf.str().c_str());
-        }
-    } else {
-        if (mpi_holder_ptr == nullptr) {
-            mpi_holder_ptr.reset(pCommunicator);
-        } else {
-            if (mpi_holder_ptr->class_ptr != pCommunicator->class_ptr) {
-                mpi_holder_ptr.reset();
-                delete pCommunicator;
-                std::stringstream err;
-                err << "Mex code stored MPI holder and MATLAB stored mpi holder are different ";
-                throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
-            }
-        }
-    }
+
+    // this will throw if retrieve from MATLAB is unsuccessful
+    mpi_holder_ptr = get_handler_fromMatlab<MPI_wrapper>(prhs[(int)CloseOrInfoInputs::comm_ptr], true);
 
     if (mex_mode.compare("labReceive") == 0) {
         if (nrhs < (int)ReceiveInputs::N_INPUT_Arguments) {
@@ -291,8 +262,7 @@ input_types parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
     }
     else if (mex_mode.compare("clearAll") == 0) {
         work_mode = input_types::clearAll;
-    }
-    else {
+    } else {
         std::stringstream err;
         err << " Unknow operation mode: " << mex_mode;
         throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());

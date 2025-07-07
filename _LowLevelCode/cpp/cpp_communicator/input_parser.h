@@ -116,9 +116,9 @@ struct InitParamHolder {
 class MPI_wrapper;
 
 input_types parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
-    std::unique_ptr<class_handle<MPI_wrapper> > &, std::vector<int32_t>& data_addresses, std::vector<int32_t>& data_tag, bool& is_synchroneous,
+    class_handle<MPI_wrapper> *& mpi_comm_ptr, std::vector<int32_t>& data_addresses, std::vector<int32_t>& data_tag, bool& is_synchroneous,
     uint8_t*& data_buffer, size_t &nbytes_to_transfer,
     InitParamHolder & addPar);
 
 void process_init_mode(const char* ModeName, bool is_test_mode,
-    const mxArray* prhs[], int nrhs, std::unique_ptr<class_handle<MPI_wrapper>> &mpi_holder,InitParamHolder& init_par);
+    const mxArray* prhs[], int nrhs, class_handle<MPI_wrapper> *& mpi_holder,InitParamHolder& init_par);

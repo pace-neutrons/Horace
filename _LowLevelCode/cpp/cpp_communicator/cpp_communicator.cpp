@@ -102,7 +102,7 @@ Outputs:
   3     -- size of the MPI pool current worker is the part of.
 */
 
-static std::unique_ptr<class_handle<MPI_wrapper>> mpi_comm_ptr;
+static class_handle<MPI_wrapper> *mpi_comm_ptr(nullptr);
 
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
@@ -187,7 +187,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     }
     case(close_mpi): {
         mpi_comm_ptr->clear_mex_locks();
-        mpi_comm_ptr.reset();
+        delete mpi_comm_ptr;
 
         for (int i = 0; i < nlhs; ++i) {
             plhs[i] = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL);
@@ -203,7 +203,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 /* If appropriate number of output arguments are available, set up the mex routine output arguments to mpi_numLab and mpi_labNum values
    extracted from initialized MPI framework.
 */
-void set_numlab_and_nlabs(std::unique_ptr<class_handle<MPI_wrapper> > &pCommunicatorHolder, int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+void set_numlab_and_nlabs(class_handle<MPI_wrapper>* const pCommunicatorHolder, int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
     if (nlhs >= (int)labIndex_Out::numLab + 1) { // return labIndex
         plhs[(int)labIndex_Out::numLab] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
