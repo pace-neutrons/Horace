@@ -170,16 +170,16 @@ if alloc_all
 elseif alloc_se
     s = obj.init_accumulators(1,force_3Dbinning);
     e = obj.init_accumulators(1,force_3Dbinning);
-    check_size(obj,not_use_mex,npix,s,e);
+    check_size(obj,~not_use_mex,npix,s,e);
 else
-    check_size(obj,not_use_mex,npix,s,e);
+    check_size(obj,~not_use_mex,npix,s,e);
 
 end
 
 end
 
-function check_size(obj,not_use_mex,varargin)
-if ~not_use_mex % use mex -- all empty would work ok
+function check_size(obj,use_mex,varargin)
+if use_mex % use mex -- all empty would work ok
     is_empty = cellfun(@isempty,varargin);
     if all(is_empty)
         return;
@@ -188,9 +188,17 @@ end
 sze = obj.dims_as_ssize();
 for i=1:numel(varargin)
     if any(size(varargin{i}) ~=sze)
-        error('HORACE:AxesBlockBase:invalid_argument',...
-            'sizes of npix,s, e accumulators (%s) have to be equal to the sizes of the axes binning (%s)',...
-            evalc('disp(size(varargin{i}))'),evalc('disp(size(sze))'));
+        if use_mex
+            if isempty(varargin{i}); continue; end
+            
+            error('HORACE:AxesBlockBase:invalid_argument',...
+                'sizes of npix,s, e accumulators (%s) in mex mode have to be equal to the sizes of the axes binning (%s) or to be empty',...
+                evalc('disp(size(varargin{i}))'),evalc('disp(size(sze))'));
+        else
+            error('HORACE:AxesBlockBase:invalid_argument',...
+                'sizes of npix,s, e accumulators (%s) have to be equal to the sizes of the axes binning (%s)',...
+                evalc('disp(size(varargin{i}))'),evalc('disp(size(sze))'));
+        end
     end
 end
 

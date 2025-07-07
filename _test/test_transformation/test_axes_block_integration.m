@@ -40,7 +40,7 @@ classdef test_axes_block_integration < TestCase
             reb_data = ab_base.rebin_data({data},ab_r);
 
             %assertEqual(2*sum(data(1:numel(reb_data{1}))),sum(reb_data{1}));
-            assertEqual(reb_data{1},286*ones(ab_r.dims_as_ssize))
+            assertEqual(reb_data,286*ones(ab_r.dims_as_ssize))
 
         end
         function test_ab_indexes_1D_double_bin_partial_region(~)
@@ -60,9 +60,9 @@ classdef test_axes_block_integration < TestCase
 
             reb_data = ab_base.rebin_data({data},ab_r);
 
-            assertEqual(2*sum(data(1:numel(reb_data{1}))),sum(reb_data{1}));
+            assertEqual(2*sum(data(1:numel(reb_data))),sum(reb_data));
 
-            assertEqual(reb_data{1},2*ones(ab_r.dims_as_ssize))
+            assertEqual(reb_data,2*ones(ab_r.dims_as_ssize))
         end
 
         function test_ab_indexes_1D_same_bin_partial_region(~)
@@ -82,9 +82,9 @@ classdef test_axes_block_integration < TestCase
 
             reb_data = ab_base.rebin_data({data},ab_r);
 
-            assertEqual(sum(data),2*sum(reb_data{1})-1);
+            assertEqual(sum(data),2*sum(reb_data)-1);
 
-            assertEqual(reb_data{1},ones(ab_r.dims_as_ssize))
+            assertEqual(reb_data,ones(ab_r.dims_as_ssize))
         end
         function test_ab_alignment_iax_aligned(~)
             clOb = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');

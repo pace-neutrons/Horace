@@ -547,10 +547,22 @@ classdef AxesBlockBase < serializable
                     'Number of output arguments (%d) is not equel to the number of data to rebin (%d)', ...
                     nargout,numel(data_in));
             end
+            % standard output from rebin_data_ is npix,bin(data_in{1}),bin(data_in{2}) 
+            % if there are 1 or 2 inputs or
+            % bin(data_in{3}),bin(data_in{1}),bin(data_in{2}) if 3 inputs
+            % are provided
             data_out = rebin_data_(obj,data_in,other_ax);
-            varargout = cell(1,numel(data_in));
-            for i=1:numel(data_in)
-                varargout{i} = data_out{i};
+            n_inputs = numel(data_in);
+            if n_inputs == 1
+                idx = [2,1,3];
+            elseif n_inputs == 2
+                idx = [2,3,1];                
+            else
+                idx = [3,1,2];                                
+            end
+            varargout = cell(1,n_inputs);
+            for i=1:n_inputs
+                varargout{i} = data_out{idx(i)};
             end
         end
         %
@@ -740,7 +752,10 @@ classdef AxesBlockBase < serializable
                 obj.normalize_bin_input(coord_transf,mode,argi{:});
             if mode>bin_mode.sort_and_uid
                 % temporary, until ticket #896 is completed
-                use_mex = false;
+                clOb = set_temporary_config_options('hor_config','use_mex',false);
+                [npix,s,e,pix_cand,unique_runid,use_mex]=...
+                    obj.normalize_bin_input(coord_transf,mode,argi{:});
+                clear clOb;
             end
 
             % bin pixels
