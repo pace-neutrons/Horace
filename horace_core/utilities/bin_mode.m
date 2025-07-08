@@ -11,7 +11,7 @@ classdef bin_mode < uint32
         sort_and_uid (5) % in additional to binning and sorting, return unique pixels id
         nosort       (6) % do binning but do not sort pixels but return array which defines pixels position
         %                %  within the image grid
-        nosort_sel   (7) % like nosort, but return ?logical? array which specifies what pixels have been selected
+        nosort_sel   (7) % like nosort, but return logical array which specifies what pixels have been selected
         %                  and what were rejected by binning operations
         sigerr_sel   (8) % like sig_err but also return logical array of selected pixels
         N_OP_Modes   (9) % total number of modes code operates in. Provided for checks
