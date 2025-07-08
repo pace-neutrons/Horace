@@ -54,7 +54,7 @@ enum opModes {
     sort_and_uid = 5, // in additional to binning and sorting, return unique pixels id
     nosort = 6, // do binning but do not sort pixels but return array which defines pixels position
     //              within the image grid
-    nosort_sel = 7, // like 6, but return ?logical? array which specifies what pixels have been selected
+    nosort_sel = 7, // like 6, but return logical array which specifies what pixels have been selected
     //                   and what were rejected by binning operations
     siger_selected = 8, // the same as sig_err but return logical array of selected piels instead of pix_ok array
     test_inputs = 9, // do not do calculations but just return parsed inputs for
@@ -111,6 +111,7 @@ public:
     mxArray* pix_data_range_ptr;
     mxArray* pix_ok_ptr; // pointer to array of all pixels retained after binning
     std::unordered_set<uint32_t> unique_runID; // set containing unique run_id-s of the
+    mxArray* pix_img_idx_ptr; // pointer to array of pixel indices within the image cell 
     // processed pixels
     //********************************************************************************
     // helper values
@@ -149,7 +150,6 @@ protected:
     void set_nbins_all_dims(mxArray const* const pField); //
     void set_unique_runid(mxArray const* const pField); // holder for the information about unique run_id-s present in the data. Set procedure is non-standard
     void set_force_double(mxArray const* const pField); // boolean parameters which would request output transformed pixels always been double regardless of input pixels
-    void set_return_selected(mxArray const* const pField);
     void set_test_input_mode(mxArray const* const pField); // intialize testing mode (or not)
     void set_all_pix(mxArray const* const pField); //  pointer to all pixels to sort or use as binning arguments
     void set_alignment_matrix(mxArray const* const pField); // matrix which have to be applied to raw pixels to bring them into Crystal Cartesian coordinate system
@@ -165,6 +165,8 @@ protected:
     void return_pix_ok_data(mxArray* p1, mxArray* p2, int idx, const std::string& name);
     // setter to return unique run_id,.calculated in the call
     void return_unique_runid(mxArray* p1, mxArray* p2, int idx, const std::string& name);
+    // setter to return pixels indices within the image cell
+    void return_pix_img_idx(mxArray* p1, mxArray* p2, int fld_idx, const std::string& name);
 
 public:
     BinningArg(); // construction
@@ -198,6 +200,7 @@ private:
     OutHandlerMap Mode0ParList;
     OutHandlerMap Mode4ParList;
     OutHandlerMap Mode5ParList;
+    OutHandlerMap Mode6ParList;
 
     std::unordered_map<opModes, OutHandlerMap*> out_handlers;
 };

@@ -107,7 +107,7 @@ end
 
 other_mex_input = struct( ...
     'coord_in',    coord,...                % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
-    'binning_mode',double(proc_mode), ...           % binning mode, what binning values to calculate and return
+    'binning_mode',double(proc_mode), ...   % binning mode, what binning values to calculate and return
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
@@ -185,10 +185,18 @@ else  % otherwise, there are no such ouputs, output structure is flattened
         varargout{end} = out_struc;
     end
     npix_retained = npix_retained + out_struc.npix_retained;
-    if proc_mode< bin_mode.sort_pix && ~test_mex_inputs
+    if proc_mode< bin_mode.sort_pix
+        return;
+    end
+    
+    if proc_mode == bin_mode.sigerr_sel        
+        % this mode does not return pixels but keep selected pixels indices
+        % (for proper symmetrisation)
+        varargout{bin_out.sigerr_sel} = out_struc.selected;
         return;
     end
 
+    % sort pixels and others return pixels data
     pix_ok_data  = out_struc.pix_ok_data;
     pix_ok_range = out_struc.pix_ok_data_range;
 
@@ -217,7 +225,10 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if proc_mode < bin_mode.nosort
         return;
     end
-    varargout{bin_out.pix_indx}      = out_struc.pix_idx;
+    varargout{bin_out.pix_idx}      = out_struc.pix_img_idx;
+    if proc_mode < bin_mode.nosort_sel
+        return;
+    end    
     varargout{bin_out.selected}      = out_struc.selected;
 end
 

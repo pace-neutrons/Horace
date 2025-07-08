@@ -155,6 +155,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
     }
     case (opModes::sort_pix):
     case (opModes::sort_and_uid):
+    case (opModes::nosort):
     {
         std::vector<long> pix_ok_bin_idx;
         pix_ok_bin_idx.swap(bin_par_ptr->pix_ok_bin_idx);

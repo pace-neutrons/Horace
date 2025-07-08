@@ -388,7 +388,7 @@ void BinningArg::return_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int
     }
     mxSetCell(pFieldValue, fld_idx, pix_range);
 };
-// return pixel obtained after binning and may be sorting.Sets up empty matrix if algorithm have not been using pixels
+// return pixel obtained after binning and may be sorting. Sets up empty matrix if algorithm have not been using pixels
 void BinningArg::return_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
 {
     mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
@@ -400,6 +400,19 @@ void BinningArg::return_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, i
     }
     mxSetCell(pFieldValue, fld_idx, pix_ok);
 };
+// return array of pixels indices, which specify position of pixels within image cell
+void BinningArg::return_pix_img_idx(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+{
+    mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+    mxArray* pix_img_idx(nullptr);
+    if (this->pix_img_idx_ptr) {
+        pix_img_idx = this->pix_img_idx_ptr;
+    } else {
+        pix_img_idx = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL);
+    }
+    mxSetCell(pFieldValue, fld_idx, pix_img_idx);
+};
+
 //===================================================================================
 // calculate steps used in binning over non-unit directions and numbers of these dimensions
 void BinningArg::calc_step_sizes_pax_and_strides()
@@ -456,11 +469,15 @@ void BinningArg::register_output_methods()
     this->Mode5ParList = this->Mode4ParList;
     this->Mode5ParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
 
+    this->Mode6ParList = this->Mode5ParList;
+    this->Mode6ParList["pix_img_idx"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_img_idx(p1, p2, idx, name); };
+
     this->out_handlers[opModes::npix_only] = &Mode0ParList;
     this->out_handlers[opModes::sig_err] = &Mode0ParList;
     this->out_handlers[opModes::sigerr_cell] = &Mode0ParList;
     this->out_handlers[opModes::sort_pix] = &Mode4ParList;
     this->out_handlers[opModes::sort_and_uid] = &Mode5ParList;
+    this->out_handlers[opModes::nosort] = &Mode6ParList;
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
@@ -692,6 +709,7 @@ void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
     this->pix_ok_ptr = mxDuplicateArray(this->all_pix_ptr);
     this->OutParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_ok_data(p1, p2, idx, name); };
     this->OutParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
+    this->OutParList["pix_img_idx"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_img_idx(p1, p2, idx, name); };
 
     /* ********************************************************************************
      * retrieve binning parameters form BinningArg class and copy them into output array
@@ -903,6 +921,7 @@ BinningArg::BinningArg()
     , n_pix_retained(0)
     , pix_data_range_ptr(nullptr)
     , pix_ok_ptr(nullptr)
+    , pix_img_idx_ptr(nullptr)
 {
     /* initialize input Matlab parameters map with methods which  associate
      * Matlab field names with the methods, which set appropriate property value  */

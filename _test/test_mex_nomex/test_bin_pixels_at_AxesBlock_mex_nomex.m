@@ -21,6 +21,56 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             obj.no_mex = n_errors > 0;
         end
 
+        function test_return_inputs_mex_mode6_nosort_2D(obj)
+            % bin pixels and sort pixels, input/output parameters
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,1,40], ...
+                'img_range',[-1,-2,-3,-10;1,2,3,40]);
+            pix_id = [10,10,11,11,7, 5,5,5,10,10];
+            pix_coord = rand(9,10);
+            pix_coord(PixelDataBase.field_index('run_idx'),:) = pix_id;
+            pix = PixelDataMemory(pix_coord);
+
+            in_coord = pix.coordinates;
+            [npix,s,e,pix_ok,unique_id,pix_idx,out_data] = AB.bin_pixels(in_coord,[],[],[],pix,'-test_mex_inputs');
+
+            assertEqual(size(npix),[10,40]);
+            assertEqual(npix,zeros(10,40));
+            assertEqual(s,npix);
+            assertEqual(e,npix);
+            assertTrue(isempty(unique_id));
+            assertTrue(isa(unique_id,'uint32'));
+            assertTrue(isempty(pix_idx));
+            assertTrue(isa(pix_idx,'uint64'));            
+
+
+            assertEqual(pix_ok.data,out_data.pix_ok_data);
+            assertEqual(pix_ok.data,pix_coord);
+            assertEqual(pix_ok.data_range,out_data.pix_ok_data_range);
+            % range matrix have been allocated and probably contains zeros
+            % but this is not guaranteed.
+            assertEqual(size(out_data.pix_ok_data_range),[2,9]);
+
+            assertEqual(out_data.coord_in,in_coord);
+            assertEqual(out_data.binning_mode,bin_mode.nosort);
+            assertEqual(out_data.num_threads, ...
+                config_store.instance().get_value('parallel_config','threads'));
+            assertEqual(out_data.data_range,AB.img_range)
+            assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
+            assertTrue(isempty(out_data.unique_runid));
+            assertFalse(out_data.force_double);
+            assertTrue(out_data.test_input_parsing);
+            assertTrue(isempty(out_data.alignment_matr));
+            assertEqual(out_data.pix_candidates,pix.data);
+            assertTrue(out_data.check_pix_selection);
+            assertEqual(out_data.pix_img_idx,pix_idx);            
+
+        end
+
         %==================================================================
         function performance_mex_nomex_mode5_sort_and_uid(obj)
             if obj.no_mex
