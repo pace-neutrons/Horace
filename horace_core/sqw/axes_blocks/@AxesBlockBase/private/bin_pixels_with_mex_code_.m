@@ -208,10 +208,10 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if proc_mode< bin_mode.sort_pix
         return;
     end
+    pix_ok = PixelDataMemory();    
     if isempty(pix_ok_data)
-        varargout{bin_out.pix_ok} = pix_ok_data;
+        varargout{bin_out.pix_ok} = pix_ok;
     else
-        pix_ok = PixelDataMemory();
         pix_ok = pix_ok.set_raw_data(pix_ok_data);
         varargout{bin_out.pix_ok} = pix_ok.set_data_range(pix_ok_range);
     end
