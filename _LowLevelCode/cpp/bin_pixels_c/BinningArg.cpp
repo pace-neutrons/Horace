@@ -492,6 +492,9 @@ void BinningArg::register_output_methods()
     this->Mode7ParList = this->Mode6ParList;
     this->Mode7ParList["is_pix_selected"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_is_pix_selected(p1, p2, idx, name); };
 
+    this->Mode8ParList = this->Mode0ParList;
+    this->Mode8ParList["is_pix_selected"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_is_pix_selected(p1, p2, idx, name); };
+
 
     this->out_handlers[opModes::npix_only] = &Mode0ParList;
     this->out_handlers[opModes::sig_err] = &Mode0ParList;
@@ -500,6 +503,7 @@ void BinningArg::register_output_methods()
     this->out_handlers[opModes::sort_and_uid] = &Mode5ParList;
     this->out_handlers[opModes::nosort] = &Mode6ParList;
     this->out_handlers[opModes::nosort_sel] = &Mode7ParList;
+    this->out_handlers[opModes::siger_selected] = &Mode8ParList;
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
@@ -853,7 +857,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         plhs[out_arg::Error] = this->error_ptr;
     }
     // pixels modes
-    if (this->binMode >= opModes::sort_pix) {
+    if (this->binMode >= opModes::sort_pix && this->binMode<opModes::siger_selected) {
         if (this->n_data_points > this->pix_ok_bin_idx.size()) {
             this->pix_ok_bin_idx.resize(this->n_data_points);
         }
@@ -875,8 +879,6 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
             }
             std::fill(this->npix1.begin(), this->npix1.end(), 0); // nullify accumulators for npix1
         }
-    }
-    if (this->binMode >= opModes::nosort) {
     }
 }
 

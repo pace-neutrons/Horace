@@ -7,8 +7,8 @@
 // #define C_MUTEXES
 
 // return true if input coordinates lie outside of the ranges specified as input
-template <class TRG>
-bool inline out_of_ranges(TRG const* const coord_ptr, long i, size_t COORD_STRIDE, const std::vector<double>& cut_range, std::vector<double>& qi)
+template <class SRC>
+bool inline out_of_ranges(SRC const* const coord_ptr, long i, size_t COORD_STRIDE, const std::vector<double>& cut_range, std::vector<double>& qi)
 {
     size_t ic0 = i * COORD_STRIDE;
     for (size_t upix = 0; upix < COORD_STRIDE; upix++) {
@@ -19,7 +19,17 @@ bool inline out_of_ranges(TRG const* const coord_ptr, long i, size_t COORD_STRID
     }
     return false;
 };
-// identify the image cell where the particular pixel belongs to
+/* identify 1D index of the image cell where the particular pixel should be moved
+ * qi               -- 4-element array of pixels coordinates in target coordinate system
+ * pax              -- 0 to 4 elements array defining projection axes and what dimensions out 4D image will be binned
+ * cut_range        -- 8-element array of cut ranges (min_q1,max_q1,min_q2,max_q2.... ). Only minimal values are used here
+ * bin_step         -- size(pax) array of bin steps in every binned direction
+ * bin_cell_idx_range
+ *                  -- size(pax) array of maximal allowed pixel indices in every binned direction. Safety measure to
+ *                     avoid oveflow due to round-off errors.
+ * stride           -- size(pax) array of indices strides in each binning direction (e.g. change in the position
+ *                     of pixel in 1D representation of multidimensional array, if index in one direction changes by one
+ */
 size_t inline pix_position(const std::vector<double>& qi, const std::vector<size_t>& pax,
     const std::vector<double>& cut_range, const std::vector<double>& bin_step,
     const std::vector<size_t>& bin_cell_idx_range, const std::vector<size_t>& stride)
@@ -34,10 +44,44 @@ size_t inline pix_position(const std::vector<double>& qi, const std::vector<size
     }
     return il;
 };
+/* calculate pixels position in image array and update pixels accumulators using this position
+ *  Inputs:
+ * pix_coord_ptr    -- pointer to the array pixels coordinates
+ * pix_in_pix_pos   -- position of the pixel in 2D pixel data array, repesented as 1D array with pixels coordinates changing firest
+ * qi               -- 4-element array of pixels coordinates in target coordinate system
+ * pax              -- 0 to 4 elements array defining projection axes
+ * cut_range        -- 8-element array of cut ranges (min_q1,max_q1,min_q2,max_q2.... )
+ * bin_step         -- size(pax) array of bin steps in every binned direction
+ * bin_cell_idx_range
+ *                  -- size(pax) array of maximal allowed pixel indices in every binned direction.
+ * stride           -- size(pax) array of indices strides in each binning direction (e.g. change in the position
+ *                     of pixel in 1D representation of multidimensional array, if index in one direction changes by one
+ * Accumulators:
+ * npix             -- number of pixels contributing into given cell of image
+ * s                -- accumulated signal per image cell
+ * e                -- accumulated error per image cell
+ */
+template <class SRC>
+size_t inline add_pix_to_accumulators(const SRC* pix_coord_ptr, size_t pix_in_pix_pos,
+    const std::vector<double>& qi, const std::vector<size_t>& pax,
+    const std::vector<double>& cut_range, const std::vector<double>& bin_step,
+    const std::vector<size_t>& bin_cell_idx_range, const std::vector<size_t>& stride,
+    std::span<double>& npix, std::span<double>& s, std::span<double>& e)
+{
+    // calculate location of pixel within the image grid
+    auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+    // calculate npix accumulators
+    npix[il]++;
+    // calculate signal and error accumulators
+    s[il] += (double)pix_coord_ptr[pix_in_pix_pos + pix_flds::iSign];
+    e[il] += (double)pix_coord_ptr[pix_in_pix_pos + pix_flds::iErr];
+
+    return il;
+};
 // copy selected pixels from oritinal array to the target array, containing only selected pixels
 // pixels are not sorted and array of indices which correspond to pixels positions according to image is returned instead
 template <class SRC, class TRG>
-void copy_resiults_to_final_arrays(BinningArg* const bin_par_ptr, const SRC* const pix_coord_ptr,
+void inline copy_resiults_to_final_arrays(BinningArg* const bin_par_ptr, const SRC* const pix_coord_ptr,
     size_t data_size, size_t nPixel_retained, std::vector<long>& pix_ok_bin_idx)
 {
     // allocate memory for pixels to retain.
@@ -110,7 +154,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
     // initialize space for calculating pixel data ranges if necessary
     std::span<double> pix_ranges;
     auto pix_range_ids = (bin_par_ptr->pix_data_range_ptr == nullptr) ? 0 : 2 * pix_flds::PIX_WIDTH;
-    if (bin_par_ptr->binMode > opModes::sigerr_cell && pix_range_ids > 0) { // higher modes process pixel ranges
+    if (bin_par_ptr->binMode > opModes::sigerr_cell && pix_range_ids > 0 && bin_par_ptr->binMode < opModes::siger_selected) { // higher modes process pixel ranges except
         pix_ranges = std::span<double>(mxGetPr(bin_par_ptr->pix_data_range_ptr), pix_range_ids);
         init_min_max_range_calc(pix_ranges, pix_flds::PIX_WIDTH);
     }
@@ -143,13 +187,9 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
                 continue;
             nPixel_retained++;
 
-            // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
-            // calculate npix accumulators
-            npix[il]++;
-            // calculate signal and error accumulators
-            s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
-            e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
+            // calculate location of pixel within the image grid and add values of this pixels to the accumulators
+            add_pix_to_accumulators<SRC>(pix_coord_ptr, ip0, qi, pax, cut_range, bin_step, bin_cell_idx_range, stride,
+                npix, s, e);
         }
         break;
     }
@@ -208,13 +248,10 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
                 continue;
             nPixel_retained++;
 
-            // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
-            // calculate npix accumulators for sinle page of pixels
-            npix1[il]++;
-            // calculate signal and error accumulators
-            s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
-            e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
+            // calculate location of pixel within the image grid and add values of this pixels to the accumulators
+            auto il = add_pix_to_accumulators<SRC>(pix_coord_ptr, ip0, qi, pax, cut_range, bin_step, bin_cell_idx_range, stride,
+                npix, s, e);
+            // store indices of contributing pixels
             pix_ok_bin_idx[i] = il;
             // calculate pix ranges
             calc_pix_ranges<SRC>(pix_ranges, pix_coord_ptr, PIX_STRIDE, i);
@@ -274,13 +311,11 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
                 continue;
             nPixel_retained++;
 
-            // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
-            // calculate npix accumulators for whole image which include multiple pixels pages
-            npix[il]++;
-            // calculate signal and error accumulators
-            s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
-            e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
+            // calculate location of pixel within the image grid and add values of this pixels to the accumulators
+            auto il = add_pix_to_accumulators<SRC>(pix_coord_ptr, ip0, qi, pax, cut_range, bin_step, bin_cell_idx_range, stride,
+                npix, s, e);
+
+            // store indices of contributing pixels
             pix_ok_bin_idx[i] = il;
             // calculate pix ranges
             calc_pix_ranges<SRC>(pix_ranges, pix_coord_ptr, PIX_STRIDE, i);
@@ -298,12 +333,16 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         bin_par_ptr->pix_ok_bin_idx.swap(pix_ok_bin_idx);
         break;
     }
-    case (opModes::nosort_sel): {
+    case (opModes::nosort_sel):
+    case (opModes::siger_selected): {
+        auto return_selected_only = bin_par_ptr->binMode == opModes::siger_selected;
         std::vector<long> pix_ok_bin_idx;
-        pix_ok_bin_idx.swap(bin_par_ptr->pix_ok_bin_idx);
+        if (!return_selected_only) {
+            pix_ok_bin_idx.swap(bin_par_ptr->pix_ok_bin_idx);
+        }
 
         // Allocate memory for logical array of selected pixels
-        mxLogical * is_pix_selected_ptr(nullptr);
+        mxLogical* is_pix_selected_ptr(nullptr);
         std::span<mxLogical> is_pix_selected;
         bin_par_ptr->is_pix_selected_ptr = allocate_pix_memory<mxLogical>(1, data_size, is_pix_selected_ptr);
         is_pix_selected = std::span<mxLogical>(is_pix_selected_ptr, data_size);
@@ -326,16 +365,17 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
 
             nPixel_retained++;
 
-            // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
-            // calculate npix accumulators for whole image which include multiple pixels pages
-            npix[il]++;
-            // calculate signal and error accumulators
-            s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
-            e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
-            pix_ok_bin_idx[i] = il;
-            // calculate pix ranges
-            calc_pix_ranges<SRC>(pix_ranges, pix_coord_ptr, PIX_STRIDE, i);
+            // calculate location of pixel within the image grid and add values of this pixels to the accumulators
+            auto il = add_pix_to_accumulators<SRC>(pix_coord_ptr, ip0, qi, pax, cut_range, bin_step, bin_cell_idx_range, stride,
+                npix, s, e);
+            if (!return_selected_only) {
+                pix_ok_bin_idx[i] = il;
+                // calculate pix ranges
+                calc_pix_ranges<SRC>(pix_ranges, pix_coord_ptr, PIX_STRIDE, i);
+            }
+        }
+        if (return_selected_only) {
+            break;
         }
         copy_resiults_to_final_arrays<SRC, TRG>(bin_par_ptr, pix_coord_ptr,
             data_size, nPixel_retained, pix_ok_bin_idx);

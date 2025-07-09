@@ -206,6 +206,7 @@ private:
     OutHandlerMap Mode5ParList;
     OutHandlerMap Mode6ParList;
     OutHandlerMap Mode7ParList;
+    OutHandlerMap Mode8ParList;
 
     std::unordered_map<opModes, OutHandlerMap*> out_handlers;
 };
