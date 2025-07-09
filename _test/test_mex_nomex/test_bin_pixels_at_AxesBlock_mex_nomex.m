@@ -62,7 +62,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
                 t_mex(i) = toc(t1);
 
                 assertEqual(uint32(uniqId_nom),uniqId_mex);
-                assertEqual(uint64(pix_idx_nom),pix_idx_mex);
+                assertEqual(int64(pix_idx_nom),pix_idx_mex);
 
                 assertEqual(npix_nomex,npix_mex)
                 assertEqualToTol(s_nomex,s_mex,'tol',[1.e-12,1.e-12])
@@ -116,7 +116,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             in_coord = pix1.coordinates;
             [npix_mex,s_mex,e_mex,pix_ok_mex1,uniq_id1_mex,pix_idx_mex1] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix1);
             assertEqual(pix_ok_nom1,pix_ok_mex1);
-            assertEqual(uint64(pix_idx_nom1),pix_idx_mex1);
+            assertEqual(int64(pix_idx_nom1),pix_idx_mex1);
             assertEqual(uint32(uniq_id1_nom),uniq_id1_mex)
             in_coord = pix2.coordinates;
             [npix_mex,s_mex,e_mex,pix_ok_mex2,uniq_id2_mex,pix_idx_mex2] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix2,uniq_id1_mex);
@@ -125,7 +125,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(npix_mex,npix_nom);
             assertEqualToTol(s_mex,s_nom);
             assertEqualToTol(e_mex,e_nom);
-            assertEqual(uint64(pix_idx_nom2),pix_idx_mex2);
+            assertEqual(int64(pix_idx_nom2),pix_idx_mex2);
             assertEqual(uint32(uniq_id2_nom),uniq_id2_mex)
 
             assertEqual(pix_ok_nom2,pix_ok_mex2);
@@ -155,7 +155,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertEqual(size(npix_mex),[10,30]);
 
             assertEqual(uint32(unique_runid_nom),unique_runid_mex)
-            assertEqual(uint64(pix_id_nom),pix_id_mex)
+            assertEqual(int64(pix_id_nom),pix_id_mex)
             assertEqual(npix_mex,npix_nom);
             assertEqual(s_mex,s_nom);
             assertEqual(e_mex,e_nom);
@@ -189,7 +189,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertTrue(isempty(unique_id));
             assertTrue(isa(unique_id,'uint32'));
             assertTrue(isempty(pix_img_idx));
-            assertTrue(isa(pix_img_idx,'uint64'));
+            assertTrue(isa(pix_img_idx,'int64'));
 
 
             assertEqual(size(npix),[10,20,30,40]);
@@ -222,7 +222,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertTrue(isa(unique_id,'uint32'));
             assertEqual(pix_id,uint32([5,7,10,11]));
             assertTrue(isempty(pix_img_idx));
-            assertTrue(isa(pix_img_idx,'uint64'));
+            assertTrue(isa(pix_img_idx,'int64'));
 
 
             assertEqual(size(npix_out),[10,20,30,40]);
@@ -258,7 +258,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertTrue(isempty(unique_id));
             assertTrue(isa(unique_id,'uint32'));
             assertTrue(isempty(pix_idx));
-            assertTrue(isa(pix_idx,'uint64'));
+            assertTrue(isa(pix_idx,'int64'));
 
 
             assertEqual(pix_ok.data,out_data.pix_ok_data);

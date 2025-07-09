@@ -250,9 +250,9 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         TRG* selected_pix_ptr(nullptr); // pointer to the actual data position.
         bin_par_ptr->pix_ok_ptr = allocate_pix_memory<TRG>(pix_flds::PIX_WIDTH, nPixel_retained, selected_pix_ptr);
         // allocated memory for pixel indices
-        size_t * pix_img_idx_ptr(nullptr);
-        bin_par_ptr->pix_img_idx_ptr = allocate_pix_memory<size_t>(nPixel_retained,1, pix_img_idx_ptr);
-        std::span<size_t> pix_img_idx(pix_img_idx_ptr, nPixel_retained);
+        mxInt64 * pix_img_idx_ptr(nullptr);
+        bin_par_ptr->pix_img_idx_ptr = allocate_pix_memory<mxInt64>(nPixel_retained, 1, pix_img_idx_ptr);
+        std::span<mxInt64> pix_img_idx(pix_img_idx_ptr, nPixel_retained);
 
         bool align_result = bin_par_ptr->alignment_matrix.size() == 9;
 
@@ -264,7 +264,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
                 continue;
 
             size_t il = (size_t)pix_ok_bin_idx[i]; // numer of image cell pixel should go to
-            pix_img_idx[targ_pix_pos] = il+1; // MATLB indices start from 1 and these -- from 0
+            pix_img_idx[targ_pix_pos] = mxInt64(il + 1); // MATLB indices start from 1 and these -- from 0
 
             if (align_result) {
                 // align q-coordinates and copy all other pixel data into the location requested

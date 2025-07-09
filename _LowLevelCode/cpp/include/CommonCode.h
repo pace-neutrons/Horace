@@ -149,12 +149,12 @@ mxArray* allocate_pix_memory(size_t PIX_WIDTH, size_t N_ELEMENTS, TRG*& data_ptr
         if (mxData_ptr)
             data_ptr = reinterpret_cast<float*>(mxGetPr(mxData_ptr));
         mem_name = "resulting binned pixels of type 'signle'";
-    } else if constexpr(std::is_same_v<TRG, size_t>) {
-        mxData_ptr = mxCreateNumericMatrix(PIX_WIDTH, N_ELEMENTS, mxUINT64_CLASS, mxREAL);
+    } else if constexpr (std::is_same_v<TRG, mxInt64>) {
+        mxData_ptr = mxCreateNumericMatrix(PIX_WIDTH, N_ELEMENTS, mxINT64_CLASS, mxREAL);
         if (mxData_ptr)
-            data_ptr = reinterpret_cast<size_t *>(mxGetPr(mxData_ptr));
+            data_ptr = reinterpret_cast<mxInt64 *>(mxGetPr(mxData_ptr));
         mem_name = "resulting array of indices of type 'UINT64'";
-    } else if constexpr(std::is_same_v<TRG, mxLOGICAL_CLASS>) {
+    } else if constexpr(std::is_same_v<TRG, mxLogical>) {
         mxData_ptr = mxCreateLogicalMatrix(PIX_WIDTH, N_ELEMENTS);
         if (mxData_ptr)
             data_ptr = mxGetLogicals(mxData_ptr);

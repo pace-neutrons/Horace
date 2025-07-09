@@ -410,7 +410,7 @@ void BinningArg::return_pix_img_idx(mxArray* pFieldName, mxArray* pFieldValue, i
     if (this->pix_img_idx_ptr) {
         pix_img_idx = this->pix_img_idx_ptr;
     } else {
-        pix_img_idx = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL);
+        pix_img_idx = mxCreateNumericMatrix(0, 0, mxINT64_CLASS, mxREAL);
     }
     mxSetCell(pFieldValue, fld_idx, pix_img_idx);
     this->pix_img_idx_ptr = nullptr;
