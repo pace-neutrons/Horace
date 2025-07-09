@@ -387,6 +387,7 @@ void BinningArg::return_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int
         pix_range = this->pix_data_range_ptr;
     }
     mxSetCell(pFieldValue, fld_idx, pix_range);
+    this->pix_data_range_ptr = nullptr;
 };
 // return pixel obtained after binning and may be sorting. Sets up empty matrix if algorithm have not been using pixels
 void BinningArg::return_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
@@ -399,6 +400,7 @@ void BinningArg::return_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, i
         pix_ok = mxCreateDoubleMatrix(0, 0, mxREAL);
     }
     mxSetCell(pFieldValue, fld_idx, pix_ok);
+    this->pix_ok_ptr = nullptr;
 };
 // return array of pixels indices, which specify position of pixels within image cell
 void BinningArg::return_pix_img_idx(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
@@ -411,6 +413,7 @@ void BinningArg::return_pix_img_idx(mxArray* pFieldName, mxArray* pFieldValue, i
         pix_img_idx = mxCreateNumericMatrix(0, 0, mxUINT64_CLASS, mxREAL);
     }
     mxSetCell(pFieldValue, fld_idx, pix_img_idx);
+    this->pix_img_idx_ptr = nullptr;
 };
 
 //===================================================================================
@@ -829,6 +832,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         plhs[out_arg::Signal] = this->signal_ptr;
         plhs[out_arg::Error] = this->error_ptr;
     }
+    // pixels modes
     if (this->binMode >= opModes::sort_pix) {
         if (this->n_data_points > this->pix_ok_bin_idx.size()) {
             this->pix_ok_bin_idx.resize(this->n_data_points);
@@ -836,21 +840,23 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         // fill all positions of the pix_ok vector with certainly invalid value. Index can not be negative
         // this will indicate invalid elements
         std::fill(this->pix_ok_bin_idx.begin(), this->pix_ok_bin_idx.end(), -1);
-        if (this->npix_bin_start.size() != this->distr_size) {
-            this->npix_bin_start.resize(this->distr_size);
-            this->npix1.resize(this->distr_size);
-        }
-        std::fill(this->npix1.begin(), this->npix1.end(), 0); // nullify accumulators for npix1
-        // ranges calculated per each pixels block, i.e. calculations per call to bin_pixels_c
+        // allocate space for pixel data range, which is always calculated for
+        // any pixel mode
         this->pix_data_range_ptr = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
         if (init_new_accumulators) {
             // just in case, clear unique run-id-s set (should be empty anyway at this stage)
             this->unique_runID.clear();
         }
-    } else {
-        // clear ranges left from previous call to binning functions
-        // as they are not needed for this call but may confuse output routines
-        this->pix_data_range_ptr = nullptr;
+        if (this->binMode < opModes::nosort) {
+            // accumulators needed for sorting pixels according to bins
+            if (this->npix_bin_start.size() != this->distr_size) {
+                this->npix_bin_start.resize(this->distr_size);
+                this->npix1.resize(this->distr_size);
+            }
+            std::fill(this->npix1.begin(), this->npix1.end(), 0); // nullify accumulators for npix1
+        }
+    }
+    if (this->binMode >= opModes::nosort) {
     }
 }
 

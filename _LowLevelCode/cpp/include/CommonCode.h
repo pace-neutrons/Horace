@@ -137,26 +137,39 @@ void inline calc_pix_ranges(std::span<double>& pix_ranges, SRC const* const pix_
 template<class TRG> 
 mxArray* allocate_pix_memory(size_t PIX_WIDTH, size_t N_ELEMENTS, TRG*& data_ptr)
 { 
-    mxArray* pix_ptr(nullptr);
+    mxArray* mxData_ptr(nullptr);
+    std::string mem_name;
     if constexpr (std::is_same_v<TRG, double>) {
-        pix_ptr = mxCreateDoubleMatrix(PIX_WIDTH, N_ELEMENTS, mxREAL);
-        if (pix_ptr)
-            data_ptr = mxGetPr(pix_ptr);
+        mxData_ptr = mxCreateDoubleMatrix(PIX_WIDTH, N_ELEMENTS, mxREAL);
+        if (mxData_ptr)
+            data_ptr = mxGetPr(mxData_ptr);
+        mem_name = "resulting binned pixels of type 'double'";
     } else if constexpr (std::is_same_v<TRG, float>) {
-        pix_ptr = mxCreateNumericMatrix(PIX_WIDTH, N_ELEMENTS, mxSINGLE_CLASS, mxREAL);
-        if (pix_ptr)
-            data_ptr = reinterpret_cast<float*>(mxGetPr(pix_ptr));
+        mxData_ptr = mxCreateNumericMatrix(PIX_WIDTH, N_ELEMENTS, mxSINGLE_CLASS, mxREAL);
+        if (mxData_ptr)
+            data_ptr = reinterpret_cast<float*>(mxGetPr(mxData_ptr));
+        mem_name = "resulting binned pixels of type 'signle'";
+    } else if constexpr(std::is_same_v<TRG, size_t>) {
+        mxData_ptr = mxCreateNumericMatrix(PIX_WIDTH, N_ELEMENTS, mxUINT64_CLASS, mxREAL);
+        if (mxData_ptr)
+            data_ptr = reinterpret_cast<size_t *>(mxGetPr(mxData_ptr));
+        mem_name = "resulting array of indices of type 'UINT64'";
+    } else if constexpr(std::is_same_v<TRG, mxLOGICAL_CLASS>) {
+        mxData_ptr = mxCreateLogicalMatrix(PIX_WIDTH, N_ELEMENTS);
+        if (mxData_ptr)
+            data_ptr = mxGetLogicals(mxData_ptr);
+        mem_name = "resulting array of logical indices";
     } else {
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
             "Attempt to allocate memory for unsupported type of variable. Only float and double are supported");
     }
-    if (pix_ptr == nullptr) {
+    if (mxData_ptr == nullptr) {
         std::stringstream buf;
-        buf << "Can not allocate memory for: " << N_ELEMENTS << " resuting binned pixels";
+        buf << "Can not allocate memory for: " << N_ELEMENTS << mem_name;
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
             buf.str().c_str());
     }
-    return pix_ptr;
+    return mxData_ptr;
 };
 
 

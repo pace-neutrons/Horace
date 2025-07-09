@@ -20,6 +20,36 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             [~,n_errors] = check_horace_mex();
             obj.no_mex = n_errors > 0;
         end
+        function test_bin_pixels_mode6_nosort(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to bin pixels in mode 5');
+            end
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,30,1], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+            pix_coord = rand(9,20);
+            pix_id = [10,10,11,11,7, 5,5,5,10,10];
+            pix_coord(PixelDataBase.field_index('run_idx'),:) = [pix_id,pix_id];
+
+
+            pix = PixelDataMemory(pix_coord);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            in_coord = pix.coordinates;
+            [npix_nom,s_nom,e_nom,pix_ok_nom,unique_runid_nom,pix_id_nom] = AB.bin_pixels(in_coord,[],[],[],pix);
+            assertEqual(size(npix_nom),[10,30]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+            [npix_mex,s_mex,e_mex,pix_ok_mex,unique_runid_mex,pix_id_mex] = AB.bin_pixels(in_coord,[],[],[],pix);
+            assertEqual(size(npix_mex),[10,30]);
+
+            assertEqual(uint32(unique_runid_nom),unique_runid_mex)
+            assertEqual(uint64(pix_id_nom),pix_id_mex)            
+            assertEqual(npix_mex,npix_nom);
+            assertEqual(s_mex,s_nom);
+            assertEqual(e_mex,e_nom);
+            assertEqualToTol(pix_ok_nom,pix_ok_mex);
+        end        
 
         function test_return_inputs_mex_mode6_nosort_2D(obj)
             % bin pixels and sort pixels, input/output parameters
