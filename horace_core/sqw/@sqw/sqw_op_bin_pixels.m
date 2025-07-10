@@ -119,7 +119,10 @@ else
     argi = varargin;
 end
 if numel(argi)<obj(1).data.NUM_DIMS % not very reliable but if even combine,
-    % the resulting object comes from first object
+    % option is selected the main object for combine comes from the first
+    % object and everything else can be considered binning. Now it works
+    % but if something changes in a future this have to be reconsidered and
+    % arguments analyzed in more details
     binning = cell(1,obj(1).data.NUM_DIMS);
     argi = [binning(:);argi(:)];
 end
@@ -154,7 +157,8 @@ if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1}))
     % Make sure we have exactly one output argument if no outfile is specified,
     % otherwise this function would do nothing.
     % Even in filebacked mode, if no outfile is given, a random one is
-    % generated. This is not much use to a user if it's not returned.
+    % generated but will be destroyed after completeon. 
+    % This is not much use to a user if it's not returned.
     if nargout ~=1
         error('HORACE:sqw_op_bin_pixels:invalid_argument',[ ...
             'This method request single output argument unless output filename to save result is specified.\n' ...

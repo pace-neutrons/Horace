@@ -1,6 +1,6 @@
 classdef MultipixBase < serializable
-    % The class-base for helper classes, used to keep information about multiple
-    % pixels datasets before they are combined together.
+    % The class-base for auxiliary classes, used to keep information about
+    % multiple pixels datasets before they are combined together.
     %
     properties(Dependent)
         nfiles;       % number of files or objects contributing into final
@@ -255,10 +255,10 @@ classdef MultipixBase < serializable
             % Sets the value describing the way to treat run_id (run_index)
             % of input pixels datasets while combining them together.
             %
-            % Acceptable values may be:
+            % Acceptable values are:
             % 1) string containing 'nochange' or 'fileno' keys. Any other strings are not
             %    acceptable.
-            % "nochage" -- means that runlabels present in input pixels data do not
+            % "nochange" -- means that runlabels present in input pixels data do not
             %              change
             % "filenum"  -- runlables present in input pixels data change to the number
             %              of the file (dataset) in the list of input datasets(files)
