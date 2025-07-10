@@ -163,11 +163,10 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
 
     auto bin_arg_ptr = bin_arg_holder->class_ptr;
     if (bin_arg_ptr->new_binning_arguments_present(prhs)) {
-        bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
         force_update = true;
-    } else {
-        bin_arg_ptr->parse_changed_bin_inputs(prhs[in_arg::param_struct]);
     }
+    bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
+
     bin_arg_ptr->check_and_init_accumulators(plhs, prhs,force_update);
     return;
 };
