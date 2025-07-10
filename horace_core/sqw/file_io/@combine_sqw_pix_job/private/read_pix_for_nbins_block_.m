@@ -23,11 +23,8 @@ change_fileno    = pix_comb_info.change_fileno;
 % run_label    -- array of numbers to distinguish one input
 %                 file from another. Added to current pixel ID
 run_label        = pix_comb_info.run_label;
-% filenum      -- the array of filenumbers, used as pixel labels if
-%                 relabel_with_fnum is set to true; Replaces pixel ID in
-%                 this case.
-filenum          = pix_comb_info.filenum;
 
+relabel = relabel_with_fnum||change_fileno;
 
 npix_per_file = sum(npix_per_bin,2);
 n_bin2_process= size(npix_per_bin,2);
@@ -37,16 +34,12 @@ pix_tb=cell(nfiles,n_bin2_process);  % buffer for pixel information
 %
 bin_filled = false(n_bin2_process,1);
 if ischar(run_label)
-    if strcmpi(run_label,'nochange')
-        run_label = filenum; % will not be used, just to keep common
-        % interface to split_pix_per_bin_
-    else
+    if ~strcmpi(run_label,'nochange')
         error('HORACE:combine_sqw_pix_job:invalid_argument',...
             'If runlabel is a character string, it can be only "nochange". Got: %s',...
             run_label);
     end
 end
-
 
 % Read pixels from input files
 for i=1:nfiles
@@ -54,14 +47,12 @@ for i=1:nfiles
         [pix_buf,pos_pixstart(i)] = ...
             obj.read_pixels(i,pos_pixstart(i),npix_per_file(i));
         [bin_cell,filled_bin_ind] = split_pix_per_bin_(pix_buf,npix_per_bin(i,:),...
-            filenum(i),run_label(i),change_fileno,relabel_with_fnum);
+            run_label(i),relabel);
         pix_tb(i,filled_bin_ind) = bin_cell(:);
         %npixels = npixels +numel(pix_tb{i});
         bin_filled(filled_bin_ind) = true;
     end
 end
-
-
 
 pix_tb = pix_tb(:,bin_filled); % accelerate combining by removing empty cells
 

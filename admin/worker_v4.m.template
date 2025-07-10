@@ -18,9 +18,6 @@ if nargin<1 || isempty(worker_controls_string)
     worker_controls_string = getenv('WORKER_CONTROL_STRING');
 end
 
-% Don't print warnings on remote workers
-warning('off', 'all')
-
 je = [];
 ok = false;
 if isempty(which('horace_init.m'))
@@ -32,6 +29,12 @@ if isempty(which('horace_init.m'))
         return;
     end
 end
+
+if MPI_State.instance.is_deployed
+% Don't print warnings on remote workers
+    warning('off', 'all')
+end
+
 
 %DO_DEBUGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_DEBUGGING');
 DO_DEBUGGING = false;

@@ -116,6 +116,9 @@ end
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, varargin{:});
 
+% Parallel multifit is not working on pic fitting and it should not be
+% working at its current state as it is very inefficient
+clOb = set_temporary_config_options(hpc_config,'parallel_multifit',false);
 
 % Fit Peaks
 % ---------
