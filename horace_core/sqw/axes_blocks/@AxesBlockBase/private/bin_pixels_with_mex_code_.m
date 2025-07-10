@@ -187,12 +187,11 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     npix_retained = npix_retained + out_struc.npix_retained;
     if proc_mode< bin_mode.sort_pix
         return;
-    end
-    
+    end    
     if proc_mode == bin_mode.sigerr_sel        
         % this mode does not return pixels but keep selected pixels indices
         % (for proper symmetrisation)
-        varargout{bin_out.sigerr_sel} = out_struc.selected;
+        varargout{bin_out.sigerr_sel} = out_struc.is_pix_selected;
         return;
     end
 
@@ -229,7 +228,7 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if proc_mode < bin_mode.nosort_sel
         return;
     end    
-    varargout{bin_out.selected}      = out_struc.selected;
+    varargout{bin_out.selected}      = out_struc.is_pix_selected;
 end
 
 end

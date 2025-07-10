@@ -112,6 +112,8 @@ public:
     mxArray* pix_ok_ptr; // pointer to array of all pixels retained after binning
     std::unordered_set<uint32_t> unique_runID; // set containing unique run_id-s of the
     mxArray* pix_img_idx_ptr; // pointer to array of pixel indices within the image cell 
+    mxArray* is_pix_selected_ptr; // pointer to logical array containing true where pixel 
+    //                               was selected for binning and false otherwise
     // processed pixels
     //********************************************************************************
     // helper values
@@ -167,7 +169,9 @@ protected:
     void return_unique_runid(mxArray* p1, mxArray* p2, int idx, const std::string& name);
     // setter to return pixels indices within the image cell
     void return_pix_img_idx(mxArray* p1, mxArray* p2, int fld_idx, const std::string& name);
-
+    // setter to return array containing true for selected pixels and false if they have not been selected
+    void return_is_pix_selected(mxArray* p1, mxArray* p2, int fld_idx, const std::string& name);
+    //
 public:
     BinningArg(); // construction
     // process binning arguments input values for new binning arguments cycle
@@ -201,6 +205,7 @@ private:
     OutHandlerMap Mode4ParList;
     OutHandlerMap Mode5ParList;
     OutHandlerMap Mode6ParList;
+    OutHandlerMap Mode7ParList;
 
     std::unordered_map<opModes, OutHandlerMap*> out_handlers;
 };
