@@ -38,7 +38,7 @@ for i=1:n_runs
 end
 if nargout>1
     Diff =[1.e-8,1.e-8];
-    unique_idx = calc_eq_indices(en_transf,Diff);
+    unique_idx = calc_idx_for_eq_to_tol(en_transf,Diff);
     n_unique = numel(unique_idx);
     ent_selected = cell(1,n_unique);
     for i=1:n_unique
