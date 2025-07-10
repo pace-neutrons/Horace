@@ -141,7 +141,7 @@ if nargin==0 || nargout>0
         % Return the current marker types and marker sizes
         varargout{1} = marker_sizes;
         if nargout>=2
-            if numel(marker_types)==1
+            if isscalar(marker_types)
                 varargout{2} = marker_types{1};
             else
                 varargout{2} = marker_types;

@@ -5,7 +5,7 @@ function is = get_change_fileno_(obj)
 if ischar(obj.run_label)
     if strcmpi(obj.run_label,'nochange')
         is=false;
-    elseif strcmpi(obj.run_label,'fileno')
+    elseif strncmpi(obj.run_label,'filen',5)
         is = true;
     end
 elseif isnumeric(obj.run_label)

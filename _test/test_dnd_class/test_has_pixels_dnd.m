@@ -1,4 +1,4 @@
-classdef test_has_pixels < TestCase
+classdef test_has_pixels_dnd < TestCase
     %% TEST_HAS_PIXELS tests the behaviour of the helper function
     %
     properties
@@ -11,8 +11,8 @@ classdef test_has_pixels < TestCase
 
     methods
 
-        function obj = test_has_pixels(varargin)
-            obj = obj@TestCase('test_has_pixels');
+        function obj = test_has_pixels_dnd(varargin)
+            obj = obj@TestCase('test_has_pixels_dnd');
         end
 
         function test_has_pixels_returns_false_for_d0d_object(~)
@@ -40,6 +40,5 @@ classdef test_has_pixels < TestCase
             pix = d4d_obj.has_pixels();
             assertFalse(pix);
         end
-
     end
 end
