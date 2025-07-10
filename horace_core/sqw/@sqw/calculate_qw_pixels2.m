@@ -12,9 +12,10 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 %
 % Input:
 % ------
-%  win         -- Input sqw object which works like a container for
-%                 Experiment info and PixelData used to caclulate pixel's
-%                 Q-coordinates from pixels indices.
+%  win         --  Input sqw object which works as container for pixelData
+%                  and Experiment info used for processing pixel's coordinates 
+%                  from pixel's indices and experiment information. SQW
+%                  object's imags is not used.
 % Optional:
 % coord_in_rlu --  default true. Returns pixel coordinates in reciprocal
 %                  lattice units (projection onto rotated hkl coordinate
@@ -36,10 +37,14 @@ function qw=calculate_qw_pixels2(win,coord_in_rlu,return_array)
 %           vectors for convenience with fitting routines etc.
 %               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
 %
-% Get some 'average' quantities for use in calculating transformations and
-% bin boundaries.
-% *** assumes that all the contributing spe files had the same lattice
-% parameters and projection axes This could be generalised later
+%  This method currently fully maintains initial order of pixels present in
+%  input sqw object. This may change if pixels are processed in parallel
+%  but this, in turn, will request usage of sqw objet's image (npix field)
+%  currenlty not used by the routine.
+%  
+
+% NOTE: Routine assumes that all the contributing spe files have the same
+% lattice parameters. This could be generalised later
 % - but with repercussions in many routines
 
 if ~isscalar(win)
@@ -60,9 +65,9 @@ det_id  = idx(2,:)';
 en_id   = idx(3,:)';
 experiment = win.experiment_info;
 
-% convert run_id in pixels into number of IX_experiment, corresponding to
-% this pixel. After that irun represents number of IX_experiment element in
-% Experiment.expdata array or number of transformation matrix in list of
+% convert run_id in pixels into index of IX_experiment corresponding to
+% this pixel. After that irun represents index of IX_experiment element in
+% Experiment.expdata array or index of transformation matrix in list of
 % all transformations (spec_to_rlu)
 remapper   = experiment.runid_map;
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment array indices
@@ -75,8 +80,9 @@ idx(1,:)   = run_id;
 res_reorder_map = fast_map(double(lng_idx),1:numel(lng_idx));
 
 
-%----------------- Partially generic code -- the methods used here may
-%  use caches precalculated before the calling here and running calculations
+% TODO: possible improvement.
+%----------------- the methods used below may use caches precalculated
+% before the calling here and running calculations
 %  over pixels pages. See also one in runid loop below, around row 145
 %
 % if we want possible change in alatt during experiment, go to sampe in
@@ -87,11 +93,13 @@ angdeg = win.data.angdeg;
 
 
 ix_exper   = experiment.expdata;
-if coord_in_rlu % coordinates in rlu, lattice is aligned with beam in
-    % a direction specified in IX_experiment
-    n_matrix = 3;
-else % coordinates in Crystan Cartesian
-    n_matrix = 1;
+if coord_in_rlu % Requests coordinates in rlu, lattice is aligned with beam
+    % in a direction specified in IX_experiment.
+    matrix_id = 3; % this is defined by matrix_idx == 3 of
+    % oriented_lattice.calc_proj_matrix method
+else % Requests coordinates in Crystan Cartesian.
+    matrix_id = 1; % this is defined by matrix_idx == 1 of
+    % oriented_lattice.calc_proj_matrix method
 end
 % energies:
 % compact_array containing incident for direct or analysis for indirect
@@ -104,19 +112,25 @@ emodes= experiment.get_emode();
 % detectors are used here and their number expected to coincide with the
 % number of unique instruments. As no separate indices exists for
 % instruments themselves, unique_detectors is all that means here.
+% Here we select all detector arrays known to sqw object (sqw-experiment
+% used to return specific unique references array)
 all_det = experiment.detector_arrays;
 [unique_det, unique_det_run_idx] = all_det.get_unique_objects_and_indices(true);
 undet_info = compact_array(unique_det_run_idx,unique_det);
 n_unique_det_arrays = undet_info.n_unique;
 
 
-% unique energy transfers arrays. Despite it is common that runs have the
-% same energy transf value, it may often happen (e.g. data reduced with
+% unique energy transfers arrays. Although it is common that runs have the
+% same energy transf value, it can often happen (e.g. data reduced with
 % auto-ei and relative bin edges) that every run has its own energy
-% transfer value:
+% transfer values:
 en_tr_info   = experiment.get_en_transfer(true,true);
 
-%----------------- Generic code
+%----------------- Code is operating on the basis of metadata and caches,
+% constructed above. If such metadata and caches are available, it would
+% work fully independently of sqw object provided as input for this
+% routine.
+%
 % identify bunch of incident energies and energy transfer values,
 % corresponding to each bunch of unique detectors
 [efix_info,en_tr_info,en_tr_idx] = retrieve_en_ranges( ...
@@ -129,10 +143,10 @@ en_tr_info   = experiment.get_en_transfer(true,true);
 % into common coordinate system related to crystal (hkl or crystal
 % Cartesian depending on input)
 spec_to_rlu  = arrayfun(...
-    @(ex) calc_proj_matrix(ex,alatt, angdeg,n_matrix), ix_exper, 'UniformOutput', false);
+    @(ex) calc_proj_matrix(ex,alatt, angdeg,matrix_id), ix_exper, 'UniformOutput', false);
 
-% allocate common space for result. Improves performance.
-qw = zeros(4,numel(run_id));
+% allocate common space for result with size equal to number of pixels processed.
+qw = zeros(4,size(idx,2)); %  Improves performance.
 %
 for i=1:n_unique_det_arrays
     run_idx_selected = undet_info.nonunq_idx{i};
@@ -141,13 +155,14 @@ for i=1:n_unique_det_arrays
     idet_4_runs = unique(det_id_selected);    % unique detector ids contribured into runs with these detectors
 
     % calculate detectors directions in instrument coordinate frame.
-    % Ideally, the values here should be precalculated before call to
+    % TODO: Possible future improvements:
+    % [Ideally, the values here should be precalculated before call to
     % cacluate_qw_pixels2 and call here would just picks up cached
-    % values
+    % values]
     detdcn= unique_det{i}.calc_detdcn(idet_4_runs);
 
     % allocate caches for intermediate calculations
-    n_runs = numel(run_idx_selected);  % runs which correspond to a
+    n_runs = numel(run_idx_selected);  % runs which correspond to current detectors array
     qspec_i_cache  = cell(1,n_runs);
     eni_i_cache    = cell(1,n_runs);
     short_idx_cache= cell(1,n_runs);
@@ -164,11 +179,18 @@ for i=1:n_unique_det_arrays
     % allocate optimization array for known number of elements to insert
     mapper = mapper.optimize([0,n_unique_entr*n_unique_efix-1]);
     for run_id_number=1:n_runs
+        % obtain efixed and information if this efixed was used before
         [efix,efix_info_i,unique_efix_num,used_efix]  = efix_info_i.get(run_id_number);
+        % obtain energy transfer and information if these transfer values
+        % were used before
         [en_tr,en_tr_info_i,unique_en_tr_num,used_en] = en_tr_info_i.get(run_id_number);
+        % calculate unique number which define unique incident
+        % energy/energy transfer scales
         q_spec_idx = n_unique_efix*(unique_en_tr_num-1)+unique_efix_num-1;
         en_tr_idx_per_run = en_tr_idx_i{unique_en_tr_num};
 
+        % check if the incident energy and energy transfer scales were
+        % calculated before in the else block below.
         if used_efix && used_en
             spec_idx = mapper.get(q_spec_idx);
             qspec_     = qspec_i_cache{spec_idx};
@@ -178,10 +200,16 @@ for i=1:n_unique_det_arrays
             qspec_i_cache{run_id_number}   = qspec_;
             eni_i_cache{run_id_number}     = eni_   ;
             short_idx_cache{run_id_number} = calc_idx_;
-        else
+        else % if not calculated, calculate qspec and enegry transfer values
+            % contributing to sqw pixels
+            % store used qspec index to know that we have already
+            % calculated it in the future cycles
             mapper = mapper.add(q_spec_idx,run_id_number);
+            % calculate energy transfers and momentum transfers in the
+            % spectrometer frame
             [qspec_,eni_] = calc_qspec(detdcn(1:3,:), efix,en_tr, emodes(run_id_number));
             %
+            % store cacluated values in cache per run number
             qspec_i_cache{run_id_number} = qspec_;
             eni_i_cache{run_id_number}   = eni_;
             % calc_q_spec replicates used detectors and energies into martix.
@@ -191,8 +219,12 @@ for i=1:n_unique_det_arrays
             calc_idx_  = {Y(:)',X(:)'};
             short_idx_cache{run_id_number} = calc_idx_;
         end
-        % MAY BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP on the basis of
-        % mtimesx_horace with pivot.
+        % TODO: MUST BE OPTIMIZED AND MOVED OUTSIDE OF THE LOOP [on the basis of
+        % mtimesx_horace with pivot which will calculate matrix production
+        % using cellarray of input oritnation martices and input kf_de
+        % matrices (which do contain multiple pointers to the same matrices).
+        % Sorting and duplicate dropping should be also included
+        % into C routine for performance.]
         %
         % found indices of the run, energy bins and detector used in q-dE
         % calculations in the frame of the input indices
@@ -208,20 +240,23 @@ for i=1:n_unique_det_arrays
             qspec_ = mtimesx_horace(spec_to_rlu_mat,reshape(qspec_(:,accounted_for), [3, 1, numel(lng_run_idx)]));
             qspec_ = squeeze(qspec_);
 
-            % found the positons of the calculated q-dE values in the pixel
+            % found the positons of the calculated q-dE values in the
+            % pixel(i.e. Crystal Cartesian or hkl coordinates)
             % array with input indices.
             res_places   = res_reorder_map.get_values_for_keys(lng_run_idx);
             qw(1:3,res_places) = qspec_;
             qw(4,res_places)   = eni_(accounted_for);
+            % NB: only Crystal Cartesian can be stored in PixelDataBase
         end
     end
 end
 
 if ~return_array
+    % return cellarray of 4 vectors
     qw = num2cell(qw,2);
     for i=1:4
         qw{i} = qw{i}(:);
     end
 end
-end
 
+end
