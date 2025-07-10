@@ -12,7 +12,7 @@ classdef test_PageOp_sqw_binning < TestCaseWithSave
             if nargin == 0
                 opt = 'test_PageOp_sqw_binning';
             else
-                opt = varargin{1}; % may be save
+                opt = varargin{1}; % may be option '-save'
             end
             this_folder = fileparts(mfilename("fullpath"));
             obj = obj@TestCaseWithSave(opt,fullfile(this_folder,'test_PageOp_sqw_binning.mat'));
@@ -30,14 +30,15 @@ classdef test_PageOp_sqw_binning < TestCaseWithSave
             end
             for i = 1:n_parts
                 id = obj.sqw_to_join(i).runid_map.keys;
-                [~,fn] = fileparts(obj.sqw_to_join(i).main_header.filename);
-                fn = sprintf('%s_runID%d',fn,id(1));
-                fn = fullfile(obj.work_dir,fn);
-                obj.files_to_join{i} = fn;
-                if isfile(fn)
+                [~,f_name] = fileparts(obj.sqw_to_join(i).main_header.filename);
+                f_name = sprintf('%s_runID%d',f_name,id(1));
+                f_name = fullfile(obj.work_dir,f_name);
+                obj.files_to_join{i} = f_name;
+                if isfile(f_name) % file may already be there from previous 
+                    % broken fun, so do not generate it again.
                     continue;
                 end
-                save(obj.sqw_to_join(i),fn);
+                save(obj.sqw_to_join(i),f_name);
             end
             obj.save();
         end

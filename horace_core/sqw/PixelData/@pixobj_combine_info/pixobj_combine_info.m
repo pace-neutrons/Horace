@@ -1,11 +1,11 @@
 classdef pixobj_combine_info < MultipixBase
     % Helper class used to carry out and provide information
     % necessary for pixel combining using join algorithm
-    % or similar algorithm, deployed when running cut_sqw in memory->memory
-    % or memory->file or filebacked_pixels->file modes
+    % or similar algorithm, deployed when running cut_sqw or PageOp_sqw_binning 
+    % in memory->memory or memory->file or filebacked_pixels->file modes
     %
     properties(Dependent)
-        % list of distributions of the pixels within the bins
+        % list of distributions of the pixels within the bins or pixels 
         npix_list
     end
     %
@@ -57,13 +57,20 @@ classdef pixobj_combine_info < MultipixBase
             % npix_list
             %         -- single npix array or cellarry of npix arrays,
             %            describing distribution of pixels within bins.
+            % NOTE:      below we use standard serializable construction
+            %            method "set_positional_and_key_val_arguments" to
+            %            assign values to the class properties. This method
+            %            accepts cellarray of input parameters, so here we
+            %            include mandatory variable npix_list into varargin
+            %            to use this serializable method in its simplest
+            %            form.
             % Optional:
             %run_label
             %     either:
             %          - the string or array containing information on the
             %            treatment of the run_ids, identifying each
             %            pixel of the PixelData. It may be equal
-            %      equal to:
+            %      to:
             %          - 'nochange' the string stating that the pixel id-s
             %             should be kept as provided within contributing
             %             files

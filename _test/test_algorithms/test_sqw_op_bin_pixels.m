@@ -253,7 +253,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             assertTrue(isa(in_sqw.pix,'pixobj_combine_info'))
         end
 
-        function test_combine_ignored_for_single_input(obj)
+        function test_combine_option_ignored_for_single_input(obj)
             out_par = sqw_op_bin_pixels(obj.sqw_2d_file, ...
                 obj.gauss_sqw_fun,obj.gauss_sigma,'-combine','-test_input_parsing');
 
@@ -267,7 +267,8 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             in_sqw = out_par.input_objects;
             assertTrue(isa(in_sqw.pix,'PixelDataMemory'))
         end
-        function test_combine_accepts_key_value_combined(obj)
+
+        function test_algorithm_accepts_key_value_input_for_combine_option(obj)
             out_par = sqw_op_bin_pixels({obj.sqw_2d_obj,obj.sqw_2d_obj}, ...
                 obj.gauss_sqw_fun,obj.gauss_sigma,'combine',true,'-test_input_parsing');
 
@@ -285,7 +286,7 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             assertTrue(isa(in_sqw.pix,'pixobj_combine_info'))
         end
 
-        function test_combine_accepts_option_combined(obj)
+        function test_algorithm_accepts_option_combine(obj)
             out_par = sqw_op_bin_pixels({obj.sqw_2d_obj,obj.sqw_2d_obj}, ...
                 obj.gauss_sqw_fun,obj.gauss_sigma,'-combine','-test_input_parsing');
 
