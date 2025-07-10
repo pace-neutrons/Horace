@@ -79,7 +79,8 @@ size_t inline add_pix_to_accumulators(const SRC* pix_coord_ptr, size_t pix_in_pi
     return il;
 };
 // copy selected pixels from oritinal array to the target array, containing only selected pixels
-// pixels are not sorted and array of indices which correspond to pixels positions according to image is returned instead
+// pixels are not sorted and array of indices which correspond to pixels positions according
+// to image is returned instead
 template <class SRC, class TRG>
 void inline copy_resiults_to_final_arrays(BinningArg* const bin_par_ptr, const SRC* const pix_coord_ptr,
     size_t data_size, size_t nPixel_retained, std::vector<mxInt64>& pix_ok_bin_idx)
@@ -116,7 +117,7 @@ void inline copy_resiults_to_final_arrays(BinningArg* const bin_par_ptr, const S
 
         targ_pix_pos++; // move to the next pixel position within the target array
     }
-}
+};
 
 /** Procedure calculates positions of the input pixels coordinates within specified
  *   image box and various other values related to distributions of pixels over the image
@@ -249,8 +250,14 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             nPixel_retained++;
 
             // calculate location of pixel within the image grid and add values of this pixels to the accumulators
-            auto il = add_pix_to_accumulators<SRC>(pix_coord_ptr, ip0, qi, pax, cut_range, bin_step, bin_cell_idx_range, stride,
-                npix, s, e);
+            // It is almost like add_pixels_to_accumulators but npix1 instead of npix and types of these arrays are different
+            // calculate location of pixel within the image grid
+            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            // calculate npix accumulators
+            npix1[il]++;
+            // calculate signal and error accumulators taken from current pixel
+            s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
+            e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
             // store indices of contributing pixels
             pix_ok_bin_idx[i] = il;
             // calculate pix ranges
