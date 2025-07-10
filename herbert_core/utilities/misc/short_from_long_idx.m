@@ -1,12 +1,13 @@
 function idx_short = short_from_long_idx(idx_long,minmax_idx)
 %short_from_long_idx  the routine inverse to long_idx and used to obtain
-% array of short indices from long indices produced long_idx routine.
+% array of short indices from long indices produced by long_idx routine.
 %
 % Used mainly in debugging for fast conversion of long indices into more
-% visible shor indices
+% visible short indices, though other usages may be indentified in a future
 %
 % Input:
-%  idx_long  -- 1-Dimensional array of long indices as pro
+%  idx_long  -- 1-Dimensional array of long indices as produced by long_idx
+%               routine
 %
 % minmax_idx -- [N x 2] array of min-max values of short output indices
 %               previously produced by long_idx routine.
@@ -14,6 +15,10 @@ function idx_short = short_from_long_idx(idx_long,minmax_idx)
 %Returns:
 %  idx_short -- array of short linear indices of the N-dimensional box
 %               build with ranges defined nu minmax_idx array
+%
+% NOTE:
+% currently works in 1 to 3 dimensions, i.e. N can be in range 1-3
+
 
 
 sizes = minmax_idx(:,2)-minmax_idx(:,1)+1;

@@ -176,7 +176,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     %                             with calls to add_to_files_cleanList
     %   remove_paths            - Remove path or paths that have been accumulated
     %                             with calls to add_to_path_cleanList
-    %
+    %   getReferenceDataset(obj, test_name,var_name)    
+    %                           - retrieve reference dataset obtained for
+    %                             test with specified name and variable with
+    %                             such name
     %   delete                  - Equivalent to performing delete_files and
     %                             remove_paths in succesion
     %

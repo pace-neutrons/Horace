@@ -322,10 +322,13 @@ classdef TestSuite < TestComponent
             test_suite.Location = pwd;
 
             mfiles = dir(fullfile('.', '*.m'));
+
             for k = 1:numel(mfiles)
                 [~, name] = fileparts(mfiles(k).name);
                 if xunit.utils.isTestCaseSubclass(name) && ~isempty(regexp(name,'^test_','ONCE'))
+
                     test_suite.add(TestSuite.fromTestCaseClassName(name));
+
                 elseif xunit.utils.isTestString(name)
                     suite_k = TestSuite.fromName(name);
                     if ~isempty(suite_k.TestComponents)
@@ -350,6 +353,7 @@ classdef TestSuite < TestComponent
             test_suite = TestSuite();
             test_suite.Name = name;
             test_suite.Location = 'Package';
+
 
             for k = 1:numel(package_info.Packages)
                 pkg_name = package_info.Packages{k}.Name;
