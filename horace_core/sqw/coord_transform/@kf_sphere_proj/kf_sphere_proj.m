@@ -4,7 +4,7 @@ classdef kf_sphere_proj<sphere_proj
     % related to the spectrometer frame.
     %
     % Unlike sphere_proj, which calculates spherical coordinates of
-    % scattring vector Q, kf_sphere_proj, calculates spherical coordinates
+    % scattering vector Q, kf_sphere_proj, calculates spherical coordinates
     % of scattering vector kf, where Q = RM*(ki-kf), where RM is rotation
     % matrix which describes the crystal rotation from axis qx to
     % beam direction in Crystal Cartesian coordinate system (see
@@ -80,7 +80,8 @@ classdef kf_sphere_proj<sphere_proj
     %       cc_to_spec_mat and run_id_mapper being defined.
     %
     properties(Dependent)
-        Ei  % incident for direct or analyzer for indirect energy.
+        Ei  % incident energy for direct spectrometer or analyzer energy 
+        % for indirect spectrometer.
         ki_mod % read-only parameter. Modulo of vector ki in A^-1.
         % Used for debugging and easy cut range estimation
         %
