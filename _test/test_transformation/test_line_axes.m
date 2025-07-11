@@ -132,7 +132,7 @@ classdef test_line_axes < TestCase
             assertEqual(numel(indx),pix_ok.num_pixels);
             for i=1:10
                 ii = (i-1)*10+1:1000:10000;
-                assertEqual(indx(ii)',i:10:100);
+                assertEqual(double(indx(ii)'),i:10:100);
             end
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -276,7 +276,7 @@ classdef test_line_axes < TestCase
             pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e,pix_ok,uniq_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
-            assertEqual(uniq_runid,1)
+            assertEqual(double(uniq_runid),1)
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -287,7 +287,7 @@ classdef test_line_axes < TestCase
             assertEqual(e,size(pix_data,2));
             assertEqual(pix_ok.num_pixels,pix.num_pixels);
             assertEqual(pix_ok.num_pixels,numel(indx));
-            assertEqual(indx,ones(pix_ok.num_pixels,1));
+            assertEqual(double(indx),ones(pix_ok.num_pixels,1));
 
         end
         
