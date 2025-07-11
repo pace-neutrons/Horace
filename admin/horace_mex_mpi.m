@@ -9,7 +9,7 @@ function [ok,mess] = horace_mex_mpi(varargin)
 % we supply MPI libraries together with Herbert. They may not work with any
 % Matlab version and with any OS so may be cases when it is preferable to
 % use system libraries but:
-use_her_mpich = false; % if true, use MPI libraries, provided with Herbert.
+use_her_mpich = true; % if true, use MPI libraries, provided with Herbert.
 % if false, modify script below providing the location of the MPI libraries
 % present on the system.
 
@@ -64,10 +64,11 @@ mpi_lib = fullfile(mpi_lib_folder,mpi_lib_2use);
 
 % code folder:
 code_folder = fullfile(pths.low_level,'cpp','cpp_communicator');
+common_include_folder = fullfile(pths.low_level,'cpp');
 input_files = fullfile(code_folder,input_files);
 
 % additional include folder, containing mpich
-add_include = ['-I',mpi_hdrs_folder];
+add_include = ['-I',mpi_hdrs_folder,' -I',common_include_folder];
 if verbose
     add_include = {'-v',add_include};
 else
