@@ -1,7 +1,7 @@
 classdef AxesBlockBase < serializable
     % The class contains information about axes and scales used for
     % displaying sqw/dnd object and provides scales for neutron image data
-    % binned on a grid, defined by this class
+    % binned on a grid, defined by this class.
     %
     % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
