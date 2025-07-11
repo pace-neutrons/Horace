@@ -197,6 +197,37 @@ classdef AxesBlockBase < serializable
             [any_within,is_within]=bins_in_1Drange_(bins,range);
         end
         %
+        function [npix,s,e,pix_cand,unique_runid,argi]=...
+                normalize_binning_input(grid_size,pix_coord_transf,n_argout,varargin)
+            % verify inputs of the bin_pixels function and convert various
+            % forms of the inputs of this function into a common form,
+            % where the missing inputs are returned as empty.
+            %
+            %Inputs:
+            % pix_coord_transf -- the array of pixels coordinates
+            %                     transformed into this AxesBlockBase
+            %                      coordinate system
+            % n_argout         -- number of argument, requested by the
+            %                     calling function
+            % Optional:
+            % pix_coord -- [3,npix] or [4,npix] or [4x3] numeric array of the pixel
+            %               coordinates.
+            % mode       -- operation mode specifying what the following routine should
+            %              process. The mode is defined by number of output arguments.
+            %              Depending on the requested outputs, different inputs have
+            %              to be provided.
+            % Optional:
+            % npix or nothing if mode == 1
+            % npix,s,e accumulators if mode is [4,5,6]
+            % pix_cand  -- if mode == [4,5,6], must be present as a PixelData class
+            %              instance, containing information about pixels
+            % unique_runid -- if mode == [5,6], input array of unique_runid-s
+            %                 calculated on the previous step.
+
+
+            [npix,s,e,pix_cand,unique_runid,argi]=...
+                normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
+        end
     end
     %----------------------------------------------------------------------
     methods
@@ -685,9 +716,30 @@ classdef AxesBlockBase < serializable
             [npix,s,e,pix_cand,unique_runid,argi]=...
                 obj.normalize_bin_input(coord_transf,mode,varargin{:});
             %
+            % keep unused argi parameter to tell parse_char_options to ignore
+            % unknown options
+            [ok,mess,force_double,return_selected]=parse_char_options(argi,{'-force_double', '-return_selected'});
+            if ~ok
+                error('HORACE:AxesBlockBase:invalid_argument',mess)
+            end
+            % keep unused argi parameter to tell parse_char_options to ignore
+            % unknown options
+            if return_selected && mode ~= 4
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                    'return_selected requested for non pixel cut')
+            end
+
             % bin pixels
-            [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_(obj,coord_transf,mode,...
-                npix,s,e,pix_cand,unique_runid,argi{:});
+            use_mex = config_store.instance().get_value('hor_config','use_mex');
+            if use_mex
+                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
+                    obj,coord_transf,mode,...
+                    npix,s,e,pix_cand,unique_runid,force_double,return_selected);
+            else
+                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...
+                    obj,coord_transf,mode,...
+                    npix,s,e,pix_cand,unique_runid,force_double,return_selected);
+            end
         end
         %
         function [nodes,dE_edges,nbin_size,grid_cell_size] = get_bin_nodes(obj,varargin)
