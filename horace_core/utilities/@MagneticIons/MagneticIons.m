@@ -18,6 +18,9 @@ classdef MagneticIons
     %                   to the dataset provided as input.
     % correct_mag_ff  - correct given dataset for magnetic form factor of
     %                   the particular ion, defined earlier.
+    % get_fomFactor_fh- Return cellarray of 4 function handles to functions 
+    %                   used to calculate magnetic form factor of a specific
+    %                   magnetic ion.    
     %----------------------------------------------------------------------
     %
     % Auxiliary methods:
