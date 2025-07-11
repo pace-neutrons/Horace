@@ -1,7 +1,12 @@
-function [chunks, idxs, cumulative_sum] = split_vector_max_sum_or_numel(numeric_vector, max_chunk_sum,max_numel)
-%SPLIT_VECTOR_MAX_SUM_OR_NUMEL Split the given vector into a set of sub-vectors such that the
-% sum of each sub-vector has a maximum of max_chunk_sum and smaller then provided number of elements
-% or the sub-vector has  length 1.
+function [chunks, idxs, cumulative_sum] = split_vector_max_sum_or_numel( ...
+    numeric_vector, max_chunk_sum,max_numel)
+%SPLIT_VECTOR_MAX_SUM_OR_NUMEL Split the given vector into a set of
+% sub-vectors such that the sum of each sub-vector has:
+% a maximum of  max_chunk_sum
+% and
+% a size smaller than the provided number of
+% elements max_numel or 1 if a number in numeric_vector is larger 
+% than 2*max_chunk_sum. 
 %
 % If a value in `numeric_vector` is greater than max_chunk_sum, then that value
 % will comprise its own sub-vector.
@@ -11,7 +16,7 @@ function [chunks, idxs, cumulative_sum] = split_vector_max_sum_or_numel(numeric_
 % numeric_vector     A vector of numeric, non-negative, values.
 % max_chunk_sum      A positive value specifying the maximum sum for each sub-vector.
 % max_numel          A positive value specifying the maximal number of
-%                    elements in this vector,
+%                    elements in this vector.
 %
 % Output:
 % -------
@@ -26,13 +31,16 @@ function [chunks, idxs, cumulative_sum] = split_vector_max_sum_or_numel(numeric_
 % --------
 % >> numeric_vector = [3, 2, 0, 6, 0, 5, 3, 1, 1, 24, 4, 2, 3, 0];
 % >> max_chunk_sum = 11;
-% >> [chunks, idxs] = split_vector_max_sum(numeric_vector, max_chunk_sum)
+% >> max_numel = 3
+% >> [chunks, idxs,ch_sum] = split_vector_max_sum_or_numel(numeric_vector, max_chunk_sum,max_numel)
 %   chunks =
-%       { [3, 2, 0, 6, 0], [5, 3, 1, 1], [24], [4, 2, 3, 0] }
-%   idxs =
-%       1     6    10    11
-%       5     9    10    14
-%
+%          { [3, 2, 0],[6, 0, 5],[3, 1, 1],24,[4, 2, 3,], 0};
+%   idxs = 
+%        [ 1, 4, 7, 10, 11, 14;
+%          3, 6, 9, 10, 13, 14]; 
+% ch_sum = 
+%       3   5   5  11  11  16  19  20  21  45  49  51  54  54
+
 if isempty(numeric_vector)
     chunks = {};
     idxs = zeros(2, 0);
