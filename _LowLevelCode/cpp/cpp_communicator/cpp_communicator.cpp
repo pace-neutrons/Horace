@@ -1,6 +1,6 @@
 #include "cpp_communicator.h"
 #include "../utility/version.h"
-#include <mex.h>
+
 
 /* The mex file provides media for MPI communications betwen various Horace workers.
 

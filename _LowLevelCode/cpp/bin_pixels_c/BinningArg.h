@@ -157,7 +157,7 @@ protected:
     void set_alignment_matrix(mxArray const* const pField); // matrix which have to be applied to raw pixels to bring them into Crystal Cartesian coordinate system
     void set_check_pix_selection(mxArray const* const pField); // if true, check if detector_id are negative which may suggest that pixels have been alreary used in previous binning operation
 
-    // register with parameters map all methods which
+    // register with parameters map all methods which return variable results to MATLAB
     void register_output_methods();
     // setters for binning results returned to MATLAB in output structure
     void return_npix_retained(mxArray* p1, mxArray* p2, int idx, const std::string& name);
