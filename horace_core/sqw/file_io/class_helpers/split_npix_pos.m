@@ -1,6 +1,6 @@
 function [pos,npix,pos_remain,npix_remain,buf_size] = split_npix_pos(blocks_pos,pix_block_size,buf_size,n_parts)
 % Divide the information, about pixels to read among selected number of
-% chunks
+% chunks.
 %
 % The routine is the part of cut operator and is used to make cut in
 % parallel. It is also used to help reading a specified number of pixels

@@ -59,7 +59,7 @@ end
 out_param = struct( ...          % filepar description of the output file
     'file_name',fout_name ,...   % output file name to write pixes
     'npix_start_pos',0, ...      % not used. Has been recalculated and written before
-    'pix_start_pos',pix_out_position, ... % position where to write pixels 12 bytes before this position is the poistion of the pix metadata
+    'pix_start_pos',pix_out_position, ... % position where to write pixels 12 bytes before this position is the position of the pix metadata
     'file_id',NaN);
 
 [out_buf_size,log_level] = get(hor_config,'mem_chunk_size','log_level');
@@ -71,7 +71,7 @@ out_param = struct( ...          % filepar description of the output file
 % out_buf_size -- the size of output buffer to use for writing pixels
 % change_fileno-- if pixel run id should be changed
 % filenum_provided -- if change_fileno is true, how to calculate the new pixel
-%                  id -- by providing new id equal to filenum or by
+%                  id -- by providing new id equal to file-num or by
 %                  assigning the new number provided to it
 % num_ticks    -- approximate number of log messages to generate while
 %                 combining files together
