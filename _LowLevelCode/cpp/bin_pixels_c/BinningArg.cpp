@@ -262,7 +262,9 @@ void BinningArg::set_all_pix(mxArray const* const pField)
             auto data_type = mxGetClassID(a_cell_ptr);
             if (data_type != mxDOUBLE_CLASS) {
                 std::stringstream buf;
-                buf << "Binning the dataype N " << data_type << " have not been implemented yet";
+                buf << " Setting input pixel data to bin\n";
+                buf << " Binning for input datatype N: " << data_type << " have not been implemented yet\n";
+                buf << " You can bin datatype N " << mxDOUBLE_CLASS << " only";
                 mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
                     buf.str().c_str());
             }

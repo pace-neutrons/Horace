@@ -128,6 +128,15 @@ if is_pix
         other_mex_input.alignment_matr  = [];
     end
 else
+    if iscell(pix_cand)
+        % this may be improved/simplified in a future by enabling mex code
+        % to process any type of data
+        for i=1:numel(pix_cand)
+            if ~isa(pix_cand{i},'double')
+                pix_cand{i} = double(pix_cand{i});
+            end
+        end
+    end
     other_mex_input.alignment_matr   = [];
     other_mex_input.pix_candidates   = pix_cand;
     other_mex_input.check_pix_selection  = false; % use all pixels, do not analyze selection
