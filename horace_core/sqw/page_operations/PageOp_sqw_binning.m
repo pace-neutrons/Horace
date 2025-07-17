@@ -8,7 +8,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % accumulator is requested.
         npix_acc_;
         % storage for PixelDataMemory class used as target for page of
-        % pixel data. Allocated to avoid reallcating it in each page
+        % pixel data. Allocated to avoid recalculating it in each page
         % operation.
         pix_page_;
         % properly contains information about pre-processed pixels
@@ -20,9 +20,6 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % maximal size of pixel array to keep in memory until it should
         % be stored in file
         buf_size_;
-        % cache for npix indices, defined here to access it from npix_data
-        % which does not have it as a standard input
-        npix_idx_;
     end
 
     methods
@@ -167,12 +164,13 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %                pixels if data are obtained from single file
             %                in bin_pixels mode
             %                or:
-            %                numbers of dataset to combibe pixels pages from
+            %                numbers of dataset to combine pixels pages from
             %                in bin_pixels "-combine" mode
             %
             % npix_blocks -- cellarray of npix blocks containing
             %                information about sizes of pixels blocks
             %                contributing to a page of data.
+            obj.page_num = idx;            
             if isa(obj.pix_,'MultipixBase') % Then pix_ contains pixobj_combine_info
                 % class with knowlege about all pixel datasets to combine
                 % and npix_idx refer to pages extracted from these datasets
@@ -195,7 +193,6 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                 obj.pix_idx_start_(n_dataset) = pix_idx_1+1;
             else  % standard PageOp binning mode. idx refers to page of
                 % single pixels dataset 
-                obj.pix_.page_num = idx;
                 obj.page_data_    = obj.pix_.data;
             end
         end

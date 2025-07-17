@@ -89,11 +89,5 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
                 new_signal,variance);
         end
         %
-        function npb = get.npix_block(obj)
-            npb = obj.npix_block_;
-        end
-        function npb = get.npix_idx(obj)
-            npb = obj.npix_idx_;
-        end        
    end
 end
