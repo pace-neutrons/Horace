@@ -116,6 +116,72 @@ and apply ``sqw_op`` algorithm:
 
     wout = sqw_op(win, @sqw_op_unary, 'outfile','operations_result.sqw')
 
-You can do the same operation over large filebacked ``sqw`` object in one scan over whole ``sqw`` file, which in this simple case will be two times faster then applying these operations one after another. The *'outfile'* option in the algorithm parameters defines filename to save result of the operation.
+You can do the same operation over large filebacked ``sqw`` object in one scan over whole ``sqw`` file, which in this simple case will be two times faster then applying these operations one after another.
 
-More interesting and useful example of using ``sqw_op`` would be removal of cylindrical background obtained in the `diagnostics <Data_diagnostics.html#instrument-view-cut>`__ chapter of this manual.
+If your theoretical model is built in Crystal Cartesian coordinate system rather than in `hkldE` coordinates you may write and apply it to pixel coordinates exactly like `hkldE` model for ``sqw_eval`` algorithm. Here, as the example of using ``sqw_op`` we try to remove cylindrical background obtained in the `diagnostics <Data_diagnostics.html#instrument-view-cut>`__ chapter of this manual. It may be not the best way of removing whole background but a good example of using special projection to transform data expressed in Crystal Cartesian coordinate system to image coordinate system.
+
+The sample background present in this case may be exstimated by running Mantid reduction script and adding all reduced runs together:
+
+.. figure:: ../images/4-element-diag.png
+   :align: center
+   :width: 800px
+
+Simplified script which would produce such background removal provided below:
+
+.. code-block:: matlab
+
+    %%=============================================================================
+    %       Calculate and remove background for Ei=200 meV sample dataset
+    % =============================================================================
+    % Get access to sqw file for the Ei=200meV containing Horace angular scan
+    root_dir = fileparts(fileparts(fileparts(mfilename("fullpath"))));
+    sqw_dir=fullfile(root_dir,'sqw','sqw2024');
+
+    % define the name of the source and resulting data files
+    data_src200 =fullfile(sqw_dir,'Fe_ei200_align.sqw');
+    target = fullfile(sqw_dir,'Fe_ei200_no_bg2D.sqw');
+    src200 = sqw(data_src200); % create filebacked source sqw object
+
+    % calculate 2-dimensional cylindrical background
+    w2_200meV  = instrument_view_cut(src200,[0,0.2,65],[-20,2,170]);
+
+    % build background model for interpolation expressed in 
+    % instrument view coordinate system.
+    x1 = w2_200meV.p{1};
+    x2 = w2_200meV.p{2};
+    x1 = 0.5*(x1(1:end-1)+x1(2:end));
+    x2 = 0.5*(x2(1:end-1)+x2(2:end));
+    F = griddedInterpolant({x1,x2},w2_200meV.s); % define background model using linear
+    % interpolation of signal
+    
+    % call sqw_op with function to remove background
+    src200_noBb = sqw_op(src200,@remove_background,{w2_200meV,F},'outfile',target);
+ 
+The page-function with actually used to remove background in the code above is:
+ 
+ .. code-block:: matlab
+ 
+    function sig_var = remove_background(pageop_obj,bg_data,bg_model,varargin)
+        
+        data  = pageop_obj.page_data; % get access to page of pixel data
+
+        % 2D background. Transform pixel data into instrument coordinate system
+        % where background is defined using projection instrument view projection
+        % As this is special projection, it needs 5 rows of pixel data (needs run_id)
+        % rather then the standard projection, which takes 4 rows.
+        pix   = bg_data.proj.transform_pix_to_img(data(1:5,:));
+        
+        % interpolate background signal on the pixels coordinates expressed 
+        % in instrument coordinate system.
+        bg_signal = bg_model(pix(2,:),data(4,:));
+    
+        % retrieve existing signal and variance values
+        sig_var = data([8,9],:);
+        % remove interpolated  background signal from total signal
+        sig_var(1,:) = data(8,:)-bg_signal;
+        % exclude negative results from possible future fitting routine
+        over_compensated = sig_var(1,:)<0;
+        %sig_var(1,over_compensated) = 0;
+        sig_var(2,over_compensated) = 0;
+
+    end

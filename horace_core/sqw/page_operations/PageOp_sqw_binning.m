@@ -20,7 +20,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % maximal size of pixel array to keep in memory until it should
         % be stored in file
         buf_size_;
-        % cahce for npix indices, defined here to access it from npix_data
+        % cache for npix indices, defined here to access it from npix_data
         % which does not have then as a standard input
         npix_idx_;
     end
@@ -242,6 +242,9 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     obj.img_.axes,pix, ...
                     obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
             else
+                % filebacked_processing in this case is not only real
+                % filebacked but also processing multiple files or objects
+                % when combinming multiple datasets together.
                 filebacked_processing = obj.init_filebacked_output_ && ~obj.do_nopix_;
                 if filebacked_processing
                     % pixel_idx requested means that pixels have not been

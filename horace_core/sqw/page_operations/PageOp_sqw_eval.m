@@ -5,12 +5,22 @@ classdef PageOp_sqw_eval < PageOpBase
         % empty operation
         op_holder = @(h,k,l,e){};
         average = false;
-        proj
+        proj        % the projection used for transforming 
         op_parms
-        % indices of signal and variance arrays within the page
-        sigvar_idx
+        sigvar_idx % page indices (numbers of rows) for signal and variance
+        %             values within single data page
     end
+    properties(Access = public)
+    end
+    properties(Access = protected)
+        npix_block_;
+        npix_idx_;
+    end
+    
     properties(Dependent)
+        npix_block; % read only access to 
+        npix_idx;   % 
+        
         %Read-only Access to internal image holder to use in sqw_op
         img
     end
