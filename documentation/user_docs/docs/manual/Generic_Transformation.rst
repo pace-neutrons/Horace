@@ -120,11 +120,13 @@ You can do the same operation over large filebacked ``sqw`` object in one scan o
 
 If your theoretical model is built in Crystal Cartesian coordinate system rather than in `hkldE` coordinates you may write and apply it to pixel coordinates exactly like `hkldE` model for ``sqw_eval`` algorithm. Here, as the example of using ``sqw_op`` we try to remove cylindrical background obtained in the `diagnostics <Data_diagnostics.html#instrument-view-cut>`__ chapter of this manual. It may be not the best way of removing whole background but a good example of using special projection to transform data expressed in Crystal Cartesian coordinate system to image coordinate system.
 
-The sample background present in this case may be exstimated by running Mantid reduction script and adding all reduced runs together:
+The sample background present in this case may be estimated by running Mantid reduction script and adding all reduced runs together:
 
-.. figure:: ../images/4-element-diag.png
+.. figure:: ../images/BackgroundToRemove.png 
    :align: center
    :width: 800px
+
+Left part of the image represents Mantid instrument view image. It is obvious that there is beam small beam leakage around beam stop window and strong powder lines around Bragg peaks. This is the background which one wants to remove. Right part of this image represents 2-dimensional image obtained from ``instrument_view_cut`` and we want to extract this image from whole sqw file containing magnetic signals.
 
 Simplified script which would produce such background removal provided below:
 
@@ -137,7 +139,7 @@ Simplified script which would produce such background removal provided below:
     root_dir = fileparts(fileparts(fileparts(mfilename("fullpath"))));
     sqw_dir=fullfile(root_dir,'sqw','sqw2024');
 
-    % define the name of the source and resulting data files
+    % define the name of the source file and the name of the resulting data file.
     data_src200 =fullfile(sqw_dir,'Fe_ei200_align.sqw');
     target = fullfile(sqw_dir,'Fe_ei200_no_bg2D.sqw');
     src200 = sqw(data_src200); % create filebacked source sqw object
@@ -162,18 +164,27 @@ The page-function with actually used to remove background in the code above is:
  .. code-block:: matlab
  
     function sig_var = remove_background(pageop_obj,bg_data,bg_model,varargin)
+        % function to remove background from page of data.
+        % Inputs:
+        % pageop_obj -- instance of PageOp_sqw_op class providing necessary page of pixels data
+        % bg_data    -- two dimensional background dataset to remove
+        % bg_model   -- gridded interpolant to calculate background signal on 2-Dimensional 
+        %               image.
+        % Returns:
+        % sig_var     -- 2xnpix array of modified pixel's signal and variance.
         
         data  = pageop_obj.page_data; % get access to page of pixel data
 
-        % 2D background. Transform pixel data into instrument coordinate system
-        % where background is defined using projection instrument view projection
+        % 2D background. get access to kf_sphere_proj to transform pixel data
+        % into instrument coordinate system where background is
+        % defined using instrument view projection
         % As this is special projection, it needs 5 rows of pixel data (needs run_id)
         % rather then the standard projection, which takes 4 rows.
         pix   = bg_data.proj.transform_pix_to_img(data(1:5,:));
         
         % interpolate background signal on the pixels coordinates expressed 
         % in instrument coordinate system.
-        bg_signal = bg_model(pix(2,:),data(4,:));
+        bg_signal = bg_model(pix(2,:),pix(4,:));
     
         % retrieve existing signal and variance values
         sig_var = data([8,9],:);
@@ -185,3 +196,16 @@ The page-function with actually used to remove background in the code above is:
         sig_var(2,over_compensated) = 0;
 
     end
+
+Modified image clearly shows substantial decrease in parasitic signal around elastic line:
+
+.. figure:: ../images/RemovedBackground.png 
+   :align: center
+   :width: 800px
+ 
+Better background model is possible to remove more parasitic signal, though this task is fully in the hands of user.
+
+``sqw_op_bin_pixels`` algorithm
+===============================
+
+

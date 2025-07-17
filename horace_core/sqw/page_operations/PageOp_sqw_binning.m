@@ -134,7 +134,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % used to accumulate pixels.
             cut_data_from_file_job.accumulate_pix('cleanup');
 
-            % intialize pix_combine_info to store pixel data if one wants to
+            % initialize pix_combine_info to store pixel data if one wants to
             % store modified pixels
             wk_dir = get(parallel_config, 'working_directory');
             n_files = numel(npix_chunks);
@@ -172,7 +172,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %                contributing to a page of data.
             obj.page_num = idx;            
             if isa(obj.pix_,'MultipixBase') % Then pix_ contains pixobj_combine_info
-                % class with knowlege about all pixel datasets to combine
+                % class with knowledge about all pixel datasets to combine
                 % and npix_idx refer to pages extracted from these datasets
                 % and how the datasets are divided into pages to combine.
                 % In this case npix_idx in fact contains references to
