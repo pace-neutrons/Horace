@@ -128,7 +128,7 @@ The sample background present in this case may be estimated by running Mantid re
 
 Left part of the image represents Mantid instrument view image. It is obvious that there is beam small beam leakage around beam stop window and strong powder lines around Bragg peaks. This is the background which one wants to remove. Right part of this image represents 2-dimensional image obtained from ``instrument_view_cut`` and we want to extract this image from whole sqw file containing magnetic signals.
 
-Simplified script which would produce such background removal provided below:
+Slimlined script which would produce such background removal is provided below:
 
 .. code-block:: matlab
 
@@ -136,6 +136,8 @@ Simplified script which would produce such background removal provided below:
     %       Calculate and remove background for Ei=200 meV sample dataset
     % =============================================================================
     % Get access to sqw file for the Ei=200meV containing Horace angular scan
+    % which is located in "sqw/sqw2024" folder, in the position relative to the 
+    % location of the script.
     root_dir = fileparts(fileparts(fileparts(mfilename("fullpath"))));
     sqw_dir=fullfile(root_dir,'sqw','sqw2024');
 
@@ -144,7 +146,7 @@ Simplified script which would produce such background removal provided below:
     target = fullfile(sqw_dir,'Fe_ei200_no_bg2D.sqw');
     src200 = sqw(data_src200); % create filebacked source sqw object
 
-    % calculate 2-dimensional cylindrical background
+    % calculate 2-dimensional cylindrical background in Instrument coordinate system.
     w2_200meV  = instrument_view_cut(src200,[0,0.2,65],[-20,2,170]);
 
     % build background model for interpolation expressed in 
@@ -201,11 +203,42 @@ Modified image clearly shows substantial decrease in parasitic signal around ela
 
 .. figure:: ../images/RemovedBackground.png 
    :align: center
-   :width: 800px
+   :width: 1200px
  
 Better background model is possible to remove more parasitic signal, though this task is fully in the hands of user.
 
 ``sqw_op_bin_pixels`` algorithm
 ===============================
+
+Let's assume you are interested in magnetic signal which is present at relatively low :math:`\|Q\|` due to magnetic form factor and signal covers multiple Brillouin zones at low :math:`\|Q\|`. You want to accumulate magnetic signal in first Brillouin zone to increase statistics and consider everything which is beyond some specific :math:`\|Q\|` - value to be background to remove as signal there is negligibly small due to magnetic form factor, so you also want to move this signal to first Brillouin zone and extract background from magnetic signal. Figure below give example of such situation. 
+
+
+.. figure:: ../images/Fe_BZ_signal.png 
+   :align: center
+   :width: 400px
+   :alt: Sample differential cross-section measured on MAPS and showing
+         magnetic signal within read-cycle surrounded area and background signal (phonons)
+         outside of this area. 
+
+``sqw_op`` algorithms would not allow you to do this, as you can not change pixels coordinates.
+``sqw_op_bin_pixels`` algorithm is written to allow user changing pixels coordinates. Its interface 
+is the mixture of ``sqw_op`` interface and ``cut`` interface, which defines construction of new
+image of interest from provided pixel and image data:
+
+.. code-block:: matlab
+
+    wout = sqw_op_bin_pixels(win, @sqw_op_func, pars,cut_pars)
+    wout = sqw_op_bin_pixels(win, @sqw_op_func, pars,cut_pars,'-nopix','outfile',target_file_name);
+
+where:
+
+- ``win`` -- ``sqw`` file, cell array array of ``sqw`` objects or strings that provides filenames of ``sqw`` objects on disk serving as the source of ``sqw`` data to process using ``sqwop_func``
+- ``@sqw_op_func`` --  handle to a function which performs desired operation over sqw data.
+- ``pars`` --    cellarray of parameters used by ``sqw_op_func``. If ``sqw_op_func`` have no parameters, empty parentheses ``{}`` should be provided.
+- ``cut_pars`` -- cellarray of cut parameters as described in `cut <Cutting_data_of_interest_from_SQW_files_and_objects.html#cut>`__ except symmetry operations which are not allowed in this algorithm. 
+
+
+
+
 
 
