@@ -210,33 +210,52 @@ Better background model is possible to remove more parasitic signal, though this
 ``sqw_op_bin_pixels`` algorithm
 ===============================
 
-Let's assume you are interested in magnetic signal which is present at relatively low :math:`\|Q\|` due to magnetic form factor and signal covers multiple Brillouin zones at low :math:`\|Q\|`. You want to accumulate magnetic signal in first Brillouin zone to increase statistics and consider everything which is beyond some specific :math:`\|Q\|` - value to be background to remove as signal there is negligibly small due to magnetic form factor, so you also want to move this signal to first Brillouin zone and extract background from magnetic signal. Figure below give example of such situation. 
+Let's assume you are interested in magnetic signal which is present at relatively low :math:`\|Q\|` due to magnetic form factor and signal covers multiple Brillouin zones at low :math:`\|Q\|`. You want to accumulate magnetic signal in first Brillouin zone to increase statistics and consider everything which is beyond some specific :math:`\|Q\|` - value to be background to remove as signal there is negligibly small due to magnetic form factor, so you also want to move this signal to first Brillouin zone and extract background from magnetic signal. Figure below give example of such situation:
 
 
 .. figure:: ../images/Fe_BZ_signal.png 
    :align: center
    :width: 400px
-   :alt: Sample differential cross-section measured on MAPS and showing
-         magnetic signal within read-cycle surrounded area and background signal (phonons)
-         outside of this area. 
+   :alt: Sample differential cross-section measured on MAPS
+   
+   Sample differential cross-section measured on MAPS and showing
+   magnetic signal within read-cycle surrounded area and background signal (phonons)
+   inside and outside of this area. Yellow box represents double-size Brillouin zone where 
+   data moved using shift operation and its top right quadrant -- the area where data should
+   be finally moved using folding and reflection.
+   
 
-``sqw_op`` algorithms would not allow you to do this, as you can not change pixels coordinates.
+``sqw_op`` algorithms would not allow you to do this, as you can not change pixels coordinates alongside with everything else.
 ``sqw_op_bin_pixels`` algorithm is written to allow user changing pixels coordinates. Its interface 
 is the mixture of ``sqw_op`` interface and ``cut`` interface, which defines construction of new
 image of interest from provided pixel and image data:
 
 .. code-block:: matlab
 
-    wout = sqw_op_bin_pixels(win, @sqw_op_func, pars,cut_pars)
-    wout = sqw_op_bin_pixels(win, @sqw_op_func, pars,cut_pars,'-nopix','outfile',target_file_name);
+    wout = sqw_op_bin_pixels(win, @sqw_op_func, pars,cut_pars{:})
+    wout = sqw_op_bin_pixels(win, @sqw_op_func, pars,cut_pars{:},'outfile',target_file_name);
 
 where:
 
 - ``win`` -- ``sqw`` file, cell array array of ``sqw`` objects or strings that provides filenames of ``sqw`` objects on disk serving as the source of ``sqw`` data to process using ``sqwop_func``
 - ``@sqw_op_func`` --  handle to a function which performs desired operation over sqw data.
 - ``pars`` --    cellarray of parameters used by ``sqw_op_func``. If ``sqw_op_func`` have no parameters, empty parentheses ``{}`` should be provided.
-- ``cut_pars`` -- cellarray of cut parameters as described in `cut <Cutting_data_of_interest_from_SQW_files_and_objects.html#cut>`__ except symmetry operations which are not allowed in this algorithm. 
+- ``cut_pars`` -- cellarray of cut parameters as described in `cut <Cutting_data_of_interest_from_SQW_files_and_objects.html#cut>`__ except symmetry operations which are not supported by this algorithm as ``cut`` parameters but may be customized and provided as the parameters of ``sqw_op_func``.
 
+Namely, ``cut_pars`` have the form:
+
+.. code-block:: matlab
+
+    cut_pars ={[ proj], p1_bin, p2_bin, p3_bin, p4_bin[, '-nopix']};
+
+where:
+
+- `proj <Cutting_data_of_interest_from_SQW_files_and_objects.html#projection-proj>`__ defines the axes and origin of the cut including
+  the shape of the region to extract and the representation in the resulting
+  histogram. If not provided, the projection is taken from the input ``win`` object.
+- `pN_bin <Cutting_data_of_interest_from_SQW_files_and_objects.html#binning-arguments>`__ describe the histogram bins to capture the  data. In details they described in the `chapter about binning arguments  <Cutting_data_of_interest_from_SQW_files_and_objects.html#binning-arguments>`__
+- optional ``'-nopix'`` argument means that resulting object would be ``dnd`` object, i.e. object
+  which does not contain pixels.
 
 
 
