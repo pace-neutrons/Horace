@@ -182,7 +182,8 @@ The page-function with actually used to remove background in the code above is:
         % defined using instrument view projection
         % As this is special projection, it needs 5 rows of pixel data (needs run_id)
         % rather then the standard projection, which takes 4 rows.
-        pix   = bg_data.proj.transform_pix_to_img(data(1:5,:));
+        pix   = bg_data.proj.transform_pix_to_img(data(1:5,:)); % you may define your own
+        % complex transformation to convert pixels in Cry
         
         % interpolate background signal on the pixels coordinates expressed 
         % in instrument coordinate system.
@@ -257,7 +258,38 @@ where:
 - optional ``'-nopix'`` argument means that resulting object would be ``dnd`` object, i.e. object
   which does not contain pixels.
 
+Slimlined script to calculate background in the situation, described on the figure above looks like that:
 
+.. code-block:: matlab
+    %%=============================================================================
+    %       Calculate background for Ei=400 meV
+    % =============================================================================
+    % Get access to sqw file for the Ei=400meV Horace angular scan
+    root_dir = fileparts(fileparts(fileparts(mfilename("fullpath"))));
+    sqw_dir=fullfile(root_dir,'sqw','sqw2024');
 
+    data_src400 =fullfile(sqw_dir,'Fe_ei401_align.sqw');
+    target = fullfile(sqw_dir,'Fe_ei401_noBg_4D_reducedBZ_FF_ignored.sqw');
 
+    % initialize source filebacked object to operate over
+    src400 = sqw(data_src400);
 
+    alatt = src400.data.alatt;  % get access to lattice parameters 
+    angdeg= src400.data.angdeg; % and lattice angles
+    rlu = 2*pi./alatt;          % calculate reciprocal lattice (case of cubic lattice)
+    r_cut2 = (3.5*rlu(1))^2;    % define cut-off radius for background 
+    old_range = src400.data.axes.get_cut_range(); % obtain binning for existing object
+    del = 0.05;                 % define new binning for q-coordinates
+    zoneBins = [-del,0.05,1+del];
+    e_bins = old_range{4};      % retain existing binning for energy coordinates
+    
+    % define cut ranges
+    cut_range = {zoneBins *rlu(1),zoneBins*rlu(2),zoneBins*rlu(3),[-15,2,340]};
+
+    bg_file = 'w4Bz_400meV_bg.mat'; % where we want to save our background
+
+    sqw400meV_Bz_bg = sqw_op_bin_pixels(src400, @build_bz_background, {r_cut2,rlu},cut_range{:},'-nopix');  % 
+    sqw400meV_Bz_bg.filename = 'sqw400meV_Bz_bg'; % redefine name of the resulting dnd object
+    save(bg_file,'sqw400meV_Bz_bg');   % save result for further usage.
+
+Where function to calculate background 
