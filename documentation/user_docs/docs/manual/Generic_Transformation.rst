@@ -3,7 +3,7 @@ Generic Transformations
 #######################
 
 The previous chapters describe how one may do various  
-:doc:`unary </manual/Unary_operations>` or :doc:`binary operations </manual/Binary_operations>` over your data or can build your analytical model and :doc:`simulate it over whole sqw file </manual/Simulation>`. 
+:doc:`unary </manual/Unary_operations>` or :doc:`binary operations </manual/Binary_operations>` over your data or build analytical model and :doc:`simulate it over whole sqw file </manual/Simulation>`. 
 As whole ``sqw`` file can not be generally placed in memory, all these operations are 
 based on special ``PageOp`` family of algorithms, which operate loading a page of data in memory
 and applying various operations to these data. For :doc:`unary </manual/Unary_operations>` and :doc:`binary </manual/Binary_operations>` operations we wrote these transformations for users and the ``sqw_eval`` algorithm from :doc:`Simulation </manual/Simulation>` section 
@@ -17,7 +17,7 @@ Generic transformations are the set of algorithms, which give user access to the
 In particular, user have to know, that Horace stores its pixel data in Crystal Cartesian coordinate
 system, which is orthogonal coordinate system attached to crystal lattice with x-axis parallel to 
 ``a*`` inverse lattice vector and two other axis being orthogonal to it. He needs to write
-transformations over page of data presented in the form of [9 x npix]  matrix, where *npix* is the page size (defined by ``hor_config.mem_chunk_size`` value), each column corresponds to a pixel and  the pixel contain to the following values:
+transformations over page of data presented in the form of [9 x npix]  matrix, where *npix* is the page size (defined by ``hor_config.mem_chunk_size`` value), each column corresponds to a pixel and  the pixel contain the following values:
 
 .. _Pixels_structure:
 
@@ -47,7 +47,7 @@ In addition to that user should be familiar with the definition of `projection <
 
 Where ``proj`` is usually projection used by ``sqw`` object of interests, `pix_cc` is [4 x npix] matrix of pixel coordinates expressed in Crystal Cartesian coordinate system (see four first rows of :ref:`pixels data <Pixels_structure>` above) and `pix_transformed` is [4 x npix] array of pixels coordinates expressed in image coordinate system.
 
-Finally user should be familiar with concept of object object oriented programming as to write custom transformation one needs to use properties of the core transformation classes ``PageOp_sqw_op`` or
+Finally user should be familiar with concept of object oriented programming as to write custom transformation one needs to use properties of the core transformation classes ``PageOp_sqw_op`` or
 ``PageOp_sqw_op_bin_pixels`` described below alongside with the description of the appropriate algorithm.
 
 
@@ -128,7 +128,7 @@ The sample background present in this case may be estimated by running Mantid re
 
 Left part of the image represents Mantid instrument view image. It is obvious that there is beam small beam leakage around beam stop window and strong powder lines around Bragg peaks. This is the background which one wants to remove. Right part of this image represents 2-dimensional image obtained from ``instrument_view_cut`` and we want to extract this image from whole sqw file containing magnetic signals.
 
-Slimlined script which would produce such background removal is provided below:
+Slim-lined script which would produce such background removal is provided below:
 
 .. code-block:: matlab
 
@@ -163,7 +163,7 @@ Slimlined script which would produce such background removal is provided below:
  
 The page-function with actually used to remove background in the code above is:
  
- .. code-block:: matlab
+.. code-block:: matlab
  
     function sig_var = remove_background(pageop_obj,bg_data,bg_model,varargin)
         % function to remove background from page of data.
@@ -258,9 +258,10 @@ where:
 - optional ``'-nopix'`` argument means that resulting object would be ``dnd`` object, i.e. object
   which does not contain pixels.
 
-Slimlined script to calculate background in the situation, described on the figure above looks like that:
+Slim-lined script to calculate background in the situation, described on the figure above looks like that:
 
 .. code-block:: matlab
+
     %%=============================================================================
     %       Calculate background for Ei=400 meV
     % =============================================================================
@@ -288,8 +289,94 @@ Slimlined script to calculate background in the situation, described on the figu
 
     bg_file = 'w4Bz_400meV_bg.mat'; % where we want to save our background
 
+    % run sqw_op_bin_pixels to calculate background in the first Brillouin zone.
     sqw400meV_Bz_bg = sqw_op_bin_pixels(src400, @build_bz_background, {r_cut2,rlu},cut_range{:},'-nopix');  % 
     sqw400meV_Bz_bg.filename = 'sqw400meV_Bz_bg'; % redefine name of the resulting dnd object
     save(bg_file,'sqw400meV_Bz_bg');   % save result for further usage.
 
-Where function to calculate background 
+Where the function to calculate background is:
+
+.. code-block:: matlab
+
+    function data = build_bz_background(pageop_obj,r2_ignore,rlu)
+    %build_bz_background used to build background out of q-values beyond of the
+    % specified cut-off radius.
+    %
+    % Inputs:
+    % pageop_obj -- Initialized instance of PageOp_sqw_op_bin_pixels object providing all necessary data
+    % r2_ignore  -- square of cut-off radius to select background (A^-2)
+    % rlu        -- reciprocal lattice units
+    
+    % Get access to [9 x Npix] page of pixels data
+    data = pageop_obj.page_data;
+    % calculate distance from centre of Crystal Cartesian coordinate system
+    Q2 = data(1,:).*data(1,:)+data(2,:).*data(2,:)+data(3,:).*data(3,:);
+    keep = Q2>=r2_ignore; % background % identify pixels outside of cut-off radius
+    %keep = Q2<r2_ignore;   % foreground
+    data = data(:,keep);  % select pixels outside of cut-off radius
+    if isempty(data)
+        return;
+    end
+    % Cubic lattice scale in BCC lattice
+    scale = 2*rlu;
+    q_coord = data(1:3,:);
+    img_shift   = round(q_coord./scale(:)).*scale(:); % BRAGG positions in the new lattice
+    % move all q-coordinates into expanded Brillouin zone +-1*rlu size
+    q_coord  = q_coord - img_shift;
+    
+    % move 7 cubes with negative coordinates of expanded Brillouin zone into first cube.
+    invert = q_coord<0;
+    q_coord(invert) = -q_coord(invert);
+    data(1:3,:) = q_coord;
+
+    end
+
+Note that the function returns full [9x N] page of pixel data, where N is smaller then input number of 
+pixels. Rows 12-13 of the function above distinguish between background and foreground.
+As one can see, difference is just in taking signal for background outside of the cut-off radius
+and foreground -- inside of cut-off radius. This causes visible magnetic foreground signal contributing into background, but as this signal is smaller then 10% of foreground signal, here we ignore it, bearing in mind that this correction may be calculated more accurately and applied to final results.
+
+All these considerations and their significance or non-significance are case-specific user have
+full control and responsibility for writing his own background/foreground function and interpreting results, obtained using this function.
+
+Figure below shows sample background calculated using ``sqw_op_bin_pixels`` algorithm using script and background-calculating function provided above. The background extraction is also performed using ``sqw_op_bin_pixels`` algorithm as it combines moving foreground signal into first Brillouin zone,
+background extraction, Magnetic form-factor corrections and parasitic signal removal. As this is relatively complex user function based on elements, provided above, we do not provide script to obtain this result here but put the script into ``Horace/example`` folder.
+
+.. figure:: ../images/BackgroundVSForegroundFe_400meV.png 
+   :align: center
+   :width: 1200px
+   :alt: Background vs Foreground in first Brillouin zone.
+   
+   Background and Foreground signals for data demonstrated at the beginning of this chapter.
+   Note the difference in intensity scale between background and foreground signals. 
+   
+.. note::
+
+  ``sqw_ob_bin_pixels`` is the algorithm acting on full ``sqw`` object. As such, it is not particularly fast until it parallel implementation is available. The examples, provided here are done for whole ``sqw`` object, located on file, so are 2-dimensional cuts of full 4-dimensional filebacked object.
+  It is recommended to debug user functions on 2-dimensional cuts/object located in memory before running long calculations on full 4-dimensional object.
+
+
+``sqw_op_bin_pixels`` algorithm with ``"-combine"`` option
+==========================================================
+
+Normally ``sqw_op_bin_pixels`` algorithm applying to cellarray of ``sqw`` objects or ``sqw`` files
+will apply specified ``sqw_op_function`` to each input ``sqw`` object. If you invoke this algorithm with ``"-combine"`` option, it will combine all input objects into single object with coordinate system defined by the first input object.
+
+We separated description of ``"-combine"`` option into separate chapter due to close connection between 
+the ``sqw_op_bin_pixels`` with sample function described below and `Cut with symmetry operations <Symmetrising_etc.html#cutting>`__, described in chapter :doc:`Symmetry Operations </manual/Symmetrising_etc>`.
+
+The similarities and differences between ``sqw_op_bin_pixels`` with ``"-combine"`` option and ``cut`` with ``SymOp`` addition are summarized in the table:
+
++---------+--------------------------+------------------------------+-------------------------------------------+
+| Number  |      Action              | ``cut`` with ``SymOp``       | ``sqw_op_bin_pixels`` with ``"-combine"`` |
++---------+--------------------------+------------------------------+-------------------------------------------+
+|    1    |     Cuts source:         | single ``sqw`` obj with cuts | random selections of ``sqw`` cuts,        |
+|         |                          | generated by symmetry        | may be from different ``sqw`` objects     |
+|         |                          | operations                   |                                           |
++---------+--------------------------+------------------------------+-------------------------------------------+
+|    2    | Multiple transformations |    Not allowed               | simple modifications to standard script   |
+|         | applied to single data   |                              |                                           |
++---------+--------------------------+------------------------------+-------------------------------------------+
+|    3    | Include same pixels from |    No. Efficient exclusion   | request complex coding. Probably          |
+|         | multiple symmetry op.    |    algorithm                 | not very efficient                        |
++---------+--------------------------+------------------------------+-------------------------------------------+
