@@ -359,13 +359,14 @@ background extraction, Magnetic form-factor corrections and parasitic signal rem
 ``sqw_op_bin_pixels`` algorithm with ``"-combine"`` option
 ==========================================================
 
-Normally ``sqw_op_bin_pixels`` algorithm applying to cellarray of ``sqw`` objects or ``sqw`` files
+Normally ``sqw_op_bin_pixels`` algorithm applied to cellarray of ``sqw`` objects or ``sqw`` files
 will apply specified ``sqw_op_function`` to each input ``sqw`` object. If you invoke this algorithm with ``"-combine"`` option, it will combine all input objects into single object with coordinate system defined by the first input object.
 
-We separated description of ``"-combine"`` option into separate chapter due to close connection between 
-the ``sqw_op_bin_pixels`` with sample function described below and `Cut with symmetry operations <Symmetrising_etc.html#cutting>`__, described in chapter :doc:`Symmetry Operations </manual/Symmetrising_etc>`.
+We extracted description of ``"-combine"`` option into separate chapter due to close connection between 
+the ``sqw_op_bin_pixels`` with sample function described below within ``cut`` in `Cut with symmetry operations <Symmetrising_etc.html#cutting>`__, described in chapter :doc:`Symmetry Operations </manual/Symmetrising_etc>`.
+The code of the sample function below substantially overlaps with the code used in the core ``cut`` with ``SymOp`` symmetrisation algorithm.
 
-The similarities and differences between ``sqw_op_bin_pixels`` with ``"-combine"`` option and ``cut`` with ``SymOp`` addition are summarized in the table:
+The similarities and differences between these two algorithms are summarized in the table:
 
 +---------+--------------------------+------------------------------+-------------------------------------------+
 | Number  |      Action              | ``cut`` with ``SymOp``       | ``sqw_op_bin_pixels`` with ``"-combine"`` |
@@ -378,5 +379,34 @@ The similarities and differences between ``sqw_op_bin_pixels`` with ``"-combine"
 |         | applied to single data   |                              |                                           |
 +---------+--------------------------+------------------------------+-------------------------------------------+
 |    3    | Include same pixels from |    No. Efficient exclusion   | request complex coding. Probably          |
-|         | multiple symmetry op.    |    algorithm                 | not very efficient                        |
+|         | multiple symmetry op.    |    algorithm                 | not very efficient but possible.          |
 +---------+--------------------------+------------------------------+-------------------------------------------+
+|    4    | Possibility to perform   |                              |                                           |
+|         | other operations         |          No                  |             Possible                      |
+|         | alongside with symmetry. |                              |                                           |
++---------+--------------------------+------------------------------+-------------------------------------------+
+|   5     | User efforts             |        Average               |             High                          |
++---------+--------------------------+------------------------------+-------------------------------------------+
+
+In more details the table above can be expanded as follows:
+
+    1. ``cut`` with ``SymOp`` generates number of cuts related by symmetry operation and combine data from these
+       cuts together. You have to provide ``sqw_op_bin_pixels`` with set of cuts (related by symmetry operations or
+       not related -- its your choice) and then these cuts are combined together exactly in the same way as in ``cut``
+       with ``SymOp``. As the consequence, ``cut`` with ``SymOp`` will work with single ``sqw`` file, and cuts
+       provided to ``sqw_ob_bin_pixels`` can be taken from multiple ``sqw`` files.
+    2. Let's assume you transform data defined in range [0:-3] into range [0:1] using folding operation
+       around axis passing through point 1. If you use ``cut`` with ``SymOp``, the data reflected from range [1:3] will be reflected into range [-2:1] and the block [-2:0] will be dropped by cut ranges. This is the consequence
+       of using algorithm, which eliminates double counting of the same data transformed multiple times using multiple
+       symmetry operations. If you need to keep these data, you need to use ``sqw_op_bin_pixels``
+       with properly modified custom ``sqw_op_function``. 
+    3. ``cut`` with ``SymOp`` carefully cares about error counting not to double count the same pixels, 
+       transformed multiple times by different symmetry operations. As data in ``SymOp`` may come from
+       multiple sources, its very difficult to implement such algorithm for ``sqw_op_bin_pixels``. 
+       This may be done with some efforts from user (e.g. by calculating unique pixel id and comparing pixels usage)
+       but this algorithm does not look very efficient.
+    4. As user expects to write his own ``sqw_op_function`` he may use multiple transformations of his 
+       choice to modify combined data. ``cut`` with ``SymOp`` intended for performing well defined operation.
+    5. Summarizing all above, one can say that ``cut`` with ``SymOp``   
+     
+       
