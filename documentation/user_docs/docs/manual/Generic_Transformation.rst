@@ -298,35 +298,39 @@ Where the function to calculate background is:
 
 .. code-block:: matlab
 
-    function data = build_bz_background(pageop_obj,r2_ignore,rlu)
-    %build_bz_background used to build background out of q-values beyond of the
-    % specified cut-off radius.
+    function data = sqw_op_build_bz_bckgrnd(pageop_obj,r2_ignore,rlu)
+    %sqw_op_build_bz_bckgrnd calculates background signal from scattering function
+    % taken at of q-values beyond of the specified cut-off radius 
+    % and moves background signal into first Brilluoin zone.
     %
     % Inputs:
     % pageop_obj -- Initialized instance of PageOp_sqw_op_bin_pixels object providing all necessary data
     % r2_ignore  -- square of cut-off radius to select background (A^-2)
-    % rlu        -- reciprocal lattice units
+    % rlu        -- reciprocal lattice vectors for the used lattice 
     
     % Get access to [9 x Npix] page of pixels data
     data = pageop_obj.page_data;
-    % calculate distance from centre of Crystal Cartesian coordinate system
+    % calculate pixels distances from centre of Crystal Cartesian coordinate system
     Q2 = data(1,:).*data(1,:)+data(2,:).*data(2,:)+data(3,:).*data(3,:);
     keep = Q2>=r2_ignore; % background % identify pixels outside of cut-off radius
     %keep = Q2<r2_ignore;   % foreground
     data = data(:,keep);  % select pixels outside of cut-off radius
     if isempty(data)
-        return;
+        return;    % leave if this page does not contain background data
     end
     % Cubic lattice scale in BCC lattice
     scale = 2*rlu;
     q_coord = data(1:3,:);
-    img_shift   = round(q_coord./scale(:)).*scale(:); % BRAGG positions in the new lattice
+    img_shift   = round(q_coord./scale(:)).*scale(:); % BRAGG positions 
+    % in the new lattice are located at the even rlu values
     % move all q-coordinates into expanded Brillouin zone +-1*rlu size
     q_coord  = q_coord - img_shift;
     
-    % move 7 cubes with negative coordinates of expanded Brillouin zone into first cube.
+    % move 7 cubes with negative coordinates of expanded Brillouin zone into the first cube.
     invert = q_coord<0;
     q_coord(invert) = -q_coord(invert);
+    
+    % construct result containing modified coordinates    
     data(1:3,:) = q_coord;
 
     end
@@ -339,8 +343,8 @@ and foreground -- inside of cut-off radius. This causes visible magnetic foregro
 All these considerations and their significance or non-significance are case-specific user have
 full control and responsibility for writing his own background/foreground function and interpreting results, obtained using this function.
 
-Figure below shows sample background calculated using ``sqw_op_bin_pixels`` algorithm using script and background-calculating function provided above. The background extraction is also performed using ``sqw_op_bin_pixels`` algorithm as it combines moving foreground signal into first Brillouin zone,
-background extraction, Magnetic form-factor corrections and parasitic signal removal. As this is relatively complex user function based on elements, provided above, we do not provide script to obtain this result here but put the script into ``Horace/example`` folder.
+Figure below shows sample background calculated using ``sqw_op_bin_pixels`` algorithm and background-calculating function ``sqw_op_build_bz_bckgrnd.mat`` provided above. The background extraction is also performed using ``sqw_op_bin_pixels`` algorithm as it combines moving foreground signal into first Brillouin zone,
+background extraction, Magnetic form-factor corrections and parasitic signal removal. As this is relatively complex user function based on elements, provided above, we do not provide script to obtain this result in the document but placed the script which does these operations (``sqw_op_move_to_bz0_and_remove_bckgrnd.mat``) into ``Horace/example/`` folder.
 
 .. figure:: ../images/BackgroundVSForegroundFe_400meV.png 
    :align: center
@@ -349,6 +353,11 @@ background extraction, Magnetic form-factor corrections and parasitic signal rem
    
    Background and Foreground signals for data demonstrated at the beginning of this chapter.
    Note the difference in intensity scale between background and foreground signals. 
+
+Round holes in the corners, centre and middle-edges of the foreground scattering function are related to
+the procedure of suppression of the parasitic reflections in [0,0,1] direction from cubic sub-lattice
+of the sample. The piece of code responsible for this suppression and the holes is marked and highlighted within
+the sample code.
    
 .. note::
 
@@ -407,6 +416,12 @@ In more details the table above can be expanded as follows:
        but this algorithm does not look very efficient.
     4. As user expects to write his own ``sqw_op_function`` he may use multiple transformations of his 
        choice to modify combined data. ``cut`` with ``SymOp`` intended for performing well defined operation.
-    5. Summarizing all above, one can say that ``cut`` with ``SymOp``   
+    5. Summarizing all above, one can say that ``cut`` with ``SymOp`` for combining symmetry-related
+       cuts, while ``sqw_op_bin_pixels`` gives user wider opportunities, allows combining much wider range
+       of data but requests from user more experience with MATLAB programming and better knowledge of Horace
+       internal structure.
+       
+Simplest form of the function, which allows combining multiple cuts 
+       
      
        
