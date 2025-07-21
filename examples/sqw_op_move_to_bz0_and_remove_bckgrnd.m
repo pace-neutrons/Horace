@@ -8,7 +8,8 @@ function data = sqw_op_move_to_bz0_and_remove_bckgrnd(pageop_obj,bg_model,rlu,r2
 % bg_model   -- class calculating background singal within 
 % rlu        -- reciprocal lattice vectors for the used lattice
 % r2_ignore  -- square of cut-off radius to select background (A^-2)
-% fJi        -- function handle to calculate magnetic form-factor
+% fJi        -- cellarray of 6 function handles used to calculate magnetic 
+%               form-factor
 %
 
 % Get access to [9 x Npix] page of pixels data
@@ -38,7 +39,8 @@ if isempty(data)
 end
 %
 q_coord = q_coord(:,keep2);
-% Calculate magnetic form factor
+% Calculate magnetic form factor. MFF functions accept modified q-squared
+% momentum transfer value (q defined as 1/Lambda, not as 2*pi/Lambda)
 q2 = Q2(keep2)/(16*pi*pi);
 clear Q2;
 MFF = fJi{1}(q2).^2+fJi{2}(q2).^2+fJi{3}(q2).^2+fJi{4}(q2).^2;
@@ -55,7 +57,8 @@ img_shift = round(q_coord./scale(:)).*scale(:);
 % move all q-coordinates into expanded Brillouin zone +-1*rlu size
 q_coord   = q_coord - img_shift;
 
-% move 7 cubes with negative coordinates of expanded Brillouin zone into the first cube.
+% fold 7 cubes with negative coordinates of expanded Brillouin zone into
+% the first cube where all momentums are positive
 invert = q_coord<0;
 q_coord(invert) = -q_coord(invert);
 

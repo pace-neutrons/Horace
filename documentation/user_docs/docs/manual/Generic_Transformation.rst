@@ -372,7 +372,7 @@ Normally ``sqw_op_bin_pixels`` algorithm applied to cellarray of ``sqw`` objects
 will apply specified ``sqw_op_function`` to each input ``sqw`` object. If you invoke this algorithm with ``"-combine"`` option, it will combine all input objects into single object with coordinate system defined by the first input object.
 
 We extracted description of ``"-combine"`` option into separate chapter due to close connection between 
-the ``sqw_op_bin_pixels`` with sample function described below within ``cut`` in `Cut with symmetry operations <Symmetrising_etc.html#cutting>`__, described in chapter :doc:`Symmetry Operations </manual/Symmetrising_etc>`.
+the ``sqw_op_bin_pixels`` with the sample function described :ref:`below <move-all-to-proj-label>` within ``cut`` in `Cut with symmetry operations <Symmetrising_etc.html#cutting>`__, described in chapter :doc:`Symmetry Operations </manual/Symmetrising_etc>`.
 The code of the sample function below substantially overlaps with the code used in the core ``cut`` with ``SymOp`` symmetrisation algorithm.
 
 The similarities and differences between these two algorithms are summarized in the table:
@@ -404,12 +404,11 @@ In more details the table above can be expanded as follows:
        not related -- its your choice) and then these cuts are combined together exactly in the same way as in ``cut``
        with ``SymOp``. As the consequence, ``cut`` with ``SymOp`` will work with single ``sqw`` file, and cuts
        provided to ``sqw_ob_bin_pixels`` can be taken from multiple ``sqw`` files.
-    2. Let's assume you transform data defined in range [0:-3] into range [0:1] using folding operation
-       around axis passing through point 1. If you use ``cut`` with ``SymOp``, the data reflected from range [1:3] will be reflected into range [-2:1] and the block [-2:0] will be dropped by cut ranges. This is the consequence
-       of using algorithm, which eliminates double counting of the same data transformed multiple times using multiple
+    2. Let's assume you transform data defined in range [-1:-3] into range [0:1] using folding operations
+       around axes passing through point 0 and 1. If you use ``cut`` with ``SymOp``, the data reflected from range [1:3] will be reflected into range [-2:1] and the data block [-2:0] will be dropped by cut ranges and the fact it has been reflected once. This is the consequence of using the current implementation of the algorithm, which eliminates double counting of the same data transformed multiple times using multiple
        symmetry operations. If you need to keep these data, you need to use ``sqw_op_bin_pixels``
        with properly modified custom ``sqw_op_function``. 
-    3. ``cut`` with ``SymOp`` carefully cares about error counting not to double count the same pixels, 
+    3. ``cut`` with ``SymOp`` carefully cares about error counting not to double-count the same pixels, 
        transformed multiple times by different symmetry operations. As data in ``SymOp`` may come from
        multiple sources, its very difficult to implement such algorithm for ``sqw_op_bin_pixels``. 
        This may be done with some efforts from user (e.g. by calculating unique pixel id and comparing pixels usage)
@@ -421,7 +420,91 @@ In more details the table above can be expanded as follows:
        of data but requests from user more experience with MATLAB programming and better knowledge of Horace
        internal structure.
        
-Simplest form of the function, which allows combining multiple cuts 
-       
-     
-       
+Simplest form of the function, which allows combining multiple cuts into single cut is:
+
+.. _move-all-to-proj-label:
+
+.. code-block:: matlab
+
+    function result = move_all_to_proj(pageop_obj,proj_array,varargin)
+    % Convert all equivalent directions found in the cellarray of input datasets into
+    % the coordinate system specified by pageop_obj.
+    %
+    % Inputs:
+    % pageop_obj  -- instance of PageOp_sqw_binning object containing
+    %                information about source sqw object(s), including page of
+    %                pixel data currently loaded in memory, projection, which 
+    %                defines target coordinate system and the target image 
+    %                to convert all input data in.
+    % proj_array  -- array of projections which describe directions of cuts
+    %                to combine.
+    %
+    % Returns
+    % result      -- page of modified pixels data to bin using
+    %                PageOp_sqw_binning algorithm transformed into coordinate
+    %                system related with first projection
+    %
+    %
+
+    % Get access to [9 x Npix] page of pixels data
+    data = pageop_obj.page_data;
+    % get access to the projection, which describes target image
+    targ_proj = pageop_obj.proj;
+    %
+    % done explicitly for 2-D cuts for performance to avoid internal loop over pixels ranges
+    %---------------------------------------------------------------------------------------
+    % Get access to the target image and obtain indices of the integration axis
+    iax  = pageop_obj.img.iax;  % expect two integration axis here
+    % get cut ranges of the image to combine everything into these ranges
+    cut_range = pageop_obj.img.img_range(:,iax  );
+    %
+    q_coord = data(1:3,:);
+    result = cell(1,numel(proj_array));
+    % go through all combining images coordinates system, converting appropriate pixels
+    % into coordinate system, related to target projection
+    for i=1:numel(proj_array)
+        % input projections used for cut do not have lattice set up for them.
+        % They need lattice so let's set it up here.
+        proj_array(i).alatt = targ_proj.alatt;
+        proj_array(i).angdeg = targ_proj.angdeg;
+        % transform momentum transfer values from current page of data into
+        % image associated with proj_array(i) projection
+        coord_tr = proj_array(i).transform_pix_to_img(q_coord);
+        % find the data falling outside of the target image range
+        % forcing target image and the image produced by current projection to
+        % coincide.
+        include = coord_tr(iax(1),:)>=cut_range(1,1)&coord_tr(iax(1),:)<=cut_range(2,1)&...
+            coord_tr(iax(2),:)>=cut_range(1,2)&coord_tr(iax(2),:)<=cut_range(2,2);
+        % extract coordinates which lie within current cut ranges.
+        coord_tr  = coord_tr(:,include);
+        res_l = data(:,include);
+        % transform pixels coordinates from image defined by proj_array(i) cut
+        % projection into the Crystal Cartesian coordinates system related with
+        % target projection.
+        res_l(1:3,:) = targ_proj.transform_img_to_pix(coord_tr);
+        % collect transformed pixels as partial result
+        result{i} = res_l;
+
+        data = data(:,~include); % extract remaining data for processing using
+        % other projections.
+        if isempty(data) % leave if all data was processed and transformed
+            break
+        end
+        q_coord = data(1:3,:);
+    end
+    % combine all partial cut results
+    result = cat(2,result{:});
+    end
+            
+The original of this function is located in ``Horace/example/`` folder. The details of the implementation are provided
+in the comments to the function. The main idea of the operation is that you select one main cut and combine all additional images forcefully "overlapping" images one over another transforming pixels coordinates accordingly.
+
+Image below shows the way to overlapping two cuts together and the result of such overlapping.
+
+.. figure:: ../images/SQW_op_Combine2Cuts.png 
+   :align: center
+   :width: 800px
+
+   Overlap two cuts demonstrated on the left image, display them (central image) and combine together using
+   ``sqw_op_bin_pixels`` algorithm with combine function above.
+
