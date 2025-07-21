@@ -126,7 +126,7 @@ The sample background present in this case may be estimated by running Mantid re
    :align: center
    :width: 800px
 
-Left part of the image represents Mantid instrument view image. It is obvious that there is beam small beam leakage around beam stop window and strong powder lines around Bragg peaks. This is the background which one wants to remove. Right part of this image represents 2-dimensional image obtained from ``instrument_view_cut`` and we want to extract this image from whole sqw file containing magnetic signals.
+Left part of the image represents Mantid instrument view image. It is obvious that there is small beam leakage around beam stop window and strong powder lines around Bragg peaks. This is the background which one wants to remove. Right part of this image represents 2-dimensional image obtained from ``instrument_view_cut`` and we want to extract this image from whole sqw file containing magnetic signals.
 
 Slim-lined script which would produce such background removal is provided below:
 
@@ -211,7 +211,7 @@ Better background model is possible to remove more parasitic signal, though this
 ``sqw_op_bin_pixels`` algorithm
 ===============================
 
-Let's assume you are interested in magnetic signal which is present at relatively low :math:`\|Q\|` due to magnetic form factor and signal covers multiple Brillouin zones at low :math:`\|Q\|`. You want to accumulate magnetic signal in first Brillouin zone to increase statistics and consider everything which is beyond some specific :math:`\|Q\|` - value to be background to remove as signal there is negligibly small due to magnetic form factor, so you also want to move this signal to first Brillouin zone and extract background from magnetic signal. Figure below give example of such situation:
+Let's assume you are interested in magnetic signal which is present at relatively low :math:`\|Q\|` due to magnetic form factor and signal covers multiple Brillouin zones at low :math:`\|Q\|`. You want to accumulate magnetic signal in first Brillouin zone to increase statistics and consider everything which is beyond some specific :math:`\|Q\|` - value to be background to remove as signal there is negligibly small due to magnetic form factor, so you also want to move this signal to first Brillouin zone and extract background from the magnetic signal. Figure below give example of such situation:
 
 
 .. figure:: ../images/Fe_BZ_signal.png 
@@ -361,8 +361,8 @@ the sample code.
    
 .. note::
 
-  ``sqw_ob_bin_pixels`` is the algorithm acting on full ``sqw`` object. As such, it is not particularly fast until it parallel implementation is available. The examples, provided here are done for whole ``sqw`` object, located on file, so are 2-dimensional cuts of full 4-dimensional filebacked object.
-  It is recommended to debug user functions on 2-dimensional cuts/object located in memory before running long calculations on full 4-dimensional object.
+  ``sqw_ob_bin_pixels`` is the algorithm acting on full ``sqw`` object. As such, it is not particularly fast until it parallel implementation is available. The examples, provided here are done for whole ``sqw`` object, located on file, so the pictures show 2-dimensional cuts of full 4-dimensional filebacked object.
+  It is recommended to debug user functions on 2-dimensional cuts/objects located in memory before running long calculations on full 4-dimensional object.
 
 
 ``sqw_op_bin_pixels`` algorithm with ``"-combine"`` option
@@ -405,7 +405,7 @@ In more details the table above can be expanded as follows:
        with ``SymOp``. As the consequence, ``cut`` with ``SymOp`` will work with single ``sqw`` file, and cuts
        provided to ``sqw_ob_bin_pixels`` can be taken from multiple ``sqw`` files.
     2. Let's assume you transform data defined in range [-1:-3] into range [0:1] using folding operations
-       around axes passing through point 0 and 1. If you use ``cut`` with ``SymOp``, the data reflected from range [1:3] will be reflected into range [-2:1] and the data block [-2:0] will be dropped by cut ranges and the fact it has been reflected once. This is the consequence of using the current implementation of the algorithm, which eliminates double counting of the same data transformed multiple times using multiple
+       around axes passing through points 0 and 1. If you use ``cut`` with ``SymOp``, the data reflected from range [1:3] will be reflected into range [-2:1] and the data block [-2:0] will be dropped by cut ranges. reflected. This is the consequence of using the current implementation of the algorithm, which eliminates double counting of the same data transformed multiple times using multiple
        symmetry operations. If you need to keep these data, you need to use ``sqw_op_bin_pixels``
        with properly modified custom ``sqw_op_function``. 
     3. ``cut`` with ``SymOp`` carefully cares about error counting not to double-count the same pixels, 
@@ -414,8 +414,9 @@ In more details the table above can be expanded as follows:
        This may be done with some efforts from user (e.g. by calculating unique pixel id and comparing pixels usage)
        but this algorithm does not look very efficient.
     4. As user expects to write his own ``sqw_op_function`` he may use multiple transformations of his 
-       choice to modify combined data. ``cut`` with ``SymOp`` intended for performing well defined operation.
-    5. Summarizing all above, one can say that ``cut`` with ``SymOp`` for combining symmetry-related
+       choice to modify combined data. ``cut`` with ``SymOp`` intended for performing  operations performed by well defined ``SymOp`` classes.
+    5. Summarizing all above, one can say that ``cut`` with ``SymOp`` is intended for simple combining
+       of symmetry-related
        cuts, while ``sqw_op_bin_pixels`` gives user wider opportunities, allows combining much wider range
        of data but requests from user more experience with MATLAB programming and better knowledge of Horace
        internal structure.
