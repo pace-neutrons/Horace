@@ -509,3 +509,20 @@ Image below shows the way to overlapping two cuts together and the result of suc
    Overlap two cuts demonstrated on the left image, display them (central image) and combine together using
    ``sqw_op_bin_pixels`` algorithm with combine function above.
 
+Simple script which allows to produce result presented on the right side of picture above (image (c) ) from the data on the left side of the image above using ``sqw_op_bin_pixels`` and :ref:`combine function above <move-all-to-proj-label>` looks as follows:
+
+.. code-block:: matlab
+    
+    source = sqw('source_file_name');  % define filebacked source sqw object
+    w2 = cut(line_proj,[],[],[-0.1,0.1],[-5,5],'-nopix');
+    plot(w2)    % plot image (a)
+    proj1 = line_proj([1,1,0],[-1,1,0]);
+    proj2 = line_proj([-1,1,0],[1,1,0]);    
+    cut_ranges = {[],[-0.1,0.1],[-0.1,0.1],[-10,5,360]};
+    cut1  = cut(source,proj1,cut_ranges{:});  % cut sqw object presented on image b1)
+    cut2  = cut(source,proj2,cut_ranges{:});  % cut sqw object presented on image b2)  
+    % combine cut1 and cut2 together producing final result.
+    wout  = sqw_op_bin_pixels({cut1,cut2},{[proj1,proj2]},proj1,cut_ranges{:},'-combine');
+    plot(wout); % plot image c)
+    
+    
