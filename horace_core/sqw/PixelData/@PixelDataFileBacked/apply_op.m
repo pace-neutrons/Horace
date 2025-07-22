@@ -24,6 +24,12 @@ op_name = page_op.op_name;
 % divide all data into pages to process
 [npix_chunks, npix_idx,page_op] = page_op.split_into_pages(npix, mem_chunk_size);
 
+% TODO: this should be generic operation which does not depend on pix class
+% and PageOp class
+if isa(page_op.pix,'PixelDataFileBacked') && ~(isa(page_op,'PageOp_join_sqw')||isa(page_op,'PageOp_section'))
+    page_op.pix = page_op.pix.set_pix_page_chunks(npix_chunks);
+end
+
 n_chunks = numel(npix_chunks);
 
 % check if warning about data range is necessary. This is Horace<4
