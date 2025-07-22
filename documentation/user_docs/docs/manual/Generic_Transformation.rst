@@ -50,12 +50,13 @@ Where ``proj`` is usually projection used by ``sqw`` object of interests, `pix_c
 Finally user should be familiar with concept of object oriented programming as to write custom transformation one needs to use properties of the core transformation classes ``PageOp_sqw_op`` or
 ``PageOp_sqw_op_bin_pixels`` described below alongside with the description of the appropriate algorithm.
 
+.. _sqw-op-algorithm:
 
 ``sqw_op`` algorithm
 ====================
 
 ``sqw_op`` is the algorithm, which provides user with opportunity to modify signal and error values and
-perform multiple unary or binary operations in simultaneously transforming large ``sqw`` object. Its signature looks as follows:
+perform multiple unary or binary operations simultaneously while transforming large ``sqw`` object. Its signature looks as follows:
 
 .. code-block:: matlab
 
@@ -64,7 +65,7 @@ perform multiple unary or binary operations in simultaneously transforming large
     
 where:
 
-- ``win`` -- ``sqw`` file, cell array array of ``sqw`` objects or strings that provides filenames of ``sqw`` objects on disk serving as the source of ``sqw`` data to process using ``sqwop_func``
+- ``win`` -- ``sqw`` file, cell array array of ``sqw`` objects or strings that provides filenames of ``sqw`` objects on disk serving as the source of ``sqw`` data to process using ``sqw_op_func``
 - ``@sqw_op_func`` --  handle to a function which performs desired operation over sqw data.
 - ``pars`` --    cellarray of parameters used by ``sqw_op_func``. If ``sqw_op_func`` have no parameters, empty parentheses ``{}`` should be provided.
             
@@ -257,6 +258,24 @@ where:
 - `pN_bin <Cutting_data_of_interest_from_SQW_files_and_objects.html#binning-arguments>`__ describe the histogram bins to capture the  data. In details they described in the `chapter about binning arguments  <Cutting_data_of_interest_from_SQW_files_and_objects.html#binning-arguments>`__
 - optional ``'-nopix'`` argument means that resulting object would be ``dnd`` object, i.e. object
   which does not contain pixels.
+  
+``@sqw_op_func`` for ``sqw_op_bin_pixels`` algorithm have form similar to the one used by :ref:`sqw_op algorithm
+<sqw-op-algorithm>`, except it should return full page of modified pixels data:
+
+.. code-block:: matlab
+
+   function output_data = sqw_op_func(in_page_op,parameters)
+      
+      data = in_page_op.data; % get page of pixel data expressed in Crystal Cartesian coordinate system
+      % Operations over signal and error as function of in_page_op, data and other parameters
+      ...
+      
+      % return results of operation as [9 x npix ] array of modified pixels data, where all
+      % values of the array may change.
+      output_data = modify_data(data,parameters{:});
+      
+   end
+  
 
 Slim-lined script to calculate background in the situation, described on the figure above looks like that:
 
