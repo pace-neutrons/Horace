@@ -8,7 +8,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % accumulator is requested.
         npix_acc_;
         % storage for PixelDataMemory class used as target for page of
-        % pixel data. Allocated to avoid reallocating it in each page
+        % pixel data. Allocated to avoid recalculating it in each page
         % operation.
         pix_page_;
         % properly contains information about pre-processed pixels
@@ -163,18 +163,19 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % return block of data used in page operation
             % Inputs:
             % idx         -- either:
-            %                indices of image cells to read their correspondent 
+            %                indices of image cells to read their correspondent
             %                pixels if data are obtained from single file
             %                in bin_pixels mode
             %                or:
-            %                numbers of dataset to combibe pixels pages from
+            %                numbers of dataset to combine pixels pages from
             %                in bin_pixels "-combine" mode
             %
             % npix_blocks -- cellarray of npix blocks containing
             %                information about sizes of pixels blocks
             %                contributing to a page of data.
+            obj.page_num = idx;
             if isa(obj.pix_,'MultipixBase') % Then pix_ contains pixobj_combine_info
-                % class with knowlege about all pixel datasets to combine
+                % class with knowledge about all pixel datasets to combine
                 % and npix_idx refer to pages extracted from these datasets
                 % and how the datasets are divided into pages to combine.
                 % In this case npix_idx in fact contains references to
@@ -194,8 +195,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     pix_idx_0:pix_idx_1,'-raw','-align');
                 obj.pix_idx_start_(n_dataset) = pix_idx_1+1;
             else  % standard PageOp binning mode. idx refers to page of
-                % single pixels dataset 
-                obj.pix_.page_num = idx;
+                % single pixels dataset
                 obj.page_data_    = obj.pix_.data;
             end
         end
@@ -266,6 +266,9 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     obj.img_.axes,pix, ...
                     obj.npix_acc_,obj.sig_acc_,obj.var_acc_);
             else
+                % filebacked_processing in this case is not only real
+                % filebacked but also processing multiple files or objects
+                % when combinming multiple datasets together.
                 filebacked_processing = obj.init_filebacked_output_ && ~obj.do_nopix_;
                 if filebacked_processing
                     % pixel_idx requested means that pixels have not been

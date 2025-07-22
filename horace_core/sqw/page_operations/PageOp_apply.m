@@ -47,7 +47,7 @@ classdef PageOp_apply < PageOp_sqw_eval
             %
             % Overload specific for apply. Splits data according to
             % npix ranges and generates PixDataMemory wrapper
-            obj = get_page_data@PageOp_sqw_eval(obj,idx,npix_blocks);
+            obj = get_page_data@PageOpBase(obj,idx,npix_blocks);
             obj.pix_page = obj.pix_page.set_raw_data(obj.page_data_);
         end
 

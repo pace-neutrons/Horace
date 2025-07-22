@@ -20,6 +20,9 @@ classdef PageOpBase
     % i.e. alter which image bin a pixel would contribute.
     % i.e. require rebinning or reordering of pixels behind bins boundaries.
     properties(Dependent)
+        % number of page to operate over. Partially supported. TODO:
+        % will need full support with pixel cache refactored
+        page_num
         % true if method should not create the copy of filebacked object
         % and does not change pixels.
         % TODO: Disabled, See Re #1319 to enable
@@ -69,8 +72,6 @@ classdef PageOpBase
         split_at_bin_edges
     end
     properties(Dependent,Hidden)
-        % number of page to operate over
-        page_num
 
         % caches for some indices, defined in PixelDataBase, and used to
         % extract appropriate fields from PixelData. Often used.
@@ -237,10 +238,20 @@ classdef PageOpBase
         end
         %
         function obj = get_page_data(obj,idx,npix_blocks)
-            % return block of data used in page operation
+            % set up into internal memory and return block of data used
+            % in page operation
+            %
+            % idx         -- index of image cells to read their correspondent 
+            %                pixels if data are obtained from single file
+            %
+            % npix_blocks -- cellarray of npix blocks containing
+            %                information about sizes of pixels blocks
+            %                contributing to a page of data.
+            
             %
             % This is most common form of the operation. Some operations
             % will request overloading
+            obj.page_num = idx;            
             if obj.split_at_bin_edges_
                 % knowlege of all pixel coordinates in a cell.
                 npix_block    = npix_blocks{idx};
@@ -250,7 +261,6 @@ classdef PageOpBase
                     obj.pix_idx_start_:pix_idx_end,'-raw','-align');
                 obj.pix_idx_start_ = pix_idx_end+1;
             else
-                obj.pix_.page_num = idx;
                 obj.page_data_    = obj.pix_.data;
             end
         end
@@ -455,10 +465,10 @@ classdef PageOpBase
         end
         %
         function np = get.page_num(obj)
-            np = obj.pix_.page_num;
+            np = get_page_num(obj);
         end
         function obj = set.page_num(obj,val)
-            obj.pix_.page_num = val;
+            obj = set_page_num(obj,val);
         end
         %
         function pixd = get.pix(obj)
@@ -543,6 +553,13 @@ classdef PageOpBase
     end
     %======================================================================
     methods(Access=protected)
+        function  np = get_page_num(obj)
+            np = obj.pix_.page_num;
+        end
+        function  obj = set_page_num(obj,val)
+            obj.pix_.page_num = val;
+        end
+
         function is = get_exp_modified(obj)
             % is_exp_modified controls calculations of unique runid-s
             % during page_op.

@@ -27,6 +27,8 @@ function wout = sqw_op(win, sqw_opfunc, pars, varargin)
 % PageOp_processor
 %          -- the instance of a class-child of PageOp_sqw_op class, which
 %             provides additional functionality to PageOp_sqw_op operation.
+% 'outfile'
+%          -- the key, followed by the name of sqw file to store result in.
 %
 
 % Returns:
