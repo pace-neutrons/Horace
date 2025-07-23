@@ -484,7 +484,8 @@ Simplest form of the function, which allows combining multiple cuts into single 
     % into coordinate system, related to target projection
     for i=1:numel(proj_array)
         % input projections used for cut do not have lattice set up for them.
-        % They need lattice so let's set it up here.
+        % They need lattice to be fully defined and use projection methods so let's set it up here.
+        % may be taken out of loop for performance though it is fast anyway.
         proj_array(i).alatt = targ_proj.alatt;
         proj_array(i).angdeg = targ_proj.angdeg;
         % transform momentum transfer values from current page of data into
