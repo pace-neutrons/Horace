@@ -3,9 +3,7 @@ set(
     "GetMD5.cpp"
 )
 
-set(
-    HDR_FILES
-)
+
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # On GCC you must pass OpenMP_CXX_FLAGS to the linker

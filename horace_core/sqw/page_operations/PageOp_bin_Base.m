@@ -75,6 +75,8 @@ classdef PageOp_bin_Base < PageOpBase
             obj.page_data_ = obj.pix_.get_pixels(pix_idx,'-raw','-align');
 
             obj.pix_idx_start_ = pix_idx_end+1;
+            
+            obj.page_num = idx;            
         end
 
         %

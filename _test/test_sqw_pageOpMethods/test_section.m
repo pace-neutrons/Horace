@@ -54,11 +54,8 @@ classdef test_section < TestCase
 
             test_sec_fb = wfb.section([-3 3], [], [], []);
 
-            % Re #1350 saved and recovered detector arrays are different
-            test_sec_fb.experiment_info.detector_arrays= test_sec_mb.experiment_info.detector_arrays;
             assertEqualToTol(test_sec_mb, test_sec_fb,...
                 'ignore_str', true,'-ignore_date');
-            skipTest('Re #1350 Saved and recovered dectector arrays are different. This is bug with arrays, not section')
 
         end
 

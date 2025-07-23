@@ -38,7 +38,7 @@ else
 end
 
 
-if isnumeric(operand) && numel(operand)== 1
+if isnumeric(operand) && isscalar(operand)
     page_op = PageOp_binary_sqw_double();
 elseif isa(operand, 'PixelDataBase')
     page_op = PageOp_binary_sqw_sqw();

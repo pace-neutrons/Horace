@@ -36,7 +36,7 @@ end
 
 
 pix_out = copy(argi{1});
-if numel(varargin) == 1
+if isscalar(varargin)
     return;
 end
 
