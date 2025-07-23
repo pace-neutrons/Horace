@@ -20,9 +20,6 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % maximal size of pixel array to keep in memory until it should
         % be stored in file
         buf_size_;
-        % cache for npix indices, defined here to access it from npix_data
-        % which does not have them as a standard input
-        npix_idx_;
     end
 
     methods
