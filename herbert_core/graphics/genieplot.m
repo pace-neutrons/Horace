@@ -1,28 +1,61 @@
 classdef genieplot < handle
-    % Singleton class to hold configuration of graphics options.
-    % This is a very lean implementation of a singleton. It permits the setting
-    % and getting of values but without any checks on values.
+    % Singleton class to hold the state of genie_figure graphics.
     %
-    % In addition to the standard singlteon interface providing access
-    % to public properties of genieplot interface calling
-    % genieplot.instance() method for accessing and changing the class
-    % properties,
-    % it has genieplot specific interface, reminicent of old genie graphics.
-    % The descrption of this interface is provided below.
+    % This is a simple implementation of a singleton. It permits the setting
+    % and getting of values. This can be done in two ways:
     %
-    % Use:
-    % ----
-    % To set a property
+    % - Follow a standard syntax implemented in Horace in numerous places, where
+    %   an instance of a pointer to the singleton is created, and the properties
+    %   are retrived or changed for that instance (and all others) using the
+    %   usual Matlab object syntax:
+    %       <object>.<property> = <value>
+    %       <value> = <object>.<property>
+    %
+    % - Set or get property values using the same syntax as the original Matlab
+    %   graphics object properties, namely:
+    %       <object>.set(<name>, <value>)
+    %       <value> = <object>.get(<name>)
+    %   thereby being consistent with matlab graphics property setting/getting.
+    %
+    % The two syntaxes can be used together. In more detail:
+    %
+    % Use: standard method
+    % --------------------
+    % Get an instance pointing to the genieplot singleton:
+    %   >> g = genieplot.instance();
+    %
+    % To set a property:
+    %   >> g.<property_name> = <value>;
+    %
+    %   EXAMPLE: >> g.colors = {'b','r','g'};
+    %
+    % To retrieve a property:
+    %   >> <value> = g.<property_name>;
+    %
+    %   EXAMPLE: >> val = g.marker_sizes
+    %            val =
+    %                 6
+    %
+    % List the names and values of all properties:
+    %   >> g
+    %
+    % To reset all properties to the defaults:
+    %   >> g.reset()
+    %
+    %
+    % Use: set and get syntax directly on the singleton
+    % -------------------------------------------------
+    % To set a property:
     %   >> genieplot.set(<property_name>, <value>)
     %
-    %   EXAMPLE: >> genieplot.set('colors',{'b','r','g'})
+    %   EXAMPLE: >> genieplot.set('colors', {'b','r','g'})
     %
     % To retrieve a property:
     %   >> value = genieplot.get(<property_name>)
     %
     %   EXAMPLE: >> val = genieplot.get('marker_sizes')
-    %           val =
-    %                6
+    %            val =
+    %                 6
     %
     % Get a structure with all properties:
     %   >> S = genieplot.get()
@@ -30,65 +63,135 @@ classdef genieplot < handle
     % Set all properties from a structure:
     %   >> genieplot.set(S)
     %
-    % To reset all properties to the defaults
+    % To reset all properties to the defaults:
     %   >> genieplot.reset
     %
-    % This singleton class is only expected to be used by the graphics
-    % functions. Ideally, we would not have it visible to users.
-
+    %
+    % Example of mixed use
+    % --------------------
+    % The two syntaxes can be intermixed. For example:
+    %   >> a = genieplot.instance();    % get an instance of the singleton
+    %   >> b = genieplot.instance();    % get a second instance
+    %   >> a.colors = {'b', 'g', 'r'};  % set the colors with instance a
+    %   >> bcol = b.colors              % confirm colors have changed for b too 
+    %
+    %   bcol =
+    %
+    %     1×3 cell array
+    %
+    %       {'b'}    {'g'}    {'r'}
+    %
+    %   >> genieplot.reset()        % set all properties to the default values
+    %   >> bcol = b.colors          % confirm they have changed for b too
+    %
+    %   bcol =
+    %
+    %     1×1 cell array
+    %
+    %       {'k'}
+    %
+    %   >> genieplot.set('colors', {'g', 'k'})  % change colors directly
+    %   >> bcol = b.colors              % confirm they have changed for b too
+    %
+    %   bcol =
+    %
+    %     1×2 cell array
+    %
+    %       {'g'}    {'k'}
+    
+    
+    % NOTES FOR DEVELOPERS
+    % --------------------
+    % - The reset method resets all properties to the default values, but is not
+    % the same as clearing a variable. Here, reset is simply a method that is
+    % equivalent to issuing the set command for every property with the
+    % corresponding default value.
+    %
+    % - As currently implemented, if all instances as created by
+    %       >> a = genieplot.instance()
+    %       >> b = genieplot.instance()
+    %               :
+    % are cleared using the Matlab method
+    %       >> clear a b ...
+    %
+    % then this has no effect on the underlying singleton values. That is, if an
+    % instance is created afterwards
+    %       >> c = genieplot.instance()
+    %
+    % the values of the properties are those that a, b, ... had at the time that
+    % the clear command was issued.
+    
+    
     properties(Dependent)
+        % The properties that can be publically accessed.
+        
         % General graph properties
-        default_fig_name
-        XScale
-        YScale
-        ZScale
-
+        default_fig_name    % default name for plot
+        XScale              % x-axis scaling: 'linear' or 'log'
+        YScale              % y-axis scaling: 'linear' or 'log'
+        ZScale              % z-axis scaling: 'linear' or 'log'
+        
         % One-dimensional graph properties
-        maxspec_1D
-        colors
-        color_cycle
-        line_styles
-        line_widths
-        marker_types
-        marker_sizes
-
+        maxspec_1D          % Maximum number of 1D datasets in a plottable array
+        colors              % Row cell array of default colors
+        color_cycle         % 'fast' or 'with': colours cycle faster or with
+                            % line styles & widths and marker types & sizes
+        line_styles         % Row cell array of default line styles
+        line_widths         % Row vector of default line widths
+        marker_types        % Row cell array of default marker types
+        marker_sizes        % Row vector of default marker sizes
+        
         % Two-dimensional graph properties
-        maxspec_2D
+        maxspec_2D          % Maximum number of 2D datasets in a plottable array
     end
-
+    
     properties(Access=private)
+        % These properties are exact mirrors of the dependent properties
+        % See dependent properties for descriptions.
+        %
+        % In general the public properties need not be the same as the
+        % properties that hold the state of the object (although in this simple
+        % example they are). We implement this by having private proprties and
+        % public dependent properties.
+        
         % General graph properties
-        default_fig_name_ = []
-        XScale_ = 'linear'
-        YScale_ = 'linear'
-        ZScale_ = 'linear'
-
+        default_fig_name_
+        XScale_
+        YScale_
+        ZScale_
+        
         % One-dimensional graph properties
-        maxspec_1D_ = 1000 % Maximum number of 1D datasets in a plottable array
-        colors_     =  {'k'};
-        color_cycle_= 'with'
-        line_styles_= {'-'}
-        line_widths_= 0.5
-        marker_types_ = {'o'};   % Row cell array of default marker types
-        marker_sizes_ =  6;       % Row vector of default marker sizes
-
+        maxspec_1D_
+        colors_
+        color_cycle_
+        line_styles_
+        line_widths_
+        marker_types_
+        marker_sizes_
+        
         % Two-dimensional graph properties
-        maxspec_2D_ = 1000;      % Maximum number of 2D datasets in a plottable array
+        maxspec_2D_
     end
-
+    
     methods (Access=private)
         % The constructor is private, preventing external invocation.
         % Only a single instance of this class is created. This is
         % ensured by genieplot.instance() calling the constructor only once.
         function newObj = genieplot()
+            % Initialize by calling a separate function. This function will also
+            % be called by the static method named 'reset'
+            initialise(newObj)
         end
     end
+    
     methods
-        % Simple accessors
+        %-----------------------------------------------------------------------
+        % Get methods for the public properties 
+        %-----------------------------------------------------------------------
+        % General graph properties
         function val = get.default_fig_name(obj)
             val = obj.default_fig_name_;
         end
-
         function val = get.XScale(obj)
             val = obj.XScale_;
         end
@@ -98,7 +201,7 @@ classdef genieplot < handle
         function val = get.ZScale(obj)
             val = obj.ZScale_;
         end
-
+        
         % One-dimensional graph properties
         function val = get.maxspec_1D(obj)
             val = obj.maxspec_1D_;
@@ -121,13 +224,13 @@ classdef genieplot < handle
         function val = get.marker_sizes(obj)
             val = obj.marker_sizes_;
         end
-
+        
         % Two-dimensional graph properties
         function val = get.maxspec_2D(obj)
             val = obj.maxspec_2D_;
         end
     end
-
+    
     methods
         %-----------------------------------------------------------------------
         % Check validity of properties on setting
@@ -135,9 +238,9 @@ classdef genieplot < handle
         function set.default_fig_name(obj, val)
             % The default name for a genie figure.
             % - The empty character vector '' is a valid name.
-            % - If the figure name is [], this means that the default is to be
-            %   set to hard-wired values for the different plot types (one-
-            %   dimensional, area plot, surface plot etc.) will be used.
+            % - If the figure name is [], this means that the hard-wired value
+            %   for the relevant plot type will be used (one-dimensional plot,
+            %   area plot, surface plot etc.).
             if is_string(val)
                 % Strip leading and trailing whitespace
                 obj.default_fig_name_ = strtrim(val);
@@ -187,10 +290,11 @@ classdef genieplot < handle
         end
         %-----------------------------------------------------------------------
         function set.colors(obj, val)
-            % Property 'colors' must be a cell arry with elements that either
-            % one of the valid color codes or a valid hexadecimal color code
+            % Property 'colors' must be a cell array with elements that are each
+            % either one of the valid color codes or a valid hexadecimal color
+            % code
             colorCodes = {'r','g','b','c','m','y','k','w'}; % Valid color codes
-
+            
             nonEmptyString = @(x)(is_string(x) && ~isempty(x));
             isColorCode = @(x)(any(strcmp(x, colorCodes)) || ishexcolor(x));
             if iscell(val) && all(cellfun(nonEmptyString, val(:))) && ...
@@ -284,23 +388,21 @@ classdef genieplot < handle
         end
         %-----------------------------------------------------------------------
     end
-
+    
     %---------------------------------------------------------------------------
     % No need to touch below this line
-
+    
     methods (Static)
-        function obj = instance(varargin)
-            % if any argument is provided to instance, it is assumed that
-            % you want to clear its current state (run reset to defaults)
+        function obj = instance()
             persistent uniqueInstance
-            if isempty(uniqueInstance) || nargin>0
+            if isempty(uniqueInstance)
                 obj = genieplot();
                 uniqueInstance = obj;
             else
                 obj = uniqueInstance;
             end
         end
-
+        
         function set(property, newData)
             % Set a single property, or set all properties from a structure
             obj = genieplot.instance();
@@ -321,7 +423,7 @@ classdef genieplot < handle
                 end
             end
         end
-
+        
         function data = get(property)
             % Get a single property, or a structure with all properties
             obj = genieplot.instance();
@@ -336,13 +438,38 @@ classdef genieplot < handle
                 data = orderfields(data);
             end
         end
-
+        
         function reset()
-            genieplot.instance('clear');
+            % Set the singleton properties back to their default values
+            obj = genieplot.instance();
+            initialise(obj);
         end
     end
-
+    
 end
+
+
+%-------------------------------------------------------------------------------
+function initialise(obj)
+% Function to set default values of the private properties
+
+obj.default_fig_name_ = []; % default name for plot
+
+obj.XScale_ = 'linear';     % x-axis scaling: 'linear' or 'log'
+obj.YScale_ = 'linear';     % y-axis scaling: 'linear' or 'log'
+obj.ZScale_ = 'linear';     % z-axis scaling: 'linear' or 'log'
+
+obj.maxspec_1D_ = 1000;     % Maximum number of 1D datasets in a plottable array
+obj.colors_ = {'k'};        % Row cell array of default colors
+obj.color_cycle_ = 'with';  % 'fast' or 'with': colours cycle faster or with
+obj.line_styles_ = {'-'};   % Row cell array of default line styles
+obj.line_widths_ = 0.5;     % Row vector of default line widths
+obj.marker_types_ = {'o'};  % Row cell array of default marker types
+obj.marker_sizes_ = 6;      % Row vector of default marker sizes
+
+obj.maxspec_2D_ = 1000;     % Maximum number of 2D datasets in a plottable array
+end
+
 
 %-------------------------------------------------------------------------------
 function status = ishexcolor(str)
