@@ -3,10 +3,10 @@ Generic Transformations
 #######################
 
 The previous chapters describe how one may do various  
-:doc:`unary </manual/Unary_operations>` or :doc:`binary operations </manual/Binary_operations>` over your data or build analytical model and :doc:`simulate it over whole sqw file </manual/Simulation>`. 
+:doc:`unary </manual/Unary_operations>` or :doc:`binary operations </manual/Binary_operations>` over your data, apply :doc:`symmetry operations </manual/Symmetrising_etc>` or build analytical model and :doc:`simulate it over whole sqw file </manual/Simulation>`. 
 As whole ``sqw`` file can not be generally placed in memory, all these operations are 
 based on special ``PageOp`` family of algorithms, which operate loading a page of data in memory
-and applying various operations to these data. For :doc:`unary </manual/Unary_operations>` and :doc:`binary </manual/Binary_operations>` operations we wrote these transformations for users and the ``sqw_eval`` algorithm from :doc:`Simulation </manual/Simulation>` section 
+and applying various operations to these data. For :doc:`unary </manual/Unary_operations>`, :doc:`binary </manual/Binary_operations>` and :doc:`symmetry operations </manual/Symmetrising_etc>` we wrote these transformations for users and the ``sqw_eval`` algorithm from :doc:`Simulation </manual/Simulation>` section 
 gives user a set of rules to write his own model in `hklE` coordinate system and apply it to whole ``sqw`` object.
 
 Introduction
@@ -106,9 +106,9 @@ This is simple code, but if your objects are filebased, this will requests two s
    function output_sig_err = sqw_op_unary(in_page_op,varargin)
       % Apply two simple transformations of signal of an sqw object in one go.
       
-      data = in_page_op.data;     % get access to page of pixel data
-      data(8,:) = 2*data-1;       % change pixel data signal by multiplying it by 2 and extracting 1
-      output_sig_err = data(8:9,:); % combine signal and unchanged error into form, requested by algorithm
+      data = in_page_op.data;       % get access to page of pixel data
+      data(8,:) = 2*data(8,:)-1;    % change pixel data signal by multiplying it by 2 and extracting 1
+      output_sig_err = data(8:9,:); % extract signal and unchanged error into form, requested by algorithm
    end
 
 and apply ``sqw_op`` algorithm:
@@ -184,7 +184,8 @@ The page-function with actually used to remove background in the code above is:
         % As this is special projection, it needs 5 rows of pixel data (needs run_id)
         % rather then the standard projection, which takes 4 rows.
         pix   = bg_data.proj.transform_pix_to_img(data(1:5,:)); % you may define your own
-        % complex transformation to convert pixels in Cry
+        % complex transformation to convert pixels from Crystal Cartesian coordinates to 
+        % image coordinates, but here you have your projection already defined to do that.
         
         % interpolate background signal on the pixels coordinates expressed 
         % in instrument coordinate system.
@@ -404,7 +405,8 @@ The similarities and differences between these two algorithms are summarized in 
 |         |                          | operations                   |                                           |
 +---------+--------------------------+------------------------------+-------------------------------------------+
 |    2    | Multiple transformations |    Not allowed               | simple modifications to standard script   |
-|         | applied to single data   |                              |                                           |
+|         | applied to symmetrized   |                              |                                           |
+|         | data                     |                              |                                           |
 +---------+--------------------------+------------------------------+-------------------------------------------+
 |    3    | Include same pixels from |    No. Efficient exclusion   | request complex coding. Probably          |
 |         | multiple symmetry op.    |    algorithm                 | not very efficient but possible.          |
