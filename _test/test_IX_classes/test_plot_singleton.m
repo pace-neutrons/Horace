@@ -8,8 +8,8 @@ classdef test_plot_singleton < TestCase
 
     properties
         S_default       % Structure with default property values
-        % store current graphics settings in the structure back to revert it back
-        % after test completeon
+        % store current graphics settings in the structure to revert it
+        % back after test completeon.
         current_graphics_settings
     end
 
