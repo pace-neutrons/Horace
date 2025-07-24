@@ -38,7 +38,7 @@ classdef test_plot_singleton < TestCase
         function setUp(obj)
             obj.current_graphics_settings = genieplot.get();
         end
-        function tearDoan(obj)
+        function tearDown(obj)
             genieplot.set(obj.current_graphics_settings);
         end
 
