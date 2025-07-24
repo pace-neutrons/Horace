@@ -251,6 +251,7 @@ classdef PageOpBase
             %
             % This is most common form of the operation. Some operations
             % will request overloading
+            obj.page_num = idx;            
             if obj.split_at_bin_edges_
                 % knowlege of all pixel coordinates in a cell.
                 npix_block    = npix_blocks{idx};
@@ -262,7 +263,6 @@ classdef PageOpBase
             else
                 obj.page_data_    = obj.pix_.data;
             end
-            obj.page_num = idx;
         end
         %
         function obj = common_page_op(obj)

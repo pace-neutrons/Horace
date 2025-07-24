@@ -69,11 +69,10 @@ classdef PageOp_cat_pix < PageOpBase
             % in input pixel dataset and idx define how many datasets the
             % page of pixels occupy.
             %
-            obj.page_num = page_idx;
 
             chunks  = npix_blocks{page_idx};
             n_chunks = numel(chunks);
-            npix_idx = obj.block_idx_(:,obj.page_num); % first and last index of the block within the npix array
+            npix_idx = obj.block_idx_(:,page_idx); % first and last index of the block within the npix array
             if n_chunks == 1 % one or more obj.page_data_ per PixelData object
                 pix_idx_start = obj.pix_block_start_(npix_idx(1));
                 pix_idx_end   = pix_idx_start+chunks - 1;
