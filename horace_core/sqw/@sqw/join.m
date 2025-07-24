@@ -126,10 +126,12 @@ use_mex = hc.use_mex && strncmp(hpc.combine_sqw_using,'mex',3);
 
 page_op         = PageOp_join_sqw;
 page_op.outfile = outfile;
+if ~isempty(outfile)
+    page_op.init_filebacked_output = true;
+end
 %
 if recalc_runid
     run_id = wout.runid_map.keys();
-    run_id = [run_id{:}];
 else
     run_id = [];
 end

@@ -90,8 +90,29 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
 
             assertTrue(isa(wout_sqw,'sqw'))
             assertEqual(wout_sqw.data.img_range,pix_db_range);
-
         end
+        function test_calc_qw_pixels2_works_4different_energies(obj,varargin)
+            if nargin > 1  % running in single test method mode.
+                obj.setUp();
+                co1 = onCleanup(@()obj.tearDown());
+            end
+            sqw_file_1234=fullfile(tmp_dir,['sqw_1234_calc_qw',obj.test_pref,'.sqw']);
+            clFile = onCleanup(@()obj.delete_files(sqw_file_1234));
+            clWarn = set_temporary_warning('off','HORACE:push_warning','HORACE:valid_tmp_files_exist');
+
+            [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            spe_files1 = obj.spe_file([1,2,3,4]);
+
+            gen_sqw (spe_files1, '', sqw_file_1234, efix([1,2,3,4]),...
+                emode, alatt, angdeg, u, v, psi([1,2,3,4]), omega([1,2,3,4]),...
+                dpsi([1,2,3,4]), gl([1,2,3,4]), gs([1,2,3,4]));
+
+            tob = read_sqw(sqw_file_1234);
+            tp  = tob.calculate_qw_pixels2(false,true);
+
+            assertEqualToTol(tob.pix.coordinates,tp,[2.e-7,2.e-7]);
+        end
+        
         %
         function test_wrong_params_gen_sqw(obj,varargin)
             if nargin > 1  % running in single test method mode.

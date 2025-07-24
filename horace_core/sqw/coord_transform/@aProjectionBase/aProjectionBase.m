@@ -18,7 +18,7 @@ classdef aProjectionBase < serializable
     %
     %   offset     Row or column vector of offset of origin of a projection axes (rlu)
     %
-    
+
     properties(Dependent)
         % Lattice parameters are important in any transformation from Crystal
         % Cartesian (pixels) to image coordinate system but are hidden as
@@ -53,7 +53,7 @@ classdef aProjectionBase < serializable
         % coordinate system. Property of ubmat_proj but calculated in
         % line_proj, sphere_proj or cylinder_proj
         img_scales % the scaling factor (in A^-1)
-        
+
         % Internal properties, used by algorithms and better not to be
         % exposed to users
         %
@@ -107,7 +107,7 @@ classdef aProjectionBase < serializable
         % cut over all pixels anyway.
         disable_pix_preselection
     end
-    
+
     properties(Constant, Hidden)
         % minimal value of a vector norm e.g. how close couple of unit vectors
         % should be to be considered parallel. u*v are orthogonal if u*v'<tol
@@ -184,21 +184,35 @@ classdef aProjectionBase < serializable
         end
         function obj = copy_proj_param_from_source(obj,cut_source)
             % Load information into the projection from the object being
-            % processed, which is required to perform the operation. 
+            % processed, which is required to perform the operation.
             % For example, all projections used for cut need to know
             % lattice parameters of sqw object used as source.
             %
-            % This is generic method which copies lattice parameters and 
+            % This is generic method which copies lattice parameters and
             % should be overloaded by specific projections, which
             % need more information from the source sqw or dnd object.
+            %
+            % Input:
+            % obj         -- partially initialized projection object,
+            %                used by cut
+            % cut_source  -- sqw or dnd object to be cut using the
+            %                projection object
+            %
+            % Result:
+            % obj         -- projection object initialized by data
+            %                retrieved from the source object
 
-            source_proj = cut_source.proj;
+            if isa(cut_source,'sqw')
+                source_proj = cut_source.data.proj;
+            else
+                source_proj = cut_source.proj;
+            end
             %
             %Retrived lattice from the source object
             obj.do_check_combo_arg = false;
             obj.alatt = source_proj.alatt;
             obj.angdeg = source_proj.angdeg;
-            
+
             obj.do_check_combo_arg = true;
             obj = obj.check_combo_arg();
         end
@@ -213,7 +227,7 @@ classdef aProjectionBase < serializable
             % property_name1, value1, property_name2, value2....}
             % The list of the possible properties to be available for
             % constructor are specified below (opt_par)
-            
+
             % Returns:
             % obj  -- Initialized instance of aProjectionBase class
             % remains
@@ -222,7 +236,7 @@ classdef aProjectionBase < serializable
             %         cellarray of such parameters. Empty, if all inputs
             %         define the projection parameters.
             %
-            
+
             % get list of the property names, used in initialization
             init_par = aProjectionBase.init_params;
             remains = [];
@@ -333,7 +347,7 @@ classdef aProjectionBase < serializable
                     ' You have alatt= %s, angdeg = %s. Define lattice parameters first'], ...
                     mat2str(obj.alatt_),mat2str(obj.angdeg_))
             end
-            
+
             [bm,arlu,angrlu] = bmatrix(obj.alatt,obj.angdeg);
             if nargin == 2 && ndim == 4
                 bm4 = eye(4);
@@ -341,7 +355,7 @@ classdef aProjectionBase < serializable
                 bm = bm4;
             end
         end
-        
+
         %----------------------------------------------------------------
         function obj = set.lab1(obj,val)
             obj = set_lab_component_(obj,1,val);
@@ -393,8 +407,23 @@ classdef aProjectionBase < serializable
         function name = get.axes_name(obj)
             name = get_axes_name(obj);
         end
+        function obj = set(obj,prop_name,prop_value)
+            % set random property value using functional form of setter
+            % method.
+            % Inputs:
+            % obj         -- instance of the projection object
+            % prop_name   -- name of the property to set usin this function
+            % prop_value  -- value to set to property
+            %
+            if ~istext(prop_name)
+                error('HORACE:aProjectionBase:invalid_argument',[ ...
+                    'method set requests second argument to be a property name (character string).' ...
+                    'Provided property name class is: %s'], ...
+                    class(prop_name));
+            end
+            obj.(prop_name) = prop_value;
+        end
     end
-    
     %======================================================================
     % MAIN PROJECTION OPERATIONS
     % BINNING:
@@ -415,12 +444,12 @@ classdef aProjectionBase < serializable
                     targ_proj.do_generic = obj.do_generic;
                     targ_proj.disable_srce_to_targ_optimization = obj.disable_srce_to_targ_optimization;
                 end
-                
+
                 % Assign target projection to verify if optimization is
                 % available and enable if it available
                 targ_proj.targ_proj = obj;
                 obj.targ_proj = targ_proj;
-                
+
                 if targ_proj.disable_pix_preselection_
                     % select all pixels
                     bl_start = 1;
@@ -428,10 +457,10 @@ classdef aProjectionBase < serializable
                     return;
                 end
             end
-            
+
             contrib_ind= obj.get_contrib_cell_ind(...
                 cur_axes_block,targ_proj,targ_axes_block);
-            
+
             if isempty(contrib_ind)
                 bl_start  = [];
                 bl_size = [];
@@ -473,7 +502,7 @@ classdef aProjectionBase < serializable
             % may_contrib_dE -- logical array containing possible
             %                   contribution from energy transfer cells.
             %                   empty in 4D case.
-            
+
             [may_contribND,may_contrib_dE] = may_contribute_(obj,...
                 cur_axes_block,targ_proj,targ_axes_block);
         end
@@ -487,7 +516,7 @@ classdef aProjectionBase < serializable
             % if target projection is a spherical projection, changes to
             % one projection axis of the orthogonal source projectin would
             % contribute to all axes of the sperical projection.
-            
+
             % NOTE: needs some further thinking about it.
             if isempty(obj.targ_proj_) || isa(obj,class(obj.targ_proj_))
                 ax_num = source_ax_block.pax;
@@ -503,7 +532,7 @@ classdef aProjectionBase < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj, ...
+        function [npix,s,e,pix_ok,unique_runid,pix_idx,selected] = bin_pixels(obj, ...
                 axes,pix_cand,npix,s,e,varargin)
             % Convert pixels into the coordinate system defined by the
             % projection and bin them into the coordinate system defined
@@ -531,7 +560,6 @@ classdef aProjectionBase < serializable
             %         axes grid cell calculated during the previous
             %         iteration step. zeros(size(npix)) if this is the
             %         first step.
-            %
             % Outputs:
             % npix    -- the npix array
             %  The same npix, s, e arrays as inputs modified with added
@@ -548,10 +576,10 @@ classdef aProjectionBase < serializable
             %
             % unique_runid -- the run-id (tags) for the runs, which
             %           contributed into the cut
-            % pix_indx--indexes of the pix_ok coordinates according to the
-            %           bin. If this index is requested, the pix_ok object
-            %           remains unsorted according to the bins and the
-            %           follow up sorting of data by the bins is expected
+            % pix_idx -- indexes of the pix_ok coordinates according to the
+            %            bin. If this index is requested, the pix_ok object
+            %            remains unsorted according to the bins and the
+            %            follow up sorting of data by the bins is expected
             % selected  -- numerical array of indices of selected pixels after
             %            binning
             %
@@ -571,9 +599,14 @@ classdef aProjectionBase < serializable
             % '-return_selected' -- returns `selected` in `pix_ok`
             %             (For DnD only cuts fewer arguments are returned this uses
             %              the pix_ok slot)
-            
+            % NOTE:
+            % if pix_idx array is requested, pix_ok are returned unsorted!!!
+            % Correct order of pixels in bins is stored in pix_idx and have
+            % to be used later.
+            nout = nargout;
+
             pix_transformed = obj.transform_pix_to_img(pix_cand);
-            switch(nargout)
+            switch(nout)
                 case(1)
                     npix=axes.bin_pixels(pix_transformed,...
                         npix,varargin{:});
@@ -588,11 +621,11 @@ classdef aProjectionBase < serializable
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 case(6)
-                    [npix,s,e,pix_ok,unique_runid,pix_indx]=...
+                    [npix,s,e,pix_ok,unique_runid,pix_idx]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 case(7)
-                    [npix,s,e,pix_ok,unique_runid,pix_indx,selected]=...
+                    [npix,s,e,pix_ok,unique_runid,pix_idx,selected]=...
                         axes.bin_pixels(pix_transformed,...
                         npix,s,e,pix_cand,varargin{:});
                 otherwise
@@ -626,7 +659,7 @@ classdef aProjectionBase < serializable
                 pix_hkl = [pix_hkl;en];
             end
         end
-        
+
         function pix_img = transform_hkl_to_pix(obj,pix_hkl,varargin)
             % Converts from hkl coordinate system
             % to pixel coordinate system (Crystal Cartesian)
@@ -647,7 +680,7 @@ classdef aProjectionBase < serializable
             ndim = size(pix_hkl,1);
             pix_img = obj.bmatrix(ndim) * pix_hkl;
         end
-        
+
         function pix_img = transform_hkl_to_img(obj,pix_hkl,varargin)
             % Converts from hkl coordinate system
             % to image coordinate system
@@ -668,7 +701,7 @@ classdef aProjectionBase < serializable
             ndim  = size(pix_hkl,1);
             pix_img = obj.transform_pix_to_img(obj.bmatrix(ndim) * pix_hkl);
         end
-        
+
         function pix_hkl = transform_img_to_hkl(obj,img_coord,varargin)
             % Converts from image coordinate system to hkl coordinate
             % system
@@ -771,7 +804,8 @@ classdef aProjectionBase < serializable
             %           coordinates, defined by cut projection using
             %           dnd.get_targ_range(targ_proj) method.
             % requested_bin_ranges --
-            %           cellarray of cut bin ranges, requested by user.
+            %           cellarray of cut bin ranges, requested by user and
+            %           expressed in source coordinate system.
             %
             % Returns:
             % ax_bl -- initialized, i.e. containing defined ranges and
@@ -905,7 +939,7 @@ classdef aProjectionBase < serializable
             obj.do_generic_                        = logical(val);
             obj.disable_srce_to_targ_optimization_ = logical(val);
         end
-        
+
         function obj = set_offset(obj,val)
             obj.offset_ = check_offset_(obj,val);
             % one and then another but reconciliation have not happened yet
@@ -917,6 +951,23 @@ classdef aProjectionBase < serializable
     end
     %
     methods(Static,Access=protected)
+        function    [npix,s,e] = init_accumulators(n_accum,axes)
+            % Initialize necessary numbers of binning accumulators
+            % which correspond to axes block provided
+            % Inputs:
+            % n_accum  -- number accumulators (1 or 3)
+            % access   -- instance of axes block class, which defines the
+            %             shape of the accomulators array
+            % Returns
+            % npix     -- npix accumulator
+            % s        -- signal accumulator. If n_accum == 1 it is empty
+            % e        -- error accunulator. If n_accum == 1 it is empty
+            if n_accum<2
+                [npix,s,e] = axes.init_accumulators(1,false);
+            else
+                [npix,s,e] = axes.init_accumulators(3,false);
+            end
+        end
         function [alignment_needed,alignment_mat] = check_alignment_needed(pixData)
             % verify if input argument contain alignment information and
             % return this information if it is available.
@@ -943,7 +994,7 @@ classdef aProjectionBase < serializable
                 alignment_needed = false;
             end
         end
-        
+
         %
         function [bl_start,bl_size]=convert_contrib_cell_into_pix_indexes(...
                 cell_ind,npix)
@@ -966,7 +1017,7 @@ classdef aProjectionBase < serializable
             %                requested cells
             % bl_size     -- number of pixels, contributed into each
             %                block
-            
+
             % pixel location in C-indexed array
             pix_start = [0,cumsum(npix(:)')];
             if iscell(cell_ind) % input contributing cell indexes arranged
@@ -979,7 +1030,7 @@ classdef aProjectionBase < serializable
                 adjacent = cell_ind(1:end-1)+1==cell_ind(2:end);
                 adjacent = [false;adjacent];
                 adj_end  = [cell_ind(1:end-1)+1<cell_ind(2:end);true];
-                
+
                 bl_start  = pix_start(cell_ind(~adjacent));
                 bl_size   = pix_start(cell_ind(adj_end)+1)-bl_start;
             end
@@ -1002,7 +1053,7 @@ classdef aProjectionBase < serializable
             %
             % Uses knowledge about linear arrangement of 4-D array of indexes
             % in memory and on disk
-            
+
             q_block_size = numel(bin_inside3D);
             change = diff([false;bin_inside3D(:);false]);
             istart = find(change==1);
@@ -1011,16 +1062,16 @@ classdef aProjectionBase < serializable
                 return;
             end
             iend   = find(change==-1) - 1;
-            
+
             % calculate full 4D indexes from the the knowledge of the contributing dE bins,
             % 3D indexes and 4D array allocation layout
             q_stride = (0:numel(en_inside))*q_block_size; % the shift of indexes for
             % every subsequent dE block shifted by q_stride
             q_stride = q_stride(en_inside); % but only contributing dE blocks matter
-            
+
             n_eblocks = numel(q_stride);
             q_stride  = repmat(q_stride,numel(istart),1); % expand to every q-block
-            
+
             istart = repmat(istart,1,n_eblocks)+q_stride;
             iend   = repmat(iend,1,n_eblocks)+q_stride;
             % if any blocks follow each other through 4-th dimension, we
@@ -1038,7 +1089,7 @@ classdef aProjectionBase < serializable
             % some directions when other directions are not small.
             val = check_and_brush3vector_(val);
         end
-        
+
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE
@@ -1051,7 +1102,7 @@ classdef aProjectionBase < serializable
         % into crystal Cartesian system or other source coordinate system,
         % defined by projection
         [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
-        
+
         % return parameters of transformation used for conversion from pixels
         % to image coordinate system
         varargout = get_pix_img_transformation(obj,ndim,varargin);
@@ -1060,7 +1111,7 @@ classdef aProjectionBase < serializable
     methods(Abstract,Access=protected)
         scales   = get_img_scales(obj);
         obj      = set_img_scales(obj,val);
-        
+
         % set projection type, changing the units of angular dimensions if
         obj = check_and_set_type(obj,val)% necessary/present
     end

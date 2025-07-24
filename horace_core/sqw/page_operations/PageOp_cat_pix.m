@@ -11,10 +11,6 @@ classdef PageOp_cat_pix < PageOpBase
         % if set to true, always try to concatenate pixels in memory.
         force_cat_in_memory = false;
     end
-    properties(Hidden)
-        % access to pix for testing chuncing only
-        pix
-    end
     properties(Access = private)
         % the position of pixels in every pixel block
         pix_block_start_;
@@ -107,20 +103,6 @@ classdef PageOp_cat_pix < PageOpBase
             % cat does not change pixels
         end
         %==================================================================
-        function pix = get.pix(obj)
-            pix = obj.pix_;
-        end
-        function obj = set.pix(obj,val)
-            % Set target pix data explicitly.
-            %
-            % Intended for use in tests only so should not be used in
-            % production code.
-            if ~isa(val,'PixelDataBase')
-                error('HORACE:PixelDataBase:invalid_argument', ...
-                    'Pix can be an object of PixelDatBase class only');
-            end
-            obj.pix_ = val;
-        end
         %
     end
     methods(Access=protected)

@@ -23,7 +23,7 @@ classdef test_log_config< TestCase
             % remove log time as it is tested separately;
             all_prop = all_prop(2:end);
             for i = 1:numel(all_prop)
-                warning('HORACE:clear_test_warn','clear possible warnings');                
+                warning('HORACE:clear_test_warn','clear possible warnings');
                 tc.(all_prop{i}) = 0.1;
                 assertEqual(tc.(all_prop{i}),1, ...
                     sprintf(' Property %s has not been set correctly\n',all_prop{i}))
@@ -35,7 +35,7 @@ classdef test_log_config< TestCase
             % possible autoconfigurations
             config_store.instance().clear_config(tc);
         end
-        
+
 
         function test_all_split_log_ratios_settable(~)
             tc = log_config;
@@ -57,12 +57,16 @@ classdef test_log_config< TestCase
             config_store.instance().clear_config(tc);
         end
         function test_auto_logging(~)
+            % test depends on code execution time and expect pause last 1
+            % second +-10%. Sometimes on some machines this would not
+            % happen (Windows suddently decides not to give job sufficient
+            % time to perform), so the test may fail
             tc = log_config();
             clOb = set_temporary_config_options(tc,'info_log_print_time',2);
             tc = tc.init_adaptive_logging();
-            pause(1);
-            [tc,time] = tc.adapt_logging(1);
-            assertEqualToTol(time,1,'tol',[0.1,0.1]);
+            pause(2);
+            [tc,time] = tc.adapt_logging(2);
+            assertEqualToTol(time,2,'tol',[0.1,0.1]);
             slr = tc.info_log_split_ratio;
             assertEqual(slr,2);
         end

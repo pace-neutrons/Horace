@@ -22,7 +22,7 @@ classdef PageOp_apply < PageOp_sqw_eval
             if isa(operation, 'function_handle')
                 operation = {operation};
             end
-            if numel(op_param) == 1
+            if isscalar(op_param)
                 op_param = repmat(op_param, numel(operation), 1);
             elseif numel(op_param) ~= numel(operation)
                 error('HORACE:PageOp_apply:invalid_argument', ...

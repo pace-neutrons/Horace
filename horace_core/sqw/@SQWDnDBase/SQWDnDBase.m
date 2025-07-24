@@ -61,7 +61,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     %----------------------------------------------------------------------
     % PageOp abstract protected methods
     methods (Abstract, Access = protected)
-        wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i);
+        wout = sqw_eval_pix(wout, sqwfunc, pars,options,i,varargin);
         % REDUNDANT METHOD to remove
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
@@ -129,7 +129,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     methods (Static,Hidden) % should be protected but Matlab have some
         % issues with calling this from children
         %
-        function [proj, pbin, sym, opt] = process_and_validate_cut_inputs(data,...
+        function [proj, pbin, sym, opt] = process_and_validate_cut_inputs(in_obj,...
                 return_cut, varargin)
             % interface to private cut parameters parser/validator
             % checking and parsing cut inputs in any acceptable form.
@@ -139,8 +139,8 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
             %
             % TODO: do we want an option to express cut ranges in the source
             %       coordinate system?
-            ndims = data.dimensions;
-            [proj, pbin, sym, opt]= cut_parse_inputs_(data, ndims, return_cut, varargin{:});
+            ndims = in_obj.dimensions;
+            [proj, pbin, sym, opt]= cut_parse_inputs_(in_obj, ndims, return_cut, varargin{:});
         end
         %
     end
@@ -168,17 +168,12 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     methods (Access = protected)
         wout = unary_op_manager(w, operation_handle);
         %
-        function [func_handle, pars, opts] = parse_funceval_args(win, func_handle, pars, varargin)
-            % Process arguments of func_eval function
-            [func_handle, pars, opts] = parse_funceval_args_(win, func_handle, pars, varargin{:});
-        end
-
-        wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
+        wout = sqw_eval_nopix(win, sqwfunc, pars, options); % evaluate function
         % on an image stored in an sqw object
 
         function [func_handle, pars, opts] = parse_eval_args(win, ...
                 func_handle, pars, varargin)
-            % parser for funceval function input parameters
+            % parser for funceval, sqw_eval and sqw_op algorithms input parameters
             [func_handle, pars, opts] = parse_eval_args_(win, func_handle, ...
                 pars, varargin{:});
         end

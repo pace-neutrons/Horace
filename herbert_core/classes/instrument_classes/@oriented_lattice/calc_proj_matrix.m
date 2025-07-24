@@ -1,25 +1,27 @@
-function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (obj)
+function mat = calc_proj_matrix (obj,n_matrix)
 % Calculate matrix that convert momentum from coordinates in spectrometer frame to
 % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
-%   >> [spec_to_u, u_to_rlu, spec_to_rlu] = obj.calc_proj_matrix()
+%   >> mat = obj.calc_proj_matrix(n_matrix)
 %
+%  n_matrix -- number from 1 to 3, identifying one of 3 matrix to return.
+%              If out of 1-3 range, first matrix is returned.
 %
-% Output:
+% Output:      Depending on n_matrix, function returns:
 % -------
-%   spec_to_u   Matrix (3x3)to convert momentum from coordinates in spectrometer
-%              frame to crystal Cartesian axes:
-%                   v_crystal_Cart = spec_to_u * v_spec
+% 1-- spec_to_u  Matrix (3x3)to convert momentum from coordinates in
+%                spectrometer frame to crystal Cartesian axes:
+%                v_crystal_Cart = spec_to_u * v_spec
 %
-%   u_to_rlu    Matrix (3x3) of crystal Cartesian axes in reciprocal lattice units
-%              i.e. u_to_rlu(:,1) first vector - u(1:3,1) r.l.u. etc.
-%              This matrix can be used to convert components of a vector in
-%              crystal Cartesian axes to r.l.u.:
+% 2-- u_to_rlu   Matrix (3x3) of crystal Cartesian axes in reciprocal lattice units
+%                i.e. u_to_rlu(:,1) first vector - u(1:3,1) r.l.u. etc.
+%                This matrix can be used to convert components of a vector in
+%                crystal Cartesian axes to r.l.u.:
 %                   v_rlu = u_to_rlu * v_crystal_Cart
-%              (Same as inv(B) in Busing and Levy convention)
+%               (Same as inv(B) in Busing and Levy convention)
 %
-%   spec_to_rlu Matrix (3x3) to convert from spectrometer coordinates to
+% 3-- spec_to_rlu Matrix (3x3) to convert from spectrometer coordinates to
 %              r.l.u.:
 %                   v_rlu = spec_to_rlu * v_spec
 %              (This matrix is entirely equivalent to u_to_rlu*spec_to_u)
@@ -36,12 +38,5 @@ function [spec_to_u, u_to_rlu, spec_to_rlu] = calc_proj_matrix (obj)
 %   gl          Large goniometer arc angle (rad)
 %   gs          Small goniometer arc angle (rad)
 
-% Get matrix to convert from rlu to orthonormal frame defined by u,v; and
-b_matrix  = obj.bmatrix();       % bmat takes Vrlu to V_crystal_Cart
-[~,u_matrix] = obj.ubmatrix(b_matrix);     % ubmat takes Vrlu to V in orthonormal frame defined by u, v
-%u_matrix  = ub_matrix / b_matrix;         % u matrix takes V in crystal Cartesian coordinates to orthonormal frame defined by u, v
 
-
-obj.angular_units = 'rad';
-[spec_to_u, u_to_rlu, spec_to_rlu] = ...
-    calc_proj_matrix(b_matrix,u_matrix, '', '', obj.psi, obj.omega, obj.dpsi, obj.gl, obj.gs);
+mat = calc_proj_matrix@Goniometer(obj,obj.alatt_,obj.angdeg_,n_matrix);

@@ -24,8 +24,6 @@ obj.pos_pixstart = obj.pos_pixstart(1:nfiles_to_leave);
 obj.npix_each_file= obj.npix_each_file(1:nfiles_to_leave);
 
 obj.num_pixels_ = uint64(sum(obj.npix_each_file));
-if ~isempty(obj.filenum_)
-    obj.filenum_ = obj.filenum_(1:nfiles_to_leave);
-end
+
 obj.do_check_combo_arg = true;
 obj = obj.check_combo_arg();
