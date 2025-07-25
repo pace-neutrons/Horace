@@ -55,7 +55,7 @@ classdef test_AxesBlockBase_methods < TestCase
             [nbins,s,e] = abt.init_accumulators(2,false);
             assertEqual(size(nbins),[10,20,30,5]);
             assertEqual(size(s),[10,20,30,5]);
-            assertEqual(size(e),[10,20,30,5]);
+            assertTrue(isempty(e));
         end
         
         function test_init_accumulators_1N_3Dopt(~)

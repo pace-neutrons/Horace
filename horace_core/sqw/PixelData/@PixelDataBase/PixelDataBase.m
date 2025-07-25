@@ -207,6 +207,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
 
     methods (Static)
         out_obj = cat(varargin);
+
         function isfb = do_filebacked(num_pixels, scale_fac)
             % function defines default rule to make pixels filebased or memory
             % based.
@@ -215,6 +216,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             end
             isfb = do_filebacked_(num_pixels, scale_fac);
         end
+
         function [filename,move_to_orig] = build_op_filename(original_fn,target_fn)
             % Build filename - target of an operation.
             %
@@ -296,6 +298,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
                 loc_range = minmax_ranges(current,loc_range);
             end
         end
+
         function idx = field_index(fld_name)
             % Return field indexes as function of the field name or
             % cellarray of field names
@@ -322,6 +325,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
                     'Actually input class is: %s'],class(fld_name));
             end
         end
+
         function format = get_memmap_format(num_pixels, tail)
             if nargin == 1
                 tail = 0;
