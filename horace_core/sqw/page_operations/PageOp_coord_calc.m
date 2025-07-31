@@ -8,7 +8,7 @@ classdef PageOp_coord_calc < PageOpBase
         % below
         op_type;
         % auxiliary index identifying number of the operation in the list of
-        % operations
+        % operations defined for this class to perform
         ind;
         % the projection, which transforms from pixels to image
         proj;

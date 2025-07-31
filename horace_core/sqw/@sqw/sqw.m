@@ -161,7 +161,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             wout=rebin_sqw(win,varargin{:});
         end
         wout=rebin_sqw(win,varargin);
-        % make special cut, which contains intstrument view of the input
+        % make special cut, which contains instrument view of the input
         % sqw object.
         wout = instrument_view_cut(win,varargin);
         % focusing projections?

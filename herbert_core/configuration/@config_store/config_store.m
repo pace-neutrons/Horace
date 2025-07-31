@@ -122,6 +122,13 @@ classdef config_store < handle
                 varargout{i} = out{i};
             end
         end
+        function set_value(obj,class_name,varargin)
+            % set value of config field directly in memory.
+            % Such configuration is not stored on disk so will disappear if
+            % configuration is returned to defaults
+            % 
+            set_config_field_value_(obj,class_name,varargin{:});
+        end
 
         function  varargout = get_config_field(this,class_to_restore, varargin)
             % Returns the values of the requested field(s) from the

@@ -16,7 +16,7 @@ please contact `our team <mailto:HoraceHelp@stfc.ac.uk>`__,
 and somebody will come back and try to help you answering your question.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    Introduction
    User_guide
