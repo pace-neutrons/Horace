@@ -266,7 +266,7 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             assertTrue(isempty(unique_id));
             assertTrue(isa(unique_id,'uint32'));
             assertTrue(isempty(pix_idx));
-            assertTrue(isa(pix_idx,'uint64'));
+            assertTrue(isa(pix_idx,'int64'));
             assertTrue(isempty(is_selected));
             assertTrue(isa(is_selected,'logical'));
 
