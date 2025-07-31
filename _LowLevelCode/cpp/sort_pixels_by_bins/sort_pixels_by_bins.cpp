@@ -1,39 +1,20 @@
 #include "sort_pixels_by_bins.h"
 #include "../utility/version.h"
 
-enum Input_Arguments {
-    Pixel_data,
-    Pixel_Indexes,
-    Pixel_Distribution,
-    keep_type,
-    N_INPUT_Arguments
-};
-enum Out_Arguments {
-    Pixels_Sorted,
-    Pixels_range,
-    N_OUTPUT_Arguments
-};
-/* What kind of input/output types the routine supports*/
-enum InputOutputTypes {
-    Pix8IndIOut8, // Double pixels, Int64 indexes, double output
-    Pix8IndDOut8, // Double pixels, Double indexes, double output
-    Pix4IndIOut8,
-    Pix4IndDOut8, // Float pixels Int64 indexes double output
-    Pix4IndIOut4, // Float pixels Int64 indexes float output
-    Pix4IndDOut4,
-    Pix4Ind4Out4, // float pixels float indexes, fload output
-    Pix4Ind4Out8, // float pixels float indexes, double output
-    Pix8Ind4Out8, // double pixels float indexes, double output
-    ERROR,
-    N_InputCases
-};
-enum InputIndexesType {
-    IndI64,  // input indexes are unit64 type
-    IndD64,  // input indexes are double64 type
-    IndF32,  // input indexes are float32 type.
-    N_InputIndexes
-};
 
+/** 
+* @brief
+* Given type of input pixels, input indices and explicit request for output
+* return type (from InputOutputTypes) used to select appropriate precision sorting proceduce
+*
+*@param float_pix  -- true if  pixels are single precision
+*@param index_type -- enum for possible supported index types
+*@param double_out -- boolean describing requested type of output
+*                     if true, output has to be converted to double, 
+*                     if false, keep exisiting type
+* @return
+// enumerated value defining the template to use for sorting pixels
+*/
 InputOutputTypes process_types(bool float_pix, InputIndexesType index_type, bool double_out)
 {
     if (float_pix) { // input pixels are single precision pix
@@ -244,7 +225,7 @@ std::string  verify_index_array(const mxArray* pix_cell_array_ptr, InputIndexesT
 !
 ! 1 -- cellarray of arrays of pixels for sorting
 ! 2 -- cellarray of arrays of indexes of pixels within cells (a cell has more then one pixel and all pixels within this cell have the same index)
-! 3 -- number of pixels in each cell  (densities)
+! 3 -- total numbers of pixels in each cell (densities, npix in Horace terminology)
 !
 /**********************************************************************************************/
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
