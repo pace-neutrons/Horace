@@ -8,7 +8,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % accumulator is requested.
         npix_acc_;
         % storage for PixelDataMemory class used as target for page of
-        % pixel data. Allocated to avoid reallcating it in each page
+        % pixel data. Allocated to avoid reallocating it in each page
         % operation.
         pix_page_;
         % properly contains information about pre-processed pixels
@@ -21,7 +21,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
         % be stored in file
         buf_size_;
         % cache for npix indices, defined here to access it from npix_data
-        % which does not have it as a standard input
+        % which does not have them as a standard input
         npix_idx_;
     end
 
@@ -37,7 +37,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %
             % Inputs:
             % obj       -- instance of PageOp_sqw_op class
-            % sqw_obj   -- intance of sqw object to perform operation on
+            % sqw_obj   -- instance of sqw object to perform operation on
             % operation -- function handle to the function constructed according
             %              to sqw_op function rules, which would perform
             %              the operation
@@ -137,7 +137,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % used to accumulate pixels.
             cut_data_from_file_job.accumulate_pix('cleanup');
 
-            % intialize pix_combine_info to store pixel data if one wants to
+            % initialize pix_combine_info to store pixel data if one wants to
             % store modified pixels
             wk_dir = get(parallel_config, 'working_directory');
             n_files = numel(npix_chunks);
@@ -216,7 +216,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %
             % Unlike parent operation this one does not store page data,
             % as page data storage works differently with binning and,
-            % if necessary, perforemed in apply_op
+            % if necessary, performed in apply_op
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
             % criteria for saving result here are different. Only
@@ -243,7 +243,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % Returns:
             % obj         -- modified object with pixels page currently in
             %                memory being modified by user operation and
-            %                image accumulators (signal and variane for
+            %                image accumulators (signal and variance for
             %                image being updated with modifies pixels
             %                signal and error.
             %

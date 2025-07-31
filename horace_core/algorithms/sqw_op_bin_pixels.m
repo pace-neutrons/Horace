@@ -149,16 +149,16 @@ if any(is_combine)
             'More then one input is interpreted as "combine" key. They are: %s', ...
             disp2str(varargin(is_key)));
     end
-    if is_combine(is_key) == 1 % key only syntaxis
+    if is_combine(is_key) == 1 % key only syntax
         combine_inputs = true;
         argi = varargin(~logical(is_combine));
     elseif is_combine(is_key) == 2
-        id = find(is_combine); %key-value syntaxis;
+        id = find(is_combine); %key-value syntax;
         combine_inputs = logical(varargin{id+1});
         is_combine(id)   = 1;
         is_combine(id+1) = 1;
         argi = varargin(~logical(is_combine));
-    else % no combine keys -- can not happen here. They have already indentified above
+    else % no combine keys -- can not happen here. They have already identified above
         error('HORACE:sqw_op_bin_pixels:runtime_error', ...
             'Unexpected combine_key value. Its a bug. Contact developers at HoraceHelp@stfc.ac.uk')
     end
