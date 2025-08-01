@@ -1,11 +1,31 @@
 function horace_init(no_banner)
 % Adds the paths needed by Horace.
 %
+%   >> horace_init
+%   >> horace_init(no_banner)
+%
 % Optional input:
+% ---------------
+%  no_banner    If true or 1: print welcome banner to screen
+%               if false or 0: don't print welcome banner
 %
-%  no_banner   -- if the variable is present, routine does not print the Horace
-%                 banner
-%
+%               Default: print banner
+
+
+% Check optional input argument
+if nargin~=0
+    if isscalar(no_banner) && (islogical(no_banner) || ...
+            (isnumeric(no_banner) && any(no_banner==[0,1])))
+        no_banner = logical(no_banner);
+    else
+        error('HERBERT:herbert_init:invalid_argument', ...
+            'Input argument ''no_banner'' must be true or false (or 1 or 0)')
+    end
+else
+    no_banner = false;
+end
+
+
 % -----------------------------------------------------------------------------
 % Check if supporting Herbert package is available
 if isempty(which('herbert_init'))
@@ -94,7 +114,7 @@ end
 % Beta version: Suppress warning occurring when old instrument is stored in
 % an sqw file and is automatically converted into MAPS
 warning('off','SQW_FILE:old_version')
-if nargin == 0
+if ~no_banner
     print_banner();
 end
 

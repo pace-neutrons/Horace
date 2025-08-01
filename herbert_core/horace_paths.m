@@ -16,8 +16,8 @@ classdef horace_paths
     % bm_common        - path to benchmarking data
     % bm_common_func   - path to common functions used by all benchmarking tests
     %
-    % Useage:
-    % -------
+    % Usage:
+    % ------
     % Get a particular path:
     %   >> root_path = horace_paths().root;     % get root path
     %
@@ -166,13 +166,5 @@ classdef horace_paths
             obj.root_path_    =  path_holder.root_path_;
         end
     end
-    
-    methods(Static)
-        function folder = get_folder(function_or_class)
-            % Past versions of horace_paths had this static method, and it is
-            % required if one is running horace_on to install such an earlier
-            % version of Horace. Therefore, do not remove this static method.
-            folder = fileparts(which(function_or_class));
-        end
-    end
+
 end

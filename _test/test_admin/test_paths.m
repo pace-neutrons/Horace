@@ -1,5 +1,5 @@
 classdef test_paths < TestCase
-    
+    % Test horace_paths
     properties
         paths
     end
@@ -15,18 +15,16 @@ classdef test_paths < TestCase
         end
                
         function obj = test_roots_same(obj)
+            % Test that the main Horace and Herbert folders are both in the root
+            % folder
             herbert_root = fileparts(obj.paths.herbert);
             horace_root = fileparts(obj.paths.horace);
             assertEqual(herbert_root, horace_root);
             assertEqual(obj.paths.root, horace_root);
         end
         
-        function obj = test_get_folder(obj)
-            curr_folder = obj.paths.get_folder('test_paths');
-            assertEqual(pwd(), curr_folder);
-        end
-        
         function obj = test_test_path(obj)
+            % Test that the test path is the same as the location of this test
             assertEqual(obj.paths.test, fileparts(fileparts(mfilename('fullpath'))));
         end
         

@@ -1,13 +1,41 @@
 function err = validate_horace(varargin)
-% Run unit tests on Horace installation
+% Run unit tests on a Horace installation
+% The tess
 %
-%   >> validate_horace                             %  Run full Horace validation
-%   >> validate_horace (foldname)                  %  Run Horace validation on the named folder
-%   >> validate_horace (foldname1, foldname2)      %  Run Horace validation on named folders
-%   >> validate_horace (foldname_cell)             %  Run Horace validation on the folders named
-%                                                  % in a cell array of names
+% Run full Horace validation:
 %
-% In addition, one of more options are allowed from the following
+%   >> validate_horace
+%
+% Run named tests:
+% (note: folder names are relative to the master test folder .../_test)
+% 
+%   >> validate_horace ('dirname')                      % Run all tests in the named folder
+%   >> validate_horace ('dirname/mfilename')            % Run all tests in the named test suite
+%                                                       % in the named folder
+%   >> validate_horace ('dirname/mfilename:testname')   % Run one particular test in the named
+%                                                       % test suite in the named folder
+%   >> validate_horace (arg1, arg2, ...)                % Run a sequence of tests, with any of
+%                                                       % the syntaxes above
+%   >> validate_horace (arg_cell)                       % Run a sequence of tests, with any of
+%                                                       % the syntaxes above in a cell array
+%
+% EXAMPLES
+%   >> validate_horace ('test_IX_classes')
+%
+%   >> validate_horace ('test_IX_classes/test_IX_axis')
+%
+%   >> validate_horace ('test_IX_classes/test_IX_axis')
+%
+%   >> validate_horace ('test_IX_classes/test_IX_axis:test_constructor')
+%
+%   >> validate_horace ('test_sym_op/test_sym_op', ...
+%                           'test_admin/test_paths:test_roots_same')
+%
+%   >> validate_horace ({'test_docify', 'test_IX_classes/test_plot_singleton'})
+%
+%
+% In addition, one or more of the following options can be used to control the
+% tests:
 %
 %   >> validate_horace (...'-parallel')            %  Enables parallel execution of unit tests
 %                                                  % if the parallel computer toolbox is available
@@ -29,7 +57,7 @@ function err = validate_horace(varargin)
 %                                                  % and run them in commonworkspace rather then
 %                                                  % each test folder separately
 %
-% Exits with non-zero error code if any tests failed
+% Exits with a non-zero error code if any tests failed
 
 if isempty(which('horace_init'))
     horace_on();
@@ -51,10 +79,10 @@ if ~ok
 end
 
 %==============================================================================
-% Place list of test folders here (relative to the master _test folder)
+% Place list of test folders here (relative to the )
 % -----------------------------------------------------------------------------
 if isempty(test_folders)
-    % No tests specified on command line - run them all
+    % No tests were specified on command line - run them all
     % read the tests from CMakeLists.txt
     [horace_tests, herbert_tests, system_tests] = read_tests_from_CMakeLists;
 
@@ -65,7 +93,6 @@ if isempty(test_folders)
     else
         test_folders = unique([herbert_tests, horace_tests], 'stable');
     end
-
 end
 
 if no_system
