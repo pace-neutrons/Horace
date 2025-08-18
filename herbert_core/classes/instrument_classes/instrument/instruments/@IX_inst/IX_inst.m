@@ -40,6 +40,27 @@ classdef IX_inst < hashable
         function rv = xxx(obj)
             rv = isa(obj,'IX_inst');
         end
+        
+        function mod = fill_missing_moderator(ds)
+        % temporary fix to moderator input while there is an upstream defect in moderator
+        % population. This code fills in "a" valid moderator. This is not intended to be used,
+        % rather it enables gen_sqw to reach the point where the user can populate the moderator 
+        % manually to fix the problem.
+        % Currently only a default MAPS moderator is coded, other instrument defaults will be
+        % added as and when they are found to be needed.
+            if isfield(ds,'name')
+                if (strcmp(ds.name.value,'MAPS'))
+                    instr = maps_instrument(300,250,'S');
+                    mod = instr.moderator;
+                else
+                    error('HORACE:IX_inst:invalid_argument', ...
+                          'instruments other than MAPS not yet included');
+                end
+            else
+                error('HORACE:IX_inst:invalid_argument', ...
+                      'name not given for instrument');
+            end
+        end
     end
     methods
         %------------------------------------------------------------------
