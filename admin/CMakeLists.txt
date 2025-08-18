@@ -46,3 +46,45 @@ install(
         "horace_install.m"
     DESTINATION "."
 )
+
+# Builds compiled worker
+find_program(
+    Matlab_MCC_COMPILER
+    "mcc"
+    PATHS ${Matlab_BINARIES_DIR}
+    NO_DEFAULT_PATH
+)
+if(Matlab_MCC_COMPILER)
+    # We need to copy horace|herbert_core to a new folder because mcc doesn't like empty or docify files
+    if(WIN32)
+        add_custom_command(
+            OUTPUT CTF
+            COMMAND powershell New-Item -ItemType Directory -Force -Path "CTF"
+            COMMAND powershell Copy-Item "${LOCAL_INIT_DIR}/worker_v2.m" "CTF"
+            COMMAND cmd /c (robocopy "${Horace_CORE}" CTF/Horace /s /nfl /ndl /nc /ns /np) ^& IF %ERRORLEVEL% LEQ 3 exit 0
+            COMMAND cmd /c (robocopy "${Herbert_CORE}" CTF/Herbert /s /nfl /ndl /nc /ns /np) ^& IF %ERRORLEVEL% LEQ 3 exit 0
+            COMMAND powershell -Command "& {Get-ChildItem CTF -recurse | where-object {$_.length -eq 0} | ?{Remove-Item $_.fullname} }"
+            COMMAND powershell -Command "& {Get-ChildItem CTF -recurse | where-object {$_.Name -match '_docify'} | ?{Remove-Item $_.fullname -recurse}}"
+            COMMAND powershell -Command "& {Get-ChildItem CTF -recurse | where-object {$_.Name -match '@*_old'} | ?{Remove-Item $_.fullname -recurse}}"
+        )
+    else()
+        add_custom_command(
+            OUTPUT CTF
+            COMMAND sh mkdir -p CTF
+            COMMAND sh cp -r "${Horace_CORE}" "${Herbert_CORE}" "${LOCAL_INIT_DIR}"/worker_v2.m CTF/
+            COMMAND sh find CTF -name _docify -o -name "@*_old" -o size 0 -exec rm -rf '{}' \;
+        )
+    endif()
+    add_custom_command(
+        OUTPUT compiled_worker.exe
+        COMMAND ${Matlab_MCC_COMPILER} -W main:compiled_worker -a CTF "${CMAKE_CURRENT_SOURCE_DIR}/compiled_worker.m"
+        DEPENDS CTF accumulate_cut_c bin_pixels_c calc_projections_c combine_sqw compute_pix_sums_c
+                hdf_mex_reader mtimesx_mex sort_pixels_by_bins
+    )
+    # Need to add a custom target here - build it with `cmake --build . --target build_worker`
+    add_custom_target(build_worker DEPENDS compiled_worker.exe)
+else()
+    add_custom_target(build_worker
+        COMMAND echo "Error: Matlab compiler mcc not found" && exit 1
+    )
+endif()
