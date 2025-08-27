@@ -10,7 +10,7 @@ classdef TestComponent < handle
     %
     %   TestComponent properties:
     %       Name - Name of test component
-    %       Location - Directory where test component is defined
+    %       Location - Directory where the test component is defined
     %
     %   See TestCase, TestSuite
 
@@ -20,11 +20,15 @@ classdef TestComponent < handle
 
     properties
         Name = '';
+        % Name of test component
+
         Location = '';
-        % If true, prings the names of rest cases beeing run in addition to
-        % normal test output. Useful for debugging test folders, failing on
-        % time-out. Default  - false;
+        % Directory where the test component is defined
+
         print_running_tests = false;
+        % If true, prints the names of test cases being run in addition to
+        % normal test output. Useful for debugging test folders when they fail
+        % on time-out.
     end
 
     properties(Constant)
@@ -65,7 +69,7 @@ classdef TestComponent < handle
             %   writers can override tearDown if necessary to clean up a test
             %   fixture.
         end
-        %
+        
         function name = getShortName(self)
             % return short name of the test component, if the test
             % component name was build from method name and class name using
@@ -77,7 +81,6 @@ classdef TestComponent < handle
                 name = cont{end};
             end
         end
-
 
     end
 end

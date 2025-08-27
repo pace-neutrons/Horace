@@ -239,7 +239,7 @@ classdef TestSuite < TestComponent
 
         end
 
-        function suite = fromName(name,folder)
+        function suite = fromName(name)
             %fromName Construct test suite from M-file name
             %   test_suite = TestSuite.fromName(name) constructs a TestSuite
             %   object from an M-file with the given name.  The name can be of a
@@ -257,9 +257,11 @@ classdef TestSuite < TestComponent
                 suite.gatherTestCases();
                 return;
             end
-            if nargin>1
+
+            [folder, name_without_folder] = split_folder_from_tests (name);
+            if exist(folder, 'dir')
                 suite = TestSuiteInDir(folder);
-                suite.add(TestSuite.fromName(name));
+                suite.add(TestSuite.fromName(name_without_folder));
                 return;
             end
 
@@ -281,7 +283,6 @@ classdef TestSuite < TestComponent
                 suite = TestSuite.fromPackageName(name);
 
             else
-
                 try
                     if nargout(name) == 0
                         suite = TestSuite();
@@ -388,15 +389,18 @@ classdef TestSuite < TestComponent
     end
 end
 
+%-------------------------------------------------------------------------------
 function tf = isPackage(name)
 tf = ~isempty(meta.package.fromName(name));
 end
 
+%-------------------------------------------------------------------------------
 function methods = getClassMethods(class_name)
 class_meta = meta.class.fromName(class_name);
 methods = class_meta.Methods;
 end
 
+%-------------------------------------------------------------------------------
 function result = methodIsConstructor(method)
 method_name = method.Name;
 if ~isempty(method.DefiningClass.ContainingPackage)
@@ -404,4 +408,37 @@ if ~isempty(method.DefiningClass.ContainingPackage)
         method_name];
 end
 result = strcmp(method_name, method.DefiningClass.Name);
+end
+
+%-------------------------------------------------------------------------------
+function [folder, name] = split_folder_from_tests (arg)
+% Attempt to split into a folder and mfilename with the form
+%   folder/mfilename
+%   folder/mfilename:testname
+
+
+% Find occurences of ':'. These could be because the input has a full path on a
+% Windows computer, and/or a single test name within a test suite (which is
+% demarcated by ':' or '::')
+ddot_ind = strfind(arg,':');
+
+% Skip over disk in full path if PC
+if ispc && ~isempty(ddot_ind) && numel(arg)>=3 && any(strcmp(arg(2:3),{':\', ':/'}))
+    % Begins '*:\' or '*:/' as would be expected if arg has a full Windows path
+    ddot_ind = ddot_ind(2:end);     % indices of any remaining ':'
+end
+
+% Get test folder and test file name
+if ~isempty(ddot_ind)
+    % This demarcates a particular test case within the mfile
+    full_file = arg(1:ddot_ind(1)-1);
+    test_case = arg(ddot_ind(1):end);
+else
+    full_file = arg;
+    test_case = '';
+end
+
+[folder, file] = fileparts(full_file);
+name = [file, test_case];   % re-append particular test, if present
+
 end

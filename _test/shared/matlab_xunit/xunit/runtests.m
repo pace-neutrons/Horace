@@ -101,16 +101,12 @@ function [out, suite_out] = runtests(varargin)
 [name_list, verbose, logfile, disp_fail_only] = getInputNames(varargin{:});
 if numel(name_list) == 0
     suite = TestSuite.fromPwd();
+elseif isscalar(name_list)
+    suite = TestSuite.fromName(name_list{1});
 else
     suite = TestSuite();
     for k = 1:numel(name_list)
-        if iscell(name_list{k})
-            test_folder = name_list{k}{1};
-            test_suite = name_list{k}{2};
-            suite.add(TestSuite.fromName(test_suite, test_folder));
-        else
-            suite.add(TestSuite.fromName(name_list{k}));
-        end
+        suite.add(TestSuite.fromName(name_list{k}));
     end
 end
 
@@ -131,6 +127,7 @@ else
 end
 
 fprintf(logfile_handle,[ ...
+    '======================================================================\n',...
     '**********************************************************************\n',...
     '*** Test suite         : %s\n'], suite.Name);
 if ~strcmp(suite.Name, suite.Location)
@@ -193,45 +190,8 @@ while k <= numel(varargin)
             warning('runtests:unrecognizedOption', 'Unrecognized option: %s', arg);
         end
     else
-        if exist(arg,'dir') == 7
-            name_list{end+1} = arg;
-        else
-            [test_folder, test_suite] = split_folder_and_tests (arg);
-            if isempty(test_folder)
-                name_list{end+1} = test_suite;
-            else
-                name_list{end+1} = {test_folder,test_suite};
-            end
-        end
+        name_list{end+1} = arg;
     end
     k = k + 1;
 end
-end
-
-
-%-------------------------------------------------------------------------------
-function [test_folder, test_suite] = split_folder_and_tests (arg)
-
-% Find occurences of ':'. These could be because the input has a full path on a
-% Windows computer, and/or a single test name within a test suite (which is
-% demarcated by ':' or '::')
-ddot_ind = strfind(arg,':');
-
-% Skip over disk in full path if PC
-if ispc && ~isempty(ddot_ind) && numel(arg)>=3 && any(strcmp(arg(2:3),{':\', ':/'}))
-    % Begins '*:\' or ':/' as would be expected if arg has a full Windows path
-    ddot_ind = ddot_ind(2:end);     % indices of any remaining ':'
-end
-
-% Get test folder and test suite name
-if ~isempty(ddot_ind)
-    test_suite_fullname = arg(1:ddot_ind(1)-1);
-    test_name = arg(ddot_ind(1):end);
-else
-    test_suite_fullname = arg;
-    test_name = '';
-end
-[test_folder, test_suite_name] = fileparts(test_suite_fullname);
-test_suite = [test_suite_name, test_name];   % re-append particular test, if present
-
 end
