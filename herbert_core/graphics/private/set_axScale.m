@@ -15,5 +15,5 @@ genieplot.set(name, axScale);
 
 % Change current axes on the figure (if there is such a figure window and axes)
 if ~isempty(get(groot,'CurrentFigure')) && ~isempty(get(gcf,'CurrentAxes'))
-    set (gca, 'XScale', axScale);
+    set (gca, name, axScale);
 end

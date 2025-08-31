@@ -183,12 +183,16 @@ classdef test_plot_IX_dataset_3 < TestCase
             % Until we can find a way of changing Matlab behaviour in a robut
             % way, catch this test.
             % The following will be interpreted as >> aline
-            clWarn = set_temporary_warning('off','MATLAB:colon:operandsNotRealScalar');
-            aline  :  0.5;
-            styles = genieplot.get('line_styles');
-            widths = genieplot.get('line_widths');
-            assertFalse(isequal(styles, ':'), 'Mysteriously now working ???')
-            assertFalse(isequal(widths, '0.5'), 'Mysteriously now working ???')
+            if verLessThan('matlab', '25.1')
+                % As of R2025a it is an error that is thrown, not just a warning
+                % Skip this test for R2025a and later
+                clWarn = set_temporary_warning('off','MATLAB:colon:operandsNotRealScalar');
+                aline  :  0.5;
+                styles = genieplot.get('line_styles');
+                widths = genieplot.get('line_widths');
+                assertFalse(isequal(styles, ':'), 'Mysteriously now working ???')
+                assertFalse(isequal(widths, '0.5'), 'Mysteriously now working ???')
+            end
 
             % This will work:
             aline ':' 0.5
