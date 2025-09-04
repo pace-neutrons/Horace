@@ -99,4 +99,18 @@ It is assumed that any existing sqw files will self-identify as faccess_sqw_v4 a
 be read by Horace through those accessors (via the should_load method). 
 New files created will be written as v5 and subsequently read by them as they identify as v5. To make v5 the default accessor for new files, `horace_core\sqw\file_io\sqw_formats_factory` should be modified to add v5 to the list of supported accessors. This should then be used for files of type 1 (sqw and sqw2). Other file types are unaffected by the changes here, which are only due to pixel file storage - they are DnD types where there is only image data.
 
+## Refactoring
 
+For the get_pix_ and put_pix methods, these are within the faccess class and will
+automatically updated to use v5 when called. The PixelDataFileBacked version however
+uses memmapfile within the init_from_file_accessor_ method of the PixelData object, 
+which transfers ownership of this specialisation outside the faccess class. While the 
+present plan does not require using memmapfile, it will be good to have an option for 
+using it within get_pix_. This can be experimented with once the basic implementation
+with direct primary read is in place. At that point Alex' suggestion of a PixelData 
+processing factory can be considered.
+
+## Optimization
+
+Alex points out that the pixel decompression process may be slow, negating the 
+advantages of compression, and that it should be done in a separate thread.
