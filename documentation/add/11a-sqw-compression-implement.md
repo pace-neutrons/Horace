@@ -87,6 +87,16 @@ disk. Consequently the memmapfile method cannot now obviously be used, and the o
 pre-v4 straight read used instead. The symmetry between formats on reading and writing
 should still be honoured.
 
+### Other locations
+
+Note that the get and put methods noted above in faccess_sqw_v4 are duplicated in
+sqw_file_formatters in the directories below. It is not clear if they are used; they do
+not appear to be called in any of the test suite.
+
+## Construction of the new faccess
+
+It is assumed that any existing sqw files will self-identify as faccess_sqw_v4 and
+be read by Horace through those accessors (via the should_load method). 
+New files created will be written as v5 and subsequently read by them as they identify as v5. To make v5 the default accessor for new files, `horace_core\sqw\file_io\sqw_formats_factory` should be modified to add v5 to the list of supported accessors. This should then be used for files of type 1 (sqw and sqw2). Other file types are unaffected by the changes here, which are only due to pixel file storage - they are DnD types where there is only image data.
 
 
-another method `get_pix` also exists but 
