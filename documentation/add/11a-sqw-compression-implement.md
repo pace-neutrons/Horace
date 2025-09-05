@@ -122,6 +122,8 @@ reading. Hence no format converter is proposed.
 
 ## Refactoring and optimization
 
+### Removal of couping between PixelData and faccess_sqw due to memmapfile
+
 For the get_pix_ and put_pix methods, these are within the faccess class and will
 automatically updated to use v5 when called. The PixelDataFileBacked version however
 uses memmapfile within the init_from_file_accessor_ method of the PixelData object, 
@@ -130,6 +132,8 @@ that the existing memmapfile usage be repackaged inside the get_pix_ method if i
 replaced. While the present plan does not require using memmapfile, it will be good to 
 have an option for using it within get_pix_. This can be experimented with once the basic 
 implementation with direct primary read is in place. 
+
+### Threading to parallelize read and decompression
 
 Alex points out that the pixel decompression process may be slow, negating the 
 advantages of compression, and that it should be done in a separate thread. In fact 
@@ -148,5 +152,14 @@ also in parallel with the read/decompress process. This would be part of a large
 project which is beyond the scope of this document.
 
 Alex proposes that the threading only be done in mex-C++ with the parent Matlab code strictly
-sequential. Consequently any threading in Matlab is not specified. In C++ there are now
-native threads.
+sequential. Consequently any the choice of any threading method in Matlab is not specified. 
+In C++ there are now native threads.
+
+### Caching of vector intermediates in calculate_qw_pixels2
+
+The recruitment of the calculate_qw_pixels2 method for the decompression raises the issue 
+of recalculation of detector vector properties, i.e. the scattering and final wavevectors.
+The detector bank stores the detector orientation as angles (polar, azimuthal) and conversion
+to unit vectors requires evaluation of their trigonometric functions possibly multiple times.
+The cost of these conversions can be reduced by caching their results up front before the
+read/decompression cycle commences.
