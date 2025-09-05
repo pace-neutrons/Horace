@@ -27,7 +27,7 @@ Thus 4 fields are eliminated and 3 fields are compressed to 1, leaving 3 fields 
 
 ## Implementation of compression
 
-A method on the sqw class nindex = compress_pixels(win,[qx,qy,qz,E,irun,idet,ien],ibegin,iend)
+A method on the sqw class nindex = compress_pixels(win,\[qx,qy,qz,E,irun,idet,ien],ibegin,iend)
 where win is the containing sqw object for the pixels, will perform the above compression.
 win provides the parameters nrun, ndet and nen. ibegin and iend are the first and last pixel
 indices to be compressed by this call; the reason for including this is given below.
@@ -163,3 +163,15 @@ The detector bank stores the detector orientation as angles (polar, azimuthal) a
 to unit vectors requires evaluation of their trigonometric functions possibly multiple times.
 The cost of these conversions can be reduced by caching their results up front before the
 read/decompression cycle commences.
+
+Refactoring in this way requires
+   - rewriting caculate_qw_pixels2 to use the cached values
+   - an initialiser object before all decompressions to evaluate and store the cached values.
+\[NB the actual cached quantities are not identified at this point].
+This need for initialisation and storage suggests (as per Alex' suggestion) introduction
+of a specific pixel faccess object factored out from the main faccess object. This object
+could also manage the threading described above.
+
+The resulting pixel faccess object can then be be factored out from faccess_sqw_v4 providing
+an alternative way of relating the v4 and v5 faccess objects.
+
