@@ -180,7 +180,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             % command syntax is ambiguous if there are further
             % characters, as e.g. >> aline : 0.5 is seem as a syntax warning
             % and >> aline - 0.5 is a valid arithmetic statement.
-            % Until we can find a way of changing Matlab behaviour in a robut
+            % Until we can find a way of changing Matlab behaviour in a robust
             % way, catch this test.
             % The following will be interpreted as >> aline
             if verLessThan('matlab', '25.1')
@@ -404,7 +404,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             % The cases of using '+'   '*'   '^'   '>'   '<'   '|'  with
             % command syntax is ambiguous if there are further
             % characters, as e.g. >> amark + 4.5 is a valid arithmetic statement.
-            % Until we can find a way of changing Matlab behaviour in a robut
+            % Until we can find a way of changing Matlab behaviour in a robust
             % way, catch this test.
             % The following will be interpreted as >> aline
             amark  +  4.5;
