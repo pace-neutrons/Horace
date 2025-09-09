@@ -87,8 +87,8 @@ classdef test_plot_IX_dataset_3 < TestCase
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
-            aline (2.718)
-            genie_line_properties_test([], 2.718);
+            aline (2.719)
+            genie_line_properties_test([], 2.719);
         end
 
         function test_aline_setScalarStyleName(~)
