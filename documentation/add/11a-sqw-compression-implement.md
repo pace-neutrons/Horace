@@ -13,6 +13,8 @@ Topics discussed:
 
 ## Method of compression
 
+### Field reduction
+
 Currently 9 fields per pixel are stored in memory and written to file
    - qx, qy, qz, E (4 fields describing the wave-vector and energy of the pixel)
    - irun, idet, ien (3 fields describing the run, detector and energy parameters)
@@ -23,6 +25,10 @@ The irun,idet,ien triplet can be compressed into a single integer via
    - nindex = irun + nrun*(idet-1 + ndet*(ien-1))
 where nrun, ndet and nen are the maximum values in the set of irun, idet and ien.
 Thus 4 fields are eliminated and 3 fields are compressed to 1, leaving 3 fields net.
+
+### Removal of zero signal pixels
+
+A significantly large number of pixles
 
 ## Implementation of compression
 
