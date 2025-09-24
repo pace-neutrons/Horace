@@ -169,12 +169,20 @@ classdef TestRunDisplay < TestRunMonitor
 
             if did_pass
                 result = 'PASSED';
-                screen_outputID = 1;   % standard output to screen
+                if self.FileHandle > 2  % file output
+                    fid = self.FileHandle;
+                else
+                    fid = 1;   % standard output to screen
+                end
             else
                 result = 'FAILED';
-                screen_outputID = 2;   % standard error output to screen
+                if self.FileHandle > 2  % file output
+                    fid = self.FileHandle;
+                else
+                    fid = 2;   % standard error output to screen
+                end
             end
-            fprintf(screen_outputID, ['\n',...
+            fprintf(fid, ['\n',...
                 '**********************************************************************\n',...
                 '*** %s in %.3f seconds, %d tests skipped.\n',...
                 '**********************************************************************\n',...

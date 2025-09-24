@@ -1,25 +1,55 @@
 function err = validate_horace(varargin)
-% Run unit tests on a Horace installation
-% The tess
+% Runs some or all of the unit tests on a Horace installation.
 %
-% Run full Horace validation:
+% It is recommended to use validate_horace rather than the xunit function runtests
+% as this will ensure that the horace configurations, warning state and working
+% directory are returned to their initial states regardless of any changes that
+% the tests may have made or if errors are thrown. This is not necessarily the
+% case if the tests are run directly using runtests.
+%
+% Remember to ensure that the Horace configuration parameter 'init_tests' has
+% been set to true before calling validate_horace:
+%
+%   >> set(hor_config, 'init_tests', 1)
+%
+%
+% Usage:
+% ======
+% Run the full Horace validation suite of tests, from any location:
 %
 %   >> validate_horace
 %
-% Run named tests:
-% (note: folder names are relative to the master test folder .../_test)
+%
+% Run named tests from any location:
+% Folder names are always relative to the master Horace test folder, <root_dir>/_test)
 % 
-%   >> validate_horace ('dirname')                      % Run all tests in the named folder
-%   >> validate_horace ('dirname/mfilename')            % Run all tests in the named test suite
+%   >> validate_horace ('dirname')                      %  Run all tests in the named folder
+%   >> validate_horace ('dirname/mfilename')            %  Run all tests in the named test suite
 %                                                       % in the named folder
-%   >> validate_horace ('dirname/mfilename:testname')   % Run one particular test in the named
+%   >> validate_horace ('dirname/mfilename:testname')   %  Run one particular test in the named
 %                                                       % test suite in the named folder
-%   >> validate_horace (arg1, arg2, ...)                % Run a sequence of tests, with any of
+%   >> validate_horace (arg1, arg2, ...)                %  Run a sequence of tests, with any of
 %                                                       % the syntaxes above
-%   >> validate_horace (arg_cell)                       % Run a sequence of tests, with any of
+%   >> validate_horace ({arg1, arg2,})                  %  Run a sequence of tests, with any of
 %                                                       % the syntaxes above in a cell array
 %
-% EXAMPLES
+%
+% Run tests that are in the present working directory:
+%   >> validate_horace ('mfilename')                    %  Run all tests in the named test suite
+%   >> validate_horace ('mfilename:testname')           %  Run one particular test in the named
+%
+%   [Note that if mfilename is the same as the name as a test folder in the
+%   master Horace test folder, <root_dir>/_test), then the ambiguity is resolved
+%   in favour of performing all the tests in the test folder. For example, there
+%   is a folder c:\myprogs\horace\_test\test_rebin in the Horace test suite. If
+%   your pwd contains an m-file called test_rebin.m, then 
+%       >> validate_horace ('test_rebin')
+%   will run all the test suites in the folder c:\myprogs\horace\_test\test_rebin
+%   rather than the test suite in test_rebin.m in the pwd.]
+%   
+%
+% Esamples:
+% =========
 %   >> validate_horace ('test_IX_classes')
 %
 %   >> validate_horace ('test_IX_classes/test_IX_axis')
@@ -28,13 +58,13 @@ function err = validate_horace(varargin)
 %
 %   >> validate_horace ('test_IX_classes/test_IX_axis:test_constructor')
 %
-%   >> validate_horace ('test_sym_op/test_sym_op', ...
+%   >> validate_horace ('test_sym_op/test_cut_sqw_sym', ...
 %                           'test_admin/test_paths:test_roots_same')
 %
 %   >> validate_horace ({'test_docify', 'test_IX_classes/test_plot_singleton'})
 %
 %
-% In addition, one or more of the following options can be used to control the
+% In addition, any one or more of the following options can be used to control the
 % tests:
 %
 %   >> validate_horace (...'-parallel')            %  Enables parallel execution of unit tests
@@ -54,7 +84,7 @@ function err = validate_horace(varargin)
 %   >> validate_horace (...'-herbert_only')        %  Run only tests related to herbert_core
 %   >> validate_horace (...'-horace_only')         %  Run only tests related to horace_core
 %   >> validate_horace (...'-combine_all')         % Combine all requested tests together
-%                                                  % and run them in commonworkspace rather then
+%                                                  % and run them in common workspace rather then
 %                                                  % each test folder separately
 %
 % Exits with a non-zero error code if any tests failed
@@ -66,24 +96,22 @@ end
             
 % Parse arguments
 % ---------------
+% Get value of options and which tests to perform if different from the default.
 options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',...
     '-disp_skipped','-exit_on_completion','-no_system_tests',...
     '-herbert_only', '-horace_only','-combine_all'};
 [ok, mess, parallel, talkative, nomex, forcemex, ...
     disp_skipped, exit_on_completion, no_system, ...
-    herbert_only, horace_only,combine_all, test_folders] = ...
+    herbert_only, horace_only, combine_all, test_folders] = ...
     parse_char_options(varargin, options);
 
 if ~ok
     error('HORACE:validate_horace:invalid_argument', mess)
 end
 
-%==============================================================================
-% Place list of test folders here (relative to the )
-% -----------------------------------------------------------------------------
 if isempty(test_folders)
-    % No tests were specified on command line - run them all
-    % read the tests from CMakeLists.txt
+    % No tests were specified on command line - so run them all.
+    % Read the tests from CMakeLists.txt
     [horace_tests, herbert_tests, system_tests] = read_tests_from_CMakeLists;
 
     if herbert_only && ~horace_only
@@ -100,32 +128,34 @@ if no_system
     test_folders = test_folders(no_sys);
 end
 
+
+% Prepare for performing tests
+% ----------------------------
 % Generate full test paths to unit tests
-% --------------------------------------
 pths = horace_paths;
 test_path = pths.test;
-test_folders_full = fullfile(test_path, test_folders);
+test_folders_full = cellfun(@(x)(validate_horace_convert_arg(test_path, x)), ...
+    test_folders, 'UniformOutput', false);
+% test_folders_full = fullfile(test_path, test_folders);
 
+% Get instances of the current configurations of Horace and Herbert.
 hor = hor_config();
 hpc = hpc_config();
 par = parallel_config();
-% Validation must always return Horace and Herbert to their initial states,
-% regardless of any changes made in the test routines
 
-% On exit always revert to initial Horace and Herbert configurations
-% ------------------------------------------------------------------
-initial_warn_state = warning();
-warning('off', 'MATLAB:class:DestructorError');
-
-% only get the public i.e. not sealed, fields
+% Extract the public (i.e. not sealed) fields
 cur_horace_config = hor.get_data_to_store();
 cur_hpc_config = hpc.get_data_to_store();
 cur_par_config = par.get_data_to_store();
 
-% remove configurations from memory. Ensure only stored configurations are
-% stored
+% Turn off a class destructor error warning and remove configurations from
+% memory. Ensures only stored configurations are retained.
+initial_warn_state = warning();     % hold the current warning state
+warning('off', 'MATLAB:class:DestructorError');
 clear config_store;
 
+% Validation must always return Horace and Herbert to their initial states,
+% regardless of any changes made in the test routines.
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
 cleanup_obj = onCleanup(@() ...
     validate_horace_cleanup(cur_horace_config, ...
@@ -133,6 +163,7 @@ cleanup_obj = onCleanup(@() ...
     cur_par_config, ...
     test_folders, ...
     initial_warn_state));
+
 
 % Run unit tests
 % --------------
@@ -165,7 +196,6 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
 
 else
-
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
     if combine_all

@@ -258,10 +258,25 @@ classdef TestSuite < TestComponent
                 return;
             end
 
-            [folder, name_without_folder] = split_folder_from_tests (name);
-            if exist(folder, 'dir')
-                suite = TestSuiteInDir(folder);
-                suite.add(TestSuite.fromName(name_without_folder));
+            % name is not a folder so, if it is valid at all, it must be an
+            % mfile name, with or without a folder too, and with or without a test
+            % instance i.e. 
+            %   mfile,  mfile:testname,  folder/mfile  or  folder/mfile:testname
+            % Parse as such.
+            [folder, file, name_without_folder] = split_folder_from_tests (name);
+            if ~isempty(folder)
+                if exist(folder, 'dir') && exist(fullfile(folder,[file,'.m']), 'file')
+                    % We explicitly demand that the file is in the named directory;
+                    % the extra check here is because TestSuite.fromName will look
+                    % on the entire Matlab path.
+                    suite = TestSuiteInDir(folder);
+                    suite.add(TestSuite.fromName(name_without_folder));
+                else
+                    % Folder does not exist or there is not an m-file named
+                    % name_without_folder in the folder. Create an empty test suite.
+                    suite = TestSuite();
+                    suite.Name = name;
+                end
                 return;
             end
 
@@ -411,10 +426,17 @@ result = strcmp(method_name, method.DefiningClass.Name);
 end
 
 %-------------------------------------------------------------------------------
-function [folder, name] = split_folder_from_tests (arg)
+function [folder, file, name] = split_folder_from_tests (arg)
 % Attempt to split into a folder and mfilename with the form
-%   folder/mfilename
-%   folder/mfilename:testname
+%   folder/mfile
+%   folder/mfile:testname
+%
+% Returns
+%   folder      The name of the folder
+%   file        The name of the mfile
+%   name        The name of the test. This could be one of
+%               - mfile
+%               - mfile:testname
 
 
 % Find occurences of ':'. These could be because the input has a full path on a
