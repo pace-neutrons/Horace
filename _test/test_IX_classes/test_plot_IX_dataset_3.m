@@ -87,8 +87,8 @@ classdef test_plot_IX_dataset_3 < TestCase
             genieplot.reset
             genieplot_initialise('fast')    % initialise to some unlikely values
             % Test proper:
-            aline (2.718)
-            genie_line_properties_test([], 2.718);
+            aline (2.719)
+            genie_line_properties_test([], 2.719);
         end
 
         function test_aline_setScalarStyleName(~)
@@ -180,15 +180,19 @@ classdef test_plot_IX_dataset_3 < TestCase
             % command syntax is ambiguous if there are further
             % characters, as e.g. >> aline : 0.5 is seem as a syntax warning
             % and >> aline - 0.5 is a valid arithmetic statement.
-            % Until we can find a way of changing Matlab behaviour in a robut
+            % Until we can find a way of changing Matlab behaviour in a robust
             % way, catch this test.
             % The following will be interpreted as >> aline
-            clWarn = set_temporary_warning('off','MATLAB:colon:operandsNotRealScalar');
-            aline  :  0.5;
-            styles = genieplot.get('line_styles');
-            widths = genieplot.get('line_widths');
-            assertFalse(isequal(styles, ':'), 'Mysteriously now working ???')
-            assertFalse(isequal(widths, '0.5'), 'Mysteriously now working ???')
+            if verLessThan('matlab', '25.1')
+                % As of R2025a it is an error that is thrown, not just a warning
+                % Skip this test for R2025a and later
+                clWarn = set_temporary_warning('off','MATLAB:colon:operandsNotRealScalar');
+                aline  :  0.5;
+                styles = genieplot.get('line_styles');
+                widths = genieplot.get('line_widths');
+                assertFalse(isequal(styles, ':'), 'Mysteriously now working ???')
+                assertFalse(isequal(widths, '0.5'), 'Mysteriously now working ???')
+            end
 
             % This will work:
             aline ':' 0.5
@@ -400,7 +404,7 @@ classdef test_plot_IX_dataset_3 < TestCase
             % The cases of using '+'   '*'   '^'   '>'   '<'   '|'  with
             % command syntax is ambiguous if there are further
             % characters, as e.g. >> amark + 4.5 is a valid arithmetic statement.
-            % Until we can find a way of changing Matlab behaviour in a robut
+            % Until we can find a way of changing Matlab behaviour in a robust
             % way, catch this test.
             % The following will be interpreted as >> aline
             amark  +  4.5;
