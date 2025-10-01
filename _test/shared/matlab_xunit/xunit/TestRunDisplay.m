@@ -167,6 +167,7 @@ classdef TestRunDisplay < TestRunMonitor
             %    obj.testRunFinished(component) displays information about the test
             %    run results, including any test failures, to the Command Window.
 
+            % Print message in red if failed and writing to screen
             if did_pass
                 result = 'PASSED';
                 if self.FileHandle > 2  % file output
@@ -185,9 +186,17 @@ classdef TestRunDisplay < TestRunMonitor
             fprintf(fid, ['\n',...
                 '**********************************************************************\n',...
                 '*** %s in %.3f seconds, %d tests skipped.\n',...
-                '**********************************************************************\n',...
-                '======================================================================\n\n'], ...
+                '**********************************************************************\n'],...
                 result, toc(self.InitialTic), self.NumSkips);
+
+            % Terminating line in default colour if writing to screen,
+            % independent of passed or failed
+            if self.FileHandle > 2  % file output
+                fid = self.FileHandle;
+            else
+                fid = 1;   % standard output to screen
+            end
+            fprintf(fid, '======================================================================\n\n');
 
             self.displayFaults(did_pass);
         end

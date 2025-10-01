@@ -1,15 +1,80 @@
-function [horace_tests, herbert_tests, system_tests] = read_tests_from_CMakeLists
-% Read CMakeLists.txt on the Horace tests path and extract all tests
+function [herbert_tests, herbert_system_tests, horace_tests, horace_system_tests] = ...
+    read_tests_from_CMakeLists (CMakeLists_file)
+% Extract all tests from CMakeLists.txt in the input folder name that are in one
+% of the four CMake variables:
+%    - HERBERT_TESTS         (Herbert code unit tests)
+%    - HERBERT_SYSTEM_TESTS  (Herbert code system tests)
+%    - HORACE_TESTS          (Horace code unit tests)
+%    - HORACE_SYSTEM_TESTS   (Horace code system tests)
+%
+% Input:
+% ------
+%   CMakeLists_path     Path to the folder containing the CMakeLists.txt file
+%                       that is to be read. This must define the four variables
+%                       above.
+%
+%                       See CMakeLists.txt in the root tests folder in the
+%                       Horace installation <Horace_root>/_test for an example.
+%
+%                       Note:
+%                       - A given test should only appear in one of the variables.
+%                        Later filtering of tests on the basis of being herbert,
+%                        horace or system tests may otherwise result in
+%                        unexpected tests being run.
+%                       - Do not put tests in any other variables in
+%                        CMakeLists.txt, because they will not be returned by
+%                        this function.
+%
+% Output:
+% -------
+%   herbert_tests       Cell array of character vectors with the tests in the
+%                       CMake variable HERBERT_TESTS. (Row vector)
+%
+%   herbert_system_tests Cell array of character vectors with the tests in the
+%                       CMake variable HERBERT_SYSTEM_TESTS. (Row vector)
+%
+%   horace_tests        Cell array of character vectors with the tests in the
+%                       CMake variable HORACE_TESTS. (Row vector)
+%
+%   horace_system_tests Cell array of character vectors with the tests in the
+%                       CMake variable HORACE_SYSTEM_TESTS. (Row vector)
+%
+%
+% EXAMPLE of CMakeLists.TXt
+%   The opening lines in CMakeLists.txt could be:
+%
+%         set(HERBERT_TESTS
+%             "test_admin"
+%             "test_data_loaders"
+%                 :
+%             "test_mpi_wrappers"
+%         )
+% 
+%         set(HERBERT_SYSTEM_TESTS
+%             "test_mpi/test_ParpoolMPI_Framework"
+%                 :
+%             "test_mpi/test_job_dispatcher_slurm"
+%         )
+% 
+%         set(HORACE_TESTS
+%             "test_algorithms"
+%             "test_ascii_column_data"
+%                 :
+%             "test_multifit"
+%         )
+% 
+%         set(HORACE_SYSTEM_TESTS
+%             "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
+%                 :
+%             "test_TF_refine_crystal"
+%         )
+%                 :
 
-test_path = horace_paths().test;
-filename = fullfile(test_path, 'CMakeLists.txt');
-% filename = 'T:\matlab\Work\PACE\1871-validate_horace\crap.txt';
-
-txt = read_text_file_as_string (filename);
+txt = read_text_file_as_string (CMakeLists_file);
 herbert_tests = get_tests_from_string (txt, 'HERBERT_TESTS');
-herbert_system_tests = get_tests_from_string (txt, 'HERBERT_TESTS');
+herbert_system_tests = get_tests_from_string (txt, 'HERBERT_SYSTEM_TESTS');
 horace_tests = get_tests_from_string (txt, 'HORACE_TESTS');
-horace_system_tests = get_tests_from_string (txt, 'HORACE_TESTS');
+horace_system_tests = get_tests_from_string (txt, 'HORACE_SYSTEM_TESTS');
 
 system_tests = [herbert_system_tests, horace_system_tests];
 

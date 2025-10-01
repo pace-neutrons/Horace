@@ -13,8 +13,9 @@
 # ===  and whether or not to include the system tests                  ===
 # ===                                                                  ===
 # ===  A given test should only appear in one of the variables.        ===
-# ===  It doesn't do any harm to appear more than one, but the         ===
-# ===  tests will be unnecessarily repeated by CMake.                  ===
+# ===  Later filtering of tests on the basis of being herbert,         ===
+# ===  horace or system tests may otherwise result in unexpected       ===
+# ===  tests being run.                                                ===
 # ===                                                                  ===
 # ===  Do not put tests in any other variables, because otherwise      ===
 # ===  validate_horace will not run them.                              ===
