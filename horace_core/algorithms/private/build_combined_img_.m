@@ -53,9 +53,16 @@ if combine_in_parallel
 
     %
     if n_failed == 0
-        s_accum = outputs{1}.s;
-        e_accum = outputs{1}.e;
-        npix_accum = outputs{1}.npix;
+        if ~iscell(outputs)
+            fprintf('***  Parallel job have not failed but output is different from expected:\n')
+            disp(outputs);
+            error('HORACE:write_nsqw_to_sqw:runtime_error', ...
+                'Parallel job returned unexpected output');
+        else
+            s_accum = outputs{1}.s;
+            e_accum = outputs{1}.e;
+            npix_accum = outputs{1}.npix;
+        end
     else
         job_disp.display_fail_job_results(outputs,n_failed,n_workers, ...
             'HORACE:write_nsqw_to_sqw:runtime_error');
