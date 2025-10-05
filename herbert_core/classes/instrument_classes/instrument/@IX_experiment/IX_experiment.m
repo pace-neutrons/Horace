@@ -125,7 +125,7 @@ classdef IX_experiment < Goniometer
             % retrieve all run_ids, which may be present in the array of
             % rundata objects
             ind = 1:numel(obj);
-            ids = arrayfun(@(in)(uint32(obj(in).run_id_)),ind);
+            ids = arrayfun(@(in)(double(obj(in).run_id_)),ind);
         end
         function idmap = get_runid_map(obj)
             % retrieve all run_ids, which may be present in the array of
