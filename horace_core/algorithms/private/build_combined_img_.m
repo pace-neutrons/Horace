@@ -56,8 +56,18 @@ if combine_in_parallel
         if ~iscell(outputs)
             fprintf('***  Parallel job have not failed but output is different from expected:\n')
             disp(outputs);
+            if isstruct(outputs) && isfield(outputs,'worker_logs')
+                disp(outputs.worker_logs)
+                if iscell(outputs.worker_logs)
+                    for i=1:numel(outputs.worker_logs)
+                        fprintf('***  Worker N%d:\n',i);
+                        disp(outputs.worker_logs{i});
+                    end
+                end
+            end
             error('HORACE:write_nsqw_to_sqw:runtime_error', ...
-                'Parallel job returned unexpected output');
+                'Parallel job returned unexpected output %s', ...
+                disp2str(outputs));
         else
             s_accum = outputs{1}.s;
             e_accum = outputs{1}.e;
@@ -76,4 +86,3 @@ end
 img.s=s_accum;
 img.e=e_accum;
 img.npix=uint64(npix_accum);
-
