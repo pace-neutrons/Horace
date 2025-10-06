@@ -79,6 +79,14 @@ if combine_in_parallel && job_disp.cluster.n_workers > 1
     end
 else
     if combine_in_parallel
+        fprintf('*** previous parallel job have not prepared proper list of image sources:\n');
+        disp(img_sources);
+        if iscell(img_sources)
+            for i=1:numel(img_sources)
+                fprintf('*** Source N%d\n',i);
+                disp(img_sources{i});
+            end
+        end
         job_disp.finalize_all();
     end
     % read arrays and accumulate headers directly
