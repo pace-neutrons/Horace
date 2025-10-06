@@ -36,7 +36,7 @@ if hor_log_level>-1
     disp('Reading and accumulating binning information of input file(s)...')
 end
 
-if combine_in_parallel
+if combine_in_parallel && job_disp.cluster.n_workers > 1
     %TODO:  check config for appropriate ways of combining the tmp and what
     %to do with cluster
     comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
@@ -53,14 +53,42 @@ if combine_in_parallel
 
     %
     if n_failed == 0
-        s_accum = outputs{1}.s;
-        e_accum = outputs{1}.e;
-        npix_accum = outputs{1}.npix;
+        if ~iscell(outputs)
+            fprintf('***  Parallel job have not failed but output is different from expected:\n')
+            disp(outputs);
+            if isstruct(outputs) && isfield(outputs,'worker_logs')
+                disp(outputs.worker_logs)
+                if iscell(outputs.worker_logs)
+                    for i=1:numel(outputs.worker_logs)
+                        fprintf('***  Worker N%d:\n',i);
+                        disp(outputs.worker_logs{i});
+                    end
+                end
+            end
+            error('HORACE:write_nsqw_to_sqw:runtime_error', ...
+                'Parallel job returned unexpected output %s', ...
+                disp2str(outputs));
+        else
+            s_accum = outputs{1}.s;
+            e_accum = outputs{1}.e;
+            npix_accum = outputs{1}.npix;
+        end
     else
         job_disp.display_fail_job_results(outputs,n_failed,n_workers, ...
             'HORACE:write_nsqw_to_sqw:runtime_error');
     end
 else
+    if combine_in_parallel
+        fprintf('*** previous parallel job have not prepared proper list of image sources:\n');
+        disp(img_sources);
+        if iscell(img_sources)
+            for i=1:numel(img_sources)
+                fprintf('*** Source N%d\n',i);
+                disp(img_sources{i});
+            end
+        end
+        job_disp.finalize_all();
+    end
     % read arrays and accumulate headers directly
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(img_sources);
 end
@@ -69,4 +97,3 @@ end
 img.s=s_accum;
 img.e=e_accum;
 img.npix=uint64(npix_accum);
-

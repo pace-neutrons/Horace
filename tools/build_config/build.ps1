@@ -21,8 +21,8 @@
   ./build.ps1 -package
   # Packages Horace
 .EXAMPLE
-  ./build.ps1 -build -package -vs_version 2017 -matlab_release R2019a
-  # Builds and packages Horace using Visual Studio 2017 and Matlab R2019a
+  ./build.ps1 -build -package -vs_version 2019 -matlab_release R2019a
+  # Builds and packages Horace using Visual Studio 2019 and Matlab R2019a
 
 .LINK
   https://github.com/pace-neutrons/Horace
@@ -46,10 +46,10 @@ param (
   [switch][Alias("h")]$help,
 
   # The version of Visual Studio to build with. Other Windows compilers are
-  # not supported by this script. {2015, 2017, 2019}
+  # not supported by this script. {2019,2022}
   # [default: use latest installed version or, if rebuilding, the version used
   # in the previous build]
-  [int][ValidateSet(2015, 2017, 2019)]
+  [int][ValidateSet(2019,2022)]
   [Alias("VS")]
   $vs_version = 0,
 
@@ -101,9 +101,8 @@ if ($help -or $PSBoundParameters.Values.Count -eq 0) {
 
 # Mapping from year to Visual Studio version
 $VS_VERSION_MAP = @{
-  2015 = 'Visual Studio 14 2015';
-  2017 = 'Visual Studio 15 2017';
   2019 = 'Visual Studio 16 2019';
+  2022 = 'Visual Studio 17 2022';  
 }
 # Horace's root directory is two levels above this script
 $HORACE_ROOT = Resolve-Path (Join-Path -Path "$PSScriptRoot" -ChildPath "/../..")

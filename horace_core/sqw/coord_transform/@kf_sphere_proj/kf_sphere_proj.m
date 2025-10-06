@@ -1,4 +1,4 @@
-classdef kf_sphere_proj<sphere_proj
+classdef kf_sphere_proj < sphere_proj
     % Class defines special projection, used by cut_sqw
     % to make spherical cut in special spherical coordinate system
     % related to the spectrometer frame.
@@ -208,14 +208,15 @@ classdef kf_sphere_proj<sphere_proj
             % properties
             %
             % Input:
-            % pix_data -- [3-5xNpix] array of pix coordinates
+            % pix_data -- either 
+            %             [5 x Npix] array of pix coordinates
             %             expressed in crystal Cartesian coordinate system.
-            %             if 5th row of pix_coordinates is present, it
-            %             describes run_id-s, referred
-            %             or instance of PixelDatBase class containing this
+            %             5th row of pix_coordinates  describes run_id-s
+            %             used to calculate goniometer values for this run.
+            %          or instance of PixelDatBase class containing this
             %             information.
             % Returns:
-            % pix_out -- [3xNpix or [4xNpix]Array the pixels coordinates
+            % pix_out -- [4xNpix] Array the pixels coordinates
             %            transformed into spherical coordinate system
             %            defined by object properties
             %

@@ -90,6 +90,9 @@ classdef fig_spread
             % screen tight, namely overlapping figure borders and resizing
             % them to fit on the screen requested number.
             
+            % This warning needs to be suppressed from R2019b to R2024b because
+            % the JavaFrame property was deprecated in R2019b. The property
+            % became obsolete in R2025a.
             warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
             
             

@@ -296,19 +296,24 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
         function [pix_idx_start, pix_idx_end] = get_page_idx_(obj, page_number)
             if ~exist('page_number', 'var')
                 page_number = obj.page_num_;
+            else
+                obj.page_num = page_number;
             end
-
             pgs = obj.page_size;
-            pix_idx_start = (page_number -1)*pgs+1;
+            if isempty(obj.pix_page_chunks_)
+                pix_idx_start = (page_number -1)*pgs+1;
+            else
+                pix_idx_start = obj.pix_page_idx_start_(page_number);
+            end
 
             if obj.num_pixels > 0 && pix_idx_start > obj.num_pixels
                 error('HORACE:PixelDataFileBacked:runtime_error', ...
                     'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
                     pix_idx_start, obj.num_pixels);
             end
-
             % Get the index of the final pixel to read given the maximum page size
             pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
+
         end
         function pix_copy = copy(obj)
             pix_copy = obj;
@@ -358,6 +363,8 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
             % main part of set from metadata setter
             obj = set_metadata@PixelDataBase(obj,val);
             obj.num_pixels_ = val.npix;
+            obj.pix_page_chunks_    = [];
+            obj.pix_page_idx_start_ = [];            
         end
 
 
@@ -474,11 +481,19 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
         end
 
         function page_size = get_page_size(obj)
-            page_size = min(obj.default_page_size, obj.num_pixels);
+            if isempty(obj.pix_page_chunks_)
+                page_size = min(obj.default_page_size, obj.num_pixels);
+            else
+                page_size = sum(obj.pix_page_chunks_{obj.page_num_});
+            end
         end
 
         function np = get_num_pages(obj)
-            np = max(ceil(obj.num_pixels/obj.page_size),1);
+            if isempty(obj.pix_page_chunks_)
+                np = max(ceil(obj.num_pixels/obj.page_size),1);
+            else
+                np = numel(obj.pix_page_chunks_);
+            end
         end
     end
     %======================================================================

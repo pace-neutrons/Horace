@@ -186,8 +186,8 @@ curr_dir = pwd;
 if(nargin<1)
     error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');
 end
-code_root = fileparts(in_rel_dir);
-common_include = fullfile(curr_dir,code_root);
+% common include directory:
+common_include = fullfile(curr_dir,fileparts(in_rel_dir));
 fnames = varargin(:);
 nFiles   = numel(fnames);% files go in varargin
 add_fNames = cellfun(@(x)[x,' '],fnames,'UniformOutput',false);
@@ -207,6 +207,7 @@ else
     cxx_flags = ['CXXFLAGS= $CFLAGS',' -I',common_include,' -fopenmp -std=c++20'];
     ld_flags  = 'LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp';
 end
+
 if(nFiles==1)
     fname      = strtrim(add_files{1});
     %cxx_flags = "

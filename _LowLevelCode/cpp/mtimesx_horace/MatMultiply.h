@@ -68,3 +68,4 @@ void  mat_multiply(Rz *rez, L const *const a, R const*const b, size_t Mi, size_t
     }
 
 }
+

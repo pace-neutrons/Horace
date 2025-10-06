@@ -1475,7 +1475,9 @@ function colordef_suppressedDeprecationWarning(varargin)
 % but until then, just suppress the warning message as colordef continues to
 % work.
 
-S = warning('query', 'MATLAB:colordef:ColordefWillBeRemoved');
-cleanupObj = onCleanup(@()warning(S));
-warning('off', 'MATLAB:colordef:ColordefWillBeRemoved');
-colordef(varargin{:})
+if verLessThan('MATLAB','25.1')  % prior to R2025a
+    S = warning('query', 'MATLAB:colordef:ColordefWillBeRemoved');
+    cleanupObj = onCleanup(@()warning(S));
+    warning('off', 'MATLAB:colordef:ColordefWillBeRemoved');
+    colordef(varargin{:})
+end
