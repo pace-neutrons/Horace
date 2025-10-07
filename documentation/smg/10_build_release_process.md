@@ -156,6 +156,11 @@ On the build page, fill in the following fields:
 (the number of the build on the first line of Stage View), semi-colon; and
 on line 2 repeat for the `Release-windows-VM-Win10` pipeline.
    - release body: this should be a copy of the release notes.
+   - draft: (check-box) see below
+   - prerelease: (checkbox) see below
+It is thought that if either of the checkboxes are ticked, then it is
+possible to repeat the release/deploy process; the release tag is not
+finalized.
 
 The Jenkins build artifacts are are not accessible outside of STFC.
 End users will be directed to GitHub to access packaged releases.
