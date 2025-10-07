@@ -138,28 +138,31 @@ the tests. Make sure these have passed. Fix any bugs.
 
 Repeat this for the `VM-Win10` pipeline for your Matlab version.
 
+In order to deploy the code built with these pipelines, you will need 6 pieces
+of information. Two of these are the names of the pipelines (`Release-Rocky8-2022a
+and Release-VM-Win10); two are the build numbers for each platform (seen top left
+of the stage view of the pipeline pages); one is the version number from Horace/VERSION(as noted above);
+one is the commit sha for the commit from which the release was made. This can
+be obtained from the last line of the Last Succesful Artefacts section of the
+pipeline page for either of the build platforms; click on the View link at
+the right of the sha line (both builds will have used the same commit.
+
 Now run the relevant Deploy pipeline. There is only one of these. Go into the 
 pipeline page and from the left sidebar, click the Build With Parameters link. 
 On the build page, fill in the following fields:
-   - tag_sha: get this from `Release-...` page you were just on; go to the last
-link on the Last Successful Artefacts (the .sha link), click View on its right
-and copy the resulting number into this field
-   - version number: the number you found or put into Horace/VERSION (above)
+   - tag_sha: sha number noted above
+   - version number: as noted above
    - release_job_ids: On line 1 copy `Release-Rocky8-2022a`, comma, build number 
 (the number of the build on the first line of Stage View), semi-colon; and
 on line 2 repeat for the `Release-windows-VM-Win10` pipeline.
+   - release body: this should be a copy of the release notes.
 
 The Jenkins build artifacts are are not accessible outside of STFC.
 End users will be directed to GitHub to access packaged releases.
 
-Release pipelines have been created on ANVIL,
-these are to be used to create release candidates.
+The deploy pipeline will:
 
-Deploy pipelines have also been created to push release candidates to GitHub.
-
-This will:
-
-- tag the Git revision with the release number (`vm.n.o`)
+- tag the Git revision with the release number (`Vm.n.o`)
 - copy the built artifact to the corresponding GitHub release
 
 The release tag will be an anchor for any subsequently needed release branch
@@ -200,27 +203,32 @@ the release  process,
 the code, exposed through the links above is checked out and switched to the
 recently released, so users can user the released version of the code.
 
-### Patch releases
+#### Patch releases
 
-The experience shows that the main reasons for the bugs,
-identified by users is small changes in user configuration,
-specific for a user, and correct but #unexpected users operations with the code.
-This is why, the bugfix process in ISIS normally starts from user sharing
-screen with the member of the support team and the demonstration of the issue
-to a member of the support team.
+Patch-fix releases are made because a bug has been identified in the 
+latest major or minor release. To avoid exposing the users to recent
+changes on the master branch, a patch release is made to add only fixes
+for the bug to the latest major/minor release.
 
-As soon as the issue is confirmed and is obvious that the bug fixing needs
-changes in code base,
-the member of the support team should switch user to the code tree,
-where the changes would not affect other users.
-The symbolic links to `Horace_bugfix` and `Herbert_bugfix` pointing to separate
-clones of git repository are provided for this purpose.
-At release, they are pointing to the same location as regular Horace/Herbert
-branches.
+Before creating a branch to fix the bug, a patch branch is created if need be,
+If the last release was a major or minor release, then the patch branch is 
+branched from the commit for that release on the master branch. This is to
+give a code branch without any of the changes which have been subsequently
+made on the master branch. If the last release was a patch release then the
+patch branch will already exist. In either case the changes required to fix
+the bug will be merged onto the patch branch, creating the release.
 
-To switch user to these branches, one issues
-`herbert_on(/usr/local/mprogs/Herbert_bugfix/herbert_core)` and
-`horace_on(/usr/local/mprogs/Horace_bugfix/horace_core)` commands.
+To fix the bug, a normal bugfix PR branch is also made from the last release. 
+Fixes will be made on this bugfix branch and the branch will be merged with
+master using a PR as normal. The branch should NOT be deleted. Instead it
+will be merged locally with the patch release branch, and the patch release
+branch should then be pushed to github. 
+
+Once the fix is in the patch branch, a release should then be created from 
+the merge commit in the same way as for major or minor releases. The release
+build pipelines should build the release and the deploy pipeline should deploy
+it to the github release page. After the release is succesful the bugfix
+branch may be deleted but the patch release branch should be kept.
 
 If parallel execution is necessary for bug-fixing,
 the supporter also needs to do similar changes in worker_4tests script
