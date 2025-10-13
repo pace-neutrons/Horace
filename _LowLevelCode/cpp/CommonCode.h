@@ -91,12 +91,6 @@ T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
     return static_cast<T>(*mxGetPr(pPar));
 };
 
-/** Identify type of MATLAB's provided input array and retrieve appropriate pointer to its data
-//plus size and shape of the pixels array
-void get_pix_info(void) {
-
-};
-*/
 
 class omp_storage
     /** Class to manage dynamical storage used in OMP loops
