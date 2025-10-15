@@ -8,7 +8,7 @@ set(
 
 set(
     HDR_FILES
-    "../CommonCode.h"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
     "fileParameters.h"
 )
 

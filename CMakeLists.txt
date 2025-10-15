@@ -8,8 +8,8 @@ project("Horace" VERSION "${_version}")
 #
 cmake_host_system_information(RESULT CMAKE_HOST_SYSTEM_NAME QUERY OS_NAME)
 
-# C++11 is required for GTest but 17 for some plugins
-set(CMAKE_CXX_STANDARD 17)
+# C++11 is required for GTest but 20 for some plugins
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 # Sort our targets into folders
