@@ -124,9 +124,11 @@ classdef PageOp_join_sqw < PageOpBase
             % reads data from multiple sources and combines them together
             % into single page of data.
             %
+            obj.page_num = idx;
             if obj.use_mex % mex will pull all data by itself
                 return
             end
+
             bin_start = cumsum(npix_blocks{idx});
             page_size = bin_start(end);
             % the positions of empty bins to place pixels
@@ -208,6 +210,13 @@ classdef PageOp_join_sqw < PageOpBase
     end
     %======================================================================
     methods(Access =protected)
+        function  np = get_page_num(obj)
+            np = obj.pix_combine_info.page_num;
+        end
+        function  obj = set_page_num(obj,val)
+            obj.pix_combine_info.page_num = val;            
+        end
+        
         function is = get_exp_modified(~)
             % is_exp_modified controls calculations of unique runid-s
             % during page_op.

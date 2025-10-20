@@ -307,7 +307,7 @@ classdef test_PixelData_binary_ops < TestCase
         function test_c_eq_a_plus_b_with_opman(obj)
             pix1 = obj.pix_with_pages;
             pix2 = obj.pix_with_pages;
-            % five filebacked operations! use funceval
+            % five filebacked operations! use func_eval
             pix3 = pix1.cos()^2 + pix2.sin()^2;
 
             assertTrue(is_file(pix1.full_filename));

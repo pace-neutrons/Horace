@@ -120,6 +120,8 @@ object stored in memory from which the pixels will be taken.
    By convention both ``sqw`` and ``dnd`` objects use the ``.sqw`` suffix when
    stored to disc. It is advisable to name the file appropriately to distinguish
    the types stored inside, e.g. ``MnO2_sqw.sqw``, ``MnO2_d2d.sqw``.
+   
+.. _projection-label
 
 Projection (proj)
 -----------------

@@ -322,7 +322,7 @@ end
 %NOTE: because of && numel(run_files)>1, Masked detectors would be removed
 % from the range of a single converted run file.
 if isempty(pix_db_range) && numel(run_files)>1
-    if numel(run_files)==1
+    if isscalar(run_files)
         pix_db_range =[];
         pix_range_est = [];
     else

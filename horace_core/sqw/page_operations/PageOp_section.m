@@ -54,6 +54,7 @@ classdef PageOp_section < PageOpBase
             %
             % Overload specific for section. It takes various pieces of
             % pixel data.
+            obj.page_num =  idx;
             bl_chunk   = obj.block_chunks_{idx};
             bl_start   = bl_chunk{1};
             bl_size    = bl_chunk{2};
