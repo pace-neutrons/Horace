@@ -37,7 +37,7 @@ classdef PageOp_binary_sqw_sqw < PageOp_bin_Base
                     obj.op_name_,obj.pix_.num_pixels,obj.operand.num_pixels);
             end
 
-            if numel(obj.npix) == 1 % usually pixel-only operations or d0d
+            if isscalar(obj.npix) % usually pixel-only operations or d0d
                 obj.split_at_bin_edges = false;
             else
                 obj.split_at_bin_edges = true;                
