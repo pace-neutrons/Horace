@@ -25,7 +25,13 @@ op_name = page_op.op_name;
 [npix_chunks, npix_idx,page_op] = page_op.split_into_pages(npix, mem_chunk_size);
 
 % TODO: this should be generic operation which does not depend on pix class
-% and PageOp class
+% and PageOp class. The operation iteself has to be moved to PixelDataBase
+% and, if provided, support chunking for memory based and file-backed
+% pixels. The algorithms will be refactored to use pages only and splitting
+% code currently in PageOp would set splitting for pixels.
+% When done, it will support parallel excecution for memory based and
+% file-based pixels together with possibilify to prefetch future page by an
+% independent thread.
 if isa(page_op.pix,'PixelDataFileBacked') && ~(isa(page_op,'PageOp_join_sqw')||isa(page_op,'PageOp_section'))
     page_op.pix = page_op.pix.set_pix_page_chunks(npix_chunks);
 end

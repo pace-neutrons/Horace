@@ -12,7 +12,7 @@ void inline throw_error(char const* const MESS_ID, char const* const error_messa
 
 
 /*The class holding a selected C++ class and providing the exchange mechanism between this class and Matlab
-* to maintain consistency 
+* to maintain consistency of the C++ code state between multiple call to this mex code from MATLAB.
 * */
 template<class T> class class_handle
 {
@@ -36,7 +36,7 @@ public:
     T* const class_ptr;
     int num_locks;
     //-----------------------------------------------------------
-    mxArray* export_hanlder_toMatlab();
+    mxArray* export_handler_toMatlab();
     void clear_mex_locks();
 private:
     uint32_t _signature;
@@ -45,7 +45,7 @@ private:
 };
 
 template<class T>
-mxArray* class_handle<T>::export_hanlder_toMatlab()
+mxArray* class_handle<T>::export_handler_toMatlab()
 {
     if (this->num_locks == 0) {
         this->num_locks++;

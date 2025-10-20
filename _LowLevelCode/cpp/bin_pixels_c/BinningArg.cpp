@@ -29,6 +29,8 @@ bool BinningArg::new_binning_arguments_present(mxArray const* prhs[])
 
 }; //
 
+// analyze and if appropriate store pointer to input (MATLAB provided) pixels coordinates array
+// together with information about size and shape of the coordinates array
 void BinningArg::set_coord_in(mxArray const* const pField)
 {
     auto nDims = mxGetNumberOfDimensions(pField);

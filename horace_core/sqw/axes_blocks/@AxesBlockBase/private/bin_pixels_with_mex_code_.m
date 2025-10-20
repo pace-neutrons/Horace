@@ -1,5 +1,5 @@
 function varargout = ...
-    bin_pixels_with_mex_code_(obj,coord,proc_mode,...
+    bin_pixels_with_mex_code_(obj,coord,bin_mode,...
     npix,s,err,pix_cand,unique_runid,force_double,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
@@ -11,9 +11,11 @@ function varargout = ...
 % obj   -- the initialized AxesBlockBase object with the grid defined
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          AxesBlockBase coordinate system
-% proc_mode
-%       -- the number of output parameters requested to process. Depending
-%          on this number, additional parts of the algorithm are deployed.
+% bin_mode
+%       -- the mode used to bin pixels. Depending on this number, 
+%          additional parts of the algorithm are deployed
+%          and additional output parameters are returned.
+%          The modes are defined and described in bin_mode enum.
 % npix
 %      -- the array of size of this grid, accumulating the information
 %         about number of pixels contributing into each bin of the grid,
@@ -107,7 +109,7 @@ end
 
 other_mex_input = struct( ...
     'coord_in',    coord,...                % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
-    'binning_mode',double(proc_mode), ...           % binning mode, what binning values to calculate and return
+    'binning_mode',double(bin_mode), ...    % binning mode, what binning values to calculate and return
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
@@ -139,7 +141,7 @@ end
 % indication that this is the first call to the routine if npix is empty.
 % [mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
 %     mex_code_holder,npix_in,s_in,err_in,other_mex_input);
-if proc_mode == bin_mode.npix_only
+if bin_mode == bin_mode.npix_only
     % return mex_holder, npix, field_names, field_values
     out = cell(1,4);
     val_num = 4;
@@ -165,7 +167,7 @@ if test_mex_inputs
     out_struc.binning_mode = bin_mode(out_struc.binning_mode); % convert number returned from C-mex into mode-s enum
 end
 
-if proc_mode == bin_mode.npix_only
+if bin_mode == bin_mode.npix_only
     % in this case pix_ok change meaning and contains output data structure
     % directly. The structure itself contains copy of input parameters plus
     % various helper values obtained from input and used during the testing
@@ -185,19 +187,19 @@ else  % otherwise, there are no such ouputs, output structure is flattened
         varargout{end} = out_struc;
     end
     npix_retained = npix_retained + out_struc.npix_retained;
-    if proc_mode< bin_mode.sort_pix && ~test_mex_inputs
+    if bin_mode< bin_mode.sort_pix && ~test_mex_inputs
         return;
     end
 
     pix_ok_data  = out_struc.pix_ok_data;
     pix_ok_range = out_struc.pix_ok_data_range;
 
-    if proc_mode< bin_mode.sort_pix || ~is_pix
+    if bin_mode< bin_mode.sort_pix || ~is_pix
         if ndata>=3
             varargout{bin_out.pix_ok} = pix_ok_range; % redefine pix_ok_range to be npix accumulated
         end
     end
-    if proc_mode< bin_mode.sort_pix
+    if bin_mode< bin_mode.sort_pix
         return;
     end
     if isempty(pix_ok_data)
@@ -207,14 +209,14 @@ else  % otherwise, there are no such ouputs, output structure is flattened
         pix_ok = pix_ok.set_raw_data(pix_ok_data);
         varargout{bin_out.pix_ok} = pix_ok.set_data_range(pix_ok_range);
     end
-    if proc_mode< bin_mode.sort_and_uid
+    if bin_mode< bin_mode.sort_and_uid
         return;
     end
 
     % in modes where these values are not calculated, the code returns
     % empty
     varargout{bin_out.unique_runid}  = out_struc.unique_runid;
-    if proc_mode < bin_mode.nosort
+    if bin_mode < bin_mode.nosort
         return;
     end
     varargout{bin_out.pix_indx}      = out_struc.pix_idx;

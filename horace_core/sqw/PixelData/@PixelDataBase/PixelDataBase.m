@@ -128,10 +128,15 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % If true, do not convert data loaded from disk into double at
         % loading
         keep_precision_  = false;
-        % cache to keep chunks pixel pages to divide into
-        % TODO: this is for future work related to pixel prefetching from
-        % file
-        pix_page_chunks_ = [];
+        % TODO:         
+        % Two variables below describe cache to keep chunks used for paging
+        % pixels.
+        % This is for future work related to pixel prefetching from
+        % file. Some paging operations are already implemented here but
+        % they are incomplete and not tested properly to provide reliable
+        % paging in any situation. (used in couple of PageOp algorithms and
+        % unit tests for that)
+        pix_page_chunks_ = []; 
         % initial positions of the pixels in vaiable pages
         pix_page_idx_start_ = [];
     end

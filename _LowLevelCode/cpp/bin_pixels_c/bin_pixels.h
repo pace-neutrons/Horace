@@ -1,12 +1,28 @@
 #pragma once
 #include "BinningArg.h"
-#include "bin_pixels.h"
 #include <algorithm>
 
 // use C-mutexes while binning the data
 // #define C_MUTEXES
 
-// return true if input coordinates lie outside of the ranges specified as input
+/**  return true if input coordinates lie outside of the ranges specified as input
+* 
+*    Template can be instancitated for ang input numerical types convertible to double
+* Inputs:
+* coord_ptr   --  pointer to 2-Dimensional array of pixel coordinates allocated
+*                 as 1-Dimensional FORTRAN array of COORD_STRIDE*Num_pixels size.
+*                 where pixels coordinates are changed along first direction.
+* i           --  second index of the pixel array, indicating number of pixel to pick up
+*                 from pixels array
+* COORD_STRIDE -- size of the first dimension of the pixels array
+* cut_range    --  2*COORD_STRIDE array of pixel ranges to check. The ranges are
+*                  arranged in 2-Dimensional array with FORTRAN allocation in the form:
+*                  [q1_min,q1_max,q2_min,q2_max,... q_COORD_STRIDE_min,q_COORD_STRIDE_max]
+* qi           --  Outuput vector of input q-coordinates converted in double
+                   if all input coordinates are in range. Undefined if they are not
+* Returns:
+   true if all input coordinates are in range and false otherwise.
+ */
 template <class TRG>
 bool inline out_of_ranges(TRG const* const coord_ptr, long i, size_t COORD_STRIDE, const std::vector<double>& cut_range, std::vector<double>& qi)
 {
@@ -19,7 +35,26 @@ bool inline out_of_ranges(TRG const* const coord_ptr, long i, size_t COORD_STRID
     }
     return false;
 };
-// identify the image cell where the particular pixel belongs to
+/** identifies the image cell where the particular pixel belongs to
+* Inputs:
+* qi       -- 1-dimensional vector of pixel coordinates to process
+* pax      -- 1-to-4 elements vector of pixel indices accounted in binning. Indicates 
+*             numbers of pixel coordinates from qi array to include in the binning.
+*             I.e. if pax.size()==1 only one coordinates needs to be binned or if
+*             pax.size()==4, all four qi coordinates have to be binned in 4-dimensional array
+* cut_range -- 6 or 8-elements array defining ranges allowed for pixels. The same as cut_range
+*              provided in out_of_range routine above.
+* bin_step  -- 6 or 8-elements array defining bin step sizes e.g. (cut_range(2*n+1)-cut_range(2*n))/bin_cell_idx_range(n)
+*              where n is the number of pixel coordinate to bin.
+* bin_cell_idx_range
+*           -- number of bins in each binned direction.
+* stride    -- 1-to-4 element's vector which describes 1-D allocation of multidimensional array
+*              i.e. if one have 1D arry, stride has 1 element and contains 1.
+*              For 3-dimensional array of size 9x10x11, stride == [1,9,9*10]
+*              For 4-dimensional array of size 9x10x11*12, stride == [1,9,9*10,9*10*11]
+* Returns:
+* index of pixel in input multidimensional array.
+*/
 size_t inline pix_position(const std::vector<double>& qi, const std::vector<size_t>& pax,
     const std::vector<double>& cut_range, const std::vector<double>& bin_step,
     const std::vector<size_t>& bin_cell_idx_range, const std::vector<size_t>& stride)
@@ -38,8 +73,15 @@ size_t inline pix_position(const std::vector<double>& qi, const std::vector<size
 /** Procedure calculates positions of the input pixels coordinates within specified
  *   image box and various other values related to distributions of pixels over the image
  *   bins, including signal per image box, error per image box and distribution of pixels
- *   according to the image. Template instantiacted on the basis of SRC (source type)
- *   and TRG (target type)
+ *   according to the image. Template instantiacted on the basis of SRC (numerical source type convertable to double)
+ *   and TRG (numerical target type convertible to double)
+ * Results:
+ * npix        -- 1D representation of multidimensional array of pixel distributions over bins
+ * s           -- 1D representation of multidimensional array of signal in bins
+ * err         -- 1D representation of multidimensional array of error in bins
+ * Input-Output parameter:
+ * bin_par_ptr -- constant pointer to BinningArg class, containing input parameters which describe binning
+ *                and output values calculated in some binning modes.
  */
 template <class SRC, class TRG>
 size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<double>& e, BinningArg* const bin_par_ptr)

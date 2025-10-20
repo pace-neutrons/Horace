@@ -10,7 +10,7 @@ classdef AxesBlockBase < serializable
     %1) ab = AxesBlockBase(num) where num belongs to [0,1,2,3,4];
     %2) ab = AxesBlockBase([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
     %                                          parameters
-    %        orinit_accumulators
+    %        or init_accumulators:
     %   ab = AxesBlockBase([min1,max1],...,[min4,max4]); - 4 binning
     %                                          parameters
     %        or any combination of ranges [min,step,max] or [min,max]
@@ -20,8 +20,8 @@ classdef AxesBlockBase < serializable
     %        where param(1-n) are the values of the fields in the order
     %        fields are returned by saveableFields function.
     %5) ab = AxesBlockBase('img_range',img_range,'nbins_all_dims',nbins_all_dims)
-    %    -- particularly frequent case of building axes block (case 4)
-    %       from the image range and number of bins in all directions.
+    %     -- particularly frequent case of building axes block (as in case 4)
+    %        from the image range and number of bins in all directions.
     properties(Dependent)
         % Legacy projection interface
         % Title of sqw data structure, displayed on plots.

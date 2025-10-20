@@ -1,5 +1,6 @@
 #pragma once
 #include <include/CommonCode.h>
+#include <utility/version.h>
 
 enum MatrixTypes
 {
@@ -21,12 +22,12 @@ void calc_output_size(mwSize const *const dimsA, size_t ndimsA, mwSize const *co
     std::vector<mwSize> & rez_dim_sizes, size_t &nDims, size_t &Mk, bool & expandA, bool &expandB);
 
 
-/* multiply two matrices or array of matrices */
+/* multiply two matrices or arrays of matrices */
 template<typename Rz, typename L, typename R>
 void  mat_multiply(Rz *rez, L const *const a, R const*const b, size_t Mi, size_t Mj, size_t Mk0, size_t Mk, bool expandA, bool expandB, int n_threads)
 {
-
-    /*
+    /* The original MATLAB code, which is reimplemented in C++ and indicating
+    * algorithm, used to calculate the product in C++
     for j=1:11
         for i=1:4
             for k=1:6

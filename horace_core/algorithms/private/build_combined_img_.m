@@ -36,7 +36,7 @@ if hor_log_level>-1
     disp('Reading and accumulating binning information of input file(s)...')
 end
 
-if combine_in_parallel && job_disp.cluster.n_workers > 1
+if combine_in_parallel && job_disp.cluster.n_workers > 2
     %TODO:  check config for appropriate ways of combining the tmp and what
     %to do with cluster
     comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
@@ -53,7 +53,10 @@ if combine_in_parallel && job_disp.cluster.n_workers > 1
 
     %
     if n_failed == 0
-        if ~iscell(outputs)
+        if ~iscell(outputs) % Debugguing errors in Parallel Jobs on Jenkins. 
+            % Sometimes it does not fail but result is incorrect. Code
+            % below is provided for debugging purposes in attempt to
+            % clarify the issue
             fprintf('***  Parallel job have not failed but output is different from expected:\n')
             disp(outputs);
             if isstruct(outputs) && isfield(outputs,'worker_logs')

@@ -2,7 +2,7 @@
 #include "../utility/version.h"
 #include <mex.h>
 
-/* The mex file provides media for MPI communications betwen various Horace workers.
+/* The mex file provides media for MPI communications between various Horace workers.
 
  Usage:
 
@@ -71,7 +71,7 @@ Outputs:
 
 *** "labProbe"  executes asynchronous MPI_Iprobe operation
 Inputs:
-  1  -- mode_name  -- the string 'labProbe' identifies labprobe mode
+  1  -- mode_name  -- the string 'labProbe' identifies labProbe mode
   2  -- pointer to MPI initialized framework,
   3  -- dest_id address (number) of the worker which is asked for message
   4  -- tag -- the message tag (id) or array of message tags to ask for
@@ -194,7 +194,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     } // end switch
 
     if (nlhs > 0) {
-        plhs[(int)labIndex_Out::comm_ptr] = mpi_comm_ptr->export_hanlder_toMatlab();
+        plhs[(int)labIndex_Out::comm_ptr] = mpi_comm_ptr->export_handler_toMatlab();
     }
 }
 /* If appropriate number of output arguments are available, set up the mex routine output arguments to mpi_numLab and mpi_labNum values
