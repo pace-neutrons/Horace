@@ -164,7 +164,7 @@ varargout{bin_out.npix} = out{2};
 
 out_struc = cell2struct(out{val_num},out{flds_num},2);
 if test_mex_inputs
-    out_struc.bin_mode = bin_mode(out_struc.binning_mode); % convert number returned from C-mex into mode-s enum
+    out_struc.binning_mode = bin_mode(out_struc.binning_mode); % convert number returned from C-mex into mode-s enum
 end
 
 if mode_to_bin == bin_mode.npix_only
