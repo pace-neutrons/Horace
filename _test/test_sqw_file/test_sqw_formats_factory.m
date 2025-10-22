@@ -150,7 +150,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
         function obj= test_pref_access(obj)
             dob = sqw();
             ld1 = sqw_formats_factory.instance().get_pref_access(dob);
-            assertTrue(isa(ld1,'faccess_sqw_v4'));
+            assertTrue(isa(ld1,'faccess_sqw_v4_1'));
 
             dob = d1d();
             ld2 = sqw_formats_factory.instance().get_pref_access(dob);
