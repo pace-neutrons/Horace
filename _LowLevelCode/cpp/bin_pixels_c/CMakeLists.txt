@@ -5,6 +5,7 @@ set(
 
 set(
     HDR_FILES
+    "bin_pixels.h"
     "../CommonCode.h"
 )
 

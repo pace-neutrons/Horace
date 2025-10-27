@@ -222,7 +222,8 @@ for iter = 1:num_chunks
     end
 
     for i = 1:num_proj
-        % Pix not sorted here
+        % Pix not sorted here. They will be sorted when accumulate cache
+        % is emtied either when pixels are written combined and returned
         [npix, s, e, pix_ok, unique_runid_l, pix_indx, selected] = ...
             targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e);
 
