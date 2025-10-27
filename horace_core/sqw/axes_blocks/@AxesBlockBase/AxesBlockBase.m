@@ -718,22 +718,23 @@ classdef AxesBlockBase < serializable
             %            binning
             %
             % Note:
-            % unique_runid argument needed to get pixels sorted according
-            % to bins. If it is not requested, pix_ok are returned unsorted.
+            % unique_runid argument forces pixels to be sorted according
+            % to bins. If it is not requested, pix_ok are returned
+            % unsorted, expecting sorting procedure to be performed at
+            % later stage.
+            % 
             %
-            % IMPORTANT:
-            % new calculations must be started from empty accumulators
+            % If new calculations are started from empty accumulators
             % i.e.:
             % npix = []; s = []; e = [];
             % for i=1:num_pages
             %   [npix,s,e,... ] =
             %   axes_block_instance.bin_pixels(coord(i),npix,s,e,...);
             % end
-            % Zero accumulators indicate initialization procedure for mex
-            % code and allows proper initalization of it. Attempt to start
-            % binning with some values in accumulating arrays npix, s, e
-            % requests defined state of binning parameters so may cause
-            % UNDEFINED BEHAVIOUR!!!. May be modified later.
+            % npix, s, and e arrays getting initialized into zero values.
+            %
+            % Start from some values in accumulating arrays npix, s, e
+            % continues accomulations from these values.
             %
 
             % keep unused argi parameter to tell parse_char_options to ignore

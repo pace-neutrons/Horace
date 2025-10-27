@@ -21,7 +21,11 @@
 * qi           --  Outuput vector of input q-coordinates converted in double
                    if all input coordinates are in range. Undefined if they are not
 * Returns:
-   true if all input coordinates are in range and false otherwise.
+*   true if all input coordinates are in range and false otherwise.
+*
+* Note -- As the function runs inside most deep production loop, it seems inlining increas performance
+*         at least by 10% or even more. Difficutl to judge properly, as code in this form would not compile
+*         without inline.
  */
 template <class TRG>
 bool inline out_of_ranges(TRG const* const coord_ptr, long i, size_t COORD_STRIDE, const std::vector<double>& cut_range, std::vector<double>& qi)

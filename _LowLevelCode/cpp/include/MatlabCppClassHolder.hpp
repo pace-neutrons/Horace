@@ -51,6 +51,10 @@ mxArray* class_handle<T>::export_handler_toMatlab()
         this->num_locks++;
         mexLock();
     }
+    // create MATLAB variable and store pointer to the instance
+    // of the target class in this variable 
+    // to ensure that class remains valid and loaded in memory
+    // during multiple transitions between C++ and MATLAB codes.
     mxArray* out = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
     uint64_t* pData = (uint64_t*)mxGetData(out);
     *pData = reinterpret_cast<uint64_t>(this);
