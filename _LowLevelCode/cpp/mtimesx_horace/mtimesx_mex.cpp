@@ -202,7 +202,17 @@ const std::map<size_t, operations> supported_op_map = {
 
 
 /* function defines the type of matrix multiplication and type of the multiplication result
-    as the function of types of input matrices */
+*    as the function of types of input matrices
+* Inputs:
+* --------
+*  mat_a  -- constant pointer to MATLAB matrix A
+*  mat_b  -- constant pointer to MATLAB matrix B
+* Returns:
+* --------
+* Enumerate, which encodes combination of matrices types supported by the code.
+* See MatrixTypes for the list of numerical matrix types supported by mtimesx operation.
+* 
+*/
 operations  get_op_type(mxArray const *const mat_a, mxArray const *const mat_b) {
 
     mxClassID category_a = mxGetClassID(mat_a);
