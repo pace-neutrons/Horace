@@ -26,6 +26,7 @@
 set(HERBERT_TESTS
     "test_admin"
     "test_data_loaders"
+    "test_debug_and_test_tools"
     "test_config"
     "test_IX_classes"
     "test_map_mask"

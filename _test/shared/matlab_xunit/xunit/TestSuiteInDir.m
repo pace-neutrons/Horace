@@ -40,7 +40,7 @@ classdef TestSuiteInDir < TestSuite & TestComponentInDir
             s = what(self.Location);
             full_test_dir_name = s.path;
             addpath(full_test_dir_name);
-            self.test_dir_clob = onCleanup(@()rmpath(full_test_dir_name));
+            self.test_dir_clob = onCleanup(@()rmpath_check(full_test_dir_name));
             
         end
           
@@ -58,4 +58,18 @@ classdef TestSuiteInDir < TestSuite & TestComponentInDir
             self.TestComponents = tmp.TestComponents;
         end
     end
+end
+
+%-------------------------------------------------------------------------------
+function rmpath_check (folder)
+% Remove a folder from the path, but only attempt to do so if the folder is
+% currently on the path. This is to avoid a distracting warning message being
+% printed.
+
+s = pathsep;
+pathStr = [s, path, s];
+on_path = contains(pathStr, [s, folder, s], 'IgnoreCase', ispc);
+if on_path
+    rmpath(folder)
+end
 end

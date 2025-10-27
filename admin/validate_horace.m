@@ -1,6 +1,13 @@
 function [err, suite] = validate_horace(varargin)
 % Runs some or all of the unit tests on a Horace installation.
 %
+% Remember to ensure that the Horace configuration parameter 'init_tests' has
+% been set to true before calling validate_horace:
+%
+%   >> set(hor_config, 'init_tests', 1)
+%
+% Usage:
+% ======
 %   validate_horace                                 % run all Horace tests
 %   validate_horace(arg2, arg2, ...)                % run sequence of specific tests
 %   validate_horace(..., option1, option2, ...)     % with one or more options
@@ -8,14 +15,9 @@ function [err, suite] = validate_horace(varargin)
 %
 % It is recommended to use validate_horace rather than the xunit function runtests
 % as this will ensure that the horace configurations, warning state and working
-% directory are returned to their initial states regardless of any changes that
-% the tests may have made or if errors are thrown. This is not necessarily the
-% case if the tests are run directly using runtests.
-%
-% Remember to ensure that the Horace configuration parameter 'init_tests' has
-% been set to true before calling validate_horace:
-%
-%   >> set(hor_config, 'init_tests', 1)
+% directory are returned to their initial states on exit, regardless of any changes
+% that the tests may have made or if errors are thrown. This is not necessarily
+% the case if the tests are run directly using runtests.
 %
 %
 % Input:
@@ -54,9 +56,6 @@ function [err, suite] = validate_horace(varargin)
 %   >> validate_horace (arg1, arg2, ...)                %  Run a sequence of tests, where arg1,
 %                                                       % arg2, arg3,... are each any one of
 %                                                       % the syntaxes above.
-%   >> validate_horace ({arg1, arg2,}, arg3, ...        %  Run a sequence of tests, with any of
-%                                                       % the syntaxes above in a cell array.
-%
 %
 % Run tests that are in the present working directory:
 %   >> validate_horace ('mfilename')                    %  Run all tests in the named test suite
@@ -287,22 +286,28 @@ cleanup_obj = onCleanup(@() ...
 % Run unit tests
 % --------------
 n_test_args = numel(test_args_full);
+
+% Construct optional argument list for runtests
 opt_args = {};
 if present.talkative
     opt_args = [opt_args, {'-verbose'}];
 end
+
 if ~present.disp_skipped
     opt_args = [opt_args, '-nodisp_skipped'];
 end
+
 if present.logfile
+    filename = ['validate_horace_log_', str_random(12)]; 
     if ~isempty(val.logfile)
-        filename = val.logfile;
+        log_filename = val.logfile;
     else
-        filename = fullfile(tmp_dir, ['validate_horace_log_', str_random(12), '.txt']);
+        log_filename = fullfile(tmp_dir, [filename, '.txt']);
     end
-    opt_args = [opt_args, '-logfile', filename];
+    opt_args = [opt_args, '-logfile', log_filename];
 end
 
+% Loop over the tests
 if present.parallel && license('checkout',  'Distrib_Computing_Toolbox')
     cores = feature('numCores');
     cores = min(cores, 12);
@@ -315,11 +320,15 @@ if present.parallel && license('checkout',  'Distrib_Computing_Toolbox')
 
     test_ok = false(1, n_test_args);
     time = bigtic();
-
+    
+    suite = cell(1, n_test_args);
     parfor i = 1:n_test_args
         test_stage_reset(i, hor, hpc, par, present.nomex, present.forcemex, ...
             present.talkative);
-        test_ok(i) = runtests(test_args_full{i}, opt_args{:});
+        [test_ok(i), suite{i}] = runtests(test_args_full{i}, opt_args{:});
+    end
+    if n_test_args==1
+        suite = suite{1};   % unpack the scalar cell array.
     end
 
     bigtoc(time,  '=== COMPLETED UNIT TESTS IN PARALLEL');
@@ -355,4 +364,28 @@ if present.exit_on_completion
     exit(err);
 end
 
+end
+
+
+%-------------------------------------------------------------------------------
+function concatente_text_files (varargin)
+%
+%   >> concatente_text_files (filename1, filename2, ... filename_out)
+
+if nargin<2
+    return  % no files or just one file - do nothing
+end
+
+fid = fopen(varargin{end}, 'w');
+nfiles = nargin-1;
+for i=1:nfiles
+    A = fileread(varargin{i});
+    if i<nfiles
+        fprintf(fid, '%s\n', A);
+    else
+        fprintf(fid, '%s', A);
+    end
+    
+end
+fclose(fid);
 end

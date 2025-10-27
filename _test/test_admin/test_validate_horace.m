@@ -1,6 +1,5 @@
 classdef test_validate_horace < TestCase
-    % Test that the function to read Horace CMakeLists.txt into
-    % validate_horace performs as expected.
+    % Tests of validate_horace.
     
     properties
         root_test_path
@@ -159,20 +158,6 @@ classdef test_validate_horace < TestCase
             assertFalse(err)
             assertEqual(names_ref, names)
         end
-        
-        
-        %--------------------------------------------------------------------------
-        %   * >> validate_horace ('dirname')                      %  Run all tests in the named folder.
-        %   * >> validate_horace ('dirname/mfilename')            %  Run all tests in the named test suite
-        %   * >> validate_horace ('dirname/mfilename:testname')   %  Run one particular test in the named
-        %                                                       % test suite in the named folder.
-        %   * >> validate_horace (arg1, arg2, ...)                %  Run a sequence of tests, where arg1,
-        %                                                       % arg2, arg3,... are each any one of
-        %                                                       % the syntaxes above.        %
-        %
-        % Run tests that are in the present working directory:
-        %   >> validate_horace ('mfilename')                    %  Run all tests in the named test suite
-        %   >> validate_horace ('mfilename:testname')
         %--------------------------------------------------------------------------
     end
 end

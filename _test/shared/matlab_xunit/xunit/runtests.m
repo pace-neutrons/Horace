@@ -52,6 +52,9 @@ function [out, suite_out] = runtests(varargin)
 %   out = runtests(...) returns a logical value that is true if all the
 %   tests passed.
 %
+%   [out, suite] = runtests(...) returns the full set of test suites run by the
+%   call to runtests.
+%
 %
 %   -------------------------------
 %   Examples
@@ -93,7 +96,8 @@ function [out, suite_out] = runtests(varargin)
 %   Steven L. Eddins
 %   Copyright 2009-2010 The MathWorks, Inc.
 %
-%   20** - 2025, Alex Buts, Jacob Wilkins, Toby Perring
+%   Alex Buts, Toby Perring, Jacob Wilkins
+%   2011 - 2025 
 %   Various small changes: optional keyword arguments, test locations, display
 %   of output to screen etc.
 

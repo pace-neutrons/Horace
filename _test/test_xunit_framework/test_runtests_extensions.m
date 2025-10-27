@@ -1,5 +1,6 @@
 classdef test_runtests_extensions < TestCase
-    % Tests that various test location syntax cases are correctly parsed
+    % Tests that various test location syntax cases are correctly parsed by
+    % runtests.
     % Some of these were added for ISIS, others were already in the original
     % runtests but tests are added here for integrity checking.
     
@@ -25,7 +26,7 @@ classdef test_runtests_extensions < TestCase
         
         %--------------------------------------------------------------------------
         function test_singleFunction_inPwd(self)
-            % Test case is a function in the directory runtests is invoked in
+            % Test case is a function in the directory runtests is invoked in.
             
             % Setup
             tests_location = self.test_examples_a;
@@ -43,7 +44,7 @@ classdef test_runtests_extensions < TestCase
 
         %--------------------------------------------------------------------------
         function test_singleFunction_notInPwd(self)
-            % Test case is a function not in the directory runtests is invoked in
+            % Test case is a function not in the directory runtests is invoked in.
             
             % Setup
             tests_location = self.test_examples_a;
@@ -64,7 +65,7 @@ classdef test_runtests_extensions < TestCase
 
         %--------------------------------------------------------------------------
         function test_testClass_inPwd(self)
-            % Test case is a TestCase sub-class in the directory runtests is invoked in
+            % Test case is a TestCase sub-class in the directory runtests is invoked in.
 
             % Setup
             tests_location = self.test_examples_a;
@@ -83,7 +84,8 @@ classdef test_runtests_extensions < TestCase
 
         %--------------------------------------------------------------------------
         function test_testClass_notInPwd(self)
-            % Test case is a TestCase sub-class not in the directory runtests is invoked in
+            % Test case is a TestCase sub-class not in the directory runtests is
+            % invoked in.
             
             % Setup
             tests_location = self.test_examples_a;
@@ -106,7 +108,7 @@ classdef test_runtests_extensions < TestCase
         %--------------------------------------------------------------------------
         function test_testClass_singleMethod_inPwd(self)
             % Test case is a single method of a TestCase sub-class in the
-            % directory runtests is invoked in
+            % directory runtests is invoked in.
             
             % Setup
             tests_location = self.test_examples_a;
@@ -126,7 +128,7 @@ classdef test_runtests_extensions < TestCase
         %--------------------------------------------------------------------------
         function test_testClass_singleMethod_notInPwd(self)
             % Test case is a single method of a TestCase sub-class not in the
-            % directory runtests is invoked in
+            % directory runtests is invoked in.
             
             % Setup
             tests_location = self.test_examples_a;
@@ -149,7 +151,7 @@ classdef test_runtests_extensions < TestCase
         %--------------------------------------------------------------------------
         function test_allTests_inPwd(self)
             % All tests (test functions and TestCase sub-classes) in the
-            % directory runtests is invoked in
+            % directory runtests is invoked in.
             
             % Setup
             tests_location = self.test_examples_a;
@@ -180,7 +182,7 @@ classdef test_runtests_extensions < TestCase
         %--------------------------------------------------------------------------
         function test_allTests_notInPwd(self)
             % All tests (test functions and TestCase sub-classes) in a directory
-            % that is not the directory runtests is invoked in
+            % that is not the directory runtests is invoked in.
             
             % Setup
             tests_location = self.test_examples_a;
@@ -220,13 +222,12 @@ classdef test_runtests_extensions < TestCase
             tests_location_b = self.test_examples_b;
 
             
-            % Run test
-            % Runs:
+            % Run the test. It runs:
             % (1) a TestCase sub-class in a directory that is not the run directory
             %     and a single test function in the run directory. These two
             %     arguments are enclosed in a cell-array.
             %     The cell array will be resolved into the two separate
-            %     arguments.
+            %     arguments by runtests.
             % (2) A single argument that invokes all the tests in the run directory.
             %
             % The effect should be the same as the three arguments run in
