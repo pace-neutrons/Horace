@@ -18,9 +18,9 @@ if ~isempty(mess)
 end
 %
 mess_tag = MESS_NAMES.mess_id(mess_name,obj.interrupt_chan_tag_);
-% identify the way of receiving message. Like MessagesParpool, if 
-% interrupts appears after the framework starts waiting for data message 
-% synchronously, the framework hangs up, so Receive_all should be used to 
+% identify the way of receiving message. Like MessagesParpool, if
+% interrupts appears after the framework starts waiting for data message
+% synchronously, the framework hangs up, so Receive_all should be used to
 % avoid such hang ups. From other side, this situation is not important as
 % MPI framerowk will fail on parallel interrupt
 if mess_tag == obj.interrupt_chan_tag_
@@ -40,8 +40,9 @@ try
         obj.mpi_framework_holder_,int32(from_task_id),int32(mess_tag),...
         uint8(is_blocking));
 catch ERR
-    if strcmpi(ERR.identifier,'MPI_MEX_COMMUNICATOR:runtime_error')
-        error('MESSAGES_FRAMEWORK:runtime_error',...
+    if strcmpi(ERR.identifier,'MATLAB:unassignedOutputs') || ...  % instead of thrwing we return without assigning outputs as exceptions
+       strcmpi(ERR.identifier,'MPI_MEX_COMMUNICATOR:runtime_error') 
+        error('MESSAGES_FRAMEWORK:runtime_error',...              % currupts heap in google tests
             'synchroneous waiting in test mode is not allowed')
     else
         rethrow(ERR);

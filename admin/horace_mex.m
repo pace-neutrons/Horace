@@ -69,18 +69,18 @@ try % mex C++
     end
     % simple OMP routines
     % build C++ files
-    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
-        'c_serialize.cpp')
-    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
-        'c_deserialize.cpp')
-    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
-        'c_serial_size.cpp')
+    % mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+    %     'c_serialize.cpp')
+    % mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+    %     'c_deserialize.cpp')
+    % mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+    %     'c_serial_size.cpp')
 
 
     mex_single([cpp_in_rel_dir 'accumulate_cut_c'], out_rel_dir, ...
         'accumulate_cut_c.cpp');
     mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir, ...
-        'bin_pixels_c.cpp');
+        'bin_pixels_c.cpp','BinningArg.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir, ...
         'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir, ...
@@ -188,6 +188,8 @@ curr_dir = pwd;
 if(nargin<1)
     error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');
 end
+% common include directory:
+common_include = fullfile(curr_dir,fileparts(in_rel_dir));
 fnames = varargin(:);
 nFiles   = numel(fnames);% files go in varargin
 add_fNames = cellfun(@(x)[x,' '],fnames,'UniformOutput',false);
@@ -201,12 +203,13 @@ if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
 if ispc
-    cxx_flags ='COMPFLAGS= $COMPFLAGS /openmp /std:c++17';
+    cxx_flags =['COMPFLAGS= $COMPFLAGS',' -I',common_include,' /openmp /std:c++20'];
     ld_flags = 'LDFLAGS= --no-undefined';
 else
-    cxx_flags = 'CXXFLAGS= $CFLAGS  -fopenmp -std=c++17';
+    cxx_flags = ['CXXFLAGS= $CFLAGS',' -I',common_include,' -fopenmp -std=c++20'];
     ld_flags  = 'LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp';
 end
+
 if(nFiles==1)
     fname      = strtrim(add_files{1});
     %cxx_flags = "

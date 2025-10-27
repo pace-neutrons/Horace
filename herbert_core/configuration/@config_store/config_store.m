@@ -122,6 +122,16 @@ classdef config_store < handle
                 varargout{i} = out{i};
             end
         end
+        function set_value(obj,class_name,varargin)
+            % set value of config field directly in memory.
+            % Unlike usual way of setting value using property assignment, 
+            % changing value this way does not affect values, stored on
+            % disk. The consequence is much faster change of config values 
+            % but the changes become transient. If memory is clered, these
+            % changes are not restored.
+
+            set_config_field_value_(obj,class_name,varargin{:});
+        end
 
         function  varargout = get_config_field(this,class_to_restore, varargin)
             % Returns the values of the requested field(s) from the

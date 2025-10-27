@@ -8,7 +8,7 @@ set(SRC_FILES
 
 set(HDR_FILES
     "${CXX_SOURCE_DIR}/sort_pixels_by_bins/sort_pixels_by_bins.h"
-    "${CXX_SOURCE_DIR}/CommonCode.h"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
 )
 
 pace_add_cpp_unit_test(

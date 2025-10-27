@@ -1,12 +1,15 @@
 set(
     SRC_FILES
     "bin_pixels_c.cpp"
+    "BinningArg.cpp"
 )
 
 set(
     HDR_FILES
     "bin_pixels.h"
-    "../CommonCode.h"
+    "BinningArg.h"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
+    "${CXX_SOURCE_DIR}/include/MatlabCppClassHolder.hpp"
 )
 
 set(MEX_NAME "bin_pixels_c")

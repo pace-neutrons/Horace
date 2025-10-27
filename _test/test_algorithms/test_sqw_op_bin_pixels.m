@@ -32,10 +32,10 @@ classdef test_sqw_op_bin_pixels < TestCaseWithSave
             obj = obj@TestCaseWithSave(opt,fullfile(this_folder,'test_sqw_op_bin_pix_ref.mat'));
 
 
-            % 4D gaussian in the centre of pixel data block in 4 dimensions
+            % 4D Gaussian in the centre of pixel data block in 4 dimensions
             obj.gauss_sqw_fun = ...
                 @(op, pars)test_sqw_op_bin_pixels.page_gauss(op,pars);
-            obj.gauss_sigma = [0.5, 0.5, 100,10]; % gaussian in qx,qy,
+            obj.gauss_sigma = [0.5, 0.5, 100,10]; % Gaussian in qx,qy,
             % almost constant in qz,dE directions. Centre defined by
             % function
 

@@ -2,7 +2,7 @@ classdef aProjectionBase < serializable
     %  Abstract class, defining interface and common properties used for
     %  transforming pixels from crystal Cartesian
     %  to the coordinate system defined by an sqw image (dnd-object)
-    %  and vice-versa and used by cut, symmetrisation and gen_sqw algorithms
+    %  and vice-versa and used by cut, symmetrization and gen_sqw algorithms
     %  to make appropriate coordinate transformations.
     %
     %  Lattice parameters: (User should not be setting them as cut
@@ -512,10 +512,10 @@ classdef aProjectionBase < serializable
             % projection is involved.
             %
             % E.g. if source projection and target projections are line_proj,
-            % only projection axes contribute into projection axess of each other.
+            % only projection axes contribute into projection axes of each other.
             % if target projection is a spherical projection, changes to
-            % one projection axis of the orthogonal source projectin would
-            % contribute to all axes of the sperical projection.
+            % one projection axis of the orthogonal source projection would
+            % contribute to all axes of the spherical projection.
 
             % NOTE: needs some further thinking about it.
             if isempty(obj.targ_proj_) || isa(obj,class(obj.targ_proj_))

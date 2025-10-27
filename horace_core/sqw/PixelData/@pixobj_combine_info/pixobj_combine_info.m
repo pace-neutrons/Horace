@@ -147,7 +147,7 @@ classdef pixobj_combine_info < MultipixBase
             % Accepts single npix array or cellarry of npix arrays,
             % describing distribution of pixels within bins.
             %
-            % All heed to have the same number of elements.
+            % All need to have the same number of elements.
             obj = set_npix_list_(obj,val);
         end
         %
