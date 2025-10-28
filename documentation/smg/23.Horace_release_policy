@@ -4,14 +4,38 @@ Recent additions to documentation have covered *how* to release Horace. This doc
 channels Horace should be released. It follows initial discussions with David Voneshen of Excitations and is provisional
 at the date of writing (28/10/2025) as this will be discussed further at the next Excitations meeting.
 
-Notes for fleshing out
+The two types of releases to be considered are
+- scheduled releases (major and minor)
+- patch/bugfix releases
 
-releases
-quarterly?
-bugfix
-off cycle
+## Scheduled releases
 
-jan
+### Constraints
 
+The existing known constraints on releases are:
 
-##
+1. Releases should not cause the usable version on IDAaaS (now ADA) to have unexpected behaviour due to recent 
+unpublicized changes on the master branch.
+2. Releases should happen off-cycle so that work done on experiments always uses a consistent version
+
+subject to the need to fix bugs which prevent experimental analysis.
+
+### Criteria for release
+
+Two criteria were identified
+
+- release of a new set of features
+- regular releases to update bugfixes which were not important enough to warrant a release in their own right.
+
+In the context of regular releases, it was noted that Mantid has a regular release cycle. For us this could be 
+quarterly or half-yearly.
+
+These releases should be subject to the above constraints.
+
+### Customer testing
+
+At the moment, while the downloadable release on Github is only deployed when the user downloads it, releases on
+ADA are immediately present to the user when they access it. It was thought that the release should first be available
+on a beta branch. Excitations users are actioned to test new releases, and if this can be separated from scientific work
+this will give a greater margin of safety.
+
