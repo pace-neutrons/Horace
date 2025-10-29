@@ -25,29 +25,29 @@
 
 set(HERBERT_TESTS
     "test_admin"
+    "test_config"
     "test_data_loaders"
     "test_debug_and_test_tools"
-    "test_config"
+    "test_docify"
+    "test_instrument_classes"
     "test_IX_classes"
     "test_map_mask"
+    "test_mpi_wrappers"
     "test_multifit_herbert"
+    "test_object_containers"
+    "test_serializers"
     "test_utilities_her_geometry"
     "test_utilities_her_scientific"
     "test_utilities_herbert"
-    "test_serializers"
-    "test_instrument_classes"
-    "test_object_containers"
-    "test_docify"
     "test_xunit_framework"
-    "test_mpi_wrappers"
 )
 
 set(HERBERT_SYSTEM_TESTS
-    "test_mpi/test_ParpoolMPI_Framework"
     "test_mpi/test_job_dispatcher_herbert"
     "test_mpi/test_job_dispatcher_mpiexec"
     "test_mpi/test_job_dispatcher_parpool"
     "test_mpi/test_job_dispatcher_slurm"
+    "test_mpi/test_ParpoolMPI_Framework"
 )
 
 set(HORACE_TESTS
@@ -58,19 +58,19 @@ set(HORACE_TESTS
     "test_dnd_class"
     "test_experiment"
     "test_gen_sqw_for_powders"
-    "test_rebin"
     "test_mex_nomex"
     "test_main_header"
+    "test_multifit"
+    "test_rebin"
     "test_sqw"
     "test_sqw_class"
-    "test_sqw_pageOpMethods"
     "test_sqw_file"
+    "test_sqw_pageOpMethods"
     "test_sqw_pixels"
     "test_sym_op"
     "test_symmetrisation"
     "test_transformation"
     "test_utilities"
-    "test_multifit"
 )
 
 set(HORACE_SYSTEM_TESTS

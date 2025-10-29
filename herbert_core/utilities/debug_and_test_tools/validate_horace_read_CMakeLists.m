@@ -1,5 +1,5 @@
 function [herbert_tests, herbert_system_tests, horace_tests, horace_system_tests] = ...
-    read_tests_from_CMakeLists (CMakeLists_file)
+    validate_horace_read_CMakeLists (CMakeLists_file)
 % Extract all tests from CMakeLists.txt in the input folder name that are in one
 % of the four CMake variables:
 %    - HERBERT_TESTS         (Herbert code unit tests)

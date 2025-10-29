@@ -1,7 +1,4 @@
-function test_stage_reset(icount, hor, hpc, par, nomex, forcemex, talkative)
-% The function is used in Horace validation 
-%
-% Run it before each test stage.
+function validate_horace_test_stage_reset(icount, hor, hpc, par, nomex, forcemex, talkative)
 % Set Horace configurations to the defaults (but don't save)
 % (The validation should be done starting with the defaults, otherwise an error
 %  may be due to a poor choice by the user of configuration parameters)

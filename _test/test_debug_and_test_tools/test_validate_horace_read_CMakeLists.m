@@ -1,4 +1,4 @@
-classdef test_read_tests_from_CMakeLists < TestCase
+classdef test_validate_horace_read_CMakeLists < TestCase
     % Test that the function to read Horace CMakeLists.txt into
     % validate_horace performs as expected.
     
@@ -8,11 +8,11 @@ classdef test_read_tests_from_CMakeLists < TestCase
     
     methods
         %--------------------------------------------------------------------------
-        function self = test_read_tests_from_CMakeLists(varargin)
+        function self = test_validate_horace_read_CMakeLists(varargin)
             if nargin>0
                 name = varargin{1};
             else
-                name = 'test_read_tests_from_CMakeLists';                
+                name = 'test_validate_horace_read_CMakeLists';                
             end            
             self = self@TestCase(name);    
             
@@ -26,7 +26,7 @@ classdef test_read_tests_from_CMakeLists < TestCase
             pth = self.CMakeLists_path;
             CMakeLists_file = fullfile(pth, 'CMakeLists_2_0_2_0.txt');
             [herbert_tests, herbert_system_tests, horace_tests, horace_system_tests] = ...
-                read_tests_from_CMakeLists (CMakeLists_file);
+                validate_horace_read_CMakeLists (CMakeLists_file);
 
             % Test output
             assertEqual(herbert_tests, ...
@@ -44,7 +44,7 @@ classdef test_read_tests_from_CMakeLists < TestCase
             pth = self.CMakeLists_path;
             CMakeLists_file = fullfile(pth, 'CMakeLists_2_0_2_1.txt');
             [herbert_tests, herbert_system_tests, horace_tests, horace_system_tests] = ...
-                read_tests_from_CMakeLists (CMakeLists_file);
+                validate_horace_read_CMakeLists (CMakeLists_file);
 
             % Test output
             assertEqual(herbert_tests, ...
@@ -63,7 +63,7 @@ classdef test_read_tests_from_CMakeLists < TestCase
             pth = self.CMakeLists_path;
             CMakeLists_file = fullfile(pth, 'CMakeLists_2_1_0_1.txt');
             [herbert_tests, herbert_system_tests, horace_tests, horace_system_tests] = ...
-                read_tests_from_CMakeLists (CMakeLists_file);
+                validate_horace_read_CMakeLists (CMakeLists_file);
 
             % Test output
             assertEqual(herbert_tests, ...
@@ -82,7 +82,7 @@ classdef test_read_tests_from_CMakeLists < TestCase
             pth = self.CMakeLists_path;
             CMakeLists_file = fullfile(pth, 'CMakeLists_2_1_2_1.txt');
             [herbert_tests, herbert_system_tests, horace_tests, horace_system_tests] = ...
-                read_tests_from_CMakeLists (CMakeLists_file);
+                validate_horace_read_CMakeLists (CMakeLists_file);
 
             % Test output
             assertEqual(herbert_tests, ...

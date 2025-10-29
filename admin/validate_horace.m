@@ -117,6 +117,8 @@ function [err, suite] = validate_horace(varargin)
 %                                                  % in CmakeLists.txt.
 %   >> validate_horace (...'-no_system_tests')     %  Do not perform tests indicated as system
 %                                                  % tests in CmakeLists.txt.
+%   >> validate_horace (...'-system_tests_only')   %  Only perform tests indicated as system
+%                                                  % tests in CmakeLists.txt.
 %
 % -Execution control:
 %   >> validate_horace (...'-nomex')               %  Validate matlab code by forcefully disabling
@@ -142,9 +144,11 @@ function [err, suite] = validate_horace(varargin)
 %   >> validate_horace (...'-exit_on_completion')  %  Exit Matlab when validate_horace finishes.
 %
 %
-% Example:
-% --------
-%   >> validate_horace ('test_IX_classes','-disp_skipped', '-nomex')
+% Examples:
+% ---------
+%   >> validate_horace ('-horace_only', '-system_tests_only')
+%
+%   >> validate_horace ('test_IX_classes', '-disp_skipped', '-nomex')
 %
 %
 % Optional arguments for use when testing validate_horace:
@@ -167,18 +171,23 @@ end
 pths = horace_paths;
 
 
+% ------------------------------------------------------------------------------
 % Parse arguments
-% ---------------
+% ------------------------------------------------------------------------------
 % Get value of options and which tests to perform if different from the default.
 % Use parse_arguments with options that ensure that a logical flag name can only
 % be true if present.
-val_default = struct('parallel', 0, 'talkative', 0, 'nomex', 0, 'forcemex', 0, ...
-    'disp_skipped', 0, 'exit_on_completion', 0, 'no_system_tests', 0,...
-    'herbert_only', 0, 'horace_only', 0, 'combine_all', 0, ...
-    'logfile', '', 'root_test_path', '', 'CMakeLists_file', '');
-flag_names = {'parallel', 'talkative', 'nomex', 'forcemex',...
-    'disp_skipped', 'exit_on_completion', 'no_system_tests',...
-    'herbert_only', 'horace_only', 'combine_all'};
+val_default = struct('herbert_only', 0, 'horace_only', 0, ...
+    'no_system_tests', 0, 'system_tests_only', 0, ...
+    'nomex', 0, 'forcemex', 0, ...
+    'combine_all', 0, 'parallel', 0, ...
+    'talkative', 0, 'disp_skipped', 0, 'logfile', '', ...
+    'exit_on_completion', 0, ...
+    'root_test_path', '', 'CMakeLists_file', '');
+
+flag_names = {'herbert_only', 'horace_only', 'no_system_tests', 'system_tests_only'...
+    'nomex', 'forcemex', 'combine_all', 'parallel', ...
+    'talkative', 'disp_skipped', 'exit_on_completion'};
 
 opt = struct('prefix', '-', 'prefix_req', true, 'flags_noneg', true, 'flags_noval', true);
 [test_args, val, present, ~, ok, mess] = ...
@@ -188,6 +197,9 @@ if ~ok
 end
 
 
+% ------------------------------------------------------------------------------
+% Prepare the cell array of test arguments for runtests
+% ------------------------------------------------------------------------------
 if isempty(test_args)
     % No tests were specified on command line - so run them all, subject to
     % exclusions indicated by optional arguments.
@@ -201,13 +213,22 @@ if isempty(test_args)
         CMakeLists_file = val.CMakeLists_file;
     end
     
-    % Filter on system tests
     [herbert_tests, herbert_system_tests, horace_tests, horace_system_tests] = ...
-        read_tests_from_CMakeLists (CMakeLists_file);
+        validate_horace_read_CMakeLists (CMakeLists_file);
     
-    if present.no_system_tests
+    % Filter on system tests
+    if present.no_system_tests && present.system_tests_only
+        error('HERBERT:validate_horace:invalid_argument', ...
+            'Options ''-no_system_tests'' and ''-system_tests_only'' cannot both be specified.')
+        
+    elseif present.no_system_tests
         herbert_tests_to_run = herbert_tests;
         horace_tests_to_run = horace_tests;
+        
+    elseif present.system_tests_only
+        herbert_tests_to_run = herbert_system_tests;
+        horace_tests_to_run = horace_system_tests;
+        
     else
         herbert_tests_to_run = [herbert_tests, herbert_system_tests];
         horace_tests_to_run = [horace_tests, horace_system_tests];
@@ -244,26 +265,16 @@ else
         error('HERBERT:validate_horace:invalid_argument', ...
             'Option ''-no_system_tests'' is not permitted if tests are explicitly named.')
     end
+    if present.system_tests_only
+        error('HERBERT:validate_horace:invalid_argument', ...
+            'Option ''-system_tests_only'' is not permitted if tests are explicitly named.')
+    end
 end
 
 % Remove duplicate tests to avoid repeating tests if there are repeated input
 % arguments or CMakeLists.txt was ill-constructed.
 test_args = unique(test_args, 'stable');
 
-% Test for consistency of optional arguments
-if present.nomex && present.forcemex
-    error('HERBERT:validate_horace:invalid_argument', ...
-        'Options ''-nomex'' and ''-forcemex'' cannot both be specified.')
-end
-
-if present.combine_all && present.parallel
-    error('HERBERT:validate_horace:invalid_argument', ...
-        'Options ''-combine_all'' and ''-parallel'' cannot both be specified.')
-end
-
-
-% Prepare for performing tests
-% ----------------------------
 % Generate full test paths to unit tests
 if ~present.root_test_path
     % Use the 'production' root folder for tests
@@ -281,6 +292,70 @@ if isempty(test_args_full)  % no tests to be performed
     return
 end
 
+n_test_args = numel(test_args_full);
+
+
+% ------------------------------------------------------------------------------
+% Check consistency of optional arguments
+% ------------------------------------------------------------------------------
+if present.nomex && present.forcemex
+    error('HERBERT:validate_horace:invalid_argument', ...
+        'Options ''-nomex'' and ''-forcemex'' cannot both be specified.')
+end
+
+if present.combine_all && present.parallel
+    error('HERBERT:validate_horace:invalid_argument', ...
+        'Options ''-combine_all'' and ''-parallel'' cannot both be specified.')
+end
+
+
+% ------------------------------------------------------------------------------
+% Prepare optional argument list(s) for calls to runtests
+% ------------------------------------------------------------------------------
+opt_args = {};
+
+if present.talkative
+    opt_args = [opt_args, '-verbose'];
+end
+
+if ~present.disp_skipped
+    opt_args = [opt_args, '-nodisp_skipped'];
+end
+
+log_filename_tmp = {};
+if present.logfile
+    filename = ['validate_horace_log_', str_random(12)];    % temporary file name
+    if ~isempty(val.logfile)
+        log_filename = val.logfile;
+    else
+        log_filename = fullfile(tmp_dir, [filename, '.txt']);
+    end
+    if n_test_args>1 && ~present.combine_all
+        % A different log file will be created for each call to runtests that is
+        % made in the loop over the tests. Combine all the log files once the
+        % tests have been completed.
+        % Construct temporary log_filenames with suffix '___1', '___2' ... added
+        % to the log file name, one temporary log file for each call to runtests.
+        % Then append the logfile option to opt_args to get the optional
+        % argument list unique to each call to run_tests
+        log_filename_tmp = arrayfun(...
+            @(k)(fullfile(tmp_dir, [filename, '___', num2str(k), '.txt'])), 1:n_test_args, ...
+            'UniformOutput', false);
+        opt_args = cellfun(@(x)([opt_args, '-logfile', x]), log_filename_tmp, ...
+            'UniformOutput', false);
+    else
+        % Just one call to runtests will be made; write straight to the final
+        % output log file.
+        opt_args = [opt_args, '-logfile', log_filename];
+    end
+end
+
+opt_args_is_cell_of_cells = ~isempty(opt_args) && all(cellfun(@iscell, opt_args));
+
+
+% ------------------------------------------------------------------------------
+% Get current Horace and warnings configurations, and create cleanup object
+% ------------------------------------------------------------------------------
 % Get instances of the current configurations of Horace and Herbert.
 hor = hor_config();
 hpc = hpc_config();
@@ -300,55 +375,20 @@ clear config_store;
 % Validation must always return Horace and Herbert to their initial states,
 % regardless of any changes made in the test routines.
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
-cleanup_obj = onCleanup(@() ...
-    validate_horace_cleanup(cur_horace_config, ...
+cleanup_obj = onCleanup(@()validate_horace_cleanup( ...
+    pwd(), ...
+    cur_horace_config, ...
     cur_hpc_config, ...
     cur_par_config, ...
+    initial_warn_state, ...
     test_args, ...
-    initial_warn_state));
+    log_filename, ...
+    log_filename_tmp));
 
 
-% Run unit tests
-% --------------
-n_test_args = numel(test_args_full);    % will be the number of calls to runtests
-
-% Construct optional argument list for runtests
-opt_args = {};
-if present.talkative
-    opt_args = [opt_args, '-verbose'];
-end
-
-if ~present.disp_skipped
-    opt_args = [opt_args, '-nodisp_skipped'];
-end
-
-if present.logfile
-    filename = ['validate_horace_log_', str_random(12)];    % temporary file name
-    if ~isempty(val.logfile)
-        log_filename = val.logfile;
-    else
-        log_filename = fullfile(tmp_dir, [filename, '.txt']);
-    end
-    if n_test_args>1 && ~present.combine_all
-        % A different log file will be created for each call to runtests that is
-        % made in the loop over the tests. Combine all the log files once the
-        % tests have been completed.
-        % Construct temporary log_filenames with suffix '___1', '___2' ...
-        % Then append the logfile option to opt_args to get the optional
-        % argument list unique to each call to run_tests
-        log_filename_tmp = arrayfun(...
-            @(k)(fullfile(tmp_dir, [filename, '___', num2str(k), '.txt'])), 1:n_test_args, ...
-            'UniformOutput', false);
-        opt_args = cellfun(@(x)([opt_args, '-logfile', x]), log_filename_tmp, ...
-            'UniformOutput', false);
-    else
-        % Just one call to runtests will be made; write straight to the output
-        % log file.
-        opt_args = [opt_args, '-logfile', log_filename];
-    end
-end
-
-% Loop over the tests
+% ------------------------------------------------------------------------------
+% Perform the unit tests
+% ------------------------------------------------------------------------------
 if n_test_args>1 && present.parallel && license('checkout',  'Distrib_Computing_Toolbox')
     % Only call parallel tool box if there is more than one call to runtests
     cores = feature('numCores');
@@ -365,14 +405,14 @@ if n_test_args>1 && present.parallel && license('checkout',  'Distrib_Computing_
     
     suite = cell(1, n_test_args);
     parfor i = 1:n_test_args
-        test_stage_reset(i, hor, hpc, par, present.nomex, present.forcemex, ...
+        validate_horace_test_stage_reset(i, hor, hpc, par, present.nomex, present.forcemex, ...
             present.talkative);
-        [test_ok(i), suite{i}] = runtests(test_args_full{i}, opt_args{i}{:});
+        if opt_args_is_cell_of_cells
+            [test_ok(i), suite{i}] = runtests(test_args_full{i}, opt_args{i}{:});
+        else
+            [test_ok(i), suite{i}] = runtests(test_args_full{i}, opt_args{:});
+        end
     end
-    % Concatenate temporary log files from each of the calls to runtests
-    concatente_text_files (log_filename_tmp{:}, log_filename);
-    delete(log_filename_tmp{:})
-    
     bigtoc(time,  '=== COMPLETED UNIT TESTS RUN IN PARALLEL');
     
 else
@@ -380,7 +420,7 @@ else
     time = bigtic();
     if n_test_args==1 || present.combine_all
         % All tests run in a single call to runtests
-        test_stage_reset(1, hor, hpc, par, present.nomex, present.forcemex, ...
+        validate_horace_test_stage_reset(1, hor, hpc, par, present.nomex, present.forcemex, ...
             present.talkative);
         [test_ok, suite] = runtests(test_args_full{:}, opt_args{:});
         
@@ -388,20 +428,23 @@ else
         % Multiple calls to runtests to run all the tests
         suite = cell(1, n_test_args);
         for i = 1:n_test_args
-            test_stage_reset(i, hor, hpc, par, present.nomex, present.forcemex, ...
+            fprintf(1,['\n\n',...
+                '======================================================================\n',...
+                '===\n', '=== Test argument: %s\n', '===\n'], test_args_full{i})
+            validate_horace_test_stage_reset(i, hor, hpc, par, present.nomex, present.forcemex, ...
                 present.talkative);
-            [test_ok(i), suite{i}] = runtests(test_args_full{i}, opt_args{i}{:});
+            if opt_args_is_cell_of_cells
+                [test_ok(i), suite{i}] = runtests(test_args_full{i}, opt_args{i}{:});
+            else
+                [test_ok(i), suite{i}] = runtests(test_args_full{i}, opt_args{:});
+            end
         end
-        % Concatenate temporary log files from each of the calls to runtests
-        concatente_text_files (log_filename_tmp{:}, log_filename);
-        delete(log_filename_tmp{:})
     end
-    
     bigtoc(time,  '=== COMPLETED UNIT TESTS RUN ');
     
 end
 
-close all
+close all   % close all figures
 clear config_store;
 
 err = ~all(test_ok);
@@ -410,28 +453,4 @@ if present.exit_on_completion
     exit(err);
 end
 
-end
-
-
-%-------------------------------------------------------------------------------
-function concatente_text_files (varargin)
-% Concatenate a set of text files
-%
-%   >> concatente_text_files (filename1, filename2, ... filename_out)
-
-if nargin < 2
-    return  % no files or just one file - do nothing
-end
-
-fid = fopen(varargin{end}, 'w');
-nfiles = nargin - 1;
-for i = 1:nfiles
-    A = fileread(varargin{i});
-    if i < nfiles
-        fprintf(fid, '%s\n', A);
-    else
-        fprintf(fid, '%s', A);
-    end
-end
-fclose(fid);
 end

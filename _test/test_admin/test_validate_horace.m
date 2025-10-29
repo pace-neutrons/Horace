@@ -175,7 +175,9 @@ curr_dir = pwd;
 % runtests. The temporary logfile will be deleted at the end of this test. This
 % is to separate output from this test from the output of the call to runtests
 % that is invoking this test, which we may want to examine on the command screen.
-logfilename = fullfile(tmp_dir, ['tmp_logfile_', str_random(12), '.txt']);
+dbst = dbstack();
+caller_name = dbst(2).name;     % name of calling function
+logfilename = fullfile(tmp_dir, ['tmp_logfile_', caller_name, '_', str_random(12), '.txt']);
 
 % On exit or failure, return to original folder and delete the temporary logfile
 cleanupObj = onCleanup(@()cleanup(curr_dir, logfilename));
