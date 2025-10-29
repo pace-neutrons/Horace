@@ -1,4 +1,4 @@
-function pix = sort_pix(pix_retained, pix_ix_retained, varargin)
+function pix = sort_pix(pix_retained, pix_ix_retained,npix,pix_range,keep_precision)
 % function sorts pixels according to their indices in n-D array npix
 %
 % To do that, it has to load all pixels in memory, so filebacked pixels are
@@ -15,62 +15,47 @@ function pix = sort_pix(pix_retained, pix_ix_retained, varargin)
 %
 %input:
 % pix_retained --  PixelData object, which is to be sorted or a cell array
-%       containing PixelData objects
+%                  containing PixelData objects
 %
 % pix_ix_retained
 %              -- indices of these pixels in n-D array or cell array of
 %                 such indices. Number of elements in these arrays have to
 %                 coincide with number of pixels in pix_retained cellarray,
-%                 and each block of sellarray needs to contain as many
+%                 and each block of cellarray needs to contain as many
 %                 elements as number of pixels in appropriate element of
 %                 pix_retained cellarray.
 % npix         -- auxiliary array, containing numbers of pixels in each
 %                 cell of n-D array. Used only by mex sorting to simplify
 %                 memory allocation and allow to lock particular cells in
-%                 case of OMP sorting.
+%                 case of OMP sorting. If not used, should be empty
 % Optional input:
-%  pix_range -- if provided, prohibits pix range recalculation in pix
-%               constructor. The range  provided will be used instead
+% pix_range   -- if provided, prohibits pix range recalculation in pix
+%                constructor. The range  provided will be used instead
 %
-% '-nomex'    -- do not use mex code even if its available
-%               (usually for testing)
+% keep_precision
+%             -- if provided and true the routine keeps type of pixels
+%                received on input. If not, pixels converted into double.
 %
-% '-force_mex' -- use only mex code and fail if mex is not available
-%                (usually for testing)
-% '-keep_precision'
-%              -- if provided, the routine keeps type of pixels
-%                 received on input. If not, pixels converted into double.
-%
-% '-nomex' and '-force_mex' options can not be used together.
-
 %Output:
 %pix  array of pixels sorted into 1D array according to indices provided
 %
-
-%  Process inputs
-options = {'-nomex','-force_mex','-keep_precision'};
-%[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok, mess, nomex, force_mex, keep_precision, argi] = ...
-    parse_char_options(varargin,options);
-
-[npix,use_mex,use_given_pix_range,data_range] = check_and_parse_additional_args( ...
-    ok,mess,nomex,force_mex,argi{:});
+if nargin<3
+    npix = [];
+end
+if nargin<4
+    pix_range=[];
+end
+if nargin<5
+    keep_precision = false;
+end
+[use_mex,force_mex,use_given_pix_range,data_range] = check_and_get_additional_pars( ...
+    pix_range);
 
 if ~iscell(pix_retained)
     pix_retained = {pix_retained};
 end
 if ~iscell(pix_ix_retained)
     pix_ix_retained = {pix_ix_retained};
-end
-% drop empty cells if any
-is_empty = cellfun(@isempty,pix_retained);
-pix_retained= pix_retained(~is_empty);
-if isempty(pix_retained)
-    pix = PixelDataMemory();
-    return;
-end
-if numel(pix_retained) ~= numel(pix_ix_retained)
-    pix_ix_retained = pix_ix_retained(~is_empty);
 end
 
 
@@ -81,9 +66,17 @@ if use_mex
         %logical.
         keep_type = double(keep_precision);
 
-        raw_pix = cellfun(@(x)get_pix_page_data(x,keep_precision), pix_retained, ...
+        [raw_pix,in_memory,is_empty] = cellfun(@(x)get_pix_page_data(x,keep_precision), pix_retained, ...
             'UniformOutput', false);
-        in_memory = cellfun(@(pix)~pix.is_filebacked, pix_retained);
+        is_empty  = [is_empty{:}];
+        if all(is_empty)
+            pix = PixelDataBase.create();
+            if use_given_pix_range
+                pix = pix.set_data_range(data_range);
+            end
+            return;
+        end
+        in_memory = [in_memory{:}];
         if ~all(in_memory) % there are filebaced pixels and we need to check
             % if all requested pixels are loaded in memory for correct
             % sorting
@@ -131,6 +124,17 @@ if use_mex
 end
 
 if ~use_mex
+    % drop empty cells if any
+    is_empty = cellfun(@isempty,pix_retained);
+    pix_retained= pix_retained(~is_empty);
+    if isempty(pix_retained)
+        pix = PixelDataMemory();
+        return;
+    end
+    if numel(pix_retained) ~= numel(pix_ix_retained)
+        pix_ix_retained = pix_ix_retained(~is_empty);
+    end
+
     % combine pixels together. Type may be lost? Should not but form allows. Should we enforce it?
     pix = PixelDataBase.cat(pix_retained{:},'-force_membased');
     pix.keep_precision = keep_precision;
@@ -165,53 +169,51 @@ function npix = calc_npix_distribution(bin_idx)
 % npix    -- 1D array containing distribution of input indices over the
 %            bins
 %
-max_cell_idx = cellfun(@max,bin_idx);
+[max_cell_idx,include] = cellfun(@find_max_exclude_empty,bin_idx);
+bin_idx = bin_idx(include);
+max_cell_idx = max_cell_idx(include);
 num_bins     = max(max_cell_idx);
 npix         = zeros(num_bins,1);
 for i = 1:numel(bin_idx)
     npix = cut_data_from_file_job.calc_npix_distribution(bin_idx{i},npix);
 end
 
-%
-function data = get_pix_page_data(pix,keep_precision)
-% get current pixel data page keeping pixels precision on request
-pix.keep_precision = keep_precision;
-data = pix.data;
+function [max_idx,include] = find_max_exclude_empty(idx)
+% function checks input indices, if they are empty, return include=false,
+% and if not empty, returns max index of the distribution
+if isempty(idx)
+    max_idx = -1;
+    include = false;
+else
+    max_idx = max(idx);
+    include = true;
+end
 
-function [npix,use_mex,use_given_pix_range,data_range] = check_and_parse_additional_args(ok,mess,nomex,force_mex,varargin)
+
+%
+function [data,in_mem,is_empty] = get_pix_page_data(pix,keep_precision)
+% get current pixel data page keeping pixels precision on request
+if isempty(pix)
+    data = zeros(9,0);
+    in_mem  = true;
+    is_empty = true;
+    return
+end
+pix.keep_precision = keep_precision;
+in_mem = pix.is_filebacked;
+data = pix.data;
+is_empty = isempty(data);
+
+function [use_mex,force_mex,use_given_pix_range,data_range] = check_and_get_additional_pars(pix_range)
 % checks validity of additional arguments and if data_range is provided as
 % additional parameter.
 
-if ~ok
-    error('HORACE:utilities:invalid_argument', ...
-        ['sort_pixels: invalid argument',mess])
-end
-if nomex && force_mex
-    error('HORACE:utilities:invalid_argument', ...
-        'sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
-end
+[use_mex,force_mex] = config_store.instance().get_value('hor_config','use_mex','force_mex_if_use_mex');
 
-if nomex || force_mex % explicit request
-    if nomex
-        use_mex = false;
-    else % force_mex is true
-        use_mex = true;
-    end
-else
-    use_mex = config_store.instance().get_value('hor_config','use_mex');
-end
-if isempty(varargin)
-    npix = [];
-    argi = {};
-else
-    npix = varargin{1};
-    argi = varargin(2:end);
-end
-
-use_given_pix_range = ~isempty(argi);
+use_given_pix_range = ~isempty(pix_range);
 
 if use_given_pix_range
-    data_range = argi{:};
+    data_range = pix_range;
     if ~isequal(size(data_range), [2,9])
         error('HORACE:sort_pix:invalid_argument',...
             'if data_range is provided, it has to be 2x9 array. Actually its size is: %s',...
