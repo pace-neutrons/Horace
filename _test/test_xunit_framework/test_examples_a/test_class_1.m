@@ -1,4 +1,9 @@
 classdef test_class_1 < TestCase
+    % TestCase subclass used to provide example tests for tests of the
+    % matlab_xunit function runtests.
+    % It is only the name of the test class and methods that are needed, hence
+    % the essentially) dummy functions.
+    % See test_runtests_extensions.m for where this is used.
     properties
         fh
     end

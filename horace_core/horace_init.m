@@ -111,9 +111,6 @@ if hc.is_default
     hc.use_mex = n_mex_errors < 1;
 end
 
-% Beta version: Suppress warning occurring when old instrument is stored in
-% an sqw file and is automatically converted into MAPS
-warning('off','SQW_FILE:old_version')
 if ~no_banner
     print_banner();
 end
@@ -144,6 +141,7 @@ else
 end
 
 
+%--------------------------------------------------------------------------
 function print_banner()
 width = 66;
 lines = {
