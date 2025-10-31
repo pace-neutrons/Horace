@@ -1,5 +1,5 @@
 function [ok,mess,varargout]=parse_char_options(args,options)
-% Check which optional keywords are present or not. Assumes that second character is unique
+% Check which optional keywords are present or not.
 %
 %   >> [ok,mess,varargout]=parse_char_options(args,options)
 %

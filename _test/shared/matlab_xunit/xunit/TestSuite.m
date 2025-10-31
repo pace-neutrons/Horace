@@ -239,7 +239,7 @@ classdef TestSuite < TestComponent
 
         end
 
-        function suite = fromName(name,folder)
+        function suite = fromName(name)
             %fromName Construct test suite from M-file name
             %   test_suite = TestSuite.fromName(name) constructs a TestSuite
             %   object from an M-file with the given name.  The name can be of a
@@ -257,9 +257,26 @@ classdef TestSuite < TestComponent
                 suite.gatherTestCases();
                 return;
             end
-            if nargin>1
-                suite = TestSuiteInDir(folder);
-                suite.add(TestSuite.fromName(name));
+
+            % name is not a folder so, if it is valid at all, it must be an
+            % mfile name, with or without a folder too, and with or without a test
+            % instance i.e. 
+            %   mfile,  mfile:testname,  folder/mfile  or  folder/mfile:testname
+            % Parse as such.
+            [folder, file, name_without_folder] = split_folder_from_tests (name);
+            if ~isempty(folder)
+                if exist(folder, 'dir') && exist(fullfile(folder,[file,'.m']), 'file')
+                    % We explicitly demand that the file is in the named directory;
+                    % the extra check here is because TestSuite.fromName will look
+                    % on the entire Matlab path.
+                    suite = TestSuiteInDir(folder);
+                    suite.add(TestSuite.fromName(name_without_folder));
+                else
+                    % Folder does not exist or there is not an m-file named
+                    % name_without_folder in the folder. Create an empty test suite.
+                    suite = TestSuite();
+                    suite.Name = name;
+                end
                 return;
             end
 
@@ -281,7 +298,6 @@ classdef TestSuite < TestComponent
                 suite = TestSuite.fromPackageName(name);
 
             else
-
                 try
                     if nargout(name) == 0
                         suite = TestSuite();
@@ -388,15 +404,18 @@ classdef TestSuite < TestComponent
     end
 end
 
+%-------------------------------------------------------------------------------
 function tf = isPackage(name)
 tf = ~isempty(meta.package.fromName(name));
 end
 
+%-------------------------------------------------------------------------------
 function methods = getClassMethods(class_name)
 class_meta = meta.class.fromName(class_name);
 methods = class_meta.Methods;
 end
 
+%-------------------------------------------------------------------------------
 function result = methodIsConstructor(method)
 method_name = method.Name;
 if ~isempty(method.DefiningClass.ContainingPackage)
@@ -404,4 +423,44 @@ if ~isempty(method.DefiningClass.ContainingPackage)
         method_name];
 end
 result = strcmp(method_name, method.DefiningClass.Name);
+end
+
+%-------------------------------------------------------------------------------
+function [folder, file, name] = split_folder_from_tests (arg)
+% Attempt to split into a folder and mfilename with the form
+%   folder/mfile
+%   folder/mfile:testname
+%
+% Returns
+%   folder      The name of the folder
+%   file        The name of the mfile
+%   name        The name of the test. This could be one of
+%               - mfile
+%               - mfile:testname
+
+
+% Find occurences of ':'. These could be because the input has a full path on a
+% Windows computer, and/or a single test name within a test suite (which is
+% demarcated by ':' or '::')
+ddot_ind = strfind(arg,':');
+
+% Skip over disk in full path if PC
+if ispc && ~isempty(ddot_ind) && numel(arg)>=3 && any(strcmp(arg(2:3),{':\', ':/'}))
+    % Begins '*:\' or '*:/' as would be expected if arg has a full Windows path
+    ddot_ind = ddot_ind(2:end);     % indices of any remaining ':'
+end
+
+% Get test folder and test file name
+if ~isempty(ddot_ind)
+    % This demarcates a particular test case within the mfile
+    full_file = arg(1:ddot_ind(1)-1);
+    test_case = arg(ddot_ind(1):end);
+else
+    full_file = arg;
+    test_case = '';
+end
+
+[folder, file] = fileparts(full_file);
+name = [file, test_case];   % re-append particular test, if present
+
 end

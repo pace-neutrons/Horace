@@ -11,7 +11,7 @@
 %       TestRunMonitor        - Constructor
 %       testComponentStarted  - Called at beginning of test component run
 %       testComponentFinished - Called when test component run finished
-%       testCaseFailure       -   Called when a test case fails
+%       testCaseFailure       - Called when a test case fails
 %       testCaseError         - Called when a test case causes an error
 %       testCaseSkip          - Called when a test case is skipped
 %
