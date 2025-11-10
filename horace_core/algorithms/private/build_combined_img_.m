@@ -1,15 +1,15 @@
 function img = build_combined_img_(axes_bl,proj,img_sources, ...
     job_disp,hor_log_level)
-%BUILD_COMBINED_IMG_  Collect images from mutiple input sources,
+%BUILD_COMBINED_IMG_  Collect images from multiple input sources,
 % add them together and return image (DnD object) combined from multiple
 % images.
 %
-% Its assumed that the imput image sources have been checked for
-% compartibility before, so this routine expect all them being compartible.
+% Its assumed that the input image sources have been checked for
+% compatibility before, so this routine expect all them being compatible.
 %
 % Inputs:
 % axes_bl -- the axes_block instance common for all contributing images
-% proj    -- aProjectionBase class, common for all contributiong images.
+% proj    -- aProjectionBase class, common for all contributing images.
 % img_sources
 %         -- cellarray of objects containing partial images to combine
 % job_disp
@@ -36,7 +36,7 @@ if hor_log_level>-1
     disp('Reading and accumulating binning information of input file(s)...')
 end
 
-if combine_in_parallel && job_disp.cluster.n_workers > 2
+if combine_in_parallel && job_disp.cluster.n_workers > 1
     %TODO:  check config for appropriate ways of combining the tmp and what
     %to do with cluster
     comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
@@ -53,7 +53,7 @@ if combine_in_parallel && job_disp.cluster.n_workers > 2
 
     %
     if n_failed == 0
-        if ~iscell(outputs) % Debugguing errors in Parallel Jobs on Jenkins. 
+        if ~iscell(outputs) % Debugging errors in Parallel Jobs on Jenkins. 
             % Sometimes it does not fail but result is incorrect. Code
             % below is provided for debugging purposes in attempt to
             % clarify the issue
@@ -82,8 +82,9 @@ if combine_in_parallel && job_disp.cluster.n_workers > 2
     end
 else
     if combine_in_parallel
-        fprintf('*** previous parallel job have not prepared proper list of image sources:\n');
+        fprintf(2,'*** Previous parallel job have not prepared proper list of image sources to combine:\n');
         disp(img_sources);
+        fprintf(2,'*** Displaying sources and abandoning parallel execution:\n');
         if iscell(img_sources)
             for i=1:numel(img_sources)
                 fprintf('*** Source N%d\n',i);
