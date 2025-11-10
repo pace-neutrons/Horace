@@ -55,9 +55,32 @@ mxArray* class_handle<T>::export_handler_toMatlab()
     // of the target class in this variable 
     // to ensure that class remains valid and loaded in memory
     // during multiple transitions between C++ and MATLAB codes.
+    //==================================================================================
+    //Step-by-step parsing and meaning of the code for C++ learners produced by ChatGPT:
     mxArray* out = mxCreateNumericMatrix(1, 1, mxUINT64_CLASS, mxREAL);
+    /* Function: mxCreateNumericMatrix is a MATLAB API call that allocates a new MATLAB numeric matrix.
+        Arguments:
+        1, 1  creates a 1×1 matrix.
+        mxUINT64_CLASS  the matrix stores 64-bit unsigned integers (uint64_t).
+        mxREAL   not complex (no imaginary part).
+
+    Result:
+    out now points to a MATLAB array (an mxArray) that can hold one uint64_t value.
+    So after this line, you have an mxArray ready to contain one 64-bit integer.*/
     uint64_t* pData = (uint64_t*)mxGetData(out);
+    /*mxGetData(out) returns a pointer to the raw data buffer inside the MATLAB array.
+      The data type of that pointer is void*, so we cast it to uint64_t* (because we know this array stores 64-bit unsigned integers).
+      Now pData points to the memory where the single numeric value resides.  
+    */
     *pData = reinterpret_cast<uint64_t>(this);
+    /*"this" is a pointer to the current C++ object (because this code is inside a class method).
+       reinterpret_cast<uint64_t>(this) converts that object pointer into a 64-bit integer value.
+        The dereference *pData = ... writes that integer into the MATLAB array’s memory.
+
+    Essentially, you store the pointer value of the current C++ object as an integer inside a MATLAB variable.
+    MATLAB doesn’t understand C++ objects directly, but you can pass the numeric representation of the pointer back 
+    to MATLAB and later recover it (with another MEX call that converts the integer back into a pointer).
+    */
     return out;
 }
 
