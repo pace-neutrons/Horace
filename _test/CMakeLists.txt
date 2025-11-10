@@ -63,8 +63,8 @@ set(TEST_DIRECTORIES_HORACE
     "test_TF_let"
     "test_TF_refine_crystal"
 )
-IF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if (${MATLAB_CURRENT_VERSION} VERSION_GREATER "9.9")
+IF ("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
+    if ("${MATLAB_CURRENT_VERSION}" VERSION_GREATER "9.9")
     # Run tests for 2021b Matlab on Windows Jenkins in reverse order
     # to avoid running parallel tests simultaneously with 2018b version.
        list(REVERSE TEST_DIRECTORIES_HORACE)
