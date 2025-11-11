@@ -150,6 +150,8 @@ function Invoke-Configure {
     [string]$cmake_flags
   )
   Write-Output "`nRunning CMake configure step..."
+  Write-Output "`nUsing MATLAB version: $matlab_release"
+
   $cmake_cmd = "cmake ""$HORACE_ROOT"""
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTING=$build_tests"
