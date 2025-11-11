@@ -70,15 +70,15 @@ mxArray* class_handle<T>::export_handler_toMatlab()
     uint64_t* pData = (uint64_t*)mxGetData(out);
     /*mxGetData(out) returns a pointer to the raw data buffer inside the MATLAB array.
       The data type of that pointer is void*, so we cast it to uint64_t* (because we know this array stores 64-bit unsigned integers).
-      Now pData points to the memory where the single numeric value resides.  
+      Now pData points to the memory where the single numeric value resides.
     */
     *pData = reinterpret_cast<uint64_t>(this);
     /*"this" is a pointer to the current C++ object (because this code is inside a class method).
        reinterpret_cast<uint64_t>(this) converts that object pointer into a 64-bit integer value.
-        The dereference *pData = ... writes that integer into the MATLAB array’s memory.
+        The dereference *pData = ... writes that integer into the MATLAB array's memory.
 
     Essentially, you store the pointer value of the current C++ object as an integer inside a MATLAB variable.
-    MATLAB doesn’t understand C++ objects directly, but you can pass the numeric representation of the pointer back 
+    MATLAB doesn't understand C++ objects directly, but you can pass the numeric representation of the pointer back 
     to MATLAB and later recover it (with another MEX call that converts the integer back into a pointer).
     */
     return out;
