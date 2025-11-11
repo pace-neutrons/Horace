@@ -65,9 +65,9 @@ set(TEST_DIRECTORIES_HORACE
 )
 message(" TESTING AGAINST MATLAB VERSION: ${Matlab_RELEASE}")
 IF ("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
-    if ("${Matlab_RELEASE}" VERSION_GREATER "9.9")
-    # Run tests for 2021b Matlab on Windows Jenkins in reverse order
-    # to avoid running parallel tests simultaneously with 2018b version.
+    if ("${Matlab_RELEASE}" STREQUAL "R2018b")
+    # Run tests for 2018b Matlab on Windows Jenkins in reverse order
+    # to avoid running parallel tests simultaneously with other version(s).
     #
        list(REVERSE TEST_DIRECTORIES_HORACE)
     endif()
