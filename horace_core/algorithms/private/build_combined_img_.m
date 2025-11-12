@@ -36,7 +36,7 @@ if hor_log_level>-1
     disp('Reading and accumulating binning information of input file(s)...')
 end
 
-if combine_in_parallel && job_disp.cluster.n_workers > 1
+if combine_in_parallel && job_disp.cluster.n_workers > 2
     %TODO:  check config for appropriate ways of combining the tmp and what
     %to do with cluster
     comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
