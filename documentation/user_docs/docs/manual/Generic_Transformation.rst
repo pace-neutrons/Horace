@@ -222,7 +222,7 @@ Let's assume you are interested in magnetic signal which is present at relativel
    :alt: Sample differential cross-section measured on MAPS
    
    Sample differential cross-section measured on MAPS and showing
-   magnetic signal within read-cycle surrounded area and background signal (phonons)
+   magnetic signal within red-cycle surrounded area and background signal (phonons)
    inside and outside of this area. Yellow box represents double-size Brillouin zone where 
    data moved using shift operation and its top right quadrant -- the area where data should
    be finally moved using folding and reflection.
