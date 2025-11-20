@@ -93,10 +93,18 @@ switch numel(bin_req)
 
         range = bin_req;
         if isinf(range(1))
-            range(1) = bin_default(1);
+            if numel(bin_default)== 2
+                range(1) = bin_default(1);
+            else
+                range(1) = bin_default(1)-0.5*bin_default(2);
+            end
         end
         if isinf(range(end))
-            range(end) = bin_default(end);
+            if numel(bin_default)== 2
+                range(end) = bin_default(end);
+            else
+                range(end) = bin_default(end)+0.5*bin_default(2);
+            end
         end
 
         border = abs(SQWDnDBase.border_size);
