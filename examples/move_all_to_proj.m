@@ -16,7 +16,8 @@ function result = move_all_to_proj(pageop_obj,proj_array,varargin)
 %
 %
 
-% get access to current page of pixels data
+% get access to current page of pixels data, defined by input 
+% PixedDataBase objects, assigned to pageop_obj on initialization
 data = pageop_obj.page_data;
 % get access to the projection, which describe target image
 targ_proj = pageop_obj.proj;
@@ -27,20 +28,25 @@ targ_proj = pageop_obj.proj;
 iax  = pageop_obj.img.iax;  % expect two integration axis here
 % get cut ranges of the image to combine everything into these ranges.
 cut_range = pageop_obj.img.img_range(:,iax  );
-%
+
+% Extract momentum coordinates from pixel data array.
 q_coord = data(1:3,:);
 result = cell(1,numel(proj_array));
 % go through all combining images coordinates system, select pixels
-% which
+% which contribute into the target image range and transform them from
+% target image range to Crystal Cartesian coordinates defined by the target
+% projection.
 for i=1:numel(proj_array)
     % input projections used for cut do not have lattice set up for them.
     % They need lattice so let's set it up here.
     proj_array(i).alatt = targ_proj.alatt;
     proj_array(i).angdeg = targ_proj.angdeg;
     % transform momentum transfer values from current page of data into
-    % image associated with proj_array(i) projection
+    % image associated with proj_array(i) projection.
     coord_tr = proj_array(i).transform_pix_to_img(q_coord);
-    % find the data falling outside of the projection of interest range
+    % Assume these coordinates are in the target coordinate system instead
+    % of the actual coordinate system defined initially by proj_array(i).
+    % Find the data falling outside of the projection of interest range
     % forcing target image and the image produced by current projection to
     % coincide.
     include = coord_tr(iax(1),:)>=cut_range(1,1)&coord_tr(iax(1),:)<=cut_range(2,1)&...
