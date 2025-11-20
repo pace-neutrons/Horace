@@ -77,5 +77,6 @@ if nd_avail  ~= ndims
         end
     end
 end
-obj.img_range = range;
 obj.nbins_all_dims = nbins;
+obj.img_range = range;
+
