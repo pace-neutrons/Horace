@@ -883,17 +883,17 @@ classdef test_line_axes < TestCase
             pbin = {[-inf,inf],[inf,0.1,1],[-2,0.1,inf],[-inf,0.1,inf]};
             block = AxesBlockBase.build_from_input_binning('line_axes',default_binning,pbin);
             assertTrue(isa(block,'line_axes'));
-            assertElementsAlmostEqual(block.img_range,...
-                [-1.,-2.05,-2.05,-0.05;...
-                1, 1.05,3.05,10.15]);
-            assertEqual(block.nbins_all_dims,[1,31,51,102]);
+            assertElementsAlmostEqual(block.img_range,[...
+                -1.05,-2.1,-2.05,-0.5;...
+                01.05, 1.1,3.15,10.6]);
+            assertEqual(block.nbins_all_dims,[1,32,52,111]);
             assertEqual(block.iax,1)
-            assertEqual(block.iint,[-1;1])
+            assertEqual(block.iint,[-1.05;1.05])
             assertEqual(block.pax,[2,3,4])
             assertEqual(block.dax,[1,2,3])
-            assertElementsAlmostEqual(block.p{1},-2.05:0.1:1.05,'absolute',1.e-12);
-            assertElementsAlmostEqual(block.p{2},-2.05:0.1:3.05,'absolute',1.e-12)
-            assertElementsAlmostEqual(block.p{3},-0.05:0.1:10.15,'absolute',1.e-12)
+            assertElementsAlmostEqual(block.p{1},-2.1:0.1:1.1,'absolute',1.e-12);
+            assertElementsAlmostEqual(block.p{2},-2.05:0.1:3.15,'absolute',1.e-12)
+            assertElementsAlmostEqual(block.p{3},-0.5:0.1:10.6,'absolute',1.e-12)
         end
         %
         function test_build_from_input_binning(~)
@@ -901,7 +901,9 @@ classdef test_line_axes < TestCase
             pbin = {[],[-1,1],[-2,0.1,2],[-inf,0,inf]};
             block = AxesBlockBase.build_from_input_binning('line_axes',default_binning,pbin);
             assertTrue(isa(block,'line_axes'));
-            assertElementsAlmostEqual(block.img_range,[-1.05,-1,-2.05,-0.5;1.05,1,2.05,10.5]);
+            assertElementsAlmostEqual(block.img_range,[ ...
+                -1.05,-1,-2.05,-0.5; ...
+                01.05, 1, 2.05, 10.5]);
             assertEqual(block.nbins_all_dims,[21,1,41,11]);
             assertEqual(block.dax,[1,2,3]);
             assertEqual(block.iax,2)

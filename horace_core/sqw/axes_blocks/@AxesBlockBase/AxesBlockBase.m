@@ -176,6 +176,9 @@ classdef AxesBlockBase < serializable
     end
     %----------------------------------------------------------------------
     methods(Static)
+        % retrieve data range from binning range provided as input. 
+        % see get_cut_range which performes opposite operation
+        range = get_img_range_from_cut_range(varargin)
         % build new particular AxesBlockBase object from the binning
         % parameters, provided as input. If some input binning parameters
         % are missing, the defaults are taken from the given image range
@@ -473,8 +476,10 @@ classdef AxesBlockBase < serializable
     methods
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
-        % as the original object
+        % as the original object. See static get_img_range_from_cut_range
+        % above
         range = get_cut_range(obj,varargin);
+
         % Identify range this axes block occupies in target coordinate
         % system
         [range,is_in,img_targ_center] = get_targ_range(obj,source_proj,targ_proj,range_requested);

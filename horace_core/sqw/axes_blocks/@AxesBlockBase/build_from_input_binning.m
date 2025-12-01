@@ -5,10 +5,11 @@ function  new_axes_block = build_from_input_binning(...
 % defaults are taken from the existing AxesBlockBase object.
 %
 % if the target range defined by binning exceeds the existing image range
-% (in target coordinate system), the existing image range is selected
+% (in the target coordinate system), the existing image range is selected
 %
-% Note: the binning parameters is the cellarray of 1,2 or 3 element vectors
-%       with meaning described by cut_sqw or cut_dnd inputs. See below for more details.
+% NOTE: the binning parameters is the cellarray of 1,2 or 3 element vectors
+%       with meaning described by cut_sqw or cut_dnd inputs. See below for 
+%       more details.
 %
 % Inputs:
 % axes_class_or_name -- name of the axes block class to build or empty
@@ -51,21 +52,23 @@ end
 % set up NaN=s for values, which have to be redefined from source
 idim = 1:4;
 ind = num2cell(idim);
-% Check values are acceptable, and make ranges (3+2)x1 (for plot) or (2+2)x1 for integration axes
-% ---------------------------------------------------------------------------------------
-targ_img_range = cellfun(@(i,bin_rec,bin_def)parse_pbin(i,bin_rec,bin_def),...
-    ind,pbin,cur_img_range_and_steps,'UniformOutput',false);
 
 if isa(axes_class_or_name,'AxesBlockBase')
     new_axes_block = axes_class_or_name;
 else
     new_axes_block = feval(axes_class_or_name);
 end
+data_range = new_axes_block.get_img_range_from_cut_range(cur_img_range_and_steps{:});        
+% Check values are acceptable, and make ranges (3+2)x1 (for plot) or (2+2)x1 for integration axes
+% ---------------------------------------------------------------------------------------
+targ_img_range = cellfun(@(i,bin_rec,bin_def)parse_pbin(i,bin_rec,data_range,bin_def),...
+    ind,pbin,cur_img_range_and_steps,'UniformOutput',false);
+
 new_axes_block = new_axes_block.init(targ_img_range{:});
 
 end
 
-function range = parse_pbin(ind,bin_req,bin_default)
+function bin_range = parse_pbin(ind,bin_req,data_range,bin_default)
 % get defined binning range from the various input parameters
 %
 % This function defines the logic behind the binning parameters
@@ -77,8 +80,7 @@ function range = parse_pbin(ind,bin_req,bin_default)
 %
 switch numel(bin_req)
     case 0 % Default
-        range = bin_default;
-
+        bin_range = bin_default;
     case 1 % Rebin
         if bin_req == 0
             if numel(bin_default) == 2 % this may fail if bin_default is integration axis
@@ -87,49 +89,48 @@ switch numel(bin_req)
             end
             bin_req = bin_default(2);
         end
-        range = [bin_default(1),bin_req,bin_default(end)];
+        bin_range = [bin_default(1),bin_req,bin_default(end)];
 
     case 2 % Integration
-
-        range = bin_req;
-        if isinf(range(1))
-            range(1) = bin_default(1);
+        bin_range = bin_req;
+        if isinf(bin_range(1))        
+           bin_range(1) = data_range(1,ind);
         end
-        if isinf(range(end))
-            range(end) = bin_default(end);
+        if isinf(bin_range(end))
+           bin_range(2) = data_range(2,ind);            
         end
 
         border = abs(SQWDnDBase.border_size);
         % we need correct integration range for cut to work but some old file
-        if abs(range(2)-range(1))<2*border  % formats do not store proper
+        if abs(bin_range(2)-bin_range(1))<2*border  % formats do not store proper
             % img_range and store [centerpoint, centerpoint] for
             % integration ranges. Here we try to mitigate this.
-            av_pt = 0.5*(range(1)+range(2));
+            av_pt = 0.5*(bin_range(1)+bin_range(2));
             if abs(av_pt) < border
-                range(1) = -border;
-                range(2) =  border;
+                bin_range(1) = -border;
+                bin_range(2) =  border;
             else
-                range(1) = av_pt*(1 - border);
-                range(2) = av_pt*(1 + border);
+                bin_range(1) = av_pt*(1 - border);
+                bin_range(2) = av_pt*(1 + border);
             end
         end
-
     case 3 % viewing axis
-        range = bin_req;
-        if isinf(range(1))
-            range(1) = bin_default(1);
-        end
-        if isinf(range(end))
-            range(end) = bin_default(end);
-        end
-
-        if range(2) == 0
-            if numel(bin_default) == 3
-                range(2) = bin_default(2);
-            else % integrate in ranges, defined by default bin boundaries if step is 0
+        bin_range = bin_req;
+        step = bin_req(2);
+        if step == 0
+            if numel(bin_default)==2  % integrate in ranges, defined by default bin boundaries if step is 0
                 % and the default bin boundaries are integration boundaries
-                range = [range(1),range(3)];
+                bin_range = [bin_range(1),bin_range(3)];                
+            else %3
+                bin_range(2) = bin_default(2);
+                step = bin_range(2);
             end
+        end
+        if isinf(bin_range(1))
+            bin_range(1) = data_range(1,ind)+0.5*step;
+        end
+        if isinf(bin_range(end))
+            bin_range(end) = data_range(2,ind)-0.5*step;            
         end
     otherwise
         error('HORACE:AxesBlockBase:invalid_argument',[ ...
@@ -143,15 +144,15 @@ switch numel(bin_req)
 end
 
 % check if number of expected bins < 1, so it is actually integration range
-if numel(range) == 3 && range(3) - range(1) < range(2)
-    range = [range(1),range(3)];
+if numel(bin_range) == 3 && bin_range(3) - bin_range(1) < bin_range(2)
+    bin_range = [bin_range(1),bin_range(3)];
 end
 
 % check validity of data ranges
-if range(end) < range(1) && ~(numel(range) == 3 && range(2) < 0)
+if bin_range(end) < bin_range(1) && ~(numel(bin_range) == 3 && bin_range(2) < 0)
     error('HORACE:AxesBlockBase:invalid_argument',...
         'Upper limit (%f) smaller then the lower limit (%f) for positive step - check axis N: %d', ...
-        range(end), range(1), ind);
+        bin_range(end), bin_range(1), ind);
 end
 
 end

@@ -219,8 +219,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.instrum = IX_inst_DGfermi(instrument_ref);
             obj.sample  = sample_ref;
 
-
-
             file_exist = cellfun(@(fn)(exist(fn,'file') == 2),spe_files);
             if all(file_exist)
                 obj.add_to_files_cleanList(spe_files{:});
@@ -319,13 +317,15 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
 
             % Check cuts from gen_sqw output with spe files in a different
             % order are the same
-            [ok,mess,dummy_w1,w1b]=is_cut_equal(sqw_file_123456,sqw_file_145623,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            [ok,mess,dummy_w1,w1b]=is_cut_equal(sqw_file_123456,sqw_file_145623,...
+                obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output with spe files in a different order are not the same: ',mess]);
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w1b,'ignore_str',true,'tol',1.e-7);
 
 
-            w1a=cut_sqw(sqw_file_123456,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w1a=cut_sqw(sqw_file_123456,obj.proj,...
+                [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
         end
