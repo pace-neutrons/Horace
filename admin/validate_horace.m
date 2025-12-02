@@ -14,7 +14,7 @@ function [err, suite] = validate_horace(varargin)
 %   [err, suite] = validate_horace(...)             % with optional output
 %
 % It is recommended to use validate_horace rather than the xunit function runtests
-% as this will ensure that the horace configurations, warning state and working
+% as this will ensure that the Horace configurations, warning state and working
 % directory are returned to their initial states on exit, regardless of any changes
 % that the tests may have made or if errors are thrown. This is not necessarily
 % the case if the tests are run directly using runtests.
