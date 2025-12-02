@@ -141,17 +141,17 @@ classdef test_sphere_axes < TestCase
             pbin = {[-inf,inf],[inf,1,45],[-180,1,inf],[-inf,0.1,inf]};
             block = AxesBlockBase.build_from_input_binning('sphere_axes',default_binning,pbin);
             assertTrue(isa(block,'sphere_axes'));
-            assertElementsAlmostEqual(block.img_range,...
-                [0,  0,-180,-0.05;...
-                1 ,45.5,180,10.05])
-            assertEqual(block.nbins_all_dims,[1, 45,360,101]);
+            assertElementsAlmostEqual(block.img_range,[...
+                0,      0, -180,-0.5;...
+                1.05 ,45.5, 180, 10.5])
+            assertEqual(block.nbins_all_dims,[1, 45,360,110]);
             assertEqual(block.iax,1)
-            assertEqual(block.iint,[0;1])
+            assertEqual(block.iint,[0;1.05])
             assertEqual(block.pax,[2,3,4])
             assertEqual(block.dax,[1,2,3])
             assertElementsAlmostEqual(block.p{1},   0:(45.5/45):45.5,'absolute',1.e-12);
             assertElementsAlmostEqual(block.p{2},-180:1:180,'absolute',1.e-12)
-            assertElementsAlmostEqual(block.p{3},-0.05:0.1:10.05,'absolute',1.e-12)
+            assertElementsAlmostEqual(block.p{3},-0.5:0.1:10.5,'absolute',1.e-12)
         end
         %
         function test_build_from_input_binning(~)

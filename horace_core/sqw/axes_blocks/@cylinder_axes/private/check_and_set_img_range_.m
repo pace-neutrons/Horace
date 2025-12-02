@@ -38,7 +38,7 @@ if any(val(1,:)>val(2,:))
     error('HORACE:cylinder_axes:invalid_argument',mess);
 end
 if val(1,1)<0
-    error('HORACE:cylinder_axes:invalid_argument','minimal Q-value can not be negative');
+    val(1,1) = 0;
 end
 
 obj.img_range_      = val;
