@@ -24,10 +24,12 @@ if verLessThan('matlab','8.4')
     figure(fig_h);
     
 elseif verLessThan('matlab','25.1')
+    state = warning('off', 'MATLAB:ui:javaframe:PropertyToBeRemoved');
+    cleanupObj = onCleanup(@()warning(state));  % return warning to initial state on exit
     fJFrame = get(fig_h,'JavaFrame');
     drawnow expose
     jw = fJFrame.fHG2Client.getWindow();
-    %
+    
     if isjava(jw) % somethimes it is not recognized as java within 
                   % a running script while always recognized in debugger
         jw.setAlwaysOnTop(true);

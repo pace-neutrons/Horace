@@ -1,19 +1,31 @@
 function horace_init(no_banner)
-% Adds the paths needed by Horace - sqw version
+% Adds the paths needed by Horace.
 %
-% In your startup.m, add the Horace root path and call horace_init, e.g.
-%       addpath('c:\mprogs\horace')
-%       horace_init
-% Is PC and Unix compatible.
+%   >> horace_init
+%   >> horace_init(no_banner)
 %
-%Optional input:
+% Optional input:
+% ---------------
+%  no_banner    If true or 1: print welcome banner to screen
+%               if false or 0: don't print welcome banner
 %
-%  no_banner   -- if the variable is present, routine does not print Horace baner
-%
-% Initial author:
-% T.G.Perring
-%
-%
+%               Default: print banner
+
+
+% Check optional input argument
+if nargin~=0
+    if isscalar(no_banner) && (islogical(no_banner) || ...
+            (isnumeric(no_banner) && any(no_banner==[0,1])))
+        no_banner = logical(no_banner);
+    else
+        error('HERBERT:herbert_init:invalid_argument', ...
+            'Input argument ''no_banner'' must be true or false (or 1 or 0)')
+    end
+else
+    no_banner = false;
+end
+
+
 % -----------------------------------------------------------------------------
 % Check if supporting Herbert package is available
 if isempty(which('herbert_init'))
@@ -29,10 +41,11 @@ if isempty(which('herbert_init'))
 end
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % -----------------------------------------------------------------------------
-% Root directory is assumed to be that in which this function resides
-global horace_path
+% Root Horace (as opposed to Herbert) directory is assumed to be that in which
+% this function resides
 horace_path = fileparts(which('horace_init'));
-global root_path
+
+% Overall Horace root directory is assumed to be the next folder up
 root_path = fileparts(horace_path);
 addpath(horace_path)  % MUST have horace_path so that horace_init, horace_off included
 
@@ -98,10 +111,7 @@ if hc.is_default
     hc.use_mex = n_mex_errors < 1;
 end
 
-% Beta version: Suppress warning occurring when old instrument is stored in
-% an sqw file and is automatically converted into MAPS
-warning('off','SQW_FILE:old_version')
-if nargin == 0
+if ~no_banner
     print_banner();
 end
 
@@ -131,6 +141,7 @@ else
 end
 
 
+%--------------------------------------------------------------------------
 function print_banner()
 width = 66;
 lines = {
