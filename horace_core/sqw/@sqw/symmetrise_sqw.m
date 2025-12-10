@@ -155,7 +155,7 @@ cleanup_obj = onCleanup(@()set(hor_config, 'log_level', oll));
 % Build target object from symmetry-modified pixels and new data range
 ax = wout.data.axes;
 proj = wout.data.proj;
-% use symmetry-modified range and add border to mitigate possible
+% use symmetry-modified binning range and add border to mitigate possible
 % round-off errors appeared when ranges were calculated.
 ax.img_range = range_add_border(all_sym_range,-eps("single"));
 dat = DnDBase.dnd(ax,proj);
@@ -165,8 +165,6 @@ dat = DnDBase.dnd(ax,proj);
 [dat.s, dat.e] = normalize_signal(dat.s, dat.e, dat.npix);
 wout.data = dat;
 wout.pix = pix;
-%wout = cut(wout,proj,new_range_arg{:});
-
 end
 
 function [sym, fold] = validate_sym(sym)
