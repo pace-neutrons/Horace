@@ -98,7 +98,13 @@ wout = copy(win);
 
 [sym, fold] = validate_sym(sym);
 %transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
-
+% double wrapped cellarray
+transforms = @sym.transform_pix;
+% Need the projections to be wrapped in a cell array to be duplicated
+% for each symmetry operation we're applying, since the first cell array
+% may be unwrapped as an argument if 1 arg (as in this case), need
+% double wrapped cellarray
+wout = wout.apply(transforms, {{transf_proj(:)}}, false);
 
 %=========================================================================
 % Transform Ranges:
@@ -114,12 +120,7 @@ cc_ranges = proj.transform_img_to_pix(exp_range);
 
 % identify intersection points between the image range and the symmetry plane
 if isa(sym, 'SymopReflection')
-    transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
-    % Need the projections to be wrapped in a cell array to be duplicated
-    % for each symmetry operation we're applying, since the first cell array
-    % may be unwrapped as an argument if 1 arg (as in this case), need
-    % double wrapped cellarray
-    wout = wout.apply(transforms, {{transf_proj(:)}}, false);
+
     cc_exist_range = cc_ranges;
     for i = 1:fold
         cross_points = box_intersect(cc_ranges, ...
@@ -134,9 +135,7 @@ if isa(sym, 'SymopReflection')
         cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
     end
 else
-    wout.pix = sym.transform_pix(wout.pix);
-    %offset = proj.transform_img_to_pix(sym(1).offset); % add rotation point
-    % in case it outside of the symmeterized region
+    % add rotation centre in case it outside of the symmeterized region
     offset = sym(1).offset; % apparently offset is in Crystal Cartesian and it should be fixed
     cc_exist_range = sym.transform_pix([cc_ranges,offset]);
 end
@@ -147,43 +146,26 @@ img_db_range_minmax = min_max(img_box_points)';
 % add fourth dimension to the range
 all_sym_range = [img_db_range_minmax,existing_range(:,4)];
 
-% Extract existing binning: TODO: refactor using future line_axes, extract
-% common code with combine_sqw
-
-new_range_arg = cell(1,4);
-paxis = false(4,1);
-paxis(wout.data.pax) = true;
-npax = 0;
-for i=1:4
-    new_range_arg{i} = all_sym_range(:,i)';
-    range = new_range_arg{i};    
-    if paxis(i)
-        npax = npax+1;
-        step = wout.data.p{npax}(2) - wout.data.p{npax}(1);
-        % Ranges are bin-centres
-        new_range_arg{i} = [range(1)-0.5*step, step, range(2)+0.5*step];
-    end
-end
 
 % Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C (TGP 30/11/13)
 oll = get(hor_config, 'log_level');
 set(hor_config, 'log_level', -1);
 cleanup_obj = onCleanup(@()set(hor_config, 'log_level', oll));
 
-% completely break relationship between bins and pixels in memory and make
-% all pixels contribute into single large bin
+% Build target object from symmetry-modified pixels and new data range
 ax = wout.data.axes;
 proj = wout.data.proj;
+% use symmetry-modified range and add border to mitigate possible
+% round-off errors appeared when ranges were calculated.
+ax.img_range = range_add_border(all_sym_range,-eps("single"));
+dat = DnDBase.dnd(ax,proj);
 
-ax.do_check_combo_arg = false;
-ax.img_range = all_sym_range;
-ax.nbins_all_dims = ones(1,4);
-ax.do_check_combo_arg = true;
-ax = ax.check_combo_arg();
-dat = DnDBase.dnd(ax,proj,0,0,sum(wout.data.npix(:)));
+[dat.npix,dat.s,data.e,pix] = ...
+    proj.bin_pixels(ax,wout.pix,dat.npix,dat.s,dat.e);
+[dat.s, dat.e] = normalize_signal(dat.s, dat.e, dat.npix);
 wout.data = dat;
-
-wout = cut(wout,proj,new_range_arg{:});
+wout.pix = pix;
+%wout = cut(wout,proj,new_range_arg{:});
 
 end
 

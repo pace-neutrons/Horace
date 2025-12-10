@@ -168,7 +168,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 if define_selected
                     selected = true(1,pix.num_pixels);
                 end
-
             elseif isnumeric(pix) && size(pix,1) == 3
                 q_coordinates = pix;
                 is_pix_obj = false;
@@ -178,19 +177,15 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             else
                 error('HORACE:Symop:not_implemented', ...
                     'Transforming of %s pixels is not currently implemented',class(pix));
-
             end
 
-            % Get transformation
-
-
+            % Do transformation
             if ~trust
                 for i = numel(obj):-1:1
-                    in_zone = obj(i).in_irreducible(q_coordinates, proj{:});
+                    nin_zone = ~obj(i).in_irreducible(q_coordinates, proj{:});
                     %in_zone(~selected) = false;
-                    transform = selected & ~in_zone';
+                    transform = selected & nin_zone';
                     q_coordinates(:,transform) = obj(i).transform_vec(q_coordinates(:,transform));
-                    selected = transform;
                 end
             else
                 for i = numel(obj):-1:1

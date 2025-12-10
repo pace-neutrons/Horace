@@ -54,12 +54,13 @@ keys_recognized = {'-qspec'}; % do we still need it? if cache is not empty,
 if ~ok
     error('HORACE:rundatah:invalid_arguments',['calc_pix_range: ',mess])
 end
+delay_binning = ~isempty(obj.transform_sqw_f_);
 %
 % Create sqw object
 %
-[w, data_range]=calc_sqw_(obj,grid_size, pix_db_range);
+[w, data_range]=calc_sqw_(obj,grid_size, pix_db_range,delay_binning);
 %
-if ~isempty(obj.transform_sqw_f_)
+if delay_binning
     % we should assume that transformation maintains correct data pix_range
     % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
