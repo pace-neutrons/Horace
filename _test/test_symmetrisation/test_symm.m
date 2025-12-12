@@ -88,8 +88,8 @@ classdef test_symm < TestCase
             w3d_sqw=read_sqw(fullfile(this.testdir,'w3d_sqw.sqw'));
 
             sym = [SymopReflection([0,0,1],[-1,1,0]), ...
-                   SymopReflection([1,1,0],[0,0,1]), ...
-                   SymopReflection([0,0,1],[-1,1,0])];
+                SymopReflection([1,1,0],[0,0,1]), ...
+                SymopReflection([0,0,1],[-1,1,0])];
 
             w3d_sqw_sym=symmetrise_sqw(w3d_sqw,sym(1));
             % one pixel lost, pity, but bearable.
@@ -119,6 +119,38 @@ classdef test_symm < TestCase
             assertEqual(sqw_sym, sqw_sym_fold);
         end
 
+        function obj = test_sym_rot_eges(obj)
+            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+            % cut it on fine bins and exact ranges to look better and
+            % allow visualinspection for results
+            w2d_sqw = cut(w2d_sqw,[-0.6+0.001,0.002,-0.4-0.001],[-0.65+0.001,0.002,-0.45-0.001]);
+            proj = w2d_sqw.data.proj;
+
+            rc = 0.5*(w2d_sqw.data.img_range(1,:)+w2d_sqw.data.img_range(2,:))';
+            % TODO: Re #1849 rot_centre at the moment is in Crystan Cartesian,
+            % but manual does not make it obvious. Have to be fixed, probably
+            % transform it into hkl
+            rot_centre = proj.transform_img_to_pix(rc);
+
+            sym = SymopRotation([0 0 1], 90,[rot_centre(1:2);0]);
+            sqw2D_sym = w2d_sqw.symmetrise_sqw(sym);
+
+
+            % check operations on symmetry boundaries
+            eb = expand_box(w2d_sqw.data.img_range(1,1:3),w2d_sqw.data.img_range(2,1:3));
+            %max_old_range = max(abs(eb'));
+            ebcc = proj.transform_img_to_pix(eb);
+
+            sym_all = validate_and_generate_sym(sym);
+            transf_ranges = sym_all.transform_pix(ebcc);
+            img_box_points      = proj.transform_pix_to_img(transf_ranges);
+            img_db_range_minmax = min_max(img_box_points)';
+
+            assertEqualToTol(range_add_border(img_db_range_minmax,-eps('single')), ...
+                sqw2D_sym.data.img_range(:,1:3))
+
+        end
+
         function obj = test_sym_rot_in_proj(obj)
             w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
 
@@ -132,8 +164,8 @@ classdef test_symm < TestCase
             w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'), 'file_backed', false);
 
             sym = [SymopReflection([0,0,1],[-1,1,0]), ...
-                   SymopReflection([1,1,0],[0,0,1]), ...
-                   SymopReflection([0,0,1],[-1,1,0])];
+                SymopReflection([1,1,0],[0,0,1]), ...
+                SymopReflection([0,0,1],[-1,1,0])];
 
             w2d_sym_mb = symmetrise_sqw(w2d_sqw, sym);
 
