@@ -127,17 +127,19 @@ classdef test_symm < TestCase
             proj = w2d_sqw.data.proj;
 
             rc = 0.5*(w2d_sqw.data.img_range(1,:)+w2d_sqw.data.img_range(2,:))';
+            rc = [rc(1:2);0];
             % TODO: Re #1849 rot_centre at the moment is in Crystan Cartesian,
             % but manual does not make it obvious. Have to be fixed, probably
             % transform it into hkl
             rot_centre = proj.transform_img_to_pix(rc);
 
-            sym = SymopRotation([0 0 1], 90,[rot_centre(1:2);0]);
+            sym = SymopRotation([0 0 1], 90,rot_centre);
             sqw2D_sym = w2d_sqw.symmetrise_sqw(sym);
 
 
             % check operations on symmetry boundaries
             eb = expand_box(w2d_sqw.data.img_range(1,1:3),w2d_sqw.data.img_range(2,1:3));
+            eb = [eb,rc];
             %max_old_range = max(abs(eb'));
             ebcc = proj.transform_img_to_pix(eb);
 
