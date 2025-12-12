@@ -134,7 +134,9 @@ if isa(sym, 'SymopReflection')
     end
 else
     % 
-    cc_exist_range = sym.transform_pix(cc_ranges);
+    rot_center = sym.offset; % offset in Crystal Cartesian though should
+    %  be hkl
+    cc_exist_range = sym.transform_pix([cc_ranges,rot_center]);
 end
 
 img_box_points      = proj.transform_pix_to_img(cc_exist_range);
@@ -160,7 +162,7 @@ dat = wout.data;
 if isa(sym,'SymopIdentity')
     dat.axes.img_range = all_sym_range;    
 else
-    dat.axes.img_range = range_add_border(all_sym_range,-eps("single"));    
+    dat.axes.img_range(:,1:3) = range_add_border(all_sym_range(:,1:3),-eps("single"));    
 end
 dat.s    = 0;
 dat.e    = 0;
