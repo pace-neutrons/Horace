@@ -96,15 +96,14 @@ end
 win = sqw(win);
 wout = copy(win);
 
-[sym, fold] = validate_sym(sym);
-%transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
+[sym, fold] = validate_and_generate_sym(sym);
 % double wrapped cellarray
 transforms = @sym.transform_pix;
 % Need the projections to be wrapped in a cell array to be duplicated
 % for each symmetry operation we're applying, since the first cell array
 % may be unwrapped as an argument if 1 arg (as in this case), need
 % double wrapped cellarray
-wout = wout.apply(transforms, {{transf_proj(:)}}, false);
+wout.pix = wout.pix.apply(transforms, {{transf_proj(:)}}, false);
 
 %=========================================================================
 % Transform Ranges:
@@ -120,7 +119,6 @@ cc_ranges = proj.transform_img_to_pix(exp_range);
 
 % identify intersection points between the image range and the symmetry plane
 if isa(sym, 'SymopReflection')
-
     cc_exist_range = cc_ranges;
     for i = 1:fold
         cross_points = box_intersect(cc_ranges, ...
@@ -153,25 +151,37 @@ set(hor_config, 'log_level', -1);
 cleanup_obj = onCleanup(@()set(hor_config, 'log_level', oll));
 
 % Build target object from symmetry-modified pixels and new data range
-ax = wout.data.axes;
-proj = wout.data.proj;
+dat = wout.data;
 % use symmetry-modified binning range and add border to mitigate possible
-% round-off errors appeared when ranges were calculated.
-ax.img_range = range_add_border(all_sym_range,-eps("single"));
-dat = DnDBase.dnd(ax,proj);
+% round-off errors appeared when ranges were calculated. This will cause 
+% gen_sqw with symmeterise_sqw(SymopIdentity) to produce slightly different
+% result wrt. gen_sqw without transformation as binning ranges are different
+% but will be compensating but not loosing boundary pixels in more physically
+% interesting situations
+if isa(sym,'SymopIdentity')
+    dat.axes.img_range = all_sym_range;    
+else
+    dat.axes.img_range = range_add_border(all_sym_range,-eps("single"));    
+end
+dat.s    = 0;
+dat.e    = 0;
+dat.npix = 0;
 
-[dat.npix,dat.s,data.e,pix] = ...
-    proj.bin_pixels(ax,wout.pix,dat.npix,dat.s,dat.e);
+proj = dat.proj;
+% unique_id is needed to call sort pixels inside routine
+[dat.npix,dat.s,dat.e,pix,unique_id] = ...
+    proj.bin_pixels(dat.axes,wout.pix,dat.npix,dat.s,dat.e);
 [dat.s, dat.e] = normalize_signal(dat.s, dat.e, dat.npix);
 wout.data = dat;
 wout.pix = pix;
 end
 
-function [sym, fold] = validate_sym(sym)
-% Check sym is a valid symmetry reduction
+function [sym, fold] = validate_and_generate_sym(sym)
+% Check sym is a valid symmetry reduction and modify it according to
+% symmetry rules.
 %
 % Handle conversion of sym into appropriate symmetry set
-% for rotations
+% for rotations.
 %
 % Inputs
 % -------
@@ -203,7 +213,8 @@ elseif isa(sym, 'SymopRotation')
     end
 
     sym = repmat(sym, fold, 1);
-
+elseif isa(sym,'SymopIdentity')
+    fold = 1;
 elseif iscell(sym)
     % If it's come from SymopRotation.fold or manual equivalent
     % We might have rot(0), or ID as first arg, all subsequent

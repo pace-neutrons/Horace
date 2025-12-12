@@ -19,10 +19,10 @@ classdef SymopIdentity < Symop
             end
         end
 
-        function selected = in_irreducible(~, coords)
+        function selected = in_irreducible(~, coords,varargin)
         % Compute whether the coordinates in `coords` are in the irreducible
         % set following the operation
-            selected = true(size(coords));
+            selected = true(size(coords,2),1);
         end
 
         function R = calculate_transform(~, Minv)

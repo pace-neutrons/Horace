@@ -197,8 +197,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             else
                 pix = q_coordinates;
             end
-
-
         end
 
         function proj = transform_proj (obj, proj)
