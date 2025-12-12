@@ -45,8 +45,13 @@ function [tmp_file,grid_size,data_range,varargout] = gen_sqw (spe_file, par_file
 %                   Default if not given or [] is the smallest hyper-cuboid that encloses the whole pixel range.
 %                   calculated from the detector positions and min/max
 %                   values of energy transfer
-%   instrument      Structure or object containing instrument information [scalar or array length nfile]
-%   sample          Structure or object containing sample geometry information [scalar or array length nfile]
+%   NOTE:           if "transform_sqw" funciton (see below) is provided,
+%                   the provided range will be modified according to the
+%                   transformation, defined by this function.
+%   instrument      Structure or object containing instrument information
+%                   [scalar or array length nfile]
+%   sample          Structure or object containing sample geometry information 
+%                   [scalar or array length nfile]
 %
 %
 % Optional keyword flags:
