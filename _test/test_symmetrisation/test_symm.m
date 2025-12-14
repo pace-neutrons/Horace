@@ -148,8 +148,8 @@ classdef test_symm < TestCase
             img_box_points      = proj.transform_pix_to_img(transf_ranges);
             img_db_range_minmax = min_max(img_box_points)';
 
-            assertEqualToTol(range_add_border(img_db_range_minmax,-eps('single')), ...
-                sqw2D_sym.data.img_range(:,1:3))
+            assertEqualToTol(img_db_range_minmax, ...
+                sqw2D_sym.data.img_range(:,1:3),1.e-14)
 
         end
 

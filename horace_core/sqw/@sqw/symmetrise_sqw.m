@@ -153,17 +153,8 @@ cleanup_obj = onCleanup(@()set(hor_config, 'log_level', oll));
 
 % Build target object from symmetry-modified pixels and new data range
 dat = wout.data;
-% use symmetry-modified binning range and add border to mitigate possible
-% round-off errors appeared when ranges were calculated. This will cause 
-% gen_sqw with symmeterise_sqw(SymopIdentity) to produce slightly different
-% result wrt. gen_sqw without transformation as binning ranges are different
-% but will be compensating but not loosing boundary pixels in more physically
-% interesting situations
-if isa(sym,'SymopIdentity')
-    dat.axes.img_range = all_sym_range;    
-else
-    dat.axes.img_range(:,1:3) = range_add_border(all_sym_range(:,1:3),-eps("single"));    
-end
+dat.axes.img_range = all_sym_range;    
+
 dat.s    = 0;
 dat.e    = 0;
 dat.npix = 0;
