@@ -17,11 +17,11 @@ function [w, data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in,delay_bin
 %                  [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                  If [] then uses  obj.img_db_range which should be equal to
 %                  the smallest hyper-cuboid that encloses the whole pixel range.
-% delay_binning   - logical, if true, convert pixels but do not to binning within
+% delay_binning   - logical, if true, convert pixels but do not do binning within
 %                   the specified range. Resulting sqw object will be incorrect,
 %                   but this option used when additional pixel transformation
-%                   is expected later, so follow up binning will be performed.
-%
+%                   is expected later, so follow up binning will be
+%                   performed, usually in different (modified) range.
 %
 % Output:
 % --------
