@@ -1,17 +1,31 @@
-function herbert_init(nobaner)
+function herbert_init(no_banner)
 % Adds the paths needed by Herbert.
 %
-% In your startup.m, add the Horace root path and call horace_on, do not
-% call this directly
+%   >> herbert_init
+%   >> herbert_init(no_banner)
 %
-% Is PC and Unix compatible.
+% Optional input:
+% ---------------
+%  no_banner    If true or 1: print welcome banner to screen
+%               if false or 0: don't print welcome banner
+%
+%               Default: print banner
 
-% T.G.Perring
 
+% Check optional input argument
+if nargin~=0
+    if isscalar(no_banner) && (islogical(no_banner) || ...
+            (isnumeric(no_banner) && any(no_banner==[0,1])))
+        no_banner = logical(no_banner);
+    else
+        error('HERBERT:herbert_init:invalid_argument', ...
+            'Input argument ''no_banner'' must be true or false (or 1 or 0)')
+    end
+else
+    no_banner = false;
+end
 
-% Root directory is assumed to be that in which this function resides
-% (keep this path, as may be removed by call to application_off)
-global herbert_path
+% Root Herbert directory is assumed to be that in which this function resides
 herbert_path = fileparts(which('herbert_init'));
 
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
@@ -36,7 +50,9 @@ addgenpath_message (herbert_path,'graphics')
 % Applications definitions
 addgenpath_message (herbert_path,'applications')
 
-print_banner();
+if ~no_banner
+    print_banner();
+end
 
 end
 

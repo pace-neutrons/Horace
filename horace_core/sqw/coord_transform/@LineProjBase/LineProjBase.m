@@ -188,7 +188,6 @@ classdef LineProjBase < aProjectionBase
             %         bin_pixels@aProjectionBase(obj, ...
             %         axes,pix_cand,npix,s,e,varargin{:});
             % end
-
         end
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface
