@@ -61,7 +61,7 @@ properties([
       trim: true
     ),
     booleanParam(
-      defaultValue: true,
+      defaultValue: false,
       description: 'If this pipeline is to build docs.',
       name: 'BUILD_DOCS'
     ),
