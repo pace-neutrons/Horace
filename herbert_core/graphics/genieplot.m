@@ -178,6 +178,7 @@ classdef genieplot < handle
         % Two-dimensional graph properties
         maxspec_2D_
 
+        % enable/disable default colour scheme
         use_original_horace_plot_colours_
     end
 
@@ -401,10 +402,12 @@ classdef genieplot < handle
         %-----------------------------------------------------------------------
         function set.use_original_horace_plot_colours(obj,val)
             obj.use_original_horace_plot_colours_ = logical(val);
-            if obj.use_original_horace_plot_colours_
-                theme('light')
-            else
-                theme('auto')
+            if matlab_version_num() >= 25
+                if obj.use_original_horace_plot_colours_
+                    theme('light')
+                else
+                    theme('auto')
+                end
             end
         end
     end
@@ -491,9 +494,10 @@ obj.maxspec_2D_ = 1000;     % Maximum number of 2D datasets in a plottable array
 
 % use standard Horace colour scheme for graphics
 obj.use_original_horace_plot_colours_ = true;
-theme('light');
+if matlab_version_num() >= 25
+    theme('light');
 end
-
+end
 
 %-------------------------------------------------------------------------------
 function status = ishexcolor(str)
