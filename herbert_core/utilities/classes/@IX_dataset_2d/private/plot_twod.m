@@ -32,9 +32,9 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, new_axes, .
 %   alternate_cdata_ok
 %               If the plot type requires independent color-data (such as
 %               plot type 'surface2'), then depending on the value of this flag:
-%                False: 
+%                False:
 %                   - The standard errors in w provide that color data
-%                True:  
+%                True:
 %                   - The standard errors in w provide that color data if there
 %                     is no second argument wcol or it is empty.
 %                   - The signal in wcol provides that data, if it is not empty.
@@ -58,7 +58,7 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, new_axes, .
 %                              scale.
 %
 % Optional arguments:
-% 
+%
 %   wcol        If plotting z-axis and color scale independently:
 %                   - IX_dataset_2d object or array of IX_dataset_2d objects
 %                     the number of which and whose signal array size(s) match
@@ -78,7 +78,7 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, new_axes, .
 %   zlo, zhi    z-axis lower and upper limits.
 %
 %  'name', fig  Fig is a figure name, figure number or figure handle.
-%               
+%
 %               figure name: - Name of a genie_figure (either already existing,
 %                              or to be created).
 %                            - If there is a plot with that name that isn't a
@@ -87,8 +87,8 @@ function [fig_h, axes_h, plot_h] = plot_twod (w, alternate_cdata_ok, new_axes, .
 %               figure number or handle:
 %                            - If a figure with that number or handle already
 %                              exists, use it as the target for the plot.
-%                           
-%  'axes', axes_handle  
+%
+%  'axes', axes_handle
 %               Axes handle to be used as the target of the plot, if the axes
 %               exist.
 %
@@ -192,25 +192,25 @@ switch plot_type
         plot_area (w)
         box on                      % put boundary box on plot
         set(gca, 'layer', 'top')    % puts axes layer on the top
-        
+
     case 'surface'
         if new_axes
             view(3)                 % default line of sight for 3D if new_axes
-        end        
+        end
         plot_surface (w);
         set(gca, 'layer', 'top')    % puts axes layer on the top
-        
+
     case 'surface2'
         if new_axes
             view(3)                 % default line of sight for 3D if new_axes
         end
         plot_surface2 (w, wcol);
         set(gca, 'layer', 'top')    % puts axes layer on the top
-        
+
     otherwise
         error('HERBERT:graphics:invalid_argument', ...
             ['Logic error: unrecognised plot type ''%s''\n', ...
-            'Please contact the developers.'], plot_type)     
+            'Please contact the developers.'], plot_type)
 end
 hold off    % release plot (could have been held for overplotting, for example)
 
@@ -229,11 +229,11 @@ if ~keep_axes
     end
     title(tt, 'FontWeight', 'normal', 'interpreter', inter);
     xlabel(tx);
-    ylabel(ty); 
+    ylabel(ty);
     if numel(axis()/2) > 3      % axis()/2 gives the number of axes of the plot
         zlabel(tz)
     end
-    
+
     % Change ticks
     xticks = w(1).x_axis.ticks;
     if ~isempty(xticks.positions)
@@ -242,7 +242,7 @@ if ~keep_axes
     if ~isempty(xticks.labels)
         set(gca, 'XTickLabel', xticks.labels)
     end
-    
+
     yticks = w(1).y_axis.ticks;
     if ~isempty(yticks.positions)
         set(gca, 'YTick', yticks.positions)
@@ -250,7 +250,7 @@ if ~keep_axes
     if ~isempty(yticks.labels)
         set(gca, 'YTickLabel', yticks.labels)
     end
-    
+
     zticks = w(1).s_axis.ticks;
     if ~isempty(zticks.positions)
         set(gca, 'ZTick', zticks.positions)
@@ -280,9 +280,14 @@ if ~keep_axes
     YScale = genieplot.get('YScale');
     set (gca, 'XScale', XScale);
     set (gca, 'YScale', YScale);
-    
+
     % Add colorslider
     colorslider
+
+    if  genieplot.instance().use_original_horace_plot_colours && ...
+            matlab_version_num() >= 25
+        theme('light');
+    end
 end
 
 % Get figure, axes and plot handles
