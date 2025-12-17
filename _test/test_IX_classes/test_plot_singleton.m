@@ -31,6 +31,7 @@ classdef test_plot_singleton < TestCase
             S.marker_types = {'o'};
             S.maxspec_1D = 1000;
             S.maxspec_2D = 1000;
+            S.use_original_horace_plot_colours = true;
 
             obj.S_default = orderfields(S);
         end
