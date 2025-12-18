@@ -73,7 +73,7 @@ classdef genieplot < handle
     %   >> a = genieplot.instance();    % get an instance of the singleton
     %   >> b = genieplot.instance();    % get a second instance
     %   >> a.colors = {'b', 'g', 'r'};  % set the colors with instance a
-    %   >> bcol = b.colors              % confirm colors have changed for b too 
+    %   >> bcol = b.colors              % confirm colors have changed for b too
     %
     %   bcol =
     %
@@ -98,8 +98,8 @@ classdef genieplot < handle
     %     1×2 cell array
     %
     %       {'g'}    {'k'}
-    
-    
+
+
     % NOTES FOR DEVELOPERS
     % --------------------
     % - The reset method resets all properties to the default values, but is not
@@ -120,31 +120,37 @@ classdef genieplot < handle
     %
     % the values of the properties are those that a, b, ... had at the time that
     % the clear command was issued.
-    
-    
+
+
     properties(Dependent)
         % The properties that can be publically accessed.
-        
+
         % General graph properties
         default_fig_name    % default name for plot
         XScale              % x-axis scaling: 'linear' or 'log'
         YScale              % y-axis scaling: 'linear' or 'log'
         ZScale              % z-axis scaling: 'linear' or 'log'
-        
+
         % One-dimensional graph properties
         maxspec_1D          % Maximum number of 1D datasets in a plottable array
         colors              % Row cell array of default colors
         color_cycle         % 'fast' or 'with': colours cycle faster or with
-                            % line styles & widths and marker types & sizes
+        % line styles & widths and marker types & sizes
         line_styles         % Row cell array of default line styles
         line_widths         % Row vector of default line widths
         marker_types        % Row cell array of default marker types
         marker_sizes        % Row vector of default marker sizes
-        
+
         % Two-dimensional graph properties
         maxspec_2D          % Maximum number of 2D datasets in a plottable array
+
+        % matlab 2025 introduced new colour scheme, which, if windows
+        % scheme is dark makes Horace graphics unusable. If this option is
+        % true, Horace reverts to the colour scheme used by Matlab 2024b
+        % and before
+        use_original_horace_plot_colours
     end
-    
+
     properties(Access=private)
         % These properties are exact mirrors of the dependent properties
         % See dependent properties for descriptions.
@@ -153,13 +159,13 @@ classdef genieplot < handle
         % properties that hold the state of the object (although in this simple
         % example they are). We implement this by having private proprties and
         % public dependent properties.
-        
+
         % General graph properties
         default_fig_name_
         XScale_
         YScale_
         ZScale_
-        
+
         % One-dimensional graph properties
         maxspec_1D_
         colors_
@@ -168,11 +174,14 @@ classdef genieplot < handle
         line_widths_
         marker_types_
         marker_sizes_
-        
+
         % Two-dimensional graph properties
         maxspec_2D_
+
+        % enable/disable default colour scheme
+        use_original_horace_plot_colours_
     end
-    
+
     methods (Access=private)
         % The constructor is private, preventing external invocation.
         % Only a single instance of this class is created. This is
@@ -183,10 +192,10 @@ classdef genieplot < handle
             initialise(newObj)
         end
     end
-    
+
     methods
         %-----------------------------------------------------------------------
-        % Get methods for the public properties 
+        % Get methods for the public properties
         %-----------------------------------------------------------------------
         % General graph properties
         function val = get.default_fig_name(obj)
@@ -201,7 +210,7 @@ classdef genieplot < handle
         function val = get.ZScale(obj)
             val = obj.ZScale_;
         end
-        
+
         % One-dimensional graph properties
         function val = get.maxspec_1D(obj)
             val = obj.maxspec_1D_;
@@ -224,13 +233,17 @@ classdef genieplot < handle
         function val = get.marker_sizes(obj)
             val = obj.marker_sizes_;
         end
-        
+
         % Two-dimensional graph properties
         function val = get.maxspec_2D(obj)
             val = obj.maxspec_2D_;
         end
+
+        function do_use = get.use_original_horace_plot_colours(obj)
+            do_use = obj.use_original_horace_plot_colours_;
+        end
     end
-    
+
     methods
         %-----------------------------------------------------------------------
         % Check validity of properties on setting
@@ -294,7 +307,7 @@ classdef genieplot < handle
             % either one of the valid color codes or a valid hexadecimal color
             % code
             colorCodes = {'r','g','b','c','m','y','k','w'}; % Valid color codes
-            
+
             nonEmptyString = @(x)(is_string(x) && ~isempty(x));
             isColorCode = @(x)(any(strcmp(x, colorCodes)) || ishexcolor(x));
             if iscell(val) && all(cellfun(nonEmptyString, val(:))) && ...
@@ -387,11 +400,21 @@ classdef genieplot < handle
             end
         end
         %-----------------------------------------------------------------------
+        function set.use_original_horace_plot_colours(obj,val)
+            obj.use_original_horace_plot_colours_ = logical(val);
+            if matlab_version_num() >= 25
+                if obj.use_original_horace_plot_colours_
+                    theme('light')
+                else
+                    theme('auto')
+                end
+            end
+        end
     end
-    
+
     %---------------------------------------------------------------------------
     % No need to touch below this line
-    
+
     methods (Static)
         function obj = instance()
             persistent uniqueInstance
@@ -402,7 +425,7 @@ classdef genieplot < handle
                 obj = uniqueInstance;
             end
         end
-        
+
         function set(property, newData)
             % Set a single property, or set all properties from a structure
             obj = genieplot.instance();
@@ -423,7 +446,7 @@ classdef genieplot < handle
                 end
             end
         end
-        
+
         function data = get(property)
             % Get a single property, or a structure with all properties
             obj = genieplot.instance();
@@ -438,14 +461,14 @@ classdef genieplot < handle
                 data = orderfields(data);
             end
         end
-        
+
         function reset()
             % Set the singleton properties back to their default values
             obj = genieplot.instance();
             initialise(obj);
         end
     end
-    
+
 end
 
 
@@ -468,8 +491,13 @@ obj.marker_types_ = {'o'};  % Row cell array of default marker types
 obj.marker_sizes_ = 6;      % Row vector of default marker sizes
 
 obj.maxspec_2D_ = 1000;     % Maximum number of 2D datasets in a plottable array
-end
 
+% use standard Horace colour scheme for graphics
+obj.use_original_horace_plot_colours_ = true;
+if matlab_version_num() >= 25
+    theme('light');
+end
+end
 
 %-------------------------------------------------------------------------------
 function status = ishexcolor(str)
