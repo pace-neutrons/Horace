@@ -31,7 +31,7 @@ properties([
       trim: true
     ),
     string(
-      defaultValue: '',
+      defaultValue: 'latest',
       description: 'The version of CMake to run the build with. Affects Linux builds only.',
       name: 'CMAKE_VERSION',
       trim: true
@@ -94,7 +94,7 @@ pipeline {
     // removing the R here from the pipeline library standard version so as not to break other library dependent pipelines
     MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
     MATLAB_MODULE = utilities.get_param('MATLAB_VERSION', pli.matlab_release.minus('R'))
-    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.29')
+    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', 'latest')
     GCC_VERSION = utilities.get_param('GCC_VERSION', '13')
     PYTHON_VERSION = utilities.get_param('PYTHON_VERSION', '3.8')
     VS_VERSION = utilities.get_param('VS_VERSION', '2019')
