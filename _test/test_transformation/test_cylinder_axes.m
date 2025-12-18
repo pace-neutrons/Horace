@@ -146,20 +146,20 @@ classdef test_cylinder_axes < TestCase
             block = AxesBlockBase.build_from_input_binning('cylinder_axes',default_binning,pbin);
             assertTrue(isa(block,'cylinder_axes'));
             assertElementsAlmostEqual(block.img_range,[...
-                0, -45.5, -180, -0.05;...
-                1,  45.5,  180, 10.05])
-            assertEqual(block.nbins_all_dims,[1, 91,360,101]);
+                0,    -45.5, -180, -0.5;...
+                1.05,  45.5,  180, 10.5])
+            assertEqual(block.nbins_all_dims,[1, 91,360,110]);
             assertEqual(block.iax,1)
-            assertEqual(block.iint,[0;1])
+            assertEqual(block.iint,[0;1.05])
             assertEqual(block.pax,[2,3,4])
             assertEqual(block.dax,[1,2,3])
             assertElementsAlmostEqual(block.p{1},-45.5:1:45.5,'absolute',1.e-12);
             assertElementsAlmostEqual(block.p{2},-180:1:180,'absolute',1.e-12)
-            assertElementsAlmostEqual(block.p{3},-0.05:0.1:10.05,'absolute',1.e-12)
+            assertElementsAlmostEqual(block.p{3},-0.5:0.1:10.5,'absolute',1.e-12)
         end
         %
         function test_build_from_input_binning(~)
-            default_binning = {[0,0.1,1],[-10,1,10],[-180,1,180],[0,1,10]};
+            default_binning = {[0.0,0.1,1],[-10,1,10],[-180,1,180],[0,1,10]};
             pbin = {[],[0,45],[0,1,100],[-inf,0,inf]};
             block = AxesBlockBase.build_from_input_binning('cylinder_axes',default_binning,pbin);
             assertTrue(isa(block,'cylinder_axes'));
@@ -187,16 +187,18 @@ classdef test_cylinder_axes < TestCase
             assertEqual(ab.dimensions(),4)
 
         end
-        function test_wrong_bin_edges_throw(~)
+        function test_wrong_bin_edges_throw_negativeQ_nullified(~)
             dbr = [0,-1,-180,-10;10,10,180,50];
             sap = cylinder_axes(4);
+
             function setter(sap,val)
                 sap.img_range  = val;
-            end
+            end            
             dbr_set = dbr;
             dbr_set(1,1) = -1;
-            assertExceptionThrown(@()setter(sap,dbr_set), ...
-                'HORACE:cylinder_axes:invalid_argument');
+            sap.img_range = dbr_set;                         
+            assertEqual(sap.img_range(1,1),0)
+            
 
             dbr_set = dbr;
             dbr_set(1,3) = -200;

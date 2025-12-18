@@ -31,7 +31,7 @@ function [fig_h, axes_h, plot_h] = plot_oned (w, new_axes, ...
 %
 %   force_current_axes
 %               True:  Plot on the current axes of the current figure.
-%               False: Plot target determined by new_axes, and keyword value of 
+%               False: Plot target determined by new_axes, and keyword value of
 %                      option 'name' or 'axes'.
 %
 %               (note: new_axes and force_current_axes cannot both be true)
@@ -45,13 +45,13 @@ function [fig_h, axes_h, plot_h] = plot_oned (w, new_axes, ...
 %                   'p'     points =  markers and error bars
 %
 % Optional arguments:
-% 
+%
 %   xlo, xhi    x-axis lower and upper limits.
 %
 %   ylo, yhi    y-axis lower and upper limits.
 %
 %  'name', fig  Fig is a figure name, figure number or figure handle.
-%               
+%
 %               figure name: - Name of a genie_figure (either already existing,
 %                              or to be created).
 %                            - If there is a plot with that name that isn't a
@@ -60,8 +60,8 @@ function [fig_h, axes_h, plot_h] = plot_oned (w, new_axes, ...
 %               figure number or handle:
 %                            - If a figure with that number or handle already
 %                              exists, use it as the target for the plot.
-%                           
-%  'axes', axes_handle  
+%
+%  'axes', axes_handle
 %               Axes handle to be used as the target of the plot, if the axes
 %               exist.
 %
@@ -144,10 +144,10 @@ end
 switch plot_type
     case 'errors'
         plot_errors(w)
-        
+
     case 'histogram'
         plot_histogram(w)
-        
+
     case 'line'
         [frac, np] = w.calc_continuous_fraction();
         if frac<0.8
@@ -157,16 +157,16 @@ switch plot_type
                 'Use pp/pm to see all your data points'], frac*100, np);
         end
         plot_line(w)
-        
+
     case 'markers'
         plot_markers(w)
-        
+
     case 'data'
         plot_markers_errors_lines(w)
-        
+
     case 'points'
         plot_markers_errors(w)
-        
+
     otherwise
         error('HERBERT:graphics:invalid_argument', ...
             ['Logic error: unrecognised plot type ''%s''\n', ...
@@ -190,7 +190,7 @@ if ~keep_axes
     title(tt, 'FontWeight', 'normal', 'interpreter', inter);
     xlabel(tx);
     ylabel(ty);
-    
+
     % Change ticks
     xticks = w(1).x_axis.ticks;
     if ~isempty(xticks.positions)
@@ -199,7 +199,7 @@ if ~keep_axes
     if ~isempty(xticks.labels)
         set(gca, 'XTickLabel', xticks.labels);
     end
-    
+
     yticks = w(1).s_axis.ticks;
     if ~isempty(yticks.positions)
         set(gca, 'YTick', yticks.positions);
@@ -207,7 +207,7 @@ if ~keep_axes
     if ~isempty(yticks.labels)
         set(gca, 'YTickLabel', yticks.labels);
     end
-    
+
     % Change limits if they are provided
     if isempty(xlims) && isempty(ylims)
         axis tight  % might want to change the default for case of no limits?
@@ -220,6 +220,11 @@ if ~keep_axes
             lx(ylims(1), ylims(2))
         end
     end
+    if  genieplot.instance().use_original_horace_plot_colours && ...
+            matlab_version_num() >= 25
+        theme('light');
+    end
+
 
     % Make linear or log axes as required
     XScale = genieplot.get('XScale');

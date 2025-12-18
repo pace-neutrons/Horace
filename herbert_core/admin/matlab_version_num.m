@@ -16,16 +16,21 @@ function numver=matlab_version_num
 %   ans =
 %       7.0400  (i.e. not 7.4)
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 
 
 % T.G.Perring 23/7/13: replace the following *horrendously slow* call to ver:
 %    vr = ver('MATLAB');
 %    vers = vr.Version;
 % with:
-vers=version;
 
-vs = regexp(vers,'\.','split');
-numver = str2double(vs{1})+0.01*str2double(vs{2});
+persistent num_ver;
+if isempty(num_ver)
+    vers=version;
+
+    vs = regexp(vers,'\.','split');
+    numver = str2double(vs{1})+0.01*str2double(vs{2});
+    num_ver = numver;
+else
+    numver = num_ver;
+end
 

@@ -1,4 +1,4 @@
-function [w,grid_size,data_range] ...
+function [w,grid_size,pix_data_range] ...
     = calc_sqw(obj,grid_size_in,pix_db_range,varargin)
 % Generate single sqw file from given rundata class.
 %
@@ -32,9 +32,9 @@ function [w,grid_size,data_range] ...
 % w               Output sqw object
 % grid_size       Actual size of grid used (size is unity along dimensions
 %                 where there is zero range of the data points)
-% pix_range      Actual range of pixels, contributed in the image.
-%                the specified range if it was given,
-%                or the range of the data if not.
+% pix_data_range  Actual range of pixels, contributed in the image.
+%                 the specified range if it was given,
+%                 or the range of the data if not.
 % pix_range_nontransf -- if no transformation is provided, the value is
 %                equal to pix_range. If there is a transformation, the
 %                value describes the pixel range before the transformation
@@ -54,17 +54,18 @@ keys_recognized = {'-qspec'}; % do we still need it? if cache is not empty,
 if ~ok
     error('HORACE:rundatah:invalid_arguments',['calc_pix_range: ',mess])
 end
+% do not do binning until transformation is done
+delay_binning = ~isempty(obj.transform_sqw_f_);
 %
 % Create sqw object
+[w, pix_data_range]=calc_sqw_(obj,grid_size, pix_db_range,delay_binning);
 %
-[w, data_range]=calc_sqw_(obj,grid_size, pix_db_range);
-%
-if ~isempty(obj.transform_sqw_f_)
+if delay_binning
     % we should assume that transformation maintains correct data pix_range
     % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
     w = obj.transform_sqw_f_(w);
-    data_range = w.pix.data_range;
+    pix_data_range = w.pix.data_range;
     grid_size = size(w.data.s);
 end
 

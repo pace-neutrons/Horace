@@ -1,9 +1,9 @@
-function [w, data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
+function [w, data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in,delay_binning)
 % Create an sqw object, optionally keeping only those data points within
 % the defined data range.
 %
-%   >> [w, grid_size, pix_range] = obj.calc_sqw(grid_size_in,
-%   pix_db_range_in)
+%   >> [w, grid_size, pix_range] = calc_sqw_(obj,grid_size_in,
+%   pix_db_range_in,delay_binning)
 %
 % Input:
 % ------
@@ -17,7 +17,11 @@ function [w, data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 %                  [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                  If [] then uses  obj.img_db_range which should be equal to
 %                  the smallest hyper-cuboid that encloses the whole pixel range.
-%
+% delay_binning   - logical, if true, convert pixels but do not do binning within
+%                   the specified range. Resulting sqw object will be incorrect,
+%                   but this option used when additional pixel transformation
+%                   is expected later, so follow up binning will be
+%                   performed, usually in different (modified) range.
 %
 % Output:
 % --------
@@ -27,7 +31,7 @@ function [w, data_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
 %                    the input coordinate range.
 
 
-hor_log_level = get(hor_config,'log_level');
+hor_log_level = config_store.instance().get_value("hor_config","log_level");
 
 % Fill header and data blocks
 % ---------------------------
@@ -40,14 +44,22 @@ instproj = obj.get_projection();
 axes_bl = instproj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 [exp_info,data] = calc_sqw_data_and_header (obj,axes_bl);
 
-% The method below is the overload of standard projection method
-% bin_pixels. It converts rundata to pixels and bins them using standard 
-% aProjectionBase binning procedure.
-% In addition to that, recalculates line_axes img_range if
-% the range has not been defined before:
-[data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
-    instproj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
-[data.s, data.e] = normalize_signal(data.s, data.e, data.npix);
+if delay_binning
+    [pix,det0,axes_bl]  = instproj.convert_rundata_to_pix(obj,axes_bl);
+    run_id = unique(pix.run_idx);
+    data.npix(1) = pix.num_pixels; % set up (incorrect) relationship with
+    %  pixels placing them artificially in single bin to use for special
+    %  rebinning later
+else
+    % The method below is the overload of standard projection method
+    % bin_pixels. It converts rundata to pixels and bins them using standard
+    % aProjectionBase binning procedure.
+    % In addition to that, recalculates line_axes img_range if
+    % the range has not been defined before:
+    [data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
+        instproj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
+    [data.s, data.e] = normalize_signal(data.s, data.e, data.npix);
+end
 data.axes.img_range = axes_bl.img_range; % the range the data are binned on
 
 exp_info.expdata(1).run_id = run_id(1);
