@@ -128,6 +128,17 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % If true, do not convert data loaded from disk into double at
         % loading
         keep_precision_  = false;
+        % TODO:         
+        % Two variables below describe cache to keep chunks used for paging
+        % pixels.
+        % This is for future work related to pixel prefetching from
+        % file. Some paging operations are already implemented here but
+        % they are incomplete and not tested properly to provide reliable
+        % paging in any situation. (used in couple of PageOp algorithms and
+        % unit tests for that)
+        pix_page_chunks_ = []; 
+        % initial positions of the pixels in vaiable pages
+        pix_page_idx_start_ = [];
     end
 
     properties(Dependent,Hidden)
@@ -415,6 +426,27 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     % the same interface on FB and MB files
     methods
+        function obj = set_pix_page_chunks(obj,chunks)
+            % set pixels chunks used to return appropriate block of pixels
+            % according to the page number
+            if (~iscell(chunks))
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'pixel chunks have to be defined by cellarray of pixel blocks to read. Provided %s', ...
+                    class(chunks));
+            end
+            % TODO: this is temporary solution for pageOp operations only
+            % Proper solution would include different pixel start positions
+            %
+            chunk_sizes = cellfun(@sum,chunks);
+            pix_pos_end = cumsum(chunk_sizes);
+            if pix_pos_end(end) ~= obj.num_pixels
+                error('HORACE:PixelDataBase:invalid_argument', ...
+                    'Number of pixels in chunks (%d) does not equal to total number of pixels (%d)',...
+                    pix_pos_end(end),obj.num_pixels);
+            end
+            obj.pix_page_chunks_ = chunks;
+            obj.pix_page_idx_start_ = [0,pix_pos_end(1:end-1)]+1;
+        end
         function cnt = get_field_count(obj, field)
             cnt = numel(obj.FIELD_INDEX_MAP_(field));
         end

@@ -66,7 +66,6 @@
  *
  */
 #include "MatMultiply.h"
-#include "../utility/version.h"
 
 #include <string>
 #include <map>
@@ -203,7 +202,17 @@ const std::map<size_t, operations> supported_op_map = {
 
 
 /* function defines the type of matrix multiplication and type of the multiplication result
-    as the function of types of input matrices */
+*    as the function of types of input matrices
+* Inputs:
+* --------
+*  mat_a  -- constant pointer to MATLAB matrix A
+*  mat_b  -- constant pointer to MATLAB matrix B
+* Returns:
+* --------
+* Enumerate, which encodes combination of matrices types supported by the code.
+* See MatrixTypes for the list of numerical matrix types supported by mtimesx operation.
+* 
+*/
 operations  get_op_type(mxArray const *const mat_a, mxArray const *const mat_b) {
 
     mxClassID category_a = mxGetClassID(mat_a);
@@ -239,7 +248,23 @@ size_t calc_mdims(mwSize const *const dims_array, size_t ndims_in_array) {
     return capac;
 
 }
-
+/*! Estimate size of input matrices and the way the matrices have to be expanded according to mtimesmex
+*   rules if their sizes are not explicitly equal
+* Inputs:
+* -------
+*  dimsA     -- Pointer to MATLAB array defining dimensions of Matrix A
+*  ndimsA    -- number of elements in dimsA
+*  dimsB     -- Pointer to MATLAB array defining dimensions of Matrix B
+*  ndimsB    -- number of elements in dimsB
+* 
+* Outputs:
+* --------
+* rez_dim_sizes -- vector defining dimensions of resulting matrix operations
+* nDims         -- size of this vector (equal to rez_dim_sizes.size())
+* Mk            -- product of all dimensions for resulting multiplication
+* expandA       -- true if matrix A is (virtually) expanded when performing multiplication. False othewise
+* expandB       -- true if matrix B is (virtually) expanded when performing multiplication. False otherwise
+ */
 void calc_output_size(mwSize const *const dimsA, size_t ndimsA, mwSize const *const  dimsB, size_t ndimsB,
     std::vector<mwSize> & rez_dim_sizes, size_t &nDims, size_t &Mk, bool & expandA, bool &expandB) {
 

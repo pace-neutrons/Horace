@@ -116,7 +116,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                 obj.width, obj.width, obj.ebins, ...
                 {SymopIdentity(), op}, '-nopix');
 
-            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1);
+            assertEqualToTol(w1sym, w2sym,[ eps("single"), eps("single")], 'ignore_str', 1);
 
         end
 
@@ -139,8 +139,8 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                             obj.width, obj.width, obj.ebins, ...
                             {SymopIdentity(), op}, '-nopix');
 
-            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1, 'tol', 1e-6);
-            assertEqualToTol(w1sym, w3sym, 'ignore_str', 1, 'tol', 1e-6);
+            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1, 'tol',[eps("single"), eps("single")]);
+            assertEqualToTol(w1sym, w3sym, 'ignore_str', 1, 'tol', [eps("single"), eps("single")]);
         end
 
 

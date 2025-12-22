@@ -10,7 +10,7 @@ classdef AxesBlockBase < serializable
     %1) ab = AxesBlockBase(num) where num belongs to [0,1,2,3,4];
     %2) ab = AxesBlockBase([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
     %                                          parameters
-    %        orinit_accumulators
+    %        or init_accumulators:
     %   ab = AxesBlockBase([min1,max1],...,[min4,max4]); - 4 binning
     %                                          parameters
     %        or any combination of ranges [min,step,max] or [min,max]
@@ -20,8 +20,8 @@ classdef AxesBlockBase < serializable
     %        where param(1-n) are the values of the fields in the order
     %        fields are returned by saveableFields function.
     %5) ab = AxesBlockBase('img_range',img_range,'nbins_all_dims',nbins_all_dims)
-    %    -- particularly frequent case of building axes block (case 4)
-    %       from the image range and number of bins in all directions.
+    %     -- particularly frequent case of building axes block (as in case 4)
+    %        from the image range and number of bins in all directions.
     properties(Dependent)
         % Legacy projection interface
         % Title of sqw data structure, displayed on plots.
@@ -176,6 +176,9 @@ classdef AxesBlockBase < serializable
     end
     %----------------------------------------------------------------------
     methods(Static)
+        % retrieve data range from binning range provided as input. 
+        % see get_cut_range which performes opposite operation
+        range = get_img_range_from_cut_range(varargin)
         % build new particular AxesBlockBase object from the binning
         % parameters, provided as input. If some input binning parameters
         % are missing, the defaults are taken from the given image range
@@ -472,8 +475,10 @@ classdef AxesBlockBase < serializable
     methods
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
-        % as the original object
+        % as the original object. See static get_img_range_from_cut_range
+        % above
         range = get_cut_range(obj,varargin);
+
         % Identify range this axes block occupies in target coordinate
         % system
         [range,is_in,img_targ_center] = get_targ_range(obj,source_proj,targ_proj,range_requested);
@@ -718,22 +723,23 @@ classdef AxesBlockBase < serializable
             %            binning
             %
             % Note:
-            % unique_runid argument needed to get pixels sorted according
-            % to bins. If it is not requested, pix_ok are returned unsorted.
+            % unique_runid argument forces pixels to be sorted according
+            % to bins. If it is not requested, pix_ok are returned
+            % unsorted, expecting sorting procedure to be performed at
+            % later stage.
+            % 
             %
-            % IMPORTANT:
-            % new calculations must be started from empty accumulators
+            % If new calculations are started from empty accumulators
             % i.e.:
             % npix = []; s = []; e = [];
             % for i=1:num_pages
             %   [npix,s,e,... ] =
             %   axes_block_instance.bin_pixels(coord(i),npix,s,e,...);
             % end
-            % Zero accumulators indicate initialization procedure for mex
-            % code and allows proper initalization of it. Attempt to start
-            % binning with some values in accumulating arrays npix, s, e
-            % requests defined state of binning parameters so may cause
-            % UNDEFINED BEHAVIOUR!!!. May be modified later.
+            % npix, s, and e arrays getting initialized into zero values.
+            %
+            % Start from some values in accumulating arrays npix, s, e
+            % continues accomulations from these values.
             %
 
             % keep unused argi parameter to tell parse_char_options to ignore

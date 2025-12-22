@@ -172,9 +172,14 @@ classdef LineProjBase < aProjectionBase
         function varargout = bin_pixels(obj, ...
                 axes,pix_cand,npix,s,e,varargin)
             varargout = cell(1,nargout); % allocate only requested numbr of parameters
+
+            % Mex code HERE WILL BE the CODE, doing the same as ACCUMULATE_CUT_C in HORACE-3.
+            % It is not currently used in Horace-4, but here its
+            % functionality will be expanded on the basis of bin_pixels
+            % (with additional transformation)
+            
             %use_mex = config_store.instance().get_value('hor_config','use_mex');
             %if use_mex
-
             [varargout{1:nargout}] = ...
                 bin_pixels@aProjectionBase(obj, ...
                 axes,pix_cand,npix,s,e,varargin{:});
@@ -183,7 +188,6 @@ classdef LineProjBase < aProjectionBase
             %         bin_pixels@aProjectionBase(obj, ...
             %         axes,pix_cand,npix,s,e,varargin{:});
             % end
-
         end
         %------------------------------------------------------------------
         % Particular implementation of aProjectionBase abstract interface

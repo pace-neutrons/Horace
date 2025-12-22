@@ -26,7 +26,6 @@ classdef TestComponentInDir < TestComponent
         
         %OriginalDirectory - Starting directory
         OriginalDirectory
-        %
     end
     
     methods

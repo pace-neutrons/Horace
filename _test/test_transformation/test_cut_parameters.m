@@ -150,6 +150,18 @@ classdef test_cut_parameters < TestCase
 
         end
         %------------------------------------------------------------------
+        function test_cut_range_inf_behaves_correctly(obj)
+            %
+            sqw_samp = obj.sample_files{2};
+            %Sample cut with params: struct('u',[1,0,0],'v',[0,1,0]),...
+            %               [0,0.1,1],[-1,0],[-0.1,0.01,0.1],[0,10])
+            proj = sqw_samp.data.proj;
+            sqw_out = cut(sqw_samp,proj,[-inf,inf],[-inf,inf],[],[]);
+
+            assertEqualToTol(sqw_out.data.img_range,sqw_samp.data.img_range);
+
+        end
+
         function test_cut_range_1D(obj)
             %
             sqw_samp = obj.sample_files{1};

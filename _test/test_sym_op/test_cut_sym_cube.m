@@ -182,7 +182,7 @@ classdef test_cut_sym_cube < TestCase
 
         end
 
-        function test_cut_sym_general(obj)
+        function test_cut_sym_general(~)
             data = sqw.generate_cube_sqw(10);
 
             proj = line_proj([1 0 0], [0 1 0]);
@@ -200,7 +200,6 @@ classdef test_cut_sym_cube < TestCase
 
             assertEqualToTol(w1sym, w2sym);
         end
-
     end
 end
 

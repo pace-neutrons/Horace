@@ -203,7 +203,6 @@ T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
 };
 
 
-
 class omp_storage
     /** Class to manage dynamical storage used in OMP loops
     with various sources depending on the size of the storage and

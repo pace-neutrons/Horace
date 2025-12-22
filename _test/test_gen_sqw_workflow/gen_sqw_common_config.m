@@ -12,27 +12,27 @@ classdef gen_sqw_common_config < TestCase
     end
     properties(Access=protected)
         old_configuration_=[];
-        
+
         new_mex_  = false;
         new_mpi_ = false;
         new_combine_ = 'mex_code'
         new_cluster_ = 'herbert';
-        
+
         % the worker to use while running parallel tests (if any)
         %worker = 'worker_4tests_idaaas'
-         worker = 'worker_v4'        
+        worker = 'worker_v4'
         % Store the name of the worker, currently used by Horace parallel
         % framework, to recover after the tests are completed.
         current_worker_cache_ = [];
         % If true, enable progress logging in worker scripts.
-        % (DO_LOGGING=true for parallel_worker). 
+        % (DO_LOGGING=true for parallel_worker).
         % Tested on Slurm cluster manager. May not yet work for all types of
         % the clusters
         WRITE_DEBUG_LOGS = false;
     end
-    
+
     methods
-        
+
         function obj = gen_sqw_common_config(use_mex,use_MPI,combine_sqw_using,parallel_cluster)
             % class constructor, which defines necessary test configuration
             % options. The option can be defined by one of three numbers:
@@ -58,8 +58,8 @@ classdef gen_sqw_common_config < TestCase
             if obj.WRITE_DEBUG_LOGS
                 setenv('DO_PARALLEL_MATLAB_LOGGING','true');
             end
-            
-            
+
+
             [~,obj.new_mex_ ] = gen_sqw_common_config.check_change...
                 ('use_mex',use_mex,obj.old_configuration_.hc);
             if obj.new_mex_ % check mex can be enabled
@@ -78,13 +78,13 @@ classdef gen_sqw_common_config < TestCase
                     end
                 end
             end
-            
+
             [~,obj.new_mpi_ ] = gen_sqw_common_config.check_change...
                 ('build_sqw_in_parallel',use_MPI,obj.old_configuration_.hpc);
-            
+
             [~,obj.new_combine_ ] = gen_sqw_common_config.check_change...
                 ('combine_sqw_using',combine_sqw_using,obj.old_configuration_.hpc);
-            
+
             [change_framework,obj.new_cluster_ ] = gen_sqw_common_config.check_change...
                 ('parallel_cluster',parallel_cluster,obj.old_configuration_.parc);
             if ~change_framework
@@ -95,22 +95,22 @@ classdef gen_sqw_common_config < TestCase
                 [~,job_folder] = fileparts(job_folder);
                 obj.new_working_folder = fullfile(tmp_dir(),job_folder);
             end
-            
+
             if ~isnumeric(parallel_cluster) % check parallel framework can be enabled
                 cl = MPI_clusters_factory.instance().get_cluster(parallel_cluster);
-                if isempty(cl) 
-                    obj.skip_test = true;                                        
+                if isempty(cl)
+                    obj.skip_test = true;
                     if log_level>0
                         warning('GEN_SQW_TEST_CONFIG:not_available',...
-                          'Can not initiate framework: %s because this cluster is not available on the system. This mode will not be tested',...
-                                parallel_cluster)
-                    end                    
+                            'Can not initiate framework: %s because this cluster is not available on the system. This mode will not be tested',...
+                            parallel_cluster)
+                    end
                 else
-                    obj.skip_test = false;                                        
+                    obj.skip_test = false;
                 end
             end
         end
-        
+
         function setUp(obj)
             if obj.skip_test
                 return;
@@ -128,16 +128,16 @@ classdef gen_sqw_common_config < TestCase
             if ~isempty(obj.new_working_folder)
                 parc.working_directory = obj.new_working_folder;
             end
-            
+
             obj.current_worker_cache_ = parc.worker;
             parc.worker = obj.worker;
-            
+
         end
         %
         function tearDown(obj)
             if obj.skip_test
                 return;
-            end            
+            end
             obj.restore_initial_config();
         end
         %

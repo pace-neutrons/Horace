@@ -34,7 +34,7 @@ if isempty(p)
     range=[0;0];
     nbin = 1;
 elseif isnumeric(p)
-    if numel(p)==1
+    if isscalar(p)
         % Scalar pbin ==> zero thickness integration? Useless. Current algorithm always leads to empty cut.
         % May be left for a future, for doing interpolated 0-thin cuts on
         % dnd objects? Ticket Re #1481 should explore this. 
