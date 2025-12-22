@@ -1,0 +1,655 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>15. Generic Transformations &mdash; Horace  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
+      <script src="../_static/doctools.js?v=888ff710"></script>
+      <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="16. Multifit" href="Multifit.html" />
+    <link rel="prev" title="14. Simulation" href="Simulation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Horace
+              <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">1. Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">2. Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">3. Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">4. Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html">5. Cutting data of interest from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Special_sqw_information.html">6. Special <code class="docutils literal notranslate"><span class="pre">SQW</span></code> information from sqw objects and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html">7. Loading <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">dnd</span></code> objects to memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Save_and_load.html#saving-sqw-objects-from-memory-and-creating-filebacked-objects">8. Saving sqw objects from memory and creating filebacked objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">11. Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">15. Generic Transformations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">15.1. Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sqw-op-algorithm">15.2. <code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sqw-op-bin-pixels-algorithm">15.3. <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sqw-op-bin-pixels-algorithm-with-combine-option">15.4. <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm with <code class="docutils literal notranslate"><span class="pre">&quot;-combine&quot;</span></code> option</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">16. Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">17. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">18. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">19. Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Example_scripts.html">Example Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Contributing.html">Contributing to Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Previous_versions.html">Previous Versions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">15. </span>Generic Transformations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Generic_Transformation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="generic-transformations">
+<h1><span class="section-number">15. </span>Generic Transformations<a class="headerlink" href="#generic-transformations" title="Permalink to this heading"></a></h1>
+<p>The previous chapters describe how one may do various
+<a class="reference internal" href="Unary_operations.html"><span class="doc">unary</span></a> or <a class="reference internal" href="Binary_operations.html"><span class="doc">binary operations</span></a> over your data or build analytical model and <a class="reference internal" href="Simulation.html"><span class="doc">simulate it over whole sqw file</span></a>.
+As whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file can not be generally placed in memory, all these operations are
+based on special <code class="docutils literal notranslate"><span class="pre">PageOp</span></code> family of algorithms, which operate loading a page of data in memory
+and applying various operations to these data. For <a class="reference internal" href="Unary_operations.html"><span class="doc">unary</span></a> and <a class="reference internal" href="Binary_operations.html"><span class="doc">binary</span></a> operations we wrote these transformations for users and the <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> algorithm from <a class="reference internal" href="Simulation.html"><span class="doc">Simulation</span></a> section
+gives user a set of rules to write his own model in <cite>hklE</cite> coordinate system and apply it to whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
+<section id="introduction">
+<h2><span class="section-number">15.1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>Generic transformations are the set of algorithms, which give user access to the body of <cite>PageOp</cite> algorithm to do whatever he needs with his <code class="docutils literal notranslate"><span class="pre">sqw</span></code> data. As this gives user the most flexible access to modifying <code class="docutils literal notranslate"><span class="pre">sqw</span></code> data, it requests from user most knowledge of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object design to do useful things with these data.</p>
+<p>In particular, user have to know, that Horace stores its pixel data in Crystal Cartesian coordinate
+system, which is orthogonal coordinate system attached to crystal lattice with x-axis parallel to
+<code class="docutils literal notranslate"><span class="pre">a*</span></code> inverse lattice vector and two other axis being orthogonal to it. He needs to write
+transformations over page of data presented in the form of [9 x npix]  matrix, where <em>npix</em> is the page size (defined by <code class="docutils literal notranslate"><span class="pre">hor_config.mem_chunk_size</span></code> value), each column corresponds to a pixel and  the pixel contain the following values:</p>
+<div class="highlight-matlab notranslate" id="pixels-structure"><div class="highlight"><pre><span></span><span class="n">row</span><span class="w"> </span><span class="s">1:</span><span class="w"> </span><span class="s">u1</span><span class="w">                 </span><span class="s">%</span><span class="w"> </span><span class="s">first</span><span class="w"> </span><span class="s">momentum</span><span class="w"> </span><span class="s">transfer</span><span class="w"> </span><span class="s">(Q_x)</span><span class="w"> </span><span class="s">coordinate</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">A^-1</span>
+<span class="n">row</span><span class="w"> </span><span class="s">2:</span><span class="w"> </span><span class="s">u2</span><span class="w">                 </span><span class="s">%</span><span class="w"> </span><span class="s">second</span><span class="w"> </span><span class="s">momentum</span><span class="w"> </span><span class="s">transfer</span><span class="w"> </span><span class="s">(Q_y)</span><span class="w"> </span><span class="s">coordinate</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">A^-1</span>
+<span class="n">row</span><span class="w"> </span><span class="s">3:</span><span class="w"> </span><span class="s">u3</span><span class="w">                 </span><span class="s">%</span><span class="w"> </span><span class="s">third</span><span class="w"> </span><span class="s">momentum</span><span class="w"> </span><span class="s">transfer</span><span class="w"> </span><span class="s">(Q_z)</span><span class="w"> </span><span class="s">coordinate</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">A^-1</span>
+<span class="n">row</span><span class="w"> </span><span class="s">4:</span><span class="w"> </span><span class="s">dE</span><span class="w">                 </span><span class="s">%</span><span class="w"> </span><span class="s">energy</span><span class="w"> </span><span class="s">transfer</span><span class="w"> </span><span class="s">values</span><span class="w">  </span><span class="s">(meV)</span>
+<span class="n">row</span><span class="w"> </span><span class="s">5:</span><span class="w"> </span><span class="s">run_idx</span><span class="w">            </span><span class="s">%</span><span class="w"> </span><span class="s">identifier</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">run,</span><span class="w"> </span><span class="s">contributed</span><span class="w"> </span><span class="s">into</span><span class="w"> </span><span class="s">this</span><span class="w"> </span><span class="s">pixel</span>
+<span class="n">row</span><span class="w"> </span><span class="s">6:</span><span class="w"> </span><span class="s">detector_idx</span><span class="w">       </span><span class="s">%</span><span class="w"> </span><span class="s">indices</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">detectors,</span><span class="w"> </span><span class="s">contributing</span><span class="w"> </span><span class="s">into</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">image</span>
+<span class="n">row</span><span class="w"> </span><span class="s">7:</span><span class="w"> </span><span class="s">energy_idx</span><span class="w">         </span><span class="s">%</span><span class="w"> </span><span class="s">indices</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">energy</span><span class="w"> </span><span class="s">transfer</span><span class="w"> </span><span class="s">values</span><span class="w"> </span><span class="s">registered</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">experiment</span>
+<span class="n">row</span><span class="w"> </span><span class="s">8:</span><span class="w"> </span><span class="s">signal</span><span class="w">             </span><span class="s">%</span><span class="w"> </span><span class="s">signal</span><span class="w"> </span><span class="s">(normalized</span><span class="w"> </span><span class="s">number</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">neutron</span><span class="w"> </span><span class="s">events)</span><span class="w"> </span><span class="s">registered</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">this</span><span class="w"> </span><span class="s">pixel</span>
+<span class="n">row</span><span class="w"> </span><span class="s">9:</span><span class="w"> </span><span class="s">variance</span><span class="w">           </span><span class="s">%</span><span class="w"> </span><span class="s">variance</span><span class="w"> </span><span class="s">of</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">signal</span><span class="w"> </span><span class="s">above.</span>
+</pre></div>
+</div>
+<p>In addition to that user should be familiar with the definition of <a class="reference external" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#projection-in-details">projection</a>, which establishes relationship between pixel coordinate system and the image coordinate system. A projection has number of methods from which two the most useful for transformations are:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Transform pixels expressed in crystal Cartesian or any source</span>
+<span class="c">% coordinate systems defined by projection into image coordinate system</span>
+<span class="p">[</span><span class="n">pix_transformed</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">proj</span><span class="p">.</span><span class="n">transform_pix_to_img</span><span class="p">(</span><span class="n">pix_cc</span><span class="p">);</span>
+<span class="c">% Transform pixels expressed in image coordinate coordinate systems</span>
+<span class="c">% into crystal Cartesian system or other source coordinate system,</span>
+<span class="c">% defined by projection</span>
+<span class="p">[</span><span class="n">pix_cc</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">proj</span><span class="p">.</span><span class="n">transform_img_to_pix</span><span class="p">(</span><span class="n">pix_transformed</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">proj</span></code> is usually projection used by <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object of interests, <cite>pix_cc</cite> is [4 x npix] matrix of pixel coordinates expressed in Crystal Cartesian coordinate system (see four first rows of <a class="reference internal" href="#pixels-structure"><span class="std std-ref">pixels data</span></a> above) and <cite>pix_transformed</cite> is [4 x npix] array of pixels coordinates expressed in image coordinate system.</p>
+<p>Finally user should be familiar with concept of object oriented programming as to write custom transformation one needs to use properties of the core transformation classes <code class="docutils literal notranslate"><span class="pre">PageOp_sqw_op</span></code> or
+<code class="docutils literal notranslate"><span class="pre">PageOp_sqw_op_bin_pixels</span></code> described below alongside with the description of the appropriate algorithm.</p>
+</section>
+<section id="sqw-op-algorithm">
+<span id="id1"></span><h2><span class="section-number">15.2. </span><code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> algorithm<a class="headerlink" href="#sqw-op-algorithm" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> is the algorithm, which provides user with opportunity to modify signal and error values and
+perform multiple unary or binary operations simultaneously while transforming large <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. Its signature looks as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sqw_op_func</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">)</span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sqw_op_func</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">,</span><span class="s">&#39;outfile&#39;</span><span class="p">,</span><span class="n">target_file_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">win</span></code> – <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file, cell array array of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects or strings that provides filenames of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects on disk serving as the source of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> data to process using <code class="docutils literal notranslate"><span class="pre">sqw_op_func</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;sqw_op_func</span></code> –  handle to a function which performs desired operation over sqw data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pars</span></code> –    cellarray of parameters used by <code class="docutils literal notranslate"><span class="pre">sqw_op_func</span></code>. If <code class="docutils literal notranslate"><span class="pre">sqw_op_func</span></code> have no parameters, empty parentheses <code class="docutils literal notranslate"><span class="pre">{}</span></code> should be provided.</p></li>
+</ul>
+<p>Optional:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;outfile&quot;</span></code> – key followed by the string, which defines the name or name with full path to the file to store resulting filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.  If one does not specify this, the resulting filebacked object will be temporary, i.e. will be deleted after variable <code class="docutils literal notranslate"><span class="pre">wout</span></code> will go out of scope.</p></li>
+</ul>
+<p>The output is:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wout</span></code>: an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object built from <code class="docutils literal notranslate"><span class="pre">win</span></code> by applying <code class="docutils literal notranslate"><span class="pre">sqw_op_func</span></code> over all pixels of <code class="docutils literal notranslate"><span class="pre">win</span></code> objects and calculating appropriate image averages.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;sqw_op_func</span></code> should have the form:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>output_sig_err<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">sqw_op_func</span><span class="p">(</span>in_page_op,parameters<span class="p">)</span>
+
+<span class="w">   </span><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">in_page_op</span><span class="p">.</span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="c">% get page of pixel data expressed in Crystal Cartesian coordinate system</span>
+<span class="w">   </span><span class="c">% Operations over signal and error as function of in_page_op, data and other parameters</span>
+<span class="w">   </span><span class="k">...</span>
+<span class="w">   </span><span class="c">% return results of operation as [2 x npix ] array of modified signal and variance data</span>
+<span class="w">   </span><span class="n">output_sig_err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">signal_calc</span><span class="p">(:)</span><span class="o">&#39;</span><span class="p">;</span><span class="n">error_calc</span><span class="p">(:)</span><span class="o">&#39;</span><span class="p">];</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">in_page_op</span></code> is the instance of <code class="docutils literal notranslate"><span class="pre">PageOp_sqw_op</span></code> class which is the core of <code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> algorithm and will provides user with access to page of pixels data and other properties, necessary to define proper transformation.</p>
+<p>Now let’s assume that you want to multiply an sqw object by 2 and extract a constant from the obtained value. You can do that using unary and binary operations, described in <a class="reference internal" href="Unary_operations.html"><span class="doc">the chapter above</span></a>:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">w_in</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This is simple code, but if your objects are filebased, this will requests two scans over large
+<code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. If you write <code class="docutils literal notranslate"><span class="pre">sqw_op_func</span></code> function:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>output_sig_err<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">sqw_op_unary</span><span class="p">(</span>in_page_op,varargin<span class="p">)</span>
+<span class="w">   </span><span class="c">% Apply two simple transformations of signal of an sqw object in one go.</span>
+
+<span class="w">   </span><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">in_page_op</span><span class="p">.</span><span class="n">data</span><span class="p">;</span><span class="w">     </span><span class="c">% get access to page of pixel data</span>
+<span class="w">   </span><span class="n">data</span><span class="p">(</span><span class="mi">8</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">data</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="w">       </span><span class="c">% change pixel data signal by multiplying it by 2 and extracting 1</span>
+<span class="w">   </span><span class="n">output_sig_err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">8</span><span class="p">:</span><span class="mi">9</span><span class="p">,:);</span><span class="w"> </span><span class="c">% combine signal and unchanged error into form, requested by algorithm</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>and apply <code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> algorithm:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sqw_op_unary</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;outfile&#39;</span><span class="p">,</span><span class="s">&#39;operations_result.sqw&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can do the same operation over large filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in one scan over whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file, which in this simple case will be two times faster then applying these operations one after another.</p>
+<p>If your theoretical model is built in Crystal Cartesian coordinate system rather than in <cite>hkldE</cite> coordinates you may write and apply it to pixel coordinates exactly like <cite>hkldE</cite> model for <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> algorithm. Here, as the example of using <code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> we try to remove cylindrical background obtained in the <a class="reference external" href="Data_diagnostics.html#instrument-view-cut">diagnostics</a> chapter of this manual. It may be not the best way of removing whole background but a good example of using special projection to transform data expressed in Crystal Cartesian coordinate system to image coordinate system.</p>
+<p>The sample background present in this case may be estimated by running Mantid reduction script and adding all reduced runs together:</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/BackgroundToRemove.png"><img alt="../_images/BackgroundToRemove.png" src="../_images/BackgroundToRemove.png" style="width: 800px;" /></a>
+</figure>
+<p>Left part of the image represents Mantid instrument view image. It is obvious that there is small beam leakage around beam stop window and strong powder lines around Bragg peaks. This is the background which one wants to remove. Right part of this image represents 2-dimensional image obtained from <code class="docutils literal notranslate"><span class="pre">instrument_view_cut</span></code> and we want to extract this image from whole sqw file containing magnetic signals.</p>
+<p>Slim-lined script which would produce such background removal is provided below:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%%=============================================================================</span>
+<span class="c">%       Calculate and remove background for Ei=200 meV sample dataset</span>
+<span class="c">% =============================================================================</span>
+<span class="c">% Get access to sqw file for the Ei=200meV containing Horace angular scan</span>
+<span class="c">% which is located in &quot;sqw/sqw2024&quot; folder, in the position relative to the</span>
+<span class="c">% location of the script.</span>
+<span class="n">root_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fileparts</span><span class="p">(</span><span class="nb">fileparts</span><span class="p">(</span><span class="nb">fileparts</span><span class="p">(</span><span class="nb">mfilename</span><span class="p">(</span><span class="s">&quot;fullpath&quot;</span><span class="p">))));</span>
+<span class="n">sqw_dir</span><span class="p">=</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span><span class="s">&#39;sqw&#39;</span><span class="p">,</span><span class="s">&#39;sqw2024&#39;</span><span class="p">);</span>
+
+<span class="c">% define the name of the source file and the name of the resulting data file.</span>
+<span class="n">data_src200</span><span class="w"> </span><span class="p">=</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">sqw_dir</span><span class="p">,</span><span class="s">&#39;Fe_ei200_align.sqw&#39;</span><span class="p">);</span>
+<span class="n">target</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">sqw_dir</span><span class="p">,</span><span class="s">&#39;Fe_ei200_no_bg2D.sqw&#39;</span><span class="p">);</span>
+<span class="n">src200</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">data_src200</span><span class="p">);</span><span class="w"> </span><span class="c">% create filebacked source sqw object</span>
+
+<span class="c">% calculate 2-dimensional cylindrical background in Instrument coordinate system.</span>
+<span class="n">w2_200meV</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">instrument_view_cut</span><span class="p">(</span><span class="n">src200</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mi">65</span><span class="p">],[</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">170</span><span class="p">]);</span>
+
+<span class="c">% build background model for interpolation expressed in</span>
+<span class="c">% instrument view coordinate system.</span>
+<span class="n">x1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w2_200meV</span><span class="p">.</span><span class="n">p</span><span class="p">{</span><span class="mi">1</span><span class="p">};</span>
+<span class="n">x2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w2_200meV</span><span class="p">.</span><span class="n">p</span><span class="p">{</span><span class="mi">2</span><span class="p">};</span>
+<span class="n">x1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">x1</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">x1</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="k">end</span><span class="p">));</span>
+<span class="n">x2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">x2</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">x2</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="k">end</span><span class="p">));</span>
+<span class="n">F</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">griddedInterpolant</span><span class="p">({</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">},</span><span class="n">w2_200meV</span><span class="p">.</span><span class="n">s</span><span class="p">);</span><span class="w"> </span><span class="c">% define background model using linear</span>
+<span class="c">% interpolation of signal</span>
+
+<span class="c">% call sqw_op with function to remove background</span>
+<span class="n">src200_noBb</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op</span><span class="p">(</span><span class="n">src200</span><span class="p">,@</span><span class="n">remove_background</span><span class="p">,{</span><span class="n">w2_200meV</span><span class="p">,</span><span class="n">F</span><span class="p">},</span><span class="s">&#39;outfile&#39;</span><span class="p">,</span><span class="n">target</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The page-function with actually used to remove background in the code above is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>sig_var<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">remove_background</span><span class="p">(</span>pageop_obj,bg_data,bg_model,varargin<span class="p">)</span>
+<span class="w">    </span><span class="c">% function to remove background from page of data.</span>
+<span class="w">    </span><span class="c">% Inputs:</span>
+<span class="w">    </span><span class="c">% pageop_obj -- instance of PageOp_sqw_op class providing necessary page of pixels data</span>
+<span class="w">    </span><span class="c">% bg_data    -- two dimensional background dataset to remove</span>
+<span class="w">    </span><span class="c">% bg_model   -- gridded interpolant to calculate background signal on 2-Dimensional</span>
+<span class="w">    </span><span class="c">%               image.</span>
+<span class="w">    </span><span class="c">% Returns:</span>
+<span class="w">    </span><span class="c">% sig_var     -- 2xnpix array of modified pixel&#39;s signal and variance.</span>
+
+<span class="w">    </span><span class="n">data</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">pageop_obj</span><span class="p">.</span><span class="n">page_data</span><span class="p">;</span><span class="w"> </span><span class="c">% get access to page of pixel data</span>
+
+<span class="w">    </span><span class="c">% 2D background. get access to kf_sphere_proj to transform pixel data</span>
+<span class="w">    </span><span class="c">% into instrument coordinate system where background is</span>
+<span class="w">    </span><span class="c">% defined using instrument view projection</span>
+<span class="w">    </span><span class="c">% As this is special projection, it needs 5 rows of pixel data (needs run_id)</span>
+<span class="w">    </span><span class="c">% rather then the standard projection, which takes 4 rows.</span>
+<span class="w">    </span><span class="n">pix</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">bg_data</span><span class="p">.</span><span class="n">proj</span><span class="p">.</span><span class="n">transform_pix_to_img</span><span class="p">(</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">,:));</span><span class="w"> </span><span class="c">% you may define your own</span>
+<span class="w">    </span><span class="c">% complex transformation to convert pixels in Cry</span>
+
+<span class="w">    </span><span class="c">% interpolate background signal on the pixels coordinates expressed</span>
+<span class="w">    </span><span class="c">% in instrument coordinate system.</span>
+<span class="w">    </span><span class="n">bg_signal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">bg_model</span><span class="p">(</span><span class="n">pix</span><span class="p">(</span><span class="mi">2</span><span class="p">,:),</span><span class="n">pix</span><span class="p">(</span><span class="mi">4</span><span class="p">,:));</span>
+
+<span class="w">    </span><span class="c">% retrieve existing signal and variance values</span>
+<span class="w">    </span><span class="n">sig_var</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],:);</span>
+<span class="w">    </span><span class="c">% remove interpolated  background signal from total signal</span>
+<span class="w">    </span><span class="n">sig_var</span><span class="p">(</span><span class="mi">1</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">8</span><span class="p">,:)</span><span class="o">-</span><span class="n">bg_signal</span><span class="p">;</span>
+<span class="w">    </span><span class="c">% exclude negative results from possible future fitting routine</span>
+<span class="w">    </span><span class="n">over_compensated</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sig_var</span><span class="p">(</span><span class="mi">1</span><span class="p">,:)</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="c">%sig_var(1,over_compensated) = 0;</span>
+<span class="w">    </span><span class="n">sig_var</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">over_compensated</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>Modified image clearly shows substantial decrease in parasitic signal around elastic line:</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/RemovedBackground.png"><img alt="../_images/RemovedBackground.png" src="../_images/RemovedBackground.png" style="width: 1200px;" /></a>
+</figure>
+<p>Better background model is possible to remove more parasitic signal, though this task is fully in the hands of user.</p>
+</section>
+<section id="sqw-op-bin-pixels-algorithm">
+<h2><span class="section-number">15.3. </span><code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm<a class="headerlink" href="#sqw-op-bin-pixels-algorithm" title="Permalink to this heading"></a></h2>
+<p>Let’s assume you are interested in magnetic signal which is present at relatively low <span class="math notranslate nohighlight">\(\|Q\|\)</span> due to magnetic form factor and signal covers multiple Brillouin zones at low <span class="math notranslate nohighlight">\(\|Q\|\)</span>. You want to accumulate magnetic signal in first Brillouin zone to increase statistics and consider everything which is beyond some specific <span class="math notranslate nohighlight">\(\|Q\|\)</span> - value to be background to remove as signal there is negligibly small due to magnetic form factor, so you also want to move this signal to first Brillouin zone and extract background from the magnetic signal. Figure below give example of such situation:</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/Fe_BZ_signal.png"><img alt="Sample differential cross-section measured on MAPS" src="../_images/Fe_BZ_signal.png" style="width: 400px;" /></a>
+<figcaption>
+<p><span class="caption-text">Sample differential cross-section measured on MAPS and showing
+magnetic signal within read-cycle surrounded area and background signal (phonons)
+inside and outside of this area. Yellow box represents double-size Brillouin zone where
+data moved using shift operation and its top right quadrant – the area where data should
+be finally moved using folding and reflection.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p><code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> algorithms would not allow you to do this, as you can not change pixels coordinates alongside with everything else.
+<code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm is written to allow user changing pixels coordinates. Its interface
+is the mixture of <code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> interface and <code class="docutils literal notranslate"><span class="pre">cut</span></code> interface, which defines construction of new
+image of interest from provided pixel and image data:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op_bin_pixels</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sqw_op_func</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">,</span><span class="n">cut_pars</span><span class="p">{:})</span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op_bin_pixels</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">sqw_op_func</span><span class="p">,</span><span class="w"> </span><span class="n">pars</span><span class="p">,</span><span class="n">cut_pars</span><span class="p">{:},</span><span class="s">&#39;outfile&#39;</span><span class="p">,</span><span class="n">target_file_name</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">win</span></code> – <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file, cell array array of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects or strings that provides filenames of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects on disk serving as the source of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> data to process using <code class="docutils literal notranslate"><span class="pre">sqwop_func</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;sqw_op_func</span></code> –  handle to a function which performs desired operation over sqw data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pars</span></code> –    cellarray of parameters used by <code class="docutils literal notranslate"><span class="pre">sqw_op_func</span></code>. If <code class="docutils literal notranslate"><span class="pre">sqw_op_func</span></code> have no parameters, empty parentheses <code class="docutils literal notranslate"><span class="pre">{}</span></code> should be provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut_pars</span></code> – cellarray of cut parameters as described in <a class="reference external" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#cut">cut</a> except symmetry operations which are not supported by this algorithm as <code class="docutils literal notranslate"><span class="pre">cut</span></code> parameters but may be customized and provided as the parameters of <code class="docutils literal notranslate"><span class="pre">sqw_op_func</span></code>.</p></li>
+</ul>
+<p>Namely, <code class="docutils literal notranslate"><span class="pre">cut_pars</span></code> have the form:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">cut_pars</span><span class="w"> </span><span class="p">={[</span><span class="w"> </span><span class="n">proj</span><span class="p">],</span><span class="w"> </span><span class="n">p1_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p2_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p3_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p4_bin</span><span class="p">[,</span><span class="w"> </span><span class="s">&#39;-nopix&#39;</span><span class="p">]};</span>
+</pre></div>
+</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#projection-proj">proj</a> defines the axes and origin of the cut including
+the shape of the region to extract and the representation in the resulting
+histogram. If not provided, the projection is taken from the input <code class="docutils literal notranslate"><span class="pre">win</span></code> object.</p></li>
+<li><p><a class="reference external" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#binning-arguments">pN_bin</a> describe the histogram bins to capture the  data. In details they described in the <a class="reference external" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#binning-arguments">chapter about binning arguments</a></p></li>
+<li><p>optional <code class="docutils literal notranslate"><span class="pre">'-nopix'</span></code> argument means that resulting object would be <code class="docutils literal notranslate"><span class="pre">dnd</span></code> object, i.e. object
+which does not contain pixels.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;sqw_op_func</span></code> for <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm have form similar to the one used by <a class="reference internal" href="#sqw-op-algorithm"><span class="std std-ref">sqw_op algorithm</span></a>, except it should return full page of modified pixels data:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>output_data<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">sqw_op_func</span><span class="p">(</span>in_page_op,parameters<span class="p">)</span>
+
+<span class="w">   </span><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">in_page_op</span><span class="p">.</span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="c">% get page of pixel data expressed in Crystal Cartesian coordinate system</span>
+<span class="w">   </span><span class="c">% Operations over signal and error as function of in_page_op, data and other parameters</span>
+<span class="w">   </span><span class="k">...</span>
+
+<span class="w">   </span><span class="c">% return results of operation as [9 x npix ] array of modified pixels data, where all</span>
+<span class="w">   </span><span class="c">% values of the array may change.</span>
+<span class="w">   </span><span class="n">output_data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">modify_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">parameters</span><span class="p">{:});</span>
+
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>Slim-lined script to calculate background in the situation, described on the figure above looks like that:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%%=============================================================================</span>
+<span class="c">%       Calculate background for Ei=400 meV</span>
+<span class="c">% =============================================================================</span>
+<span class="c">% Get access to sqw file for the Ei=400meV Horace angular scan</span>
+<span class="n">root_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fileparts</span><span class="p">(</span><span class="nb">fileparts</span><span class="p">(</span><span class="nb">fileparts</span><span class="p">(</span><span class="nb">mfilename</span><span class="p">(</span><span class="s">&quot;fullpath&quot;</span><span class="p">))));</span>
+<span class="n">sqw_dir</span><span class="p">=</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span><span class="s">&#39;sqw&#39;</span><span class="p">,</span><span class="s">&#39;sqw2024&#39;</span><span class="p">);</span>
+
+<span class="n">data_src400</span><span class="w"> </span><span class="p">=</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">sqw_dir</span><span class="p">,</span><span class="s">&#39;Fe_ei401_align.sqw&#39;</span><span class="p">);</span>
+<span class="n">target</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">sqw_dir</span><span class="p">,</span><span class="s">&#39;Fe_ei401_noBg_4D_reducedBZ_FF_ignored.sqw&#39;</span><span class="p">);</span>
+
+<span class="c">% initialize source filebacked object to operate over</span>
+<span class="n">src400</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">data_src400</span><span class="p">);</span>
+
+<span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">src400</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">alatt</span><span class="p">;</span><span class="w">  </span><span class="c">% get access to lattice parameters</span>
+<span class="n">angdeg</span><span class="p">=</span><span class="w"> </span><span class="n">src400</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">angdeg</span><span class="p">;</span><span class="w"> </span><span class="c">% and lattice angles</span>
+<span class="n">rlu</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="nb">pi</span><span class="o">./</span><span class="n">alatt</span><span class="p">;</span><span class="w">          </span><span class="c">% calculate reciprocal lattice (case of cubic lattice)</span>
+<span class="n">r_cut2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="mf">3.5</span><span class="o">*</span><span class="n">rlu</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">^</span><span class="mi">2</span><span class="p">;</span><span class="w">    </span><span class="c">% define cut-off radius for background</span>
+<span class="n">old_range</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">src400</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">axes</span><span class="p">.</span><span class="n">get_cut_range</span><span class="p">();</span><span class="w"> </span><span class="c">% obtain binning for existing object</span>
+<span class="n">del</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.05</span><span class="p">;</span><span class="w">                 </span><span class="c">% define new binning for q-coordinates</span>
+<span class="n">zoneBins</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">del</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="n">del</span><span class="p">];</span>
+<span class="n">e_bins</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">old_range</span><span class="p">{</span><span class="mi">4</span><span class="p">};</span><span class="w">      </span><span class="c">% retain existing binning for energy coordinates</span>
+
+<span class="c">% define cut ranges</span>
+<span class="n">cut_range</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">zoneBins</span><span class="w"> </span><span class="o">*</span><span class="n">rlu</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">zoneBins</span><span class="o">*</span><span class="n">rlu</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">zoneBins</span><span class="o">*</span><span class="n">rlu</span><span class="p">(</span><span class="mi">3</span><span class="p">),[</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">340</span><span class="p">]};</span>
+
+<span class="n">bg_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;w4Bz_400meV_bg.mat&#39;</span><span class="p">;</span><span class="w"> </span><span class="c">% where we want to save our background</span>
+
+<span class="c">% run sqw_op_bin_pixels to calculate background in the first Brillouin zone.</span>
+<span class="n">sqw400meV_Bz_bg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op_bin_pixels</span><span class="p">(</span><span class="n">src400</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">build_bz_background</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">r_cut2</span><span class="p">,</span><span class="n">rlu</span><span class="p">},</span><span class="n">cut_range</span><span class="p">{:},</span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span><span class="w">  </span><span class="c">%</span>
+<span class="n">sqw400meV_Bz_bg</span><span class="p">.</span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;sqw400meV_Bz_bg&#39;</span><span class="p">;</span><span class="w"> </span><span class="c">% redefine name of the resulting dnd object</span>
+<span class="nb">save</span><span class="p">(</span><span class="n">bg_file</span><span class="p">,</span><span class="s">&#39;sqw400meV_Bz_bg&#39;</span><span class="p">);</span><span class="w">   </span><span class="c">% save result for further usage.</span>
+</pre></div>
+</div>
+<p>Where the function to calculate background is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>data<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">sqw_op_build_bz_bckgrnd</span><span class="p">(</span>pageop_obj,r2_ignore,rlu<span class="p">)</span>
+<span class="c">%sqw_op_build_bz_bckgrnd calculates background signal from scattering function</span>
+<span class="c">% taken at of q-values beyond of the specified cut-off radius</span>
+<span class="c">% and moves background signal into first Brilluoin zone.</span>
+<span class="c">%</span>
+<span class="c">% Inputs:</span>
+<span class="c">% pageop_obj -- Initialized instance of PageOp_sqw_op_bin_pixels object providing all necessary data</span>
+<span class="c">% r2_ignore  -- square of cut-off radius to select background (A^-2)</span>
+<span class="c">% rlu        -- reciprocal lattice vectors for the used lattice</span>
+
+<span class="c">% Get access to [9 x Npix] page of pixels data</span>
+<span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pageop_obj</span><span class="p">.</span><span class="n">page_data</span><span class="p">;</span>
+<span class="c">% calculate pixels distances from centre of Crystal Cartesian coordinate system</span>
+<span class="n">Q2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">,:)</span><span class="o">.*</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">,:)</span><span class="o">+</span><span class="n">data</span><span class="p">(</span><span class="mi">2</span><span class="p">,:)</span><span class="o">.*</span><span class="n">data</span><span class="p">(</span><span class="mi">2</span><span class="p">,:)</span><span class="o">+</span><span class="n">data</span><span class="p">(</span><span class="mi">3</span><span class="p">,:)</span><span class="o">.*</span><span class="n">data</span><span class="p">(</span><span class="mi">3</span><span class="p">,:);</span>
+<span class="n">keep</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Q2</span><span class="o">&gt;=</span><span class="n">r2_ignore</span><span class="p">;</span><span class="w"> </span><span class="c">% background % identify pixels outside of cut-off radius</span>
+<span class="c">%keep = Q2&lt;r2_ignore;   % foreground</span>
+<span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(:,</span><span class="n">keep</span><span class="p">);</span><span class="w">  </span><span class="c">% select pixels outside of cut-off radius</span>
+<span class="k">if</span><span class="w"> </span><span class="nb">isempty</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w">    </span><span class="c">% leave if this page does not contain background data</span>
+<span class="k">end</span>
+<span class="c">% Cubic lattice scale in BCC lattice</span>
+<span class="nb">scale</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">rlu</span><span class="p">;</span>
+<span class="n">q_coord</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">,:);</span>
+<span class="n">img_shift</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">q_coord</span><span class="o">./</span><span class="nb">scale</span><span class="p">(:))</span><span class="o">.*</span><span class="nb">scale</span><span class="p">(:);</span><span class="w"> </span><span class="c">% BRAGG positions</span>
+<span class="c">% in the new lattice are located at the even rlu values</span>
+<span class="c">% move all q-coordinates into expanded Brillouin zone +-1*rlu size</span>
+<span class="n">q_coord</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">q_coord</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">img_shift</span><span class="p">;</span>
+
+<span class="c">% move 7 cubes with negative coordinates of expanded Brillouin zone into the first cube.</span>
+<span class="n">invert</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">q_coord</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">q_coord</span><span class="p">(</span><span class="n">invert</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="n">q_coord</span><span class="p">(</span><span class="n">invert</span><span class="p">);</span>
+
+<span class="c">% construct result containing modified coordinates</span>
+<span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">q_coord</span><span class="p">;</span>
+
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>Note that the function returns full [9x N] page of pixel data, where N is smaller then input number of
+pixels. Rows 12-13 of the function above distinguish between background and foreground.
+As one can see, difference is just in taking signal for background outside of the cut-off radius
+and foreground – inside of cut-off radius. This causes visible magnetic foreground signal contributing into background, but as this signal is smaller then 10% of foreground signal, here we ignore it, bearing in mind that this correction may be calculated more accurately and applied to final results.</p>
+<p>All these considerations and their significance or non-significance are case-specific user have
+full control and responsibility for writing his own background/foreground function and interpreting results, obtained using this function.</p>
+<p>Figure below shows sample background calculated using <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm and background-calculating function <code class="docutils literal notranslate"><span class="pre">sqw_op_build_bz_bckgrnd.mat</span></code> provided above. The background extraction is also performed using <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm as it combines moving foreground signal into first Brillouin zone,
+background extraction, Magnetic form-factor corrections and parasitic signal removal. As this is relatively complex user function based on elements, provided above, we do not provide script to obtain this result in the document but placed the script which does these operations (<code class="docutils literal notranslate"><span class="pre">sqw_op_move_to_bz0_and_remove_bckgrnd.mat</span></code>) into <code class="docutils literal notranslate"><span class="pre">Horace/example/</span></code> folder.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="../_images/BackgroundVSForegroundFe_400meV.png"><img alt="Background vs Foreground in first Brillouin zone." src="../_images/BackgroundVSForegroundFe_400meV.png" style="width: 1200px;" /></a>
+<figcaption>
+<p><span class="caption-text">Background and Foreground signals for data demonstrated at the beginning of this chapter.
+Note the difference in intensity scale between background and foreground signals.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Round holes in the corners, centre and middle-edges of the foreground scattering function are related to
+the procedure of suppression of the parasitic reflections in [0,0,1] direction from cubic sub-lattice
+of the sample. The piece of code responsible for this suppression and the holes is marked and highlighted within
+the sample code.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">sqw_ob_bin_pixels</span></code> is the algorithm acting on full <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. As such, it is not particularly fast until it parallel implementation is available. The examples, provided here are done for whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, located on file, so the pictures show 2-dimensional cuts of full 4-dimensional filebacked object.
+It is recommended to debug user functions on 2-dimensional cuts/objects located in memory before running long calculations on full 4-dimensional object.</p>
+</div>
+</section>
+<section id="sqw-op-bin-pixels-algorithm-with-combine-option">
+<h2><span class="section-number">15.4. </span><code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm with <code class="docutils literal notranslate"><span class="pre">&quot;-combine&quot;</span></code> option<a class="headerlink" href="#sqw-op-bin-pixels-algorithm-with-combine-option" title="Permalink to this heading"></a></h2>
+<p>Normally <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm applied to cellarray of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects or <code class="docutils literal notranslate"><span class="pre">sqw</span></code> files
+will apply specified <code class="docutils literal notranslate"><span class="pre">sqw_op_function</span></code> to each input <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. If you invoke this algorithm with <code class="docutils literal notranslate"><span class="pre">&quot;-combine&quot;</span></code> option, it will combine all input objects into single object with coordinate system defined by the first input object.</p>
+<p>We extracted description of <code class="docutils literal notranslate"><span class="pre">&quot;-combine&quot;</span></code> option into separate chapter due to close connection between
+the <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> with the sample function described <a class="reference internal" href="#move-all-to-proj-label"><span class="std std-ref">below</span></a> within <code class="docutils literal notranslate"><span class="pre">cut</span></code> in <a class="reference external" href="Symmetrising_etc.html#cutting">Cut with symmetry operations</a>, described in chapter <a class="reference internal" href="Symmetrising_etc.html"><span class="doc">Symmetry Operations</span></a>.
+The code of the sample function below substantially overlaps with the code used in the core <code class="docutils literal notranslate"><span class="pre">cut</span></code> with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code> symmetrisation algorithm.</p>
+<p>The similarities and differences between these two algorithms are summarized in the table:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Number</p></td>
+<td><p>Action</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cut</span></code> with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> with <code class="docutils literal notranslate"><span class="pre">&quot;-combine&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Cuts source:</p></td>
+<td><p>single <code class="docutils literal notranslate"><span class="pre">sqw</span></code> obj with cuts
+generated by symmetry
+operations</p></td>
+<td><p>random selections of <code class="docutils literal notranslate"><span class="pre">sqw</span></code> cuts,
+may be from different <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>Multiple transformations
+applied to single data</p></td>
+<td><p>Not allowed</p></td>
+<td><p>simple modifications to standard script</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Include same pixels from
+multiple symmetry op.</p></td>
+<td><p>No. Efficient exclusion
+algorithm</p></td>
+<td><p>request complex coding. Probably
+not very efficient but possible.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Possibility to perform
+other operations
+alongside with symmetry.</p></td>
+<td><p>No</p></td>
+<td><p>Possible</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>User efforts</p></td>
+<td><p>Average</p></td>
+<td><p>High</p></td>
+</tr>
+</tbody>
+</table>
+<p>In more details the table above can be expanded as follows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cut</span></code> with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code> generates number of cuts related by symmetry operation and combine data from these
+cuts together. You have to provide <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> with set of cuts (related by symmetry operations or
+not related – its your choice) and then these cuts are combined together exactly in the same way as in <code class="docutils literal notranslate"><span class="pre">cut</span></code>
+with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code>. As the consequence, <code class="docutils literal notranslate"><span class="pre">cut</span></code> with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code> will work with single <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file, and cuts
+provided to <code class="docutils literal notranslate"><span class="pre">sqw_ob_bin_pixels</span></code> can be taken from multiple <code class="docutils literal notranslate"><span class="pre">sqw</span></code> files.</p></li>
+<li><p>Let’s assume you transform data defined in range [-1:-3] into range [0:1] using folding operations
+around axes passing through points 0 and 1. If you use <code class="docutils literal notranslate"><span class="pre">cut</span></code> with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code>, the data reflected from range [1:3] will be reflected into range [-2:1] and the data block [-2:0] will be dropped by cut ranges. reflected. This is the consequence of using the current implementation of the algorithm, which eliminates double counting of the same data transformed multiple times using multiple
+symmetry operations. If you need to keep these data, you need to use <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code>
+with properly modified custom <code class="docutils literal notranslate"><span class="pre">sqw_op_function</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cut</span></code> with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code> carefully cares about error counting not to double-count the same pixels,
+transformed multiple times by different symmetry operations. As data in <code class="docutils literal notranslate"><span class="pre">SymOp</span></code> may come from
+multiple sources, its very difficult to implement such algorithm for <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code>.
+This may be done with some efforts from user (e.g. by calculating unique pixel id and comparing pixels usage)
+but this algorithm does not look very efficient.</p></li>
+<li><p>As user expects to write his own <code class="docutils literal notranslate"><span class="pre">sqw_op_function</span></code> he may use multiple transformations of his
+choice to modify combined data. <code class="docutils literal notranslate"><span class="pre">cut</span></code> with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code> intended for performing  operations performed by well defined <code class="docutils literal notranslate"><span class="pre">SymOp</span></code> classes.</p></li>
+<li><p>Summarizing all above, one can say that <code class="docutils literal notranslate"><span class="pre">cut</span></code> with <code class="docutils literal notranslate"><span class="pre">SymOp</span></code> is intended for simple combining
+of symmetry-related
+cuts, while <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> gives user wider opportunities, allows combining much wider range
+of data but requests from user more experience with MATLAB programming and better knowledge of Horace
+internal structure.</p></li>
+</ol>
+</div></blockquote>
+<p>Simplest form of the function, which allows combining multiple cuts into single cut is:</p>
+<div class="highlight-matlab notranslate" id="move-all-to-proj-label"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>result<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">move_all_to_proj</span><span class="p">(</span>pageop_obj,proj_array,varargin<span class="p">)</span>
+<span class="c">% Convert all equivalent directions found in the cellarray of input datasets into</span>
+<span class="c">% the coordinate system specified by pageop_obj.</span>
+<span class="c">%</span>
+<span class="c">% Inputs:</span>
+<span class="c">% pageop_obj  -- instance of PageOp_sqw_binning object containing</span>
+<span class="c">%                information about source sqw object(s), including page of</span>
+<span class="c">%                pixel data currently loaded in memory, projection, which</span>
+<span class="c">%                defines target coordinate system and the target image</span>
+<span class="c">%                to convert all input data in.</span>
+<span class="c">% proj_array  -- array of projections which describe directions of cuts</span>
+<span class="c">%                to combine.</span>
+<span class="c">%</span>
+<span class="c">% Returns</span>
+<span class="c">% result      -- page of modified pixels data to bin using</span>
+<span class="c">%                PageOp_sqw_binning algorithm transformed into coordinate</span>
+<span class="c">%                system related with first projection</span>
+<span class="c">%</span>
+<span class="c">%</span>
+
+<span class="c">% Get access to [9 x Npix] page of pixels data</span>
+<span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pageop_obj</span><span class="p">.</span><span class="n">page_data</span><span class="p">;</span>
+<span class="c">% get access to the projection, which describes target image</span>
+<span class="n">targ_proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pageop_obj</span><span class="p">.</span><span class="n">proj</span><span class="p">;</span>
+<span class="c">%</span>
+<span class="c">% done explicitly for 2-D cuts for performance to avoid internal loop over pixels ranges</span>
+<span class="c">%---------------------------------------------------------------------------------------</span>
+<span class="c">% Get access to the target image and obtain indices of the integration axis</span>
+<span class="n">iax</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">pageop_obj</span><span class="p">.</span><span class="n">img</span><span class="p">.</span><span class="n">iax</span><span class="p">;</span><span class="w">  </span><span class="c">% expect two integration axis here</span>
+<span class="c">% get cut ranges of the image to combine everything into these ranges</span>
+<span class="n">cut_range</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">pageop_obj</span><span class="p">.</span><span class="n">img</span><span class="p">.</span><span class="n">img_range</span><span class="p">(:,</span><span class="n">iax</span><span class="w">  </span><span class="p">);</span>
+<span class="c">%</span>
+<span class="n">q_coord</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">,:);</span>
+<span class="n">result</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">numel</span><span class="p">(</span><span class="n">proj_array</span><span class="p">));</span>
+<span class="c">% go through all combining images coordinates system, converting appropriate pixels</span>
+<span class="c">% into coordinate system, related to target projection</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="p">=</span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">proj_array</span><span class="p">)</span>
+<span class="w">    </span><span class="c">% input projections used for cut do not have lattice set up for them.</span>
+<span class="w">    </span><span class="c">% They need lattice so let&#39;s set it up here.</span>
+<span class="w">    </span><span class="n">proj_array</span><span class="p">(</span><span class="nb">i</span><span class="p">).</span><span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">targ_proj</span><span class="p">.</span><span class="n">alatt</span><span class="p">;</span>
+<span class="w">    </span><span class="n">proj_array</span><span class="p">(</span><span class="nb">i</span><span class="p">).</span><span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">targ_proj</span><span class="p">.</span><span class="n">angdeg</span><span class="p">;</span>
+<span class="w">    </span><span class="c">% transform momentum transfer values from current page of data into</span>
+<span class="w">    </span><span class="c">% image associated with proj_array(i) projection</span>
+<span class="w">    </span><span class="n">coord_tr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">proj_array</span><span class="p">(</span><span class="nb">i</span><span class="p">).</span><span class="n">transform_pix_to_img</span><span class="p">(</span><span class="n">q_coord</span><span class="p">);</span>
+<span class="w">    </span><span class="c">% find the data falling outside of the target image range</span>
+<span class="w">    </span><span class="c">% forcing target image and the image produced by current projection to</span>
+<span class="w">    </span><span class="c">% coincide.</span>
+<span class="w">    </span><span class="n">include</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">coord_tr</span><span class="p">(</span><span class="n">iax</span><span class="p">(</span><span class="mi">1</span><span class="p">),:)</span><span class="o">&gt;=</span><span class="n">cut_range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="n">coord_tr</span><span class="p">(</span><span class="n">iax</span><span class="p">(</span><span class="mi">1</span><span class="p">),:)</span><span class="o">&lt;=</span><span class="n">cut_range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="k">...</span>
+<span class="w">        </span><span class="n">coord_tr</span><span class="p">(</span><span class="n">iax</span><span class="p">(</span><span class="mi">2</span><span class="p">),:)</span><span class="o">&gt;=</span><span class="n">cut_range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">&amp;</span><span class="n">coord_tr</span><span class="p">(</span><span class="n">iax</span><span class="p">(</span><span class="mi">2</span><span class="p">),:)</span><span class="o">&lt;=</span><span class="n">cut_range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">    </span><span class="c">% extract coordinates which lie within current cut ranges.</span>
+<span class="w">    </span><span class="n">coord_tr</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">coord_tr</span><span class="p">(:,</span><span class="n">include</span><span class="p">);</span>
+<span class="w">    </span><span class="n">res_l</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(:,</span><span class="n">include</span><span class="p">);</span>
+<span class="w">    </span><span class="c">% transform pixels coordinates from image defined by proj_array(i) cut</span>
+<span class="w">    </span><span class="c">% projection into the Crystal Cartesian coordinates system related with</span>
+<span class="w">    </span><span class="c">% target projection.</span>
+<span class="w">    </span><span class="n">res_l</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">targ_proj</span><span class="p">.</span><span class="n">transform_img_to_pix</span><span class="p">(</span><span class="n">coord_tr</span><span class="p">);</span>
+<span class="w">    </span><span class="c">% collect transformed pixels as partial result</span>
+<span class="w">    </span><span class="n">result</span><span class="p">{</span><span class="nb">i</span><span class="p">}</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">res_l</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(:,</span><span class="o">~</span><span class="n">include</span><span class="p">);</span><span class="w"> </span><span class="c">% extract remaining data for processing using</span>
+<span class="w">    </span><span class="c">% other projections.</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">isempty</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="c">% leave if all data was processed and transformed</span>
+<span class="w">        </span><span class="k">break</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="n">q_coord</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">,:);</span>
+<span class="k">end</span>
+<span class="c">% combine all partial cut results</span>
+<span class="n">result</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cat</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">result</span><span class="p">{:});</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>The original of this function is located in <code class="docutils literal notranslate"><span class="pre">Horace/example/</span></code> folder. The details of the implementation are provided
+in the comments to the function. The main idea of the operation is that you select one main cut and combine all additional images forcefully “overlapping” images one over another transforming pixels coordinates accordingly.</p>
+<p>Image below shows the way to overlapping two cuts together and the result of such overlapping.</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/SQW_op_Combine2Cuts.png"><img alt="../_images/SQW_op_Combine2Cuts.png" src="../_images/SQW_op_Combine2Cuts.png" style="width: 800px;" /></a>
+<figcaption>
+<p><span class="caption-text">Overlap two cuts demonstrated on the left image, display them (central image) and combine together using
+<code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm with combine function above.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Simple script which allows to produce result presented on the right side of picture above (image (c) ) from the data on the left side of the image above using <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> and <a class="reference internal" href="#move-all-to-proj-label"><span class="std std-ref">combine function above</span></a> looks as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">source</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="s">&#39;source_file_name&#39;</span><span class="p">);</span><span class="w">  </span><span class="c">% define filebacked source sqw object</span>
+<span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">line_proj</span><span class="p">,[],[],[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2</span><span class="p">)</span><span class="w">    </span><span class="c">% plot image (a)</span>
+<span class="n">proj1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">proj2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">cut_ranges</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{[],[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">360</span><span class="p">]};</span>
+<span class="n">cut1</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="n">proj1</span><span class="p">,</span><span class="n">cut_ranges</span><span class="p">{:});</span><span class="w">  </span><span class="c">% cut sqw object presented on image b1)</span>
+<span class="n">cut2</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="n">proj2</span><span class="p">,</span><span class="n">cut_ranges</span><span class="p">{:});</span><span class="w">  </span><span class="c">% cut sqw object presented on image b2)</span>
+<span class="c">% combine cut1 and cut2 together producing final result.</span>
+<span class="n">wout</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op_bin_pixels</span><span class="p">({</span><span class="n">cut1</span><span class="p">,</span><span class="n">cut2</span><span class="p">},{[</span><span class="n">proj1</span><span class="p">,</span><span class="n">proj2</span><span class="p">]},</span><span class="n">proj1</span><span class="p">,</span><span class="n">cut_ranges</span><span class="p">{:},</span><span class="s">&#39;-combine&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">wout</span><span class="p">);</span><span class="w"> </span><span class="c">% plot image c)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Simulation.html" class="btn btn-neutral float-left" title="14. Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Multifit.html" class="btn btn-neutral float-right" title="16. Multifit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2025, STFC RAL.
+      <span class="lastupdated">Last updated on Dec 22, 2025, 3:04:18 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+<br><br>
+<a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/manual/Generic_Transformation.rst">Click here to edit</a> or <a href="https://github.com/pace-neutrons/Horace/edit/master/documentation/user_docs/docs/new_page.rst">Click here to add new page</a> (requires <a href="https://github.com/login">GitHub account</a>).
+<br>
+For more info on editing <a href="../Contributing.html">click here</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

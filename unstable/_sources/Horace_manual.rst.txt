@@ -23,6 +23,8 @@ Horace Manual
    manual/Plotting
 
    manual/Simulation
+   manual/Generic_Transformation
+   
    manual/Multifit
    manual/Tobyfit
    manual/Parallel

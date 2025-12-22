@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>15. Multifit &mdash; Horace  documentation</title>
+  <title>16. Multifit &mdash; Horace  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
@@ -20,8 +20,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="16. Tobyfit" href="Tobyfit.html" />
-    <link rel="prev" title="14. Simulation" href="Simulation.html" /> 
+    <link rel="next" title="17. Tobyfit" href="Tobyfit.html" />
+    <link rel="prev" title="15. Generic Transformations" href="Generic_Transformation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -62,29 +62,30 @@
 <li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">12. Binary operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Plotting.html">13. Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">15. Multifit</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#overview">15.1. Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#introduction-to-setting-up-and-performing-a-fit">15.2. Introduction to setting up and performing a fit</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#simple-fitting">15.2.1. Simple fitting</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#background-functions">15.2.2. Background functions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#binding-parameters">15.2.3. Binding parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#semi-global-fits">15.2.4. Semi-global fits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generic_Transformation.html">15. Generic Transformations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">16. Multifit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">16.1. Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#introduction-to-setting-up-and-performing-a-fit">16.2. Introduction to setting up and performing a fit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simple-fitting">16.2.1. Simple fitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#background-functions">16.2.2. Background functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#binding-parameters">16.2.3. Binding parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semi-global-fits">16.2.4. Semi-global fits</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#summary-of-commands-with-multifit">15.3. Summary of commands with multifit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fitting-functions">15.4. Fitting functions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#multifit-function">15.4.1. multifit function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#multifit-func">15.4.2. multifit_func</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#multifit-sqw">15.4.3. multifit_sqw</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#multifit-sqw-sqw">15.4.4. multifit_sqw_sqw</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary-of-commands-with-multifit">16.3. Summary of commands with multifit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fitting-functions">16.4. Fitting functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#multifit-function">16.4.1. multifit function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multifit-func">16.4.2. multifit_func</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multifit-sqw">16.4.3. multifit_sqw</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multifit-sqw-sqw">16.4.4. multifit_sqw_sqw</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#parallel-fitting">15.5. Parallel fitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parallel-fitting">16.5. Parallel fitting</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">16. Tobyfit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Parallel.html">17. Running Horace in Parallel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">18. Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">17. Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Parallel.html">18. Running Horace in Parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">19. Changing Horace settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
@@ -113,7 +114,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../Horace_manual.html">Horace Manual</a></li>
-      <li class="breadcrumb-item active"><span class="section-number">15. </span>Multifit</li>
+      <li class="breadcrumb-item active"><span class="section-number">16. </span>Multifit</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/manual/Multifit.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -124,11 +125,11 @@
            <div itemprop="articleBody">
              
   <section id="multifit">
-<h1><span class="section-number">15. </span>Multifit<a class="headerlink" href="#multifit" title="Permalink to this heading"></a></h1>
+<h1><span class="section-number">16. </span>Multifit<a class="headerlink" href="#multifit" title="Permalink to this heading"></a></h1>
 <p>Horace comes with a rich and powerful fitting syntax that is common to the
 methods used to fit functions or models of <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega)\)</span> to one or more datasets.</p>
 <section id="overview">
-<h2><span class="section-number">15.1. </span>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">16.1. </span>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
 <p>Horace provides a set of methods for fitting <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">d1d</span></code>, <code class="docutils literal notranslate"><span class="pre">d2d</span></code>,
 <code class="docutils literal notranslate"><span class="pre">d3d</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">d4d</span></code> objects, which all share the same fitting syntax and
 capabilities. The various forms of multifit enable you to:</p>
@@ -175,14 +176,14 @@ functions are functions of the plot axes x1, x2, …</p>
 </ul>
 </section>
 <section id="introduction-to-setting-up-and-performing-a-fit">
-<h2><span class="section-number">15.2. </span>Introduction to setting up and performing a fit<a class="headerlink" href="#introduction-to-setting-up-and-performing-a-fit" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">16.2. </span>Introduction to setting up and performing a fit<a class="headerlink" href="#introduction-to-setting-up-and-performing-a-fit" title="Permalink to this heading"></a></h2>
 <p>All the variants of multifit share a common procedure for setting up and
 performing a fit - they differ only in the form of the functions, which are
 either functions of the plot coordinates or qh, qk, ql, en. In what follows we
 refer to <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, but the same information is true for <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>,
 <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, and <code class="docutils literal notranslate"><span class="pre">tobyfit</span></code>.</p>
 <section id="simple-fitting">
-<h3><span class="section-number">15.2.1. </span>Simple fitting<a class="headerlink" href="#simple-fitting" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">16.2.1. </span>Simple fitting<a class="headerlink" href="#simple-fitting" title="Permalink to this heading"></a></h3>
 <p>First you have to create a multifit object with the data you want to fit. You
 can give it any name you like - here we’ll use the name <code class="docutils literal notranslate"><span class="pre">kk</span></code></p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span><span class="w">   </span><span class="c">% w1 is an object (or array of objects) to be fitted</span>
@@ -243,7 +244,7 @@ simulate:</p>
 </div>
 </section>
 <section id="background-functions">
-<h3><span class="section-number">15.2.2. </span>Background functions<a class="headerlink" href="#background-functions" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">16.2.2. </span>Background functions<a class="headerlink" href="#background-functions" title="Permalink to this heading"></a></h3>
 <p>One of the nice features of multifit is that as well as fitting a global
 function (the ‘foreground’) function to all your datsets, you can define local
 ‘background’ functions, that is functions whose parameters vary independently
@@ -284,7 +285,7 @@ starting values as well.</p>
 </div>
 </section>
 <section id="binding-parameters">
-<h3><span class="section-number">15.2.3. </span>Binding parameters<a class="headerlink" href="#binding-parameters" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">16.2.3. </span>Binding parameters<a class="headerlink" href="#binding-parameters" title="Permalink to this heading"></a></h3>
 <p>You can bind parameters together so that they are always in a fixed ratio. For
 example if you wanted the height to always be ten times the standard deviation
 of the Gaussian, you set a binding descriptor, which is a cell array that gives
@@ -317,7 +318,7 @@ from <code class="docutils literal notranslate"><span class="pre">doc</span> <sp
 already set using <code class="docutils literal notranslate"><span class="pre">add_bind</span></code> and <code class="docutils literal notranslate"><span class="pre">add_bbind</span></code>.</p>
 </section>
 <section id="semi-global-fits">
-<h3><span class="section-number">15.2.4. </span>Semi-global fits<a class="headerlink" href="#semi-global-fits" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">16.2.4. </span>Semi-global fits<a class="headerlink" href="#semi-global-fits" title="Permalink to this heading"></a></h3>
 <p>So far we’ve seen how to have a global ‘foreground’ function that applies to all
 datasets (a Gaussian in the above, but it could be a model for <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega)\)</span>)
 together with independent ‘background’ functions for each dataset. A commonly
@@ -343,7 +344,7 @@ because they were all initialised to the same value.</p>
 </section>
 </section>
 <section id="summary-of-commands-with-multifit">
-<h2><span class="section-number">15.3. </span>Summary of commands with multifit<a class="headerlink" href="#summary-of-commands-with-multifit" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">16.3. </span>Summary of commands with multifit<a class="headerlink" href="#summary-of-commands-with-multifit" title="Permalink to this heading"></a></h2>
 <p>The command set and the inputs they take is considerably richer than the taster
 that has been given above. The <code class="docutils literal notranslate"><span class="pre">multifit</span></code> help in Matlab that you invoke by
 typing <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit</span></code> (and any of the variants for <code class="docutils literal notranslate"><span class="pre">d1d</span></code>, <code class="docutils literal notranslate"><span class="pre">d2d</span></code>,
@@ -417,14 +418,14 @@ functions. The summary of the commands is as follows:</p>
 </div>
 </section>
 <section id="fitting-functions">
-<h2><span class="section-number">15.4. </span>Fitting functions<a class="headerlink" href="#fitting-functions" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">16.4. </span>Fitting functions<a class="headerlink" href="#fitting-functions" title="Permalink to this heading"></a></h2>
 <p>Several <code class="docutils literal notranslate"><span class="pre">multifit</span></code> variants are available for <code class="docutils literal notranslate"><span class="pre">sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">d1d</span></code>, <code class="docutils literal notranslate"><span class="pre">d2d</span></code>,
 <code class="docutils literal notranslate"><span class="pre">d3d</span></code> &amp; <code class="docutils literal notranslate"><span class="pre">d4d</span></code> objects. The only substantive difference is the form of the
 fit functions they require: either they are functions of the numeric values of
 the plot coordinates, or they are function of wavevector in reciprocal lattice
 units and energy.</p>
 <section id="multifit-function">
-<h3><span class="section-number">15.4.1. </span>multifit function<a class="headerlink" href="#multifit-function" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">16.4.1. </span>multifit function<a class="headerlink" href="#multifit-function" title="Permalink to this heading"></a></h3>
 <p>This method is identical to <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>.</p>
 <ul class="simple">
 <li><p>Foreground function(s): function of the plot axes <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">xn</span></code>
@@ -450,11 +451,11 @@ function. For example, they could be the filenames of lookup tables</p></li>
 </ul>
 </section>
 <section id="multifit-func">
-<h3><span class="section-number">15.4.2. </span>multifit_func<a class="headerlink" href="#multifit-func" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">16.4.2. </span>multifit_func<a class="headerlink" href="#multifit-func" title="Permalink to this heading"></a></h3>
 <p>This method is identical to <code class="docutils literal notranslate"><span class="pre">multifit</span></code>.</p>
 </section>
 <section id="multifit-sqw">
-<h3><span class="section-number">15.4.3. </span>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">16.4.3. </span>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>Foreground function(s): functions of <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega)\)</span></p></li>
 <li><p>Background function(s): functions of the plot axes <code class="docutils literal notranslate"><span class="pre">x1</span></code>, <code class="docutils literal notranslate"><span class="pre">x2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">xn</span></code>
@@ -495,7 +496,7 @@ function. For example, they could be the filenames of lookup tables</p></li>
 </ul>
 </section>
 <section id="multifit-sqw-sqw">
-<h3><span class="section-number">15.4.4. </span>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">16.4.4. </span>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>Foreground function(s): functions of <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega)\)</span></p></li>
 <li><p>Background function(s): functions of <span class="math notranslate nohighlight">\(S(\mathbf{Q}, \omega)\)</span></p></li>
@@ -521,7 +522,7 @@ look-up table weight Array containing calculated spectral weight</p></li>
 </section>
 </section>
 <section id="parallel-fitting">
-<h2><span class="section-number">15.5. </span>Parallel fitting<a class="headerlink" href="#parallel-fitting" title="Permalink to this heading"></a></h2>
+<h2><span class="section-number">16.5. </span>Parallel fitting<a class="headerlink" href="#parallel-fitting" title="Permalink to this heading"></a></h2>
 <p>It is possible to use <code class="docutils literal notranslate"><span class="pre">multifit</span></code> and its derivatives (<code class="docutils literal notranslate"><span class="pre">tobyfit</span></code>,
 <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw_sqw</span></code>) in parallel (see
 <a class="reference internal" href="Parallel.html#running-horace-in-parallel"><span class="std std-ref">Running Horace in Parallel</span></a> for more info) by either
@@ -559,15 +560,15 @@ lead to load imbalance.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Simulation.html" class="btn btn-neutral float-left" title="14. Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Tobyfit.html" class="btn btn-neutral float-right" title="16. Tobyfit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Generic_Transformation.html" class="btn btn-neutral float-left" title="15. Generic Transformations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Tobyfit.html" class="btn btn-neutral float-right" title="17. Tobyfit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2025, STFC RAL.
-      <span class="lastupdated">Last updated on Dec 18, 2025, 11:05:10 AM.
+      <span class="lastupdated">Last updated on Dec 22, 2025, 3:04:18 PM.
       </span></p>
   </div>
 
