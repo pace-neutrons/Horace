@@ -137,6 +137,7 @@ catch ME0 %unhandled exception during init procedure
     if is_tested
         return;
     else
+        clear_mex
         quit(100);
     end
 end
@@ -166,6 +167,7 @@ while keep_worker_running
             fbMPI.send_message(0,mess);
             ok = MESS_CODES.runtime_error;
             if exit_at_the_end
+                clear_mex;
                 quit(254);
             else
                 return;
@@ -207,6 +209,7 @@ while keep_worker_running
         if ok ~= MESS_CODES.ok
             fbMPI.send_message(0,FailedMessage(err_mess));
             if exit_at_the_end
+                clear_mex
                 quit(254);
             else
                 return

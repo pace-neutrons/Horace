@@ -14,7 +14,7 @@ function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix
 % v                PixelData object containing pixel chunk
 % ix_add           The indices of retained pixels in npix array in the order
 %                  they appear in output file (used for sorting)
-% npix             The cumilative npix array containing pixel distribution
+% npix             The cumulative npix array containing pixel distribution
 %                  over bin accumulated during whole pixel accumulation
 %                  process
 % max_buf_size     The maximum buffer size for reading/writing
@@ -28,7 +28,7 @@ function pix_comb_info =accumulate_pix_(pix_comb_info,finish_accum,v,ix_add,npix
 %
 % pix_comb_info -- either class-helper pix_combine_info, containing
 %                  information about saved tmp files or PixelDataMemory
-%                  class if all accomulated data were fitted memory
+%                  class if all accumulated data were fitted memory
 %
 % Internal function Nested so that variables are shared with main function
 % to optimise memory use. (Is this too old to care these days?)
@@ -84,7 +84,7 @@ end
 if n_pix_in_memory>= max_buf_size % flush pixels in file
 
     npix_distr_in_mem = npix-npix_prev; % bin distribution of pixels currently in memory
-    npix_prev         = npix;           % bin distribution of pixels prevously stored in memory and
+    npix_prev         = npix;           % bin distribution of pixels previously stored in memory and
     % dumped on disk
     pix_comb_info= save_pixels_to_file(pix_comb_info,npix_distr_in_mem,log_level);
 end

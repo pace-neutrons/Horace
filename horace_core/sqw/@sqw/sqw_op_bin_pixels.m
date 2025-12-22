@@ -1,7 +1,7 @@
 function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
 % Perform an operation or set of operations over pixels defined
 % by user-provided sqwop_func. Unlike cut, the operation is performed
-% within whole input sqw object piexls range and data which do not
+% within whole input sqw object pixels range and data which do not
 %
 %
 %   >> wout = sqw_op_bin_pixels(obj, sqwfunc, p)
@@ -162,7 +162,7 @@ if isempty(opts.outfile) || (isscalar(opts.outfile) && isempty(opts.outfile{1}))
     if nargout ~=1
         error('HORACE:sqw_op_bin_pixels:invalid_argument',[ ...
             'This method request single output argument unless output filename to save result is specified.\n' ...
-            'Filename is missing and got: %d output argumets'], ...
+            'Filename is missing and got: %d output arguments'], ...
             nargout)
     end
 end

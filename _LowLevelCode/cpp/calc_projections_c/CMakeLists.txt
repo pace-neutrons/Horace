@@ -5,7 +5,7 @@ set(
 
 set(
     HDR_FILES
-    "../CommonCode.h"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
     "calc_projections_c.h"
 )
 

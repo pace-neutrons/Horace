@@ -446,6 +446,7 @@ end
 
 close all   % close all figures
 clear config_store;
+clear_mex;
 
 err = ~all(test_ok);
 

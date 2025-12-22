@@ -6,7 +6,7 @@ set(
 
 set(
     HDR_FILES
-    "../CommonCode.h"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
     "compute_pix_sums_helpers.h"
     "compute_pix_sums.h"
 )

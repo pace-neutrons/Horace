@@ -142,7 +142,7 @@ if ~isempty(dE_nodes)
     [~,nodes] = AxesBlockBase.expand_to_dE_grid([],dE_nodes,nodes);
 end
 
-[npix,s] = targ_axes.bin_pixels(nodes,[],[],[],{signal});
+[npix,s,~] = targ_axes.bin_pixels(nodes,[],[],[],{signal});
 e = inf(size(s));
 
 

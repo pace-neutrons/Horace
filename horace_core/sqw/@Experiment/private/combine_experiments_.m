@@ -40,7 +40,7 @@ if isempty(exp_cellarray)|| numel(exp_cellarray)== 0
     return;
 end
 if isa(exp_cellarray,'Experiment')
-    if numel(exp_cellarray) == 1
+    if isscalar(exp_cellarray)
         exp_cellarray = {exp_cellarray};
     else
         exp_cellarray = num2cell(exp_cellarray);

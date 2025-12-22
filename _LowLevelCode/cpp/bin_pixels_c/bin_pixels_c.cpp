@@ -1,150 +1,180 @@
 #include "bin_pixels.h"
-#include "../utility/version.h"
-//
-//
-//static std::unique_ptr<omp_storage> pStorHolder;
-//
+#include <random>
+
+
+// Declare procedure which will initialize binning inputs from MATLAB call
+void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_handle<BinningArg>>& bin_arg_holder);
+
+/* function parses special input values and return true if special value have been encountered Otherwise returns false */
+bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], std::unique_ptr<class_handle<BinningArg>>& bin_par_ptr);
+
+
+// A constant which identifies particular instance of instantiated mex code.
+// Something not 0 as input from MATLAB may be easy initialized to 0
+static ::uint32_t CODE_SIGNATURE(0x7D58CDE3);
+// holder of the pointer to the instance of the binning arguments used in the previous call to the mex function.
+static std::unique_ptr<class_handle<BinningArg>> bin_par_ptr;
+
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
-//*************************************************************************************************
-// the function (bin_pixels_c) distributes pixels according to the 4D-grid specified and
-// calculates signal and error within grid cells
-// usage:
-// >>> bin_pixels_c(sqw_data,urange,grid_size);
-// where sqw_data -- sqw structure with defined array of correct pixels data
-// urange         -- allowed range of the pixels; the pixels which are out of the range are rejected
-// grid_size      -- integer array of the grid dimensions in every 4 directions
-//*************************************************************************************************
-// Matlab code:
-//    % Reorder the pixels according to increasing bin index in a Cartesian grid->
-//    [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix(1:4,:),urange,grid_size_in);
-//    % transform pixels;
-//    sqw_data.pix=sqw_data.pix(:,ix);
-//    sqw_data.s=reshape(accumarray(ibin,sqw_data.pix(8,:),[prod(grid_size),1]),grid_size);
-//    sqw_data.e=reshape(accumarray(ibin,sqw_data.pix(9,:),[prod(grid_size),1]),grid_size);
-//    sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
-//    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalize data
-//
-//    sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalize variance
-//    clear ix ibin   % biggish arrays no longer needed
-//    nopix=(sqw_data.npix==0);
-//    sqw_data.s(nopix)=0;
-//    sqw_data.e(nopix)=0;
-// based on original % Original matlab code of : T.G.Perring
-//
 {
-    mwSize  iGridSizes[4],     // array of grid sizes
-        nGridDimensions,    // number of dimensions in the whole grid (usually 4 according to the pixel data but can be modified in a future
-        i;
-    double* pS, * pErr, * pNpix;   // arrays for the signal, error and number of pixels in a cell (density);
-    mxArray* PixelSorted;
-    //
+    // identify special input requests (e.g. version or clear mex from memory) 
+    // and return if special input is found. Two special inputs, namely get code version 
+    // and "clear" -- remove existing code from memory allowing mex to be freed from memory 
+    // are recognized here.
+    if (find_special_inputs(nlhs, plhs, nrhs, prhs, bin_par_ptr)) {
+        return;
+    }
+
+    if (nrhs != N_IN_Arguments) {
+        std::stringstream buf;
+        buf << "bin_pixels_c needs " << (short)N_IN_Arguments << " but got " << (short)nrhs << " input arguments\n";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+    if (nlhs > int(out_arg::N_OUT_Arguments)) {
+        std::stringstream buf;
+        buf << "bin_pixels_c allows no more than " << (short)N_OUT_Arguments << " but got " << (short)nlhs << " output arguments\n";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+            buf.str().c_str());
+    }
+
+    //process input bining parameters and return pointer to the class which contains their values
+    //if this is the call to the same binning parameters
+    parse_inputs(plhs, prhs, bin_par_ptr);
+
+    if (bin_par_ptr->class_ptr->test_inputs) {
+        // return input back if test_inputs == true is encountered
+
+        int max_nlhs(4);
+        if (bin_par_ptr->class_ptr->binMode == opModes::npix_only) {
+            max_nlhs =(int)out_arg_mode0::N_OUT_Arguments0;
+        } else {
+            max_nlhs = (int)out_arg::N_OUT_Arguments;
+        }
+        if (nlhs != max_nlhs) {
+            std::stringstream buf;
+            buf << "Test mode requests 4 output arguments.\n";
+            buf << "Provided : " << (short)nlhs << " output arguments\n";
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+        }
+        bin_par_ptr->class_ptr->return_test_inputs(plhs, nlhs);
+        return;
+    }
+    try {
+        auto distr_size = bin_par_ptr->class_ptr->distr_size;
+        std::span<double> npix(mxGetPr(bin_par_ptr->class_ptr->npix_ptr), distr_size);
+        std::span<double> signal(mxGetPr(bin_par_ptr->class_ptr->signal_ptr),distr_size);
+        std::span<double> error(mxGetPr(bin_par_ptr->class_ptr->error_ptr),distr_size);
+        auto transfType = bin_par_ptr->class_ptr->InOutTypeTransf;
+
+        size_t num_pixels_retained(0);
+        switch (transfType) {
+        case (InOutTransf::InCrd8OutPix8): {
+            num_pixels_retained = bin_pixels<double, double>(npix, signal, error, bin_par_ptr->class_ptr);
+            break;
+        }
+        case (InOutTransf::InCrd4OutPix8): {
+            num_pixels_retained = bin_pixels<float,double>(npix, signal, error, bin_par_ptr->class_ptr);
+            break;
+        }
+        case (InOutTransf::InCrd4OutPix4): {
+            num_pixels_retained = bin_pixels<float,float>(npix, signal, error, bin_par_ptr->class_ptr);
+            break;
+        }
+        }
+        bin_par_ptr->class_ptr->n_pix_retained = num_pixels_retained;
+        bin_par_ptr->class_ptr->return_results(plhs,nlhs);
+    }
+    catch (const char* err) {
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error", err);
+    }
+
+}
+/* function parses special input values and return true if special value have been encountered
+ * special values processed by this function may be version request or request to reset memory holder
+ * and set permission to unload memory holder mex file from memory
+ */
+bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[], std::unique_ptr<class_handle<BinningArg>>& bin_par_ptr)
+{
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
 #ifdef _OPENMP
         plhs[0] = mxCreateString(Horace::VERSION);
 #else
         plhs[0] = mxCreateString(Horace::VER_NOOMP);
 #endif
-        return;
+        return true;
     }
+    // special cases of calling class with mex-unlock request to enable to upload it from memory
+    if (nrhs == 1 && nlhs == 0) {
+        auto inType = mxGetClassID(prhs[0]);
+        if (inType != mxCHAR_CLASS) {
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "if bin_pixels_c is called with one argument, this argument have to be string 'clear' or 'reset'\n"
+                "(single dash ') Obtained non-character array as input");
+        }
+        auto buflen = mxGetNumberOfElements(prhs[0]) + 1;
+        std::vector<char> buf(buflen);
+        if (mxGetString(prhs[0], buf.data(), buflen) != 0) {
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                "Could not convert string data first input argument of bin_pixels_c into string array");
+        }
+        auto key = std::string(buf.begin(), buf.end());
+        if (key.compare("clear") == 0 || key.compare("reset")) { //clear mex lock and nullify binning information
+            if (bin_par_ptr) {
+                bin_par_ptr->clear_mex_locks();
+                bin_par_ptr.reset();
+            }
+            return true;
+        } else if (key.compare("release") == 0) { // allow to clear mex code from memory
+            if (bin_par_ptr) {
+                bin_par_ptr->clear_mex_locks();
+            }
+        } else {
+            std::stringstream buf;
+            buf << "signle char input for bin_pixels_c function may be 'clear' or 'reset' (in single dashes ') Got: " << key;
+            mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
+                buf.str().c_str());
+        }
+    }
+    return false;
+};
+
+/** Parse input arguments of the binning routine and retrieve all necessary parameters
+ *   for start or continue binning calculations
+ * */
+void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_handle<BinningArg>>& bin_arg_holder)
+{
+    // retrieve auto-ptr to old binning calculations
+    auto pBinHolder = get_handler_fromMatlab<BinningArg>(prhs[in_arg::mex_code_hldrIn], CODE_SIGNATURE, false);
+    bool force_update(false);
+    if (pBinHolder == nullptr || bin_arg_holder == nullptr) {
+        // create new bin_arguments holder with random signature
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<uint32_t> dist(1, std::numeric_limits<uint32_t>::max());
+
+        CODE_SIGNATURE = dist(gen);
+        bin_arg_holder = std::make_unique<class_handle<BinningArg>>(CODE_SIGNATURE);
+        force_update = true;
+
+    }
+    plhs[out_arg::mex_code_hldrOut] = bin_arg_holder->export_handler_toMatlab();
+
+    auto bin_arg_ptr = bin_arg_holder->class_ptr;
+    if (bin_arg_ptr->new_binning_arguments_present(prhs)) {
+        bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
+        force_update = true;
+    } else {
+        bin_arg_ptr->parse_changed_bin_inputs(prhs[in_arg::param_struct]);
+    }
+    bin_arg_ptr->check_and_init_accumulators(plhs, prhs,force_update);
+    return;
+};
 
 
-    if (nrhs != N_INPUT_Arguments) {
-        std::stringstream buf;
-        buf << "ERROR::bin_pixels_c needs" << (short)N_INPUT_Arguments << "  but got " << (short)nrhs << " input arguments\n";
-        mexErrMsgTxt(buf.str().c_str());
-    }
-    //  if(nlhs>N_OUTPUT_Arguments) {
-    //    std::stringstream buf;
-    //	buf<<"ERROR::bin_pixels accepts only "<<(short)N_OUTPUT_Arguments<<" but requested to return"<<(short)nlhs<<" arguments\n";
-    //    mexErrMsgTxt(buf.str().c_str());
-    //  }
-    if (!mxIsCell(prhs[Sqw_parameters])) {
-        mexErrMsgTxt("ERROR::bin_pixels_c function needs to receive its parameters as a cell array\n");
-    }
-    size_t nPars = mxGetN(prhs[Sqw_parameters]);
+//#undef OMP_VERSION_3
+//#undef C_MUTEXES
 
-    if (nPars != N_ARGUMENT_CELLS) {
-        std::stringstream buf;
-        buf << "ERROR::bin_pixels_c expects array of " << (short)N_ARGUMENT_CELLS;
-        buf << "cells \n but got " << (short)nPars << " cells\n";
-        mexErrMsgTxt(buf.str().c_str());
-    }
-
-
-    int num_threads;
-    mxArray* pThreads = mxGetCell(prhs[Sqw_parameters], Threads);
-    if (pThreads) {
-        num_threads = (int)*mxGetPr(pThreads);
-    }
-    else {
-        num_threads = 1;
-        mexPrintf("WARNING::bin_pixels_c->can not retrieve the number of computational threads from calling workspace, 1 assumed");
-    }
-    if (num_threads < 1)num_threads = 1;
-    if (num_threads > 64)num_threads = 64;
-
-    double const* const pGrid_sizes = (double*)mxGetPr(mxGetCell(prhs[Sqw_parameters], Grid_size));
-    double const* const pUranges = (double*)mxGetPr(mxGetCell(prhs[Sqw_parameters], Urange));
-    nGridDimensions = mxGetN(mxGetCell(prhs[Sqw_parameters], Grid_size));
-    if (nGridDimensions > 4)mexErrMsgTxt(" we do not currently work with the grids which have more then 4 dimensions");
-
-    mwSize    totalGridSize(1);  // number of cells in the whole grid;
-    for (i = 0; i < nGridDimensions; i++) {
-        iGridSizes[i] = (mwSize)(pGrid_sizes[i]);
-        if (iGridSizes[i] < 1)iGridSizes[i] = 1;
-        totalGridSize *= iGridSizes[i];
-    }
-    //**************************************************************
-    // get pixels information
-    mxArray* const pPixData = mxGetCell(prhs[Sqw_parameters], Pix);
-    if (!pPixData)mexErrMsgTxt("ERROR::bin_pixels_C-> pixels information (last field of input data) can not be void");
-    // this field has to had the format specified;
-    mwSize  nPixels = mxGetN(pPixData);
-    mwSize  nDataRange = mxGetM(pPixData);
-    if (nDataRange != PIX_WIDTH)mexErrMsgTxt("ERROR::bin_pixels-> the pixel data have to be a 9*num_of_pixels array");
-
-    //
-    plhs[0] = mxCreateCellMatrix(1, N_ARGUMENTS_OUT);
-    if (!plhs[0]) {
-        mexErrMsgTxt("ERROR::bin_pixels_c-> can not allocate cell array for output parameters");
-    }
-
-    mxArray* tt;
-    for (i = 0; i < N_ARGUMENTS_OUT - 1; i++) {
-        tt = mxCreateNumericArray(nGridDimensions, iGridSizes, mxDOUBLE_CLASS, mxREAL);
-        if (!tt)mexErrMsgTxt("ERROR::bin_pixels->can not allocate memory for output signals errors and npixels");
-        mxSetCell(plhs[0], i, tt);
-    }
-
-    pS = (double*)mxGetPr(mxGetCell(plhs[0], Signal));
-    pErr = (double*)mxGetPr(mxGetCell(plhs[0], Error));
-    pNpix = (double*)mxGetPr(mxGetCell(plhs[0], N_pix));
-    // Clear accumulation cells.
-    for (i = 0; i < totalGridSize; i++) {
-        *(pS + i) = 0;
-        *(pErr + i) = 0;
-        *(pNpix + i) = 0;
-    }
-
-    bool place_pixels_in_old_array;
-    try {
-        place_pixels_in_old_array = bin_pixels<double>(pS, pErr, pNpix, pPixData, PixelSorted, pUranges, iGridSizes, num_threads);
-    }
-    catch (const char* err) {
-        mexErrMsgTxt(err);
-    }
-    //if(!place_pixels_in_old_array){
-    //      mxDestroyArray(pPixData);
-    //}
-    if (place_pixels_in_old_array) {
-        mexPrintf("WARNING::bin_pixels_c->not enough memory for working arrays; Pixels sorted in-place");
-    }
-    mxSetCell(plhs[0], 3, PixelSorted);
-}
-
-
-#undef OMP_VERSION_3
-#undef C_MUTEXES
-#undef SINGLE_PATH
 
 

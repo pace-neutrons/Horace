@@ -119,7 +119,7 @@ elseif istext(par_file)
     % the single string is converted to a cell of repeated values
     det_par_file = true(n_par_files,1);
     par_file_out = repmat({strtrim(par_file)},n_par_files,1);
-elseif isstruct(par_file) && numel(par_file) == 1
+elseif isstruct(par_file) && isscalar(par_file)
     % a single struct has been provided
     % det_par_file is false for all spes as a filename has not been
     % provided. The struct is repeated one for each spe

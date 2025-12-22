@@ -61,8 +61,14 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'herbert');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'herbert');
             obj.print_running_tests = true;
+
+            fprintf(2,"Re #1911 parallel job is currently disabled on Jenkins.\n This should be fixed with parallel framework overhaul\n")
+            if is_jenkins() && matlab_version_num()==9.1
+                obj.skip_test = true;
+
+            end
         end
-        function del_tmp(obj,tmp_files_list)
+        function del_tmp(~,tmp_files_list)
             for i=1:numel(tmp_files_list)
                 file = tmp_files_list{i};
                 if exist(file,'file')==2

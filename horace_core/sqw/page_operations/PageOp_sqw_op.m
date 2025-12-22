@@ -1,9 +1,6 @@
 classdef PageOp_sqw_op < PageOp_sqw_eval
     % Single pixel page operation used by sqw_op algorithm
-    %
-    properties(Access=public)
-        sig_var_idx
-    end
+    %   
 
     methods
         function obj = PageOp_sqw_op(varargin)
@@ -57,7 +54,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             % memory. Pixels have to be split on bin edges
             %
             % Inputs:
-            % obj         -- initialized instance of PageOp_sqw_eval class
+            % obj         -- initialized instance of PageOp_sqw_op class
             % npix_block  -- array containing distrubution of pixel loaded into current page
             %                over image bins of the processed data chunk
             % npix_idx    -- 2-element array [nbin_min,nbun_max] containing
@@ -75,6 +72,7 @@ classdef PageOp_sqw_op < PageOp_sqw_eval
             % pixel data are split over bin edges (see split_vector_max_sum
             % for details), so npix_idx contains min/max indices of
             % currently processed image cells.
+           
             sig_var = obj.op_holder(obj, obj.op_parms{:});
             obj.page_data_(obj.sigvar_idx,:) = sig_var;
             %

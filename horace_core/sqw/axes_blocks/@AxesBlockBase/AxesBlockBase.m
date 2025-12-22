@@ -10,7 +10,7 @@ classdef AxesBlockBase < serializable
     %1) ab = AxesBlockBase(num) where num belongs to [0,1,2,3,4];
     %2) ab = AxesBlockBase([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
     %                                          parameters
-    %        or
+    %        or init_accumulators:
     %   ab = AxesBlockBase([min1,max1],...,[min4,max4]); - 4 binning
     %                                          parameters
     %        or any combination of ranges [min,step,max] or [min,max]
@@ -20,8 +20,8 @@ classdef AxesBlockBase < serializable
     %        where param(1-n) are the values of the fields in the order
     %        fields are returned by saveableFields function.
     %5) ab = AxesBlockBase('img_range',img_range,'nbins_all_dims',nbins_all_dims)
-    %    -- particularly frequent case of building axes block (case 4)
-    %       from the image range and number of bins in all directions.
+    %     -- particularly frequent case of building axes block (as in case 4)
+    %        from the image range and number of bins in all directions.
     properties(Dependent)
         % Legacy projection interface
         % Title of sqw data structure, displayed on plots.
@@ -226,8 +226,6 @@ classdef AxesBlockBase < serializable
             %              instance, containing information about pixels
             % unique_runid -- if mode == [5,6], input array of unique_runid-s
             %                 calculated on the previous step.
-
-
             [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
         end
@@ -469,6 +467,7 @@ classdef AxesBlockBase < serializable
         function range = get.max_img_range(obj)
             range = obj.max_img_range_;
         end
+        %
     end
     %======================================================================
     % Integration, interpolation and binning
@@ -543,12 +542,33 @@ classdef AxesBlockBase < serializable
             end
         end
 
-        function data_out = rebin_data(obj,data_in,other_ax)
+        function varargout = rebin_data(obj,data_in,other_ax)
             % Rebin data,defined on this axes grid into other axes grid
             %
             % The other axes grid has to be aligned with this axes block
             % according to realigh_axes method of this axes block
+            if nargout ~= numel(data_in)
+                error('HORACE:AxesBlockBase:invalid_argument', ...
+                    'Number of output arguments (%d) is not equel to the number of data to rebin (%d)', ...
+                    nargout,numel(data_in));
+            end
+            % standard output from rebin_data_ is npix,bin(data_in{1}),bin(data_in{2})
+            % if there are 1 or 2 inputs or
+            % bin(data_in{3}),bin(data_in{1}),bin(data_in{2}) if 3 inputs
+            % are provided
             data_out = rebin_data_(obj,data_in,other_ax);
+            n_inputs = numel(data_in);
+            if n_inputs == 1
+                idx = [2,1,3];
+            elseif n_inputs == 2
+                idx = [2,3,1];
+            else
+                idx = [1,2,3];
+            end
+            varargout = cell(1,n_inputs);
+            for i=1:n_inputs
+                varargout{i} = data_out{idx(i)};
+            end
         end
         %
         function ax_block_al = realign_bin_edges(obj,ax_block)
@@ -632,12 +652,12 @@ classdef AxesBlockBase < serializable
                 source_axes,source_proj, data,proj);
         end
         %
-        function [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels(obj,coord_transf,varargin)
+        function varargout = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
             % Usage:
-            % >>npix = obj.bin_pixels(coord_transf);
+            % >>[npix] = obj.bin_pixels(coord_transf);
             % >>[npix,s,e] = obj.bin_pixels(coord_transf,npix,s,e);
             % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
             % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
@@ -669,18 +689,13 @@ classdef AxesBlockBase < serializable
             %             3xnpis array of interpolated density for
             %             integration
             % Parameters:
-            % '-nomex'    -- do not use mex code even if its available
-            %               (usually for testing)
-            %
-            % '-force_mex' -- use only mex code and fail if mex is not available
-            %                (usually for testing)
             % '-force_double'
             %              -- if provided, the routine changes type of pixels
             %                 it gets on input, into double. if not, output
             %                 pixels will keep their initial type
-            %   N.B. -nomex and -force_mex options can not be used together.
             % '-return_selected' -- Returns `selected` in `pix_ok`
-            %                       for use with DnD cuts where fewer args are requested
+            %                       for use with DnD cuts where fewer
+            %                 args are requested
             %
             % Returns:
             % npix    -- the array, containing the numbers of pixels
@@ -708,42 +723,62 @@ classdef AxesBlockBase < serializable
             %            binning
             %
             % Note:
-            % unique_runid argument needed to get pixels sorted according
-            % to bins. If it is not requested, pix_ok are returned unsorted.
+            % unique_runid argument forces pixels to be sorted according
+            % to bins. If it is not requested, pix_ok are returned
+            % unsorted, expecting sorting procedure to be performed at
+            % later stage.
+            % 
+            %
+            % If new calculations are started from empty accumulators
+            % i.e.:
+            % npix = []; s = []; e = [];
+            % for i=1:num_pages
+            %   [npix,s,e,... ] =
+            %   axes_block_instance.bin_pixels(coord(i),npix,s,e,...);
+            % end
+            % npix, s, and e arrays getting initialized into zero values.
+            %
+            % Start from some values in accumulating arrays npix, s, e
+            % continues accomulations from these values.
             %
 
-            if numel(varargin) == 4 && iscell(varargin{4})
-                mode = 4;
-            else
-                mode = nargout;
-            end
-            % convert different input forms into fully expanded common form
-            [npix,s,e,pix_cand,unique_runid,argi]=...
-                obj.normalize_bin_input(coord_transf,mode,varargin{:});
-            %
             % keep unused argi parameter to tell parse_char_options to ignore
             % unknown options
-            [ok,mess,force_double,return_selected]=parse_char_options(argi,{'-force_double', '-return_selected'});
+            [ok,mess,force_double,return_selected,test_mex_inputs,argi]=parse_char_options(varargin, ...
+                {'-force_double', '-return_selected','-test_mex_inputs'});
             if ~ok
                 error('HORACE:AxesBlockBase:invalid_argument',mess)
             end
-            % keep unused argi parameter to tell parse_char_options to ignore
-            % unknown options
-            if return_selected && mode ~= 4
-                error('HORACE:AxesBlockBase:invalid_argument', ...
-                    'return_selected requested for non pixel cut')
+            % identify binning mode as function of number of input
+            % arguments
+            mode = bin_mode.from_narg(nargout-1,test_mex_inputs,return_selected,argi{:});
+
+            % convert different input forms into fully expanded common form
+            [npix,s,e,pix_cand,unique_runid,use_mex]=...
+                obj.normalize_bin_input(coord_transf,mode,argi{:});
+            if mode>bin_mode.sort_and_uid
+                % temporary, until ticket #896 is completed
+                clOb = set_temporary_config_options('hor_config','use_mex',false);
+                [npix,s,e,pix_cand,unique_runid,use_mex]=...
+                    obj.normalize_bin_input(coord_transf,mode,argi{:});
+                clear clOb;
             end
 
             % bin pixels
-            use_mex = config_store.instance().get_value('hor_config','use_mex');
+            varargout  = cell(1,nargout);
             if use_mex
-                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_with_mex_code_( ...
+                [varargout{:}] = bin_pixels_with_mex_code_( ...
                     obj,coord_transf,mode,...
-                    npix,s,e,pix_cand,unique_runid,force_double,return_selected);
+                    npix,s,e,pix_cand,unique_runid, ...
+                    force_double,test_mex_inputs);
             else
-                [npix,s,e,pix_ok,unique_runid,pix_indx,selected] = bin_pixels_( ...
+                [varargout{:}] = bin_pixels_( ...
                     obj,coord_transf,mode,...
-                    npix,s,e,pix_cand,unique_runid,force_double,return_selected);
+                    npix,s,e,pix_cand,unique_runid,force_double);
+                if mode == bin_mode.npix_only && nargout == 2
+                    npix = varargout{1}; % maintain consistency with mex code which calculates sum(npix(:)) in this case
+                    varargout{2} = struct('npix_retained',sum(npix(:)));
+                end
             end
         end
         %
@@ -864,13 +899,14 @@ classdef AxesBlockBase < serializable
             % Inputs:
             % obj     -- initialized instance of AxesBlockBase class
             % n_accum -- number of accumulator arrays to initialize.
-            %            may be 1 or 3 (if naccum~=1, n_accum == 3)
+            %            may be 1,2 or 3.
             % force_3D-- if true, return only 3-dimensional
             %            accumulator arrays ignoring last (energy transfer)
             %            dimension.
             %
-            % Returns:   Depending on n_accum, 1 or 3 arrays of zeros
-            %            if n_accum == 1, two other arrays are empty
+            % Returns:   Depending on n_accum, 1,2 or 3 arrays of zeros
+            %            if n_accum == 1, two other arrays are empty,
+            %            if n_accum == 2, e array is empty.
             %            The size of the arrays is defined by
             %            obj.dims_as_ssize property's value.
             % npix    -- npix array  initialized to zeros and used to
@@ -979,8 +1015,8 @@ classdef AxesBlockBase < serializable
                 obj.type_ = [obj.type_(:)','e'];
             end
         end
-        function [npix,s,e,pix_cand,unique_runid,argi]=...
-                normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
+        function [npix,s,e,pix_cand,unique_runid,use_mex]=...
+                normalize_bin_input(obj,pix_coord_transf,mode_to_bin,varargin)
             % verify inputs of the bin_pixels function and convert various
             % forms of the inputs of this function into a common form,
             % where the missing inputs are returned as empty.
@@ -989,23 +1025,23 @@ classdef AxesBlockBase < serializable
             % pix_coord_transf -- the array of pixels coordinates
             %                     transformed into this AxesBlockBase
             %                      coordinate system
-            % n_argout         -- number of argument, requested by the
+            % bin_mode         -- binning mode, requested by the
             %                     calling function
             % Optional:
-            % Optional:
-            % npix or nothing if mode == 1
-            % npix,s,e accumulators if mode is [4,5,6]
-            % pix_cand  -- if mode == [4,5,6], must be present as a PixelData class
-            %              instance, containing information about pixels
-            % unique_runid -- if mode == [5,6], input array of unique_runid-s
+            % npix or nothing if mode == npix_only
+            % npix,s,e accumulators if mode is higher then sigerr_cell
+            % pix_cand  -- if mode is higher than sigerr_cell. It must be
+            %              present as a PixelData class instance,
+            %              containing information about pixels
+            % unique_runid -- if mode == sort_and_id or higher, input array of unique_runid-s
             %                 calculated on the previous step.
             force_3Dbinning = false;
             if size(pix_coord_transf,1) ==3  % Q(3D) binning only. Third axis is always missing
                 force_3Dbinning = true;
             end
-            [npix,s,e,pix_cand,unique_runid,argi]=...
+            [npix,s,e,pix_cand,unique_runid,use_mex]=...
                 normalize_bin_input_(obj,...
-                force_3Dbinning,pix_coord_transf,n_argout,varargin{:});
+                force_3Dbinning,pix_coord_transf,mode_to_bin,varargin{:});
         end
         function obj = set_axis_bins(obj,ndims,p1,p2,p3,p4)
             % Calculates and sets plot and integration axes from binning information
