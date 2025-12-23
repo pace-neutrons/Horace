@@ -11,9 +11,10 @@ classdef PageOp_sqw_eval < PageOpBase
         %             values within single data page
     end
     properties(Access = protected)
+        % caches for split indices of npix array, produced by
+        % split_indices routines and defined here to access it
+        % from npix_data which does not have it as a standard input        
         npix_block_;
-        % cache for split indices of npix array, defined here to access it
-        % from npix_data which does not have it as a standard input
         npix_idx_;
     end
 
