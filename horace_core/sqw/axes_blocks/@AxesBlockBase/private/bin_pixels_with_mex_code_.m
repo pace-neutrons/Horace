@@ -241,5 +241,4 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     end
     varargout{bin_out.selected}      = out_struc.is_pix_selected;
 end
-
 end
