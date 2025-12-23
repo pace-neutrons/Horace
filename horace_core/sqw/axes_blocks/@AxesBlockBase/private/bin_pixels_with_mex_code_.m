@@ -109,7 +109,7 @@ end
 
 other_mex_input = struct( ...
     'coord_in',    coord,...                % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
-    'binning_mode',double(mode_to_bin), ...    % binning mode, what binning values to calculate and return
+    'binning_mode',double(mode_to_bin), ... % binning mode, what binning values to calculate and return
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
