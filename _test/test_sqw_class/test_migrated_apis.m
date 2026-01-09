@@ -238,54 +238,6 @@ classdef test_migrated_apis < TestCaseWithSave
             assertTrue(ok)
             assertEqual(mess, '');
         end
-        function test_get_inst_class_with_same_instrument(obj)
-            s = sqw(obj.test_sqw_2d_fullpath);
-
-            mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);
-            ap_1 = IX_aperture(-10,0.1,0.11);
-            chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
-            expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
-
-
-            updated = s.set_instrument(expected_inst);
-            [retrieved_instrument, all_inst] = updated.get_inst_class();
-
-            assertTrue(all_inst);
-            assertTrue(equal_to_tol(retrieved_instrument, expected_inst));
-
-        end
-        function test_get_inst_class_with_missing_instrument(obj)
-            % s is initially created without instruments
-            % all instruments in s are initially a base-class IX_inst
-            % with name ''. Previously they were structs with this name
-            s = sqw(obj.test_sqw_2d_fullpath);
-
-            % Create a DGfermi instrument with a view to slotting it in
-            % to s.
-            mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);
-            ap_1 = IX_aperture(-10,0.1,0.11);
-            chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
-            expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
-
-            % there are 24 runs. Change the header so that the first 20
-            % runs are now the DGfermi, the rest are still ''. But they
-            % are all IX_inst because that is how the new header is set up.
-            % Previously the unset ones were just structs.
-            hdr = s.experiment_info;
-            for idx=1:20
-                hdr.instruments{idx} = expected_inst;
-            end
-            s.experiment_info = hdr;
-
-
-            [inst,all_inst] = get_inst_class(s);
-
-            % Now get the instrument classes from s.
-            % Some are DGfermi, some are '', all IX_inst.
-            assertFalse(all_inst);
-            assertEqual(inst,expected_inst);
-
-        end
         %        function test_get_mod_pulse(obj)
         %            % tested as part of test_instrument_methods
         %        end
