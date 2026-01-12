@@ -8,6 +8,7 @@ set(HDR_FILES
     "cpp_communicator.h"
     "input_parser.h"
     "MPI_wrapper.h"
+    "${CXX_SOURCE_DIR}/include/MatlabCppClassHolder.hpp"
 )
 
 set(MEX_NAME "cpp_communicator")

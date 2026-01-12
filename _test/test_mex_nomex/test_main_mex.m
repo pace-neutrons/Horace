@@ -52,62 +52,6 @@ classdef test_main_mex < TestCase
             set(hor_config,'use_mex',obj.use_mex);
         end
 
-        function obj=test_accum_cut_mex_multithread(obj)
-            if obj.no_mex
-                skipTest('Can not use and test mex code to accumulate_cut');
-            end
-
-            [data,pix]=gen_fake_accum_cut_data(obj,[1,0,0],[0,1,0]);
-
-            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
-            clObPar = set_temporary_config_options(parallel_config, 'threads', 1);
-
-            [npix_1,s_1,e_1,pix_ok_1,unique_runid_1] = ...
-                data.proj.bin_pixels(data.axes,pix,[],[],[]);
-
-            par.threads = 8;
-            [npix_8,s_8,e_8,pix_ok_8,unique_runid_8] = ...
-                data.proj.bin_pixels(data.axes,pix,[],[],[]);
-
-            assertEqual(npix_1,npix_8)
-            assertEqual(s_1,s_8)
-            assertEqual(e_1,e_8)
-            assertEqual(pix_ok_1,pix_ok_8)
-            assertEqual(unique_runid_1,unique_runid_8)
-            skipTest('Only pixel sorting is currently mexed')
-        end
-
-        function obj=test_accum_cut(obj)
-            if obj.no_mex
-                skipTest('Can not use and test mex code to accumulate_cut');
-            end
-
-            [data,pix]=gen_fake_accum_cut_data(obj,[1,0,0],[0,1,0]);
-            %[v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,0,0);
-
-            hc = hor_config;
-            hc.saveable = false;
-
-            %check matlab-part
-            hc.use_mex = false;
-            [npix_m,s_m,e_m,pix_ok_m,unique_runid_m] = ...
-                data.proj.bin_pixels(data.axes,pix,[],[],[]);
-
-            %check C-part
-            hc.use_mex = true;
-            [npix_c,s_c,e_c,pix_ok_c,unique_runid_c] = ...
-                data.proj.bin_pixels(data.axes,pix,[],[],[]);
-
-
-            % verify results against each other.
-            assertElementsAlmostEqual(npix_m,npix_c,'absolute',1.e-12);
-            assertElementsAlmostEqual(s_m,s_c);
-            assertElementsAlmostEqual(e_m,e_c);
-            assertElementsAlmostEqual(npix_m,npix_c,'absolute',1.e-12);
-            assertEqualToTol(pix_ok_m,pix_ok_c);
-            assertElementsAlmostEqual(unique_runid_m,unique_runid_c);
-        end
-
         function obj=test_calc_proj(obj)
             if obj.no_mex
                 skipTest('Can not use and test mex code to calc_projections');

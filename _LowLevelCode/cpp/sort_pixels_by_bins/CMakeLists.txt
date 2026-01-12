@@ -5,7 +5,7 @@ set(
 
 set(
     HDR_FILES
-    "../CommonCode.h"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
     "sort_pixels_by_bins.h"
 )
 

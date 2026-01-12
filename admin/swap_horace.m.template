@@ -1,0 +1,386 @@
+function swap_horace (horace_path_in, config_opt)
+% Function to cleanly swap from one Horace instance to another within a
+% matlab session.
+%
+% It is designed to isolate Horace instances so that they each use:
+%   - separate horace_on and worker_v4
+%   - separate configuration files
+%
+% The goal is to enable comparisons between the functionality and performance
+% of different Horace instances (as held in different clones of the Horace
+% repository) without any concern about which worker_v4.m is
+% being used, or the state of parallel_config. This is achieved because
+% swap_horace recovers the Horace-instance specific state of the horace, hpc and 
+% parallel configuration options.
+%
+%
+% Usage:
+% --------
+% Copy swap_horace to a location that is on your matlab path in your
+% startup.m. It is important that your copy is *not* on the Horace path.
+% 
+% Swap to a particular repository clone, call swap_horace with the root path of
+% the Horace clone you wish to run e.g.:
+%
+%   >> swap_horace('T:\GIT_Pace_unified\Horace_1871-validate_horace')
+%
+% By default, the configurations already saved with the Horace installation that
+% is being swapped to are used, if indeed there are any. If there are aren't any
+% prior saved configurations, the default configuration will be used.
+%
+% Alternatively:
+%
+%   >> swap_horace(..., 'keep')     % Keep the configuration settings of the 
+%                                   % Horace instance that is already on
+%
+%   >> swap_horace(..., 'defaults') % Force-set the default configurations
+%
+%
+% In detail:
+% ----------
+% When you use swap_horace to swap to a particular repository clone e.g.:
+%
+%   >> swap_horace('T:\GIT_Pace_unified\Horace_1871-validate_horace')
+%
+% the following actions are performed:
+%
+% - Any current Horace instance is turned off using the its own horace_off
+%
+% - horace_install in the repository you wish to swap to is run, placing 
+%   horace_on.m and worker_v4.m in the folder <root_path>/ISIS. In the above
+%   example, this path is T:\GIT_Pace_unified\Horace_1871-validate_horace\ISIS.
+%
+% - Configuration files are created in <root_path>/ISIS/mprogs_config_v4/, if 
+%   they don't already exist; if configuration files already exist in this
+%   folder they are used as the source of configuration options for hor_config,
+%   hpc_config and parallel_config, unless the 'keep' or 'default' option is
+%   used.
+%
+% You should run swap_horace from the base Matlab workspace i.e. directly from
+% the command window prompt or in a script, rather than from a function. This
+% enables swap_horace to delete handle classes created with the old
+% Horace instance, thereby eliminating any potential clashes with new instances.
+% If swap_horace is buried in a function then although swap_horace will delete
+% Horace handle classes in the base workspace it will not be able to delete any
+% instances of classes that inherit handle objects that have been created at
+% intermediate depths in your stack of function calls. These include, for
+% example, instances of hor_config created to query or alter current property
+% values(as in e.g. 
+%       >> hc = hor_config();
+%       >> disp(hc.use_mex)
+% and instances of the class MPI_State.
+%
+%
+% Known development requirements
+% ------------------------------
+% swap_horace is a development project:
+%
+% - swap_horace has been written for installations of Horace on standalone
+%   computers. What development work might be needed for it work on IDAaaS has
+%   not been investigated.
+%
+% - Robust handling of pathdef is needed to be able to run Horace in separate
+%   instances the same Matlab version on the same computer. On TGP's Windows
+%   laptop, pathdef is stored in C:\Program_Files\MATLAB\R2021a\toolbox\local
+%   for release R2021a, for example. Consequently, if two instances of R2021a
+%   are running they share the same pathdef, and so they cannot run different
+%   Horace versions.
+
+% Check option
+set_current_config_values = false;
+set_default_config_values = false;
+if nargin==2
+    if ischar(config_opt) && ~isempty(config_opt)
+        if strncmpi(config_opt, 'keep', numel(config_opt))
+            set_current_config_values = true;
+        elseif strncmpi(config_opt, 'defaults', numel(config_opt))
+            set_default_config_values = true;
+        else
+            error('HORACE:swap_horace:invalid_argument', ...
+                'Unrecognised option: must be ''keep'' or ''defaults''');
+        end
+    else
+        error('HORACE:swap_horace:invalid_argument', ...
+            'Unrecognised second argument');
+    end
+end
+
+% Check that horace_path looks like an acceptable Horace installation
+root_path = find_root_path(horace_path_in);
+if isempty(root_path)
+    error('HORACE:swap_horace:invalid_argument', ...
+    'Cannot find horace_init on path %s or %s/horace_core', ...
+    trial_path, fullfile(trial_path, 'horace_core'));
+end
+
+% Recovery paths if anything goes wrong
+curr_dir = pwd;
+[is_installed, is_on, curr_on_path, curr_root_path] = find_horace_paths;
+
+if is_installed
+    % If Horace is installed, get the current configuration and then delete config
+    % objects in the base workspace, if possible. (This is so that there are no warnings
+    % about objects that cannot be cleared from later calls to horace_off and
+    % horace_install.
+    if ~is_on
+        horace_on() % need to turn Horace on to get current configurations
+    end
+    % Get current configurations
+    hor = hor_config();
+    hpc = hpc_config();
+    par = parallel_config();
+    
+    % Get the public fields and config_path of current configuration
+    curr_horace_config = hor.get_data_to_store();
+    curr_hpc_config = hpc.get_data_to_store();
+    curr_par_config = par.get_data_to_store();
+    curr_config_path = hor.config_folder;
+    
+    % Clear the configuration instances to avoid warning messages from
+    % horace_off (the configurations inherit handle class(es) so a function
+    % called by this one cannot clear the instances in this caller)
+    clear hor hpc par
+    
+    % Turn off the current Horace, if any present
+    if isscalar(dbstack())
+        % This function is being called from the base workspace
+        % Delete any instances of the Horace configurations
+        hor_var = get_Objects_From_Base('hor_config');
+        hpc_var = get_Objects_From_Base('hpc_config');
+        par_var = get_Objects_From_Base('parallel_config');
+        config_var = [hor_var, hpc_var, par_var];
+        if ~isempty(config_var)
+            for i = 1:numel(config_var)
+                evalin('base', ['clear(''', config_var{i}, ''')'])
+            end
+        end
+    else
+        warning(['''swap_horace'' is not being called from the base workspace\n',...
+            'This may leave undeleted Horace configuration variables'])
+    end
+    % Delete MPI_State handle class before calling horace_off. This is because
+    % horace_off will delete the path to MPI_State and the delete method for the
+    % class will no longer exist, resulting in a warning.
+    clear MPI_State
+    horace_off
+end
+
+
+% Create the new Horace installation
+try
+    % Install
+    admin_path = fullfile(root_path,'admin');
+    on_path = fullfile(root_path,'ISIS');
+    cd(admin_path)
+    horace_install ('init_folder', on_path);
+    cd(curr_dir)
+    
+    % Set configuration files location
+    horace_on   % need to turn Horace on to get configurations
+    root_path = horace_paths().root;
+    config_path = fullfile(root_path, 'ISIS', 'mprogs_config_v4');
+    if set_current_config_values
+        set_configurations (config_path, curr_horace_config, ...
+            curr_hpc_config, curr_par_config);
+    elseif set_default_config_values
+        set_configurations (config_path, 'defaults');
+    else
+        set_configurations (config_path);
+    end
+    
+catch ME
+    % Recover from an error - try to return to previous state
+    if is_installed
+        % There was an initial Horace installation
+        curr_admin_path = fullfile(curr_root_path, 'admin');
+        cd(curr_admin_path)
+        horace_install ('init_folder', curr_on_path);
+        
+        % Recover the configurations
+        horace_on
+        set_configurations (curr_config_path, curr_horace_config, ...
+            curr_hpc_config, curr_par_config);
+        if ~is_on
+            horace_off
+        end
+    end
+    cd(curr_dir)
+    rethrow(ME)
+end
+
+end
+
+
+%-------------------------------------------------------------------------------
+function [is_installed, is_on, on_path, root_path] = find_horace_paths
+
+on_path = fileparts(which('horace_on'));
+if ~isempty(on_path)
+    % There is a 'horace_on' on the path and a horace installation
+    is_installed = true;
+else
+    is_installed = false;
+    on_path = '';
+end
+
+horace_path = fileparts(which('horace_init'));
+if ~isempty(horace_path)
+    % There is a Horace installation that is currently 'on'
+    is_on = true;
+    root_path = fileparts(horace_path);
+else
+    is_on = false;
+    root_path = '';
+end
+
+end
+
+
+%-------------------------------------------------------------------------------
+function on_path = find_on_folder (root_path)
+% Check that there is a folder called /ISIS is the root folder and that it
+% contains horace_on.m and worker_v4.m
+horace_on_fullname = fullfile(root_path, 'ISIS', 'horace_on.m');
+worker_v4_fullname = fullfile(root_path, 'ISIS', 'worker_v4.m');
+
+if exist(horace_on_fullname,'file')==2 && exist(worker_v4_fullname,'file')==2
+    on_path = fullfile(root_path, 'ISIS');
+else
+    on_path = '';
+end
+
+end
+
+
+%-------------------------------------------------------------------------------
+function root_path = find_root_path(trial_path)
+% Return the root_path to a horace_installation.
+%
+% The test is that it either contains horace_init.m (in which case is is the
+% admin folder of a Horace installation) or it contains a folder /admin which in
+% turn contains horace_init.m
+
+if isempty(dir(fullfile(trial_path, 'horace_init.m')))
+    % It is likely that the path provided is the root path; check and if so then
+    % return
+    root_path = trial_path;
+    horace_path = fullfile(root_path, 'horace_core');
+    if exist(horace_path,'dir')==7 && ...
+            ~isempty(dir(fullfile(horace_path, 'horace_init.m')))
+        return
+    end
+else
+    % It is likely that the path is the Horace path; check and if so then return
+    root_path = fileparts(trial_path);
+    horace_path = trial_path;
+    if ~isempty(dir(fullfile(horace_path, 'horace_init.m')))
+        return
+    end
+end
+
+root_path = '';
+
+end
+
+
+%-------------------------------------------------------------------------------
+function out = get_Objects_From_Base(classname)
+% GET_OBJECTS_FROM_BASE Find variables in the base workspace of a specific class.
+%   OUT = GET_OBJECTS_FROM_BASE(CLASSNAME) searches the base workspace for
+%   variables of the specified class CLASSNAME and returns a cell array
+%   containing the names of those variables.
+
+baseVariables = evalin('base', 'whos');
+out = cell(0);
+for i = 1:length(baseVariables)
+    if (strcmpi(baseVariables(i).class, classname))
+        out{length(out) + 1} = baseVariables(i).name;
+    end
+end
+
+end
+
+
+%-------------------------------------------------------------------------------
+function set_configurations (config_path, varargin)
+% Set the configuration location for hor_config, hpc_config and parallel_config
+%
+% Use the configurations in defined location, if any; otherwise create with the
+% default settings:
+%   >> set_configurations (config_folder)
+%
+% Create configuration in defined location with default settings:
+%   >> set_configurations (config_folder, 'defaults')
+%
+% Set configurations to particular values
+%   >> set_configurations (config_folder, ...
+%                           curr_horace_config, curr_hpc_config, curr_par_config)
+
+% If there are no configuration files in the configuration folder for the new
+% installation there will be loads of warnings about configuration files not
+% existing. Turn off the warning that produces these messages.
+try
+    cleanupWarn1 = set_temporary_warning('off', ...
+        'HERBERT:config_store:default_configuration');
+catch
+end
+
+% Parse options
+set_current_config_values = false;
+set_default_config_values = false;
+if nargin==4
+    % Set configurations to particular values
+    set_current_config_values = true;
+    curr_horace_config = varargin{1};
+    curr_hpc_config = varargin{2};
+    curr_par_config = varargin{3};
+elseif nargin==2 && strncmpi(varargin{1}, 'defaults' ,max(1,numel(varargin{1})))
+    set_default_config_values = true;
+elseif nargin~=1
+    error('HORACE:set_configurations:invalid_argument', ...
+        'Invalid number of arguments or argument types');
+end
+
+% Change the configuration folder
+% (Do it for hor_config; it seems to propagate to hpc_config and parallel_config)
+% Turn off a particular warning that is printed if change the config_path, as
+% in fact there are no problems after all.
+hor = hor_config;
+try
+    cleanupWarn2 = set_temporary_warning('off','HERBERT:temporary_config_path');
+    hor.config_folder = config_path;
+catch
+end
+
+val = hor.mem_chunk_size;
+hor.mem_chunk_size = val + 1;
+hor.mem_chunk_size = val;       % forces hor_config.mat creation
+
+% Force other config .mat files to be created if they do not already exist. 
+% (The only way I've found so far is to change a property. This doesn't work for
+% all properties e.g. hpc_config.mat is not always created if a property
+% shared with parallel_config is changed, nor is it if sort_pix_in_binary_op is
+% changed. Hence the specific hard-wired properties below.)
+hpc = hpc_config;
+val = hpc.build_sqw_in_parallel;
+hpc.build_sqw_in_parallel = ~val;   % new value to force .mat creation
+hpc.build_sqw_in_parallel = val;    % set back again
+
+par = parallel_config;
+val = par.parallel_workers_number;
+par.parallel_workers_number = val + 1;
+par.parallel_workers_number = val;
+
+if set_current_config_values
+    % Copy public properties, if requested
+    set(hor_config, curr_horace_config);
+    set(hpc_config, curr_hpc_config);
+    set(parallel_config, curr_par_config);
+elseif set_default_config_values
+    % Use default public properties, if requested
+    set(hor, 'defaults');
+    set(hpc, 'defaults');
+    set(par, 'defaults');
+end
+
+end

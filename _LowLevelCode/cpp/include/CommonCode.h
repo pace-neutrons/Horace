@@ -11,6 +11,8 @@
 #include <sstream>
 #include <memory>
 #include <mutex>
+#include <span>
+#include <type_traits>
 //#include <omp_guard.hpp>
 
 #ifndef _OPENMP
@@ -45,7 +47,9 @@ extern bool ioFlush(void);
 #undef OMP_VERSION_3
 #undef C_MUTEXES
 #endif
-enum pix_fields
+
+
+enum pix_flds
 {
     u1 = 0, //      -|
     u2 = 1, //       |  Coordinates of pixel in the pixel projection axes
@@ -58,20 +62,114 @@ enum pix_fields
     iErr = 8, //         Error array (variance i.e. error bar squared)
     PIX_WIDTH = 9  // Number of pixel fields
 };
-// modify this to support INTEL compiler (what OMP version(s) it has?
 
 // Copy pixels from source to target array
-inline void copy_pixels(double* pixel_data, long j, double* pPixelSorted, size_t j0) {
+template<class SRC,class TRG> 
+inline size_t copy_pixels(SRC const* const pixel_data, long source_pos, TRG * const pix_sorted_ptr, size_t targ_pos)
+{
     //
-    j0 *= pix_fields::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
-    size_t i0 = j * pix_fields::PIX_WIDTH;
+    targ_pos *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+    // in the pixels array
+    source_pos *= pix_flds::PIX_WIDTH;
 
-    for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {
-        pPixelSorted[j0 + i] = pixel_data[i0 + i];
+    for (size_t i = 0; i < pix_flds::PIX_WIDTH; i++) {
+        pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
+    }
+    return targ_pos;
+};
+// Align and copy pixels from source to target array template <class SRC, class TRG>
+template <class SRC, class TRG>
+inline size_t align_and_copy_pixels(std::vector<double> &al_matr,SRC const* const pixel_data, long source_pos, TRG* const pix_sorted_ptr, size_t targ_pos)
+{
+    //
+    targ_pos *= pix_flds::PIX_WIDTH; // each position in a grid cell corresponds to a pixel of the size PIX_WIDTH;
+    // in the pixels array
+    source_pos *= pix_flds::PIX_WIDTH;
+    for (size_t i = 0; i < 3; i++) {
+        double accum(0);
+        for (size_t j = 0; j < 3; j++) {
+            accum += double((pixel_data[source_pos + j])) * al_matr[j*3+i];
+        }
+        pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(accum);
     }
 
-
+    for (size_t i = 3; i < pix_flds::PIX_WIDTH; i++) {
+        pix_sorted_ptr[targ_pos + i] = static_cast<TRG>(pixel_data[source_pos + i]);
+    }
+    return targ_pos;
+};
+/*
+void vec_to_mat_multiply() {
+    // Multiply: result[j] = sum over i of vec[i] * A[i][j]
+    for (size_t j = 0; j < M; ++j) {
+        for (size_t i = 0; i < N; ++i) {
+            result[j] += vec[i] * mat[i * M + j]; // A[i][j] = mat[i * M + j]
+        }
+    }
 }
+*/
+
+/* Initialize pixel ranges for calculating correct range.
+ *  This means assigning to min/max holders values which are completely invalid, namely
+ *  minima equal to maximal double value and maxima equal to minimal double value */
+inline void init_min_max_range_calc(std::span<double>& pix_ranges, size_t PIX_STRIDE)
+{
+    auto max_range = std::numeric_limits<double>::max();
+    auto min_range = -max_range;
+    for (size_t i = 0; i < PIX_STRIDE; i++) {
+        pix_ranges[2 * i] = max_range;
+        pix_ranges[2 * i + 1] = min_range;
+    }
+};
+
+// identify range of all pixel coordinates for given inital pixels position
+template <class SRC>
+void inline calc_pix_ranges(std::span<double>& pix_ranges, SRC const* const pix_data_ptr, size_t PIX_STRIDE, size_t i)
+{
+    size_t ip0 = i * PIX_STRIDE;
+    for (size_t j = 0; j < PIX_STRIDE; j++) {
+        pix_ranges[2 * j] = std::min(pix_ranges[2 * j], (double)pix_data_ptr[ip0 + j]);
+        pix_ranges[2 * j + 1] = std::max(pix_ranges[2 * j + 1], (double)pix_data_ptr[ip0 + j]);
+    }
+};
+
+// allocate pixels memory 
+template<class TRG> 
+mxArray* allocate_pix_memory(size_t PIX_WIDTH, size_t N_ELEMENTS, TRG*& data_ptr)
+{ 
+    mxArray* pix_ptr(nullptr);
+    if constexpr (std::is_same_v<TRG, double>) {
+        pix_ptr = mxCreateDoubleMatrix(PIX_WIDTH, N_ELEMENTS, mxREAL);
+        if (pix_ptr)
+            data_ptr = mxGetPr(pix_ptr);
+    } else if constexpr (std::is_same_v<TRG, float>) {
+        pix_ptr = mxCreateNumericMatrix(PIX_WIDTH, N_ELEMENTS, mxSINGLE_CLASS, mxREAL);
+        if (pix_ptr)
+            data_ptr = reinterpret_cast<float*>(mxGetPr(pix_ptr));
+    } else {
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
+            "Attempt to allocate memory for unsupported type of variable. Only float and double are supported");
+    }
+    if (pix_ptr == nullptr) {
+        std::stringstream buf;
+        buf << "Can not allocate memory for: " << N_ELEMENTS << " resuting binned pixels";
+        mexErrMsgIdAndTxt("HORACE:bin_pixels_c:runtime_error",
+            buf.str().c_str());
+    }
+    return pix_ptr;
+};
+
+
+// nullify input mxArray (used as accumulator)
+inline void nullify_array(const mxArray* mxData_ptr) {
+
+    size_t n_elements = mxGetNumberOfElements(mxData_ptr);
+    auto pData = mxGetPr(mxData_ptr);
+    for (size_t i = 0; i < n_elements;i++) {
+        pData[i] = 0;
+    }
+}
+
 //* Possible prototype for a generic function
 template<class T>
 T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
@@ -90,6 +188,7 @@ T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
     }
     return static_cast<T>(*mxGetPr(pPar));
 };
+
 
 class omp_storage
     /** Class to manage dynamical storage used in OMP loops
@@ -178,6 +277,7 @@ public:
 
 
     }
+
     void add_signal(const double& signal, const double& error, int n_thread, size_t index)
     {
         /*  signal_stor[n_thread][il] += ;
@@ -189,6 +289,7 @@ public:
         pError[ind] += error;
         pNpix[ind] += 1;
     }
+
     void combine_storage(double* const s, double* const e, double* const npix, long i) {
         for (int ns = 0; ns < num_threads; ns++) {
             size_t ind = ns * distr_size + i;
@@ -196,8 +297,8 @@ public:
             e[i] += pError[ind];
             npix[i] += pNpix[ind];
         }
-
     }
+
     ~omp_storage() {
         if (largeMemory && se_vec_stor.size() == 0) {
             mxFree(largeMemory);

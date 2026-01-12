@@ -34,7 +34,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %
             % Inputs:
             % obj       -- instance of PageOp_sqw_op class
-            % sqw_obj   -- intance of sqw object to perform operation on
+            % sqw_obj   -- instance of sqw object to perform operation on
             % operation -- function handle to the function constructed according
             %              to sqw_op function rules, which would perform
             %              the operation
@@ -160,7 +160,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % return block of data used in page operation
             % Inputs:
             % idx         -- either:
-            %                indices of image cells to read their correspondent 
+            %                indices of image cells to read their correspondent
             %                pixels if data are obtained from single file
             %                in bin_pixels mode
             %                or:
@@ -170,7 +170,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % npix_blocks -- cellarray of npix blocks containing
             %                information about sizes of pixels blocks
             %                contributing to a page of data.
-            obj.page_num = idx;            
+            obj.page_num = idx;
             if isa(obj.pix_,'MultipixBase') % Then pix_ contains pixobj_combine_info
                 % class with knowledge about all pixel datasets to combine
                 % and npix_idx refer to pages extracted from these datasets
@@ -192,7 +192,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
                     pix_idx_0:pix_idx_1,'-raw','-align');
                 obj.pix_idx_start_(n_dataset) = pix_idx_1+1;
             else  % standard PageOp binning mode. idx refers to page of
-                % single pixels dataset 
+                % single pixels dataset
                 obj.page_data_    = obj.pix_.data;
             end
         end
@@ -213,7 +213,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             %
             % Unlike parent operation this one does not store page data,
             % as page data storage works differently with binning and,
-            % if necessary, perforemed in apply_op
+            % if necessary, performed in apply_op
             obj.pix_data_range_ = PixelData.pix_minmax_ranges(obj.page_data_, ...
                 obj.pix_data_range_);
             % criteria for saving result here are different. Only
@@ -240,7 +240,7 @@ classdef PageOp_sqw_binning < PageOp_sqw_eval
             % Returns:
             % obj         -- modified object with pixels page currently in
             %                memory being modified by user operation and
-            %                image accumulators (signal and variane for
+            %                image accumulators (signal and variance for
             %                image being updated with modifies pixels
             %                signal and error.
             %

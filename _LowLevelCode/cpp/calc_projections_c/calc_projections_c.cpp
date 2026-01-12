@@ -255,7 +255,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // Allocate output array of pixels if requested by urangeMode
     mwSize range_dims[2], pix_dims[2];
     range_dims[0] = 2;
-    range_dims[1] = pix_fields::PIX_WIDTH;
+    range_dims[1] = pix_flds::PIX_WIDTH;
     switch (uRange_mode)
     {
     case noUrange:
@@ -277,7 +277,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
     case urangePixels:
     {
-        pix_dims[0] = pix_fields::PIX_WIDTH;
+        pix_dims[0] = pix_flds::PIX_WIDTH;
         pix_dims[1] = nDetectors * nEnPoints;
         plhs[1] = mxCreateNumericArray(2, pix_dims, mxDOUBLE_CLASS, mxREAL);
 
@@ -382,8 +382,8 @@ void calc_projections_emode(double * const pMinMax,
 
     omp_set_num_threads(nThreads);
     std::vector<double> qe_min, qe_max;
-    qe_min.assign(pix_fields::PIX_WIDTH * nThreads, FLT_MAX);
-    qe_max.assign(pix_fields::PIX_WIDTH * nThreads, -FLT_MAX);
+    qe_min.assign(pix_flds::PIX_WIDTH * nThreads, FLT_MAX);
+    qe_max.assign(pix_flds::PIX_WIDTH * nThreads, -FLT_MAX);
 
     mwSize pix_width;
     switch (urange_mode) {
@@ -461,7 +461,7 @@ void calc_projections_emode(double * const pMinMax,
                 qe[2] = pMatrix[2] * q1 + pMatrix[5] * q2 + pMatrix[8] * q3;
                 //q(4,:)=repmat(eps',1,ndet);
                 qe[3] = pEnergies[j_transf];
-                int n_cur = pix_fields::PIX_WIDTH * omp_get_thread_num();
+                int n_cur = pix_flds::PIX_WIDTH * omp_get_thread_num();
                 switch (urange_mode)
                 {
                 case noUrange:
@@ -490,7 +490,7 @@ void calc_projections_emode(double * const pMinMax,
                 case urangePixels:
                 {
 
-                    size_t j0 = pix_fields::PIX_WIDTH  * (idet_rbase + j_transf);
+                    size_t j0 = pix_flds::PIX_WIDTH  * (idet_rbase + j_transf);
                     for (int ike = 0; ike < 4; ike++)
                     {
                         pTransfDetectors[j0 + ike] = qe[ike];
@@ -507,7 +507,7 @@ void calc_projections_emode(double * const pMinMax,
                     //pix(9,:)=((data.ERR(:)).^2)';
                     pTransfDetectors[j0 + 8] = pError[idet_rbase + j_transf] * pError[idet_rbase + j_transf];
                     // min-max values;
-                    for (int ike = 0; ike < pix_fields::PIX_WIDTH; ike++) {
+                    for (int ike = 0; ike < pix_flds::PIX_WIDTH; ike++) {
                         if (pTransfDetectors[j0 + ike] < qe_min[n_cur + ike])qe_min[n_cur + ike] = pTransfDetectors[j0 + ike];
                         if (pTransfDetectors[j0 + ike] > qe_max[n_cur + ike])qe_max[n_cur + ike] = pTransfDetectors[j0 + ike];
                     }
@@ -520,15 +520,15 @@ void calc_projections_emode(double * const pMinMax,
     }  // end parallel block
     if (pKf)mxFree(pKf);
     // mvs do not support reduction min/max Shame! Calculate single threaded here
-    for (int i = 0; i < pix_fields::PIX_WIDTH; i++) {
+    for (int i = 0; i < pix_flds::PIX_WIDTH; i++) {
         pMinMax[2 * i + 0] = 1.e+38;
         pMinMax[2 * i + 1] = -1.e+38;
     }
 
     for (int ii = 0; ii < nThreads; ii++) {
-        for (int ike = 0; ike < pix_fields::PIX_WIDTH; ike++) {
-            if (qe_min[pix_fields::PIX_WIDTH * ii + ike] < pMinMax[2 * ike + 0])pMinMax[2 * ike + 0] = qe_min[pix_fields::PIX_WIDTH * ii + ike];
-            if (qe_max[pix_fields::PIX_WIDTH * ii + ike] > pMinMax[2 * ike + 1])pMinMax[2 * ike + 1] = qe_max[pix_fields::PIX_WIDTH * ii + ike];
+        for (int ike = 0; ike < pix_flds::PIX_WIDTH; ike++) {
+            if (qe_min[pix_flds::PIX_WIDTH * ii + ike] < pMinMax[2 * ike + 0])pMinMax[2 * ike + 0] = qe_min[pix_flds::PIX_WIDTH * ii + ike];
+            if (qe_max[pix_flds::PIX_WIDTH * ii + ike] > pMinMax[2 * ike + 1])pMinMax[2 * ike + 1] = qe_max[pix_flds::PIX_WIDTH * ii + ike];
         }
     }
 

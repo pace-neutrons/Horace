@@ -153,37 +153,50 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             if ~exist('proj', 'var')
                 proj = {};
             end
+            define_selected = false;
             if ~exist('selected', 'var')
-                selected = 1:pix.num_pixels;
+                define_selected = true;
             end
             if ~exist('trust', 'var')
                 trust = false;
             end
 
             % Check input
-            if ~isa(pix, 'PixelDataBase')
-                error('HORACE:Symop:invalid_argument', ...
-                    'transform_pix requires pixels');
-            end
-
-            % Get transformation
-            if isa(pix, 'PixelDataMemory')
-                if ~trust
-                    for i = numel(obj):-1:1
-                        in_zone = obj(i).in_irreducible(pix.q_coordinates, proj{:});
-                        in_zone(~selected) = false;
-                        pix.q_coordinates(:, ~in_zone) = obj(i).transform_vec(pix.q_coordinates(:, ~in_zone));
-                    end
-                else
-                    for i = numel(obj):-1:1
-                        pix.q_coordinates(:, selected) = obj(i).transform_vec(pix.q_coordinates(:, selected));
-                    end
+            if isa(pix,'PixelDataMemory')
+                q_coordinates = pix.q_coordinates;
+                is_pix_obj = true;
+                if define_selected
+                    selected = true(1,pix.num_pixels);
+                end
+            elseif isnumeric(pix) && size(pix,1) == 3
+                q_coordinates = pix;
+                is_pix_obj = false;
+                if define_selected
+                    selected = true(1,size(pix,2));
                 end
             else
                 error('HORACE:Symop:not_implemented', ...
-                    'Transforming file-backed pixels is not currently implemented');
+                    'Transforming of %s pixels is not currently implemented',class(pix));
             end
 
+            % Do transformation
+            if ~trust
+                for i = numel(obj):-1:1
+                    nin_zone = ~obj(i).in_irreducible(q_coordinates, proj{:});
+                    %in_zone(~selected) = false;
+                    transform = selected & nin_zone';
+                    q_coordinates(:,transform) = obj(i).transform_vec(q_coordinates(:,transform));
+                end
+            else
+                for i = numel(obj):-1:1
+                    q_coordinates(:, selected) = obj(i).transform_vec(q_coordinates(:, selected));
+                end
+            end
+            if is_pix_obj
+                pix.q_coordinates = q_coordinates;
+            else
+                pix = q_coordinates;
+            end
         end
 
         function proj = transform_proj (obj, proj)
@@ -352,7 +365,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
 
         function is = check_args(argin)
-            is = (numel(argin) == 1 || ...
+            is = (isscalar(argin) || ...
                 numel(argin) == 2 && Symop.is_3vector(argin{2})) && ...
                 Symop.is_3x3matrix(argin{1});
         end

@@ -6,13 +6,13 @@ set(
     "pix_mem_map.cpp"
     "sqw_pix_writer.cpp"
     "sqw_reader.cpp"
-    "../file_parameters/fileParameters.cpp"
+    "${CXX_SOURCE_DIR}/file_parameters/fileParameters.cpp"
 )
 
 set(
     HDR_FILES
-    "../CommonCode.h"
-    "../file_parameters/fileParameters.h"
+    "${CXX_SOURCE_DIR}/include/CommonCode.h"
+    "${CXX_SOURCE_DIR}/file_parameters/fileParameters.h"
     "combine_sqw.h"
     "exchange_buffer.h"
     "nsqw_pix_reader.h"

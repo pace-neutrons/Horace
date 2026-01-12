@@ -1,6 +1,6 @@
 function [n_inputs,ldrs,sqw_obj] = init_sqw_obj_from_file_for_sqw_op_(win)
 % method parses input cellarray of files/sqw objects or single file
-% and conters it into the form, acceptable for sqw_op/sqw_op_bin_pixels
+% and converts it into the form, acceptable for sqw_op/sqw_op_bin_pixels
 % functions
 %
 % Input:

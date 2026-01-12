@@ -5,12 +5,6 @@ function  tests_path = process_unit_test_path(init, set_path)
 %
 pths = horace_paths;
 
-if isempty(pths.horace) % Horace not initialised
-    global root_path
-    root_path = fileparts(pths.herbert);
-    clobj = onCleanup(@() clear('global','root_path'));
-end
-
 rootpath = pths.root;
 tests_path = pths.test;
 

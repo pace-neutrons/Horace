@@ -1,5 +1,5 @@
 function [ok,mess,varargout]=parse_char_options(args,options)
-% Check which optional keywords are present or not. Assumes that second character is unique
+% Check which optional keywords are present or not.
 %
 %   >> [ok,mess,varargout]=parse_char_options(args,options)
 %
@@ -70,7 +70,7 @@ varargout = cellfun(@(x){false},varargout);
 for i=1:narg
     if ischar(args{i}) && size(args{i},1)==1 && ~isempty(args{i})
         ind=find(strncmpi(args{i},options,numel(args{i})));
-        if numel(ind)==1
+        if isscalar(ind)
             if ~varargout{ind}
                 varargout{ind}=true;
             else

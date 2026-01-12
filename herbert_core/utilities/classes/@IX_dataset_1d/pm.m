@@ -14,4 +14,4 @@ new_axes = false;
 force_current_axes = false;
 
 varargout = cell(1, nargout);   % output only if requested
-[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'l', varargin{:});
+[varargout{:}] = plot_oned(w, new_axes, force_current_axes, 'm', varargin{:});

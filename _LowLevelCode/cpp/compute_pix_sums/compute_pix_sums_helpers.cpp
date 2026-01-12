@@ -41,7 +41,7 @@ const double *const get_npix_array(const mxArray *prhs[]) {
 const double *const get_pixel_array(const mxArray *prhs[]) {
   // Validate number of pixel data columns
   std::size_t nPixDataCols = mxGetM(prhs[Pixel_data]);
-  if (nPixDataCols != pix_fields::PIX_WIDTH) {
+  if (nPixDataCols != pix_flds::PIX_WIDTH) {
     mexErrMsgTxt("ERROR::compute_pix_sums_c-> the pixel data should be a "
                  "9*num_of_pixels array");
   }
