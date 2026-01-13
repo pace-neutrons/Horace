@@ -192,8 +192,9 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     end
     
     if mode_to_bin == bin_mode.sigerr_sel        
-        % this mode does not return pixels but keep selected pixels indices
-        % (for proper symmetrisation)
+        % this mode does not return pixels and is similar to sigerr but in
+        % addition returns logical array with true for pixels selected in
+        % binning (used by symmetrisation routines)
         varargout{bin_out.sigerr_sel} = out_struc.selected;
         return;
     end

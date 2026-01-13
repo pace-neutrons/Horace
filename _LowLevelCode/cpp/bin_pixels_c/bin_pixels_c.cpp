@@ -132,7 +132,7 @@ bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
             }
         } else {
             std::stringstream buf;
-            buf << "signle char input for bin_pixels_c function may be 'clear' or 'reset' (in single dashes ') Got: " << key;
+            buf << "single char input for bin_pixels_c function may be 'clear' or 'reset' (in single dashes ') Got: " << key;
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 buf.str().c_str());
         }

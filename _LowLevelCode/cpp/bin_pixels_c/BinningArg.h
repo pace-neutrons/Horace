@@ -73,7 +73,7 @@ using OutHandlerMap = std::unordered_map<std::string, std::function<void(mxArray
 class BinningArg {
 public:
     opModes binMode; // the operation mode, binning routine would operate
-    InOutTransf InOutTypeTransf; // what input pixel types provided and ouptout pixel types requested
+    InOutTransf InOutTypeTransf; // what input pixel types provided and output pixel types requested
     size_t n_dims; // number of DnD object dimensions. changes from 0 to 4 and differs from Matlab arrays dimensions (from 2 to 4)
     std::vector<double> data_range; // range of the data to bin within
     std::vector<uint32_t> nbins_all_dims; // number of bins in each non-unit dimension
@@ -150,7 +150,7 @@ protected:
     void set_nbins_all_dims(mxArray const* const pField); //
     void set_unique_runid(mxArray const* const pField); // holder for the information about unique run_id-s present in the data. Set procedure is non-standard
     void set_force_double(mxArray const* const pField); // boolean parameters which would request output transformed pixels always been double regardless of input pixels
-    void set_test_input_mode(mxArray const* const pField); // intialize testing mode (or not)
+    void set_test_input_mode(mxArray const* const pField); // initialize testing mode (or not)
     void set_all_pix(mxArray const* const pField); //  pointer to all pixels to sort or use as binning arguments
     void set_alignment_matrix(mxArray const* const pField); // matrix which have to be applied to raw pixels to bring them into Crystal Cartesian coordinate system
     void set_check_pix_selection(mxArray const* const pField); // if true, check if detector_id are negative which may suggest that pixels have been alreary used in previous binning operation
@@ -172,7 +172,7 @@ public:
     BinningArg(); // construction
     // process binning arguments input values for new binning arguments cycle
     void parse_bin_inputs(mxArray const* pAllParStruct);
-    // process binning arguments which have changed during followitng call to binning procedure
+    // process binning arguments which have changed during following call to binning procedure
     void parse_changed_bin_inputs(mxArray const* pAllParStruct);
     // generate test output which would echo input values
     void return_test_inputs(mxArray* plhs[], int nlhs);
@@ -180,7 +180,7 @@ public:
     void return_results(mxArray* plhs[], mwSize nlhs);
     // check if input binning parameters are new or have been changed
     bool new_binning_arguments_present(mxArray const* prhs[]);
-    // check if input accumulators have not been changed and initalize them appropriately
+    // check if input accumulators have not been changed and initialize them appropriately
     void check_and_init_accumulators(mxArray* plhs[], mxArray const* prhs[], bool force_update = false);
     // get number of dimensions for accumulator array to allocate using MATLAB methods
     mwSize get_Matlab_n_dimensions();
