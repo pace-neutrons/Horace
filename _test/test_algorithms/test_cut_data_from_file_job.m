@@ -42,6 +42,7 @@ classdef test_cut_data_from_file_job < TestCase
             assertEqual(dat.s,s);
             assertEqual(dat.e,e);
             assertEqual(pix,pix_ok)
+            % unique_runid usually integer type
             assertEqual(double(unique_runid),1000)
             npc = accumarray(pix_indx, ones(1,size(pix_indx,1)), [numel(npix),1]);
             assertEqual(npix(:),npc);

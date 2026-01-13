@@ -858,8 +858,6 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
             std::fill(this->npix1.begin(), this->npix1.end(), 0); // nullify accumulators for npix1
         }
     }
-    if (this->binMode >= opModes::nosort) {
-    }
 }
 
 /* get array of dimensions to allocate in the form appropriate for using with Matlab *mxCreateNumericArray

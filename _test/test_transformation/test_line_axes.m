@@ -77,6 +77,7 @@ classdef test_line_axes < TestCase
             assertEqual(size(s),szs);
             assertEqual(size(e),szs);
         end
+
         function test_correct_binning_and_indx_2D_mex(~)
             clConf = set_temporary_config_options('hor_config','use_mex',true);                                                
             dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
@@ -132,6 +133,7 @@ classdef test_line_axes < TestCase
             assertEqual(numel(indx),pix_ok.num_pixels);
             for i=1:10
                 ii = (i-1)*10+1:1000:10000;
+                % mex code returns integer indices
                 assertEqual(double(indx(ii)'),i:10:100);
             end
             assertEqual(size(npix),szs);
@@ -178,6 +180,7 @@ classdef test_line_axes < TestCase
             assertEqual(unique_runid2,1);
             %
         end
+
         function test_correct_binning_and_indx_2D_accumulated_mex(~)
             clConf = set_temporary_config_options('hor_config','use_mex',true);                                    
             dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
@@ -254,6 +257,7 @@ classdef test_line_axes < TestCase
             assertEqual(pix_ok.num_pixels,numel(indx));
             assertEqual(indx,ones(pix_ok.num_pixels,1));
         end
+
         function test_bin_all_pix_indx_0D_mex(~)
             clConf = set_temporary_config_options('hor_config','use_mex',true);                        
             dbr = [-1,-2,-3,0;1,2,3,10];
@@ -290,7 +294,6 @@ classdef test_line_axes < TestCase
             assertEqual(double(indx),ones(pix_ok.num_pixels,1));
 
         end
-        
         %
         function test_bin_all_pix_0D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
@@ -425,6 +428,7 @@ classdef test_line_axes < TestCase
             assertEqual(pix_ok.num_pixels,pix.num_pixels);
             assertEqual(pix_ok.num_pixels,numel(pix_indx));
         end
+        
         function test_bin_all_pix_indx_2D_mex(~)
             clConf = set_temporary_config_options('hor_config','use_mex',true);            
             dbr = [-1,-2,-3,0;1,2,3,10];

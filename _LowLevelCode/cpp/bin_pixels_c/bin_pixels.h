@@ -134,7 +134,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            size_t il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
             npix[il]++;
         }
         break;
@@ -151,7 +151,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            size_t il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
             // calculate npix accumulators
             npix[il]++;
             // calculate signal and error accumulators
@@ -183,7 +183,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            size_t il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
 
             if (npix_acc_separate) {
                 // calculate npix accumulators separately if their value is not provided as input
@@ -217,7 +217,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            size_t il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
             // calculate npix accumulators for single page of pixels
             npix1[il]++;
             // calculate signal and error accumulators
@@ -282,7 +282,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            size_t il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
             // calculate npix accumulators for whole image which include multiple pixels pages
             npix[il]++;
             // calculate signal and error accumulators
