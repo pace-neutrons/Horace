@@ -48,15 +48,15 @@ function wout=symmetrise_sqw(win,varargin)
 
 if numel(win) ~= 1
     error('HORACE:symmetrise_sqw:invalid_argument', ...
-          ['symmetrisation only implemented for single sqw object, ' ...
-          'not arrays of objects. Use a for-loop to deal with arrays']);
+        ['symmetrisation only implemented for single sqw object, ' ...
+        'not arrays of objects. Use a for-loop to deal with arrays']);
 end
 
 if ~has_pixels(win)
     %what we should actually do here is go to the dnd-symmetrise function
     %of the correct dimensionality
     error('HORACE:symmetrise_sqw:invalid_argument', ...
-          'input object must be sqw type with detector pixel information');
+        'input object must be sqw type with detector pixel information');
 end
 
 if isa(varargin{end}, 'aProjectionBase')
@@ -66,15 +66,15 @@ if isa(varargin{end}, 'aProjectionBase')
 
     if transf_proj{1}.nonorthogonal
         error('HORACE:symmetrise_sqw:invalid_argument', ...
-              'Cannot symmetrise to non-orthogonal projection');
+            'Cannot symmetrise to non-orthogonal projection');
     end
 
 else
     % Also projection under which transformation takes place (HKL [orthogonal, so 90, 90, 90]).
     % alatt, however, is retained as the symmetrisation should not rescale.
     transf_proj = {line_proj([1 0 0], [0 1 0], ...
-                             'alatt', win.data.proj.alatt, ...
-                             'angdeg', [90, 90, 90])};
+        'alatt', win.data.proj.alatt, ...
+        'angdeg', [90, 90, 90])};
 end
 
 
@@ -84,25 +84,26 @@ if isscalar(varargin) && isa(varargin{1}, 'Symop') || ...
     sym = varargin{1};
 elseif numel(varargin) == 3
     warning('HORACE:symmetrise_sqw:deprecated', ...
-            'Passing vectors to symmetrise_sqw is deprecated, please use "Symop"');
+        'Passing vectors to symmetrise_sqw is deprecated, please use "Symop"');
     sym = SymopReflection(varargin{:});
 else
     error('HORACE:symmetrise_sqw:invalid_argument', ...
-          ['Call as:\n', ...
-          'wout = symmetrise_sqw(win, sym)\n', ...
-          'DEPRECATED wout = symmetrise_sqw(win,v1,v2,v3)']);
+        ['Call as:\n', ...
+        'wout = symmetrise_sqw(win, sym)\n', ...
+        'DEPRECATED wout = symmetrise_sqw(win,v1,v2,v3)']);
 end
 
 win = sqw(win);
 wout = copy(win);
 
-[sym, fold] = validate_sym(sym);
-transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
+[sym, fold] = validate_and_generate_sym(sym);
+% double wrapped cellarray
+transforms = @sym.transform_pix;
 % Need the projections to be wrapped in a cell array to be duplicated
 % for each symmetry operation we're applying, since the first cell array
 % may be unwrapped as an argument if 1 arg (as in this case), need
 % double wrapped cellarray
-wout = wout.apply(transforms, {{transf_proj(:)}}, false);
+wout.pix = wout.pix.apply(transforms, {{transf_proj(:)}}, false);
 
 %=========================================================================
 % Transform Ranges:
@@ -118,12 +119,10 @@ cc_ranges = proj.transform_img_to_pix(exp_range);
 
 % identify intersection points between the image range and the symmetry plane
 if isa(sym, 'SymopReflection')
-
     cc_exist_range = cc_ranges;
     for i = 1:fold
         cross_points = box_intersect(cc_ranges, ...
-                                 [sym(i).u+sym(i).offset,sym(i).v+sym(i).offset,sym(i).offset]);
-
+            [sym(i).u+sym(i).offset,sym(i).v+sym(i).offset,sym(i).offset]);
         % and combine all them together
         cc_exist_range = [cc_exist_range,cross_points];
     end
@@ -133,9 +132,11 @@ if isa(sym, 'SymopReflection')
         idx = ~sym(i).in_irreducible(cc_exist_range);
         cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
     end
-
 else
-    cc_exist_range = cc_ranges; % Keep old range
+    % 
+    rot_center = sym.offset; % offset in Crystal Cartesian though should
+    %  be hkl
+    cc_exist_range = sym.transform_pix([cc_ranges,rot_center]);
 end
 
 img_box_points      = proj.transform_pix_to_img(cc_exist_range);
@@ -144,141 +145,25 @@ img_db_range_minmax = min_max(img_box_points)';
 % add fourth dimension to the range
 all_sym_range = [img_db_range_minmax,existing_range(:,4)];
 
-% Extract existing binning: TODO: refactor using future line_axes, extract
-% common code with combine_sqw
-
-new_range_arg = cell(1,4);
-paxis = false(4,1);
-paxis(wout.data.pax) = true;
-npax = 0;
-for i=1:4
-    new_range_arg{i} = all_sym_range(:,i)';
-    if paxis(i)
-        npax = npax+1;
-        is_proj_axis = numel(wout.data.p{npax}) > 1;
-        range = new_range_arg{i};
-        dist = range(2)-range(1);
-        if is_proj_axis
-            step = wout.data.p{npax}(2) - wout.data.p{npax}(1);
-            % Ranges are bin-centres
-            new_range_arg{i} = [range(1), step, range(2)];
-        else
-            new_range_arg{i} = range;
-        end
-    end
-end
 
 % Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C (TGP 30/11/13)
 oll = get(hor_config, 'log_level');
 set(hor_config, 'log_level', -1);
 cleanup_obj = onCleanup(@()set(hor_config, 'log_level', oll));
 
-% completely break relationship between bins and pixels in memory and make
-% all pixels contribute into single large bin
-ax = wout.data.axes;
-proj = wout.data.proj;
+% Build target object from symmetry-modified pixels and new data range
+dat = wout.data;
+dat.axes.img_range = all_sym_range;    
 
-ax.do_check_combo_arg = false;
-ax.img_range = all_sym_range;
-ax.nbins_all_dims = ones(1,4);
-ax.do_check_combo_arg = true;
-ax = ax.check_combo_arg();
-dat = DnDBase.dnd(ax,proj,0,0,sum(wout.data.npix(:)));
+dat.s    = 0;
+dat.e    = 0;
+dat.npix = 0;
+
+proj = dat.proj;
+% unique_id is needed to call sort pixels inside routine
+[dat.npix,dat.s,dat.e,pix,unique_id] = ...
+    proj.bin_pixels(dat.axes,wout.pix,dat.npix,dat.s,dat.e);
+[dat.s, dat.e] = normalize_signal(dat.s, dat.e, dat.npix);
 wout.data = dat;
-
-wout = cut(wout,proj,new_range_arg{:});
-
-end
-
-function [sym, fold] = validate_sym(sym)
-% Check sym is a valid symmetry reduction
-%
-% Handle conversion of sym into appropriate symmetry set
-% for rotations
-%
-% Inputs
-% -------
-% sym    Array or cell array of symmetry operations
-%
-% Outputs
-% -------
-% sym    Final set of symops to perform (expanded for rotations)
-%
-% fold   Number of symmetry operations to perform
-
-    if isa(sym, 'SymopReflection')
-        fold = numel(sym);
-
-    elseif isa(sym, 'SymopRotation')
-
-        % Don't need to do the 360 mapping (last == ID)
-        fold = (360 / sym.theta_deg-1);
-
-        if numel(sym) ~= 1
-            error('HORACE:symmetrise_sqw:invalid_argument', ...
-                  'Rotational symmetry only possible for single rotation.')
-        end
-
-        if floor(fold) ~= fold
-            error('HORACE:symmetrise_sqw:invalid_argument', ...
-                  ['Rotation is not an integer n-fold mapping onto the full circle.\n', ...
-                   'Fold : %1.3f'], fold+1)
-        end
-
-        sym = repmat(sym, fold, 1);
-
-    elseif iscell(sym)
-        % If it's come from SymopRotation.fold or manual equivalent
-        % We might have rot(0), or ID as first arg, all subsequent
-        % rotations may be incremental (0, 90, 180, 270)
-        % or repeated (0, 90, 90, 90) need to account for these
-        if all(cellfun(@(x) isa(x, 'SymopRotation') || ...
-                            isa(x, 'SymopIdentity'), sym))
-            if sym{1} ~= SymopIdentity() || ...
-                         isa(sym{1}, 'SymopRotation') && sym{1}.theta_deg ~= 0
-                error('HORACE:symmetrise_sqw:invalid_argument', ...
-                      'For rotational reduction first element must be identity.')
-            end
-
-            fold = 360 / sym{2}.theta_deg;
-
-            if floor(fold) ~= fold
-                error('HORACE:symmetrise_sqw:invalid_argument', ...
-                      ['Rotation is not an integer n-fold mapping onto the full circle.\n', ...
-                       'Fold : %1.3f'], fold)
-            end
-
-            if numel(sym) ~= fold
-                error('HORACE:symmetrise_sqw:invalid_argument', ...
-                      ['Cell array must be complete set of rotational reductions.\n', ...
-                       'Expected: %d, received: %d', fold, numel(sym)])
-            end
-
-            for i = 3:fold
-                % If not regular fold
-                if ~(equal_to_tol(sym{i}.theta_deg, sym{2}.theta_deg, 'tol', 1e-4) || ...
-                     equal_to_tol(sym{i}.theta_deg / (i-1), sym{2}.theta_deg, 'tol', 1e-2))
-                    error('HORACE:symmetrise_sqw:invalid_argument', ...
-                          ['Cell array rotation reduction must be either repeated array' ...
-                           ' of one rotation or evenly-spaced progression around unit circle'])
-                end
-            end
-
-            fold = fold - 1;
-            sym = repmat(sym{2}, fold, 1);
-
-        elseif all(cellfun(@(x) isa(x, 'SymopReflection') || ...
-                                isa(x, 'SymopIdentity'), sym))
-            sym = cat(1, sym{:});
-            fold = numel(sym);
-        else
-            error('HORACE:symmetrise_sqw:not_implemented', ...
-                  'Cell array sym must be cell array of either all SymopReflection or all SymopRotation. (SymopIdentity is ignored)')
-        end
-
-    else
-        error('HORACE:symmetrise_sqw:not_implemented', ...
-              'Symmetrise does not currently support %s', class(sym))
-    end
-
+wout.pix = pix;
 end

@@ -42,11 +42,17 @@ function [tmp_file,grid_size,data_range,varargout] = gen_sqw (spe_file, par_file
 %                   Default if not given or [] is is [50,50,50,50]
 %   pix_db_range_in Range of data grid for output as a 2x4 matrix:
 %                              [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                   Default if not given or [] is the smallest hyper-cuboid that encloses the whole pixel range.
+%                   Default if not given or [] is the smallest hyper-cuboid
+%                   that encloses the whole pixel range.
 %                   calculated from the detector positions and min/max
 %                   values of energy transfer
-%   instrument      Structure or object containing instrument information [scalar or array length nfile]
-%   sample          Structure or object containing sample geometry information [scalar or array length nfile]
+%   NOTE:           if "transform_sqw" function (see below) is provided,
+%                   the provided range will be modified according to the
+%                   transformation, defined by this function.
+%   instrument      Structure or object containing instrument information
+%                   [scalar or array length nfile]
+%   sample          Structure or object containing sample geometry information
+%                   [scalar or array length nfile]
 %
 %
 % Optional keyword flags:

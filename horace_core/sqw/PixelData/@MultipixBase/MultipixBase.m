@@ -1,8 +1,11 @@
 classdef MultipixBase < serializable
-    % The class-base for helper classes, used to keep information about multiple
-    % pixels datasets before they are combined together.
+    % The class-base for auxiliary classes, used to keep information about
+    % multiple pixels datasets before they are combined together.
     %
     properties(Dependent)
+        page_num      % When multipix array is split into pages to access
+        % its data, this is the current page number,
+        % algorithm is going to work with
         nfiles;       % number of files or objects contributing into final
         %               result
         infiles;      % cellarray of filenames or objects to combine.
@@ -71,6 +74,7 @@ classdef MultipixBase < serializable
     %
     %
     properties(Access = protected)
+        page_num_   = 1;
         num_pixels_ = 0
         %
         infiles_ = {}  % cellarray of filenames or objects to combine
@@ -251,14 +255,27 @@ classdef MultipixBase < serializable
         function rl= get.run_label(obj)
             rl = obj.run_label_;
         end
+        %
+        function pn= get.page_num(obj)
+            pn = obj.page_num_;
+        end
+        function obj = set.page_num(obj,val)
+            if (val<=0)
+                errror('HORACE:MultipitBase:invalid_argument', ...
+                    'number of page has to be positive integer. Provided: %g', ...
+                    val)
+            end
+            obj.page_num_ = uint32(round(val));
+        end
+        %
         function obj = set.run_label(obj,val)
             % Sets the value describing the way to treat run_id (run_index)
             % of input pixels datasets while combining them together.
             %
-            % Acceptable values may be:
+            % Acceptable values are:
             % 1) string containing 'nochange' or 'fileno' keys. Any other strings are not
             %    acceptable.
-            % "nochage" -- means that runlabels present in input pixels data do not
+            % "nochange" -- means that runlabels present in input pixels data do not
             %              change
             % "filenum"  -- runlables present in input pixels data change to the number
             %              of the file (dataset) in the list of input datasets(files)

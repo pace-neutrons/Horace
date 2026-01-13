@@ -5,16 +5,33 @@ classdef PageOp_sqw_eval < PageOpBase
         % empty operation
         op_holder = @(h,k,l,e){};
         average = false;
-        proj
+        proj        % the projection used for transforming
         op_parms
-        % indices of signal and variance arrays within the page
-        sigvar_idx
+        sigvar_idx % page indices (numbers of rows) for signal and variance
+        %             values within single data page
     end
+    properties(Access = protected)
+        % caches for split indices of npix array, produced by
+        % split_indices routines and defined here to access it
+        % from npix_data which does not have it as a standard input        
+        npix_block_;
+        npix_idx_;
+    end
+
     properties(Dependent)
+        npix_block; % read only access to
+
+
         %Read-only Access to internal image holder to use in sqw_op
         img
+            % npix_idx    -- 2-element array [nbin_min,nbin_max] containing
+            %                min/max indices of the image bins
+            %                corresponding to the pixels, currently loaded
+            %                into page.
+        
+        npix_idx;   %        
     end
-    
+
 
     methods
         function obj = PageOp_sqw_eval(varargin)
@@ -50,12 +67,12 @@ classdef PageOp_sqw_eval < PageOpBase
         function obj = apply_op(obj,npix_block,npix_idx)
             % Apply user-defined operation over page of pixels located in
             % memory. Pixels have to be split on bin edges
-            % 
+            %
             % Inputs:
             % obj         -- initialized instance of PageOp_sqw_eval class
-            % npix_block  -- array containing distrubution of pixel loaded into current page 
+            % npix_block  -- array containing distrubution of pixel loaded into current page
             %                over image bins of the processed data chunk
-            % npix_idx    -- 2-element array [nbin_min,nbun_max] containing
+            % npix_idx    -- 2-element array [nbin_min,nbin_max] containing
             %                min/max indices of the image bins
             %                corresponding to the pixels, currently loaded
             %                into page.
@@ -91,10 +108,16 @@ classdef PageOp_sqw_eval < PageOpBase
             % transfer modifications to the underlying object
             [out_obj,obj] = finish_op@PageOpBase(obj,out_obj);
         end
-        %
+        % Getters for read-only properties
         function im = get.img(obj)
             im = obj.img_;
         end
+        function npb = get.npix_idx(obj)
+            npb = obj.npix_idx_;
+        end
+        function npb = get.npix_block(obj)
+            npb = obj.npix_block_;
+        end        
     end
     methods(Access=protected)
         % Log frequency

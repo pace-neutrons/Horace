@@ -1,15 +1,15 @@
 function img = build_combined_img_(axes_bl,proj,img_sources, ...
     job_disp,hor_log_level)
-%BUILD_COMBINED_IMG_  Collect images from mutiple input sources,
+%BUILD_COMBINED_IMG_  Collect images from multiple input sources,
 % add them together and return image (DnD object) combined from multiple
 % images.
 %
-% Its assumed that the imput image sources have been checked for
-% compartibility before, so this routine expect all them being compartible.
+% Its assumed that the input image sources have been checked for
+% compatibility before, so this routine expect all them being compatible.
 %
 % Inputs:
 % axes_bl -- the axes_block instance common for all contributing images
-% proj    -- aProjectionBase class, common for all contributiong images.
+% proj    -- aProjectionBase class, common for all contributing images.
 % img_sources
 %         -- cellarray of objects containing partial images to combine
 % job_disp
@@ -36,7 +36,7 @@ if hor_log_level>-1
     disp('Reading and accumulating binning information of input file(s)...')
 end
 
-if combine_in_parallel
+if combine_in_parallel && job_disp.cluster.n_workers > 2
     %TODO:  check config for appropriate ways of combining the tmp and what
     %to do with cluster
     comb_using = config_store.instance().get_value('hpc_config','combine_sqw_using');
@@ -53,14 +53,46 @@ if combine_in_parallel
 
     %
     if n_failed == 0
-        s_accum = outputs{1}.s;
-        e_accum = outputs{1}.e;
-        npix_accum = outputs{1}.npix;
+        if ~iscell(outputs) % Debugging errors in Parallel Jobs on Jenkins. 
+            % Sometimes it does not fail but result is incorrect. Code
+            % below is provided for debugging purposes in attempt to
+            % clarify the issue
+            fprintf('***  Parallel job have not failed but output is different from expected:\n')
+            disp(outputs);
+            if isstruct(outputs) && isfield(outputs,'worker_logs')
+                disp(outputs.worker_logs)
+                if iscell(outputs.worker_logs)
+                    for i=1:numel(outputs.worker_logs)
+                        fprintf('***  Worker N%d:\n',i);
+                        disp(outputs.worker_logs{i});
+                    end
+                end
+            end
+            error('HORACE:write_nsqw_to_sqw:runtime_error', ...
+                'Parallel job returned unexpected output:\n %s', ...
+                disp2str(outputs));
+        else
+            s_accum = outputs{1}.s;
+            e_accum = outputs{1}.e;
+            npix_accum = outputs{1}.npix;
+        end
     else
         job_disp.display_fail_job_results(outputs,n_failed,n_workers, ...
             'HORACE:write_nsqw_to_sqw:runtime_error');
     end
 else
+    if combine_in_parallel
+        fprintf(2,'*** Previous parallel job have not prepared proper list of image sources to combine:\n');
+        disp(img_sources);
+        fprintf(2,'*** Displaying sources and abandoning parallel execution:\n');
+        if iscell(img_sources)
+            for i=1:numel(img_sources)
+                fprintf('*** Source N%d\n',i);
+                disp(img_sources{i});
+            end
+        end
+        job_disp.finalize_all();
+    end
     % read arrays and accumulate headers directly
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(img_sources);
 end
@@ -69,4 +101,3 @@ end
 img.s=s_accum;
 img.e=e_accum;
 img.npix=uint64(npix_accum);
-

@@ -10,7 +10,7 @@ bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
 
 
 // A constant which identifies particular instance of instantiated mex code.
-// Something not 0 as input from MATLAB may be easy initilized to 0
+// Something not 0 as input from MATLAB may be easy initialized to 0
 static ::uint32_t CODE_SIGNATURE(0x7D58CDE3);
 // holder of the pointer to the instance of the binning arguments used in the previous call to the mex function.
 static std::unique_ptr<class_handle<BinningArg>> bin_par_ptr;
@@ -19,7 +19,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     // identify special input requests (e.g. version or clear mex from memory) 
     // and return if special input is found. Two special inputs, namely get code version 
-    // and "clear" -- remove existing code from memory alloweing mex to be freed from memory 
+    // and "clear" -- remove existing code from memory allowing mex to be freed from memory 
     // are recognized here.
     if (find_special_inputs(nlhs, plhs, nrhs, prhs, bin_par_ptr)) {
         return;
@@ -159,15 +159,14 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
         force_update = true;
 
     }
-    plhs[out_arg::mex_code_hldrOut] = bin_arg_holder->export_hanlder_toMatlab();
+    plhs[out_arg::mex_code_hldrOut] = bin_arg_holder->export_handler_toMatlab();
 
     auto bin_arg_ptr = bin_arg_holder->class_ptr;
     if (bin_arg_ptr->new_binning_arguments_present(prhs)) {
-        bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
         force_update = true;
-    } else {
-        bin_arg_ptr->parse_changed_bin_inputs(prhs[in_arg::param_struct]);
     }
+    bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
+
     bin_arg_ptr->check_and_init_accumulators(plhs, prhs,force_update);
     return;
 };

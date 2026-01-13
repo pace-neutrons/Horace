@@ -124,9 +124,12 @@ classdef config_store < handle
         end
         function set_value(obj,class_name,varargin)
             % set value of config field directly in memory.
-            % Such configuration is not stored on disk so will disappear if
-            % configuration is returned to defaults
-            % 
+            % Unlike usual way of setting value using property assignment, 
+            % changing value this way does not affect values, stored on
+            % disk. The consequence is much faster change of config values 
+            % but the changes become transient. If memory is clered, these
+            % changes are not restored.
+
             set_config_field_value_(obj,class_name,varargin{:});
         end
 

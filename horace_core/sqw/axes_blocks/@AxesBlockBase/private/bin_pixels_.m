@@ -13,7 +13,7 @@ function [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = bin_pixels_(ob
 % mode_to_bin
 %       -- the mode, binning algorithm is working in. Depending
 %          on this number, additional parts of the algorithm will be
-%          deployed.
+%          deployed. The modes are defined and described in bin_mode enum.
 % npix  -- the array of size of this grid, accumulating the information
 %          about number of pixels contributing into each bin of the grid,
 %          defined by this axes block.

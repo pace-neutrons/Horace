@@ -132,7 +132,7 @@ classdef test_line_axes < TestCase
             assertEqual(numel(indx),pix_ok.num_pixels);
             for i=1:10
                 ii = (i-1)*10+1:1000:10000;
-                assertEqual(indx(ii)',i:10:100);
+                assertEqual(double(indx(ii)'),i:10:100);
             end
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -276,7 +276,7 @@ classdef test_line_axes < TestCase
             pix = PixelDataBase.create(pix_dat_full);
 
             [npix,s,e,pix_ok,uniq_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
-            assertEqual(uniq_runid,1)
+            assertEqual(double(uniq_runid),1)
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -287,7 +287,7 @@ classdef test_line_axes < TestCase
             assertEqual(e,size(pix_data,2));
             assertEqual(pix_ok.num_pixels,pix.num_pixels);
             assertEqual(pix_ok.num_pixels,numel(indx));
-            assertEqual(indx,ones(pix_ok.num_pixels,1));
+            assertEqual(double(indx),ones(pix_ok.num_pixels,1));
 
         end
         
@@ -1129,17 +1129,17 @@ classdef test_line_axes < TestCase
             pbin = {[-inf,inf],[inf,0.1,1],[-2,0.1,inf],[-inf,0.1,inf]};
             block = AxesBlockBase.build_from_input_binning('line_axes',default_binning,pbin);
             assertTrue(isa(block,'line_axes'));
-            assertElementsAlmostEqual(block.img_range,...
-                [-1.,-2.05,-2.05,-0.05;...
-                1, 1.05,3.05,10.15]);
-            assertEqual(block.nbins_all_dims,[1,31,51,102]);
+            assertElementsAlmostEqual(block.img_range,[...
+                -1.05,-2.1,-2.05,-0.5;...
+                01.05, 1.1,3.15,10.6]);
+            assertEqual(block.nbins_all_dims,[1,32,52,111]);
             assertEqual(block.iax,1)
-            assertEqual(block.iint,[-1;1])
+            assertEqual(block.iint,[-1.05;1.05])
             assertEqual(block.pax,[2,3,4])
             assertEqual(block.dax,[1,2,3])
-            assertElementsAlmostEqual(block.p{1},-2.05:0.1:1.05,'absolute',1.e-12);
-            assertElementsAlmostEqual(block.p{2},-2.05:0.1:3.05,'absolute',1.e-12)
-            assertElementsAlmostEqual(block.p{3},-0.05:0.1:10.15,'absolute',1.e-12)
+            assertElementsAlmostEqual(block.p{1},-2.1:0.1:1.1,'absolute',1.e-12);
+            assertElementsAlmostEqual(block.p{2},-2.05:0.1:3.15,'absolute',1.e-12)
+            assertElementsAlmostEqual(block.p{3},-0.5:0.1:10.6,'absolute',1.e-12)
         end
         %
         function test_build_from_input_binning(~)
@@ -1147,7 +1147,9 @@ classdef test_line_axes < TestCase
             pbin = {[],[-1,1],[-2,0.1,2],[-inf,0,inf]};
             block = AxesBlockBase.build_from_input_binning('line_axes',default_binning,pbin);
             assertTrue(isa(block,'line_axes'));
-            assertElementsAlmostEqual(block.img_range,[-1.05,-1,-2.05,-0.5;1.05,1,2.05,10.5]);
+            assertElementsAlmostEqual(block.img_range,[ ...
+                -1.05,-1,-2.05,-0.5; ...
+                01.05, 1, 2.05, 10.5]);
             assertEqual(block.nbins_all_dims,[21,1,41,11]);
             assertEqual(block.dax,[1,2,3]);
             assertEqual(block.iax,2)

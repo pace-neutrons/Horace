@@ -179,7 +179,7 @@ for i = 1:numel(bin_idx)
 end
 
 function [max_idx,include] = find_max_exclude_empty(idx)
-% function checks input indices, if they are empty, return include=false,
+% Check input indices; if they are empty, return include=false,
 % and if not empty, returns max index of the distribution
 if isempty(idx)
     max_idx = -1;

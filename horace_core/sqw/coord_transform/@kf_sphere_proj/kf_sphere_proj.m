@@ -1,10 +1,10 @@
-classdef kf_sphere_proj<sphere_proj
+classdef kf_sphere_proj < sphere_proj
     % Class defines special projection, used by cut_sqw
     % to make spherical cut in special spherical coordinate system
     % related to the spectrometer frame.
     %
     % Unlike sphere_proj, which calculates spherical coordinates of
-    % scattring vector Q, kf_sphere_proj, calculates spherical coordinates
+    % scattering vector Q, kf_sphere_proj, calculates spherical coordinates
     % of scattering vector kf, where Q = RM*(ki-kf), where RM is rotation
     % matrix which describes the crystal rotation from axis qx to
     % beam direction in Crystal Cartesian coordinate system (see
@@ -80,7 +80,8 @@ classdef kf_sphere_proj<sphere_proj
     %       cc_to_spec_mat and run_id_mapper being defined.
     %
     properties(Dependent)
-        Ei  % incident for direct or analyzer for indirect energy.
+        Ei  % incident energy for direct spectrometer or analyzer energy 
+        % for indirect spectrometer.
         ki_mod % read-only parameter. Modulo of vector ki in A^-1.
         % Used for debugging and easy cut range estimation
         %
@@ -207,14 +208,15 @@ classdef kf_sphere_proj<sphere_proj
             % properties
             %
             % Input:
-            % pix_data -- [3-5xNpix] array of pix coordinates
+            % pix_data -- either 
+            %             [5 x Npix] array of pix coordinates
             %             expressed in crystal Cartesian coordinate system.
-            %             if 5th row of pix_coordinates is present, it
-            %             describes run_id-s, referred
-            %             or instance of PixelDatBase class containing this
+            %             5th row of pix_coordinates  describes run_id-s
+            %             used to calculate goniometer values for this run.
+            %          or instance of PixelDatBase class containing this
             %             information.
             % Returns:
-            % pix_out -- [3xNpix or [4xNpix]Array the pixels coordinates
+            % pix_out -- [4xNpix] Array the pixels coordinates
             %            transformed into spherical coordinate system
             %            defined by object properties
             %

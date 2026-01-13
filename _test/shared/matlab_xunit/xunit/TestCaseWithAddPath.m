@@ -1,4 +1,4 @@
-%TestCaseInDir Test case requiring temporary path modification
+%TestCaseWithAddPath Test case requiring temporary path modification
 %   The TestCaseInDir class defines a test case that has to be run by first
 %   adding a specific directory to the path.
 %

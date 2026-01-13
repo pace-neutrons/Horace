@@ -36,7 +36,7 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
 
     T Inf(0);
     double ebin_inv = (1 / ebin);
-    bool ignore_something, ignote_all;
+    bool ignore_something, ignore_all;
 
     //if we want to ignore nan and inf in the data
     bool ignore_nan(false);
@@ -50,7 +50,7 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
         ignore_inf = true;
     }
     ignore_something = ignore_nan || ignore_inf;
-    ignote_all = ignore_nan && ignore_inf;
+    ignore_all = ignore_nan && ignore_inf;
     if (ignore_inf)
     {
         Inf = static_cast<T>(mxGetInf());
@@ -143,7 +143,7 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
            pStor)                                                                            \
         firstprivate(data_size, distribution_size,                                           \
                      trans_elo, ebin_inv, Inf, PIXEL_data_width,                             \
-                     ignote_all, ignore_nan, ignore_inf, ignore_something, transform_energy, \
+                     ignore_all, ignore_nan, ignore_inf, ignore_something, transform_energy, \
                      nDimX, nDimY, nDimZ, nDimE,                                             \
                      s, e, npix,pixel_data)                                                  \
         reduction(+: nPixel_retained)
@@ -158,7 +158,7 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
             ok[i] = false;
             if (ignore_something)
             {
-                if (ignote_all)
+                if (ignore_all)
                 {
                     if (pixel_data[j0 + 7] == Inf || isNaN(pixel_data[j0 + 7]) ||
                         pixel_data[j0 + 8] == Inf || isNaN(pixel_data[j0 + 8]))

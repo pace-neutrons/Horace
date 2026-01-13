@@ -1,5 +1,5 @@
 function varargout = ...
-    bin_pixels_with_mex_code_(obj,coord,proc_mode,...
+    bin_pixels_with_mex_code_(obj,coord,mode_to_bin,...
     npix,s,err,pix_cand,unique_runid,force_double,test_mex_inputs)
 % s,e,pix,unique_runid,pix_indx
 % Sort pixels according to their coordinates in the axes grid and
@@ -11,9 +11,11 @@ function varargout = ...
 % obj   -- the initialized AxesBlockBase object with the grid defined
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          AxesBlockBase coordinate system
-% proc_mode
-%       -- the number of output parameters requested to process. Depending
-%          on this number, additional parts of the algorithm are deployed.
+% mode_to_bin
+%       -- the mode used to bin pixels. Depending on this number, 
+%          additional parts of the algorithm are deployed
+%          and additional output parameters are returned.
+%          The modes are defined and described in bin_mode enum.
 % npix
 %      -- the array of size of this grid, accumulating the information
 %         about number of pixels contributing into each bin of the grid,
@@ -52,28 +54,28 @@ function varargout = ...
 %          about number of pixels contributing into each bin of the grid,
 %          defined by this axes block.
 % Optional:
-% s,e  -- if proc_mode >=3, contains accumulated signal and errors from
+% s,e  -- if mode_to_bin >=3, contains accumulated signal and errors from
 %         the pixels, contributing into the grid. num_outputs >=3 requests
 %         pix_cand parameter to be present and not empty.
 % pix_ok
-%      -- if proc_mode >=4, returns input pix_cand contributed to
+%      -- if mode_to_bin >=4, returns input pix_cand contributed to
 %         the the cut and sorted by grid cell or left unsorted,
 %         depending on requested pix_indx output.
 %         IF return_selected is true, contains indices of kept pixels
 % unique_runid
-%      -- if proc_mode >=5, array, containing the unique runids from the
+%      -- if mode_to_bin >=5, array, containing the unique runids from the
 %         pixels, contributed to the cut. If input unique_runid was not
 %         empty, output unique_runid is combined with the input unique_runid
 %         and contains no duplicates.
 % pix_indx
-%      -- in proc_mode ==6, contains indices of the grid cells,
+%      -- in mode_to_bin ==6, contains indices of the grid cells,
 %         containing the pixels from input pix_cand. If this parameter is
 %         requested, the order of output pix corresponds to the order of
-%         pixels in PixelData. if proc_mode < 6, output pix are sorted by
+%         pixels in PixelData. if mode_to_bin < 6, output pix are sorted by
 %         npix bins.
 %
 % selected
-%      -- in proc_mode == 7, contains logical array with true where
+%      -- in mode_to_bin == 7, contains logical array with true where
 %         pixels were kept and false, where they are dropped
 
 persistent mex_code_holder; % the variable contains pointer, which ensure
@@ -107,7 +109,7 @@ end
 
 other_mex_input = struct( ...
     'coord_in',    coord,...                % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
-    'binning_mode',double(proc_mode), ...   % binning mode, what binning values to calculate and return
+    'binning_mode',double(mode_to_bin), ... % binning mode, what binning values to calculate and return
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
@@ -139,7 +141,7 @@ end
 % indication that this is the first call to the routine if npix is empty.
 % [mex_code_holder,npix, s, e,out_param_names,out_param_values] = bin_pixels_c( ...
 %     mex_code_holder,npix_in,s_in,err_in,other_mex_input);
-if proc_mode == bin_mode.npix_only
+if mode_to_bin == bin_mode.npix_only
     % return mex_holder, npix, field_names, field_values
     out = cell(1,4);
     val_num = 4;
@@ -165,7 +167,7 @@ if test_mex_inputs
     out_struc.binning_mode = bin_mode(out_struc.binning_mode); % convert number returned from C-mex into mode-s enum
 end
 
-if proc_mode == bin_mode.npix_only
+if mode_to_bin == bin_mode.npix_only
     % in this case pix_ok change meaning and contains output data structure
     % directly. The structure itself contains copy of input parameters plus
     % various helper values obtained from input and used during the testing
@@ -185,11 +187,11 @@ else  % otherwise, there are no such ouputs, output structure is flattened
         varargout{end} = out_struc;
     end
     npix_retained = npix_retained + out_struc.npix_retained;
-    if proc_mode< bin_mode.sort_pix
+    if mode_to_bin< bin_mode.sort_pix && ~test_mex_inputs
         return;
     end
     
-    if proc_mode == bin_mode.sigerr_sel        
+    if mode_to_bin == bin_mode.sigerr_sel        
         % this mode does not return pixels but keep selected pixels indices
         % (for proper symmetrisation)
         varargout{bin_out.sigerr_sel} = out_struc.selected;
@@ -200,33 +202,33 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     pix_ok_data  = out_struc.pix_ok_data;
     pix_ok_range = out_struc.pix_ok_data_range;
 
-    if proc_mode< bin_mode.sort_pix || ~is_pix
+    if mode_to_bin< bin_mode.sort_pix || ~is_pix
         if ndata>=3
             varargout{bin_out.pix_ok} = pix_ok_range; % redefine pix_ok_range to be npix accumulated
         end
     end
-    if proc_mode< bin_mode.sort_pix
+    if mode_to_bin< bin_mode.sort_pix
         return;
     end
+    pix_ok = PixelDataMemory();    
     if isempty(pix_ok_data)
-        varargout{bin_out.pix_ok} = pix_ok_data;
+        varargout{bin_out.pix_ok} = pix_ok;
     else
-        pix_ok = PixelDataMemory();
         pix_ok = pix_ok.set_raw_data(pix_ok_data);
         varargout{bin_out.pix_ok} = pix_ok.set_data_range(pix_ok_range);
     end
-    if proc_mode< bin_mode.sort_and_uid
+    if mode_to_bin< bin_mode.sort_and_uid
         return;
     end
 
     % in modes where these values are not calculated, the code returns
     % empty
     varargout{bin_out.unique_runid}  = out_struc.unique_runid;
-    if proc_mode < bin_mode.nosort
+    if mode_to_bin < bin_mode.nosort
         return;
     end
     varargout{bin_out.pix_idx}      = out_struc.pix_img_idx;
-    if proc_mode < bin_mode.nosort_sel
+    if mode_to_bin < bin_mode.nosort_sel
         return;
     end    
     varargout{bin_out.selected}      = out_struc.selected;
