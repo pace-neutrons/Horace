@@ -38,7 +38,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
             buf.str().c_str());
     }
 
-    //process input bining parameters and return pointer to the class which contains their values
+    //process input binning parameters and return pointer to the class which contains their values
     //if this is the call to the same binning parameters
     parse_inputs(plhs, prhs, bin_par_ptr);
 

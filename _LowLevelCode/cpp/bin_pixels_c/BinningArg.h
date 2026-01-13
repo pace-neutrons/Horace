@@ -56,7 +56,7 @@ enum opModes {
     //              within the image grid
     nosort_sel = 7, // like 6, but return logical array which specifies what pixels have been selected
     //                   and what were rejected by binning operations
-    siger_selected = 8, // the same as sig_err but return logical array of selected piels instead of pix_ok array
+    siger_selected = 8, // the same as sig_err but return logical array of selected pixels instead of pix_ok array
     test_inputs = 9, // do not do calculations but just return parsed inputs for
     //                  unit testing
     N_OP_Modes = 10 // total number of modes code operates in. Provided for checks
@@ -118,7 +118,7 @@ public:
     std::vector<double> bin_step; // vector of binning sizes in all non-unit directions
     std::vector<size_t> pax; // vector of projection axes to bin pixels over
     std::vector<size_t> stride; // vector, which describes binning steps reflecting multidimensional array strides
-    std::vector<size_t> bin_cell_idx_range; // vector containing allowed maximal indixes of the binning (with nbins_all_dims>1) cells in binning directions
+    std::vector<size_t> bin_cell_idx_range; // vector containing allowed maximal indices of the binning (with nbins_all_dims>1) cells in binning directions
     // auxiliary array containing pixel indices over bins
     std::vector<long> pix_ok_bin_idx;
     // auxiliary array defining ranges of the bins to sort pixels over
