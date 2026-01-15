@@ -7,7 +7,7 @@
 
 /**  return true if input coordinates lie outside of the ranges specified as input
 * 
-*    Template can be instancitated for ang input numerical types convertible to double
+*    Template can be instantiated for any input numerical types convertible to double
 * Inputs:
 * coord_ptr   --  pointer to 2-Dimensional array of pixel coordinates allocated
 *                 as 1-Dimensional FORTRAN array of COORD_STRIDE*Num_pixels size.
@@ -18,13 +18,13 @@
 * cut_range    --  2*COORD_STRIDE array of pixel ranges to check. The ranges are
 *                  arranged in 2-Dimensional array with FORTRAN allocation in the form:
 *                  [q1_min,q1_max,q2_min,q2_max,... q_COORD_STRIDE_min,q_COORD_STRIDE_max]
-* qi           --  Outuput vector of input q-coordinates converted in double
+* qi           --  Output vector of input q-coordinates converted in double
                    if all input coordinates are in range. Undefined if they are not
 * Returns:
 *   true if all input coordinates are in range and false otherwise.
 *
-* Note -- As the function runs inside most deep production loop, it seems inlining increas performance
-*         at least by 10% or even more. Difficutl to judge properly, as code in this form would not compile
+* Note -- As the function runs inside most deep production loop, it seems inlining increase performance
+*         at least by 10% or even more. Difficult to judge properly, as code in this form would not compile
 *         without inline.
  */
 template <class SRC>
@@ -53,7 +53,7 @@ bool inline out_of_ranges(SRC const* const coord_ptr, long i, size_t COORD_STRID
 * bin_cell_idx_range
 *           -- number of bins in each binned direction.
 * stride    -- 1-to-4 element's vector which describes 1-D allocation of multidimensional array
-*              i.e. if one have 1D arry, stride has 1 element and contains 1.
+*              i.e. if one have 1D array, stride has 1 element and contains 1.
 *              For 3-dimensional array of size 9x10x11, stride == [1,9,9*10]
 *              For 4-dimensional array of size 9x10x11*12, stride == [1,9,9*10,9*10*11]
 * Returns:
@@ -151,7 +151,7 @@ void inline copy_resiults_to_final_arrays(BinningArg* const bin_par_ptr, const S
 /** Procedure calculates positions of the input pixels coordinates within specified
  *   image box and various other values related to distributions of pixels over the image
  *   bins, including signal per image box, error per image box and distribution of pixels
- *   according to the image. Template instantiacted on the basis of SRC (numerical source type convertable to double)
+ *   according to the image. Template instantiated on the basis of SRC (numerical source type convertible to double)
  *   and TRG (numerical target type convertible to double)
  * Results:
  * npix        -- 1D representation of multidimensional array of pixel distributions over bins
@@ -208,7 +208,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            size_t il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
             npix[il]++;
         }
         break;
@@ -253,7 +253,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             nPixel_retained++;
 
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            size_t il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
 
             if (npix_acc_separate) {
                 // calculate npix accumulators separately if their value is not provided as input
@@ -288,9 +288,10 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
             // calculate location of pixel within the image grid and add values of this pixels to the accumulators
             // It is almost like add_pixels_to_accumulators but npix1 instead of npix and types of these arrays are different
             // calculate location of pixel within the image grid
-            auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
-            // calculate npix accumulators
+            size_t il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
+            // calculate npix accumulators for single page of pixels
             npix1[il]++;
+            // calculate signal and error accumulators
             // calculate signal and error accumulators taken from current pixel
             s[il] += (double)pix_coord_ptr[ip0 + pix_flds::iSign];
             e[il] += (double)pix_coord_ptr[ip0 + pix_flds::iErr];
@@ -310,7 +311,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         if (distribution_size > 1) {
             for (size_t i = 1; i < distribution_size; i++) {
                 bin_start[i] = bin_start[i - 1] + npix1[i - 1]; // range of cell to place pixels
-                npix[i] += npix1[i]; // increase multicall accumulators
+                npix[i] += npix1[i]; // increase multi-call accumulators
             }
         }
         bool align_result = bin_par_ptr->alignment_matrix.size() == 9;
@@ -318,7 +319,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         bool keep_unique_id = bin_par_ptr->binMode == opModes::sort_and_uid;
         // actually sort pixels and copy selected pixels into proper locations within the target array
         for (size_t i = 0; i < data_size; i++) {
-            if (pix_ok_bin_idx[i] < 0) // drop pixels with have not been inculded above
+            if (pix_ok_bin_idx[i] < 0) // drop pixels with have not been included above
                 continue;
 
             size_t il = (size_t)pix_ok_bin_idx[i]; // number of cell pixel should go to
