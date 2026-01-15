@@ -344,7 +344,7 @@ classdef test_save < TestCase
             test_obj.save(targ_file);
 
             ldr = sqw_formats_factory.instance().get_loader(targ_file);
-            assertTrue(isa(ldr,'faccess_sqw_v4'));
+            assertTrue(isa(ldr,'faccess_sqw_v4_1'));
             rec = ldr.get_sqw();
             ldr.delete();
 
@@ -366,7 +366,7 @@ classdef test_save < TestCase
             test_obj.save(targ_file);
 
             ldr = sqw_formats_factory.instance().get_loader(targ_file);
-            assertTrue(isa(ldr,'faccess_sqw_v4'));
+            assertTrue(isa(ldr,'faccess_sqw_v4_1'));
             rec = ldr.get_sqw();
             ldr.delete();
 
@@ -389,7 +389,7 @@ classdef test_save < TestCase
             assertFalse(isfile(source_to_move));
 
             ldr = sqw_formats_factory.instance().get_loader(targ_file);
-            assertTrue(isa(ldr,'faccess_sqw_v4'));
+            assertTrue(isa(ldr,'faccess_sqw_v4_1'));
             rec = ldr.get_sqw();
             ldr.delete();
             assertEqualToTol(rec,test_obj,'ignore_str',true,'tol',[4*eps('single'),4*eps('single')]);
@@ -413,7 +413,7 @@ classdef test_save < TestCase
             assertTrue(isfile(source_for_fb));
 
             ldr = sqw_formats_factory.instance().get_loader(targ_file);
-            assertTrue(isa(ldr,'faccess_sqw_v4'));
+            assertTrue(isa(ldr,'faccess_sqw_v4_1'));
             rec = ldr.get_sqw();
             ldr.delete();
 

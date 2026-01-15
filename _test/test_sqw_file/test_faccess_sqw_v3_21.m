@@ -87,7 +87,7 @@ classdef test_faccess_sqw_v3_21< TestCase
             % format, containing pixel range
             ldr = ldr.upgrade_file_format();
 
-            assertTrue(isa(ldr,'faccess_sqw_v4'));
+            assertTrue(isa(ldr,'faccess_sqw_v4_1'));
 
             pix_range1 = ldr.get_pix_range();
             % 3e-7 -- conversion from double to single
