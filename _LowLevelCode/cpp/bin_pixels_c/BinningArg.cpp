@@ -29,12 +29,12 @@ bool BinningArg::new_binning_arguments_present(mxArray const* prhs[])
 
 }; //
 
-// analyze and if appropriate store pointer to input (MATLAB provided) pixels coordinates array
+// analyse and if appropriate store pointer to input (MATLAB provided) pixels coordinates array
 // together with information about size and shape of the coordinates array
 void BinningArg::set_coord_in(mxArray const* const pField)
 {
     auto nDims = mxGetNumberOfDimensions(pField);
-    if (nDims != 2) { // get value for computational mode the alogrithm should run
+    if (nDims != 2) { // get value for computational mode the algorithm should run
         std::stringstream buf;
         buf << "input pixel coordinates to bin have to be represented by 2 - dimensional matrix\n";
         buf << "Provided input " << (short)nDims << " dimensional array";
@@ -52,10 +52,10 @@ void BinningArg::set_coord_in(mxArray const* const pField)
             buf.str().c_str());
     }
 };
-// initalize one of available binning modes
+// initialize one of available binning modes
 void BinningArg::set_binning_mode(mxArray const* const pField)
 {
-    if (!mxIsScalar(pField)) { // get value for computational mode the alogrithm should run
+    if (!mxIsScalar(pField)) { // get value for computational mode the algorithm should run
         mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
             "Binning mode can be defined only by scalar values");
     }
@@ -134,7 +134,7 @@ void BinningArg::set_dimensions(mxArray const* const pField)
     this->n_dims = n_dimensions;
 }
 // set number of bins in all 4 directions. 1 in all dimensions may be
-// treated both as 0 and 4 dimensons.
+// treated both as 0 and 4 dimensions.
 void BinningArg::set_nbins_all_dims(mxArray const* const pField)
 {
     auto valid_type = mxIsUint32(pField);
@@ -175,7 +175,7 @@ void BinningArg::set_unique_runid(mxArray const* const pField)
         return;
     }
     auto nDims = mxGetNumberOfDimensions(pField);
-    if (nDims != 2) { // get value for computational mode the alogrithm should run
+    if (nDims != 2) { // get value for computational mode the algorithm should run
         std::stringstream buf;
         buf << "input unique run_id(s) must have to be represented by 1 - dimensional array of values\n";
         buf << "Provided input is: " << (short)nDims << " dimensional array";
@@ -218,7 +218,7 @@ void BinningArg::set_force_double(mxArray const* const pField)
 };
 
 
-// intialize testing input mode (or not)
+// initialize testing input mode (or not)
 void BinningArg::set_test_input_mode(mxArray const* const pField)
 {
     if (!mxIsScalar(pField)) {
@@ -238,7 +238,7 @@ void BinningArg::set_all_pix(mxArray const* const pField)
         return;
     }
     auto nDims = mxGetNumberOfDimensions(pField);
-    if (nDims != 2) { // get value for computational mode the alogrithm should run
+    if (nDims != 2) { // get value for computational mode the algorithm should run
         std::stringstream buf;
         buf << "input pixel data have to be represented by 2 - dimensional matrix or cellarray of data vectors\n";
         buf << "Provided input " << (short)nDims << " dimensional array";
@@ -264,7 +264,7 @@ void BinningArg::set_all_pix(mxArray const* const pField)
             auto data_type = mxGetClassID(a_cell_ptr);
             if (data_type != mxDOUBLE_CLASS) {
                 std::stringstream buf;
-                buf << "Binning the dataype N " << data_type << " have not been implemented yet";
+                buf << "Binning the data-type N " << data_type << " have not been implemented yet";
                 mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
                     buf.str().c_str());
             }
@@ -278,7 +278,7 @@ void BinningArg::set_all_pix(mxArray const* const pField)
                     std::stringstream buf;
                     buf << "Each cell in data to bin must contain the same number of elements\n";
                     buf << "Cell N " << (short)i << " contains " << (short)n_dp << " elements which differs fron "
-                        << (short)n_data_points << " in the firdst cell element";
+                        << (short)n_data_points << " in the first cell element";
                     mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                         buf.str().c_str());
                 }
@@ -297,7 +297,7 @@ void BinningArg::set_all_pix(mxArray const* const pField)
         this->n_Cells_to_bin = nCells;
     } else { // single or double precision array of full pixel coordinates
         this->in_pix_width = mxGetM(pField);
-        this->n_data_points = mxGetN(pField); // should be dedined in set_coord too and values must be equal
+        this->n_data_points = mxGetN(pField); // should be defined in set_coord too and values must be equal
         this->n_Cells_to_bin = 0;
         // no check, as Matlab will call it from routine which does this check
         if (this->in_pix_width != size_t(pix_flds::PIX_WIDTH)) {
@@ -318,7 +318,7 @@ void BinningArg::set_alignment_matrix(mxArray const* const pField)
         return;
     }
     auto nDims = mxGetNumberOfDimensions(pField);
-    if (nDims != 2) { // get value for computational mode the alogrithm should run
+    if (nDims != 2) { // get value for computational mode the algorithm should run
         std::stringstream buf;
         buf << "Alignment matrix should be defined by 2 - dimensional, 9 elements array\n";
         buf << "Provided input " << (short)nDims << " dimensional array";
@@ -389,8 +389,9 @@ void BinningArg::return_pix_range(mxArray* pFieldName, mxArray* pFieldValue, int
         pix_range = this->pix_data_range_ptr;
     }
     mxSetCell(pFieldValue, fld_idx, pix_range);
+    this->pix_data_range_ptr = nullptr;
 };
-// return pixel obtained after binning and may be sorting.Sets up empty matrix if algorithm have not been using pixels
+// return pixel obtained after binning and may be sorting. Sets up empty matrix if algorithm have not been using pixels
 void BinningArg::return_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
 {
     mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
@@ -401,7 +402,22 @@ void BinningArg::return_pix_ok_data(mxArray* pFieldName, mxArray* pFieldValue, i
         pix_ok = mxCreateDoubleMatrix(0, 0, mxREAL);
     }
     mxSetCell(pFieldValue, fld_idx, pix_ok);
+    this->pix_ok_ptr = nullptr;
 };
+// return array of pixels indices, which specify position of pixels within image cell
+void BinningArg::return_pix_img_idx(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+{
+    mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+    mxArray* pix_img_idx(nullptr);
+    if (this->pix_img_idx_ptr) {
+        pix_img_idx = this->pix_img_idx_ptr;
+    } else {
+        pix_img_idx = mxCreateNumericMatrix(0, 0, mxINT64_CLASS, mxREAL);
+    }
+    mxSetCell(pFieldValue, fld_idx, pix_img_idx);
+    this->pix_img_idx_ptr = nullptr;
+};
+
 //===================================================================================
 // calculate steps used in binning over non-unit directions and numbers of these dimensions
 void BinningArg::calc_step_sizes_pax_and_strides()
@@ -458,11 +474,15 @@ void BinningArg::register_output_methods()
     this->Mode5ParList = this->Mode4ParList;
     this->Mode5ParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
 
+    this->Mode6ParList = this->Mode5ParList;
+    this->Mode6ParList["pix_img_idx"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_img_idx(p1, p2, idx, name); };
+
     this->out_handlers[opModes::npix_only] = &Mode0ParList;
     this->out_handlers[opModes::sig_err] = &Mode0ParList;
     this->out_handlers[opModes::sigerr_cell] = &Mode0ParList;
     this->out_handlers[opModes::sort_pix] = &Mode4ParList;
     this->out_handlers[opModes::sort_and_uid] = &Mode5ParList;
+    this->out_handlers[opModes::nosort] = &Mode6ParList;
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
@@ -496,7 +516,7 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
     for (int fld_idx = 0; fld_idx < number_of_fields; fld_idx++) {
         auto field_name = std::string(mxGetFieldNameByNumber(pAllParStruct, fld_idx));
         auto fld_ptr = mxGetFieldByNumber(pAllParStruct, 0, fld_idx);
-        // call appropriate fiel-processing function and set up appropriate MATLAB
+        // call appropriate field-processing function and set up appropriate MATLAB
         // parameters into current binning class instance.
         auto it = this->BinParInfo.find(field_name);
         if (it != this->BinParInfo.end()) {
@@ -531,7 +551,7 @@ void BinningArg::parse_bin_inputs(mxArray const* pAllParStruct)
     // while binning pixels
     auto coord_type = mxGetClassID(this->coord_ptr);
 
-    // check if coord_type corresponts to pix type
+    // check if coord_type corresponds to pix type
     mxClassID pix_type;
     if (this->all_pix_ptr) {
         pix_type = mxGetClassID(this->all_pix_ptr);
@@ -602,7 +622,7 @@ void BinningArg::parse_changed_bin_inputs(mxArray const* pAllParStruct)
     default:
         this->set_coord_in(mxGetField(pAllParStruct, 0, "coord_in"));
         this->set_all_pix(mxGetField(pAllParStruct, 0, "pix_candidates"));
-        // unique_runid, if provided, will be initilized in accumulators
+        // unique_runid, if provided, will be initialized in accumulators
         break;
     }
     return;
@@ -694,6 +714,7 @@ void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
     this->pix_ok_ptr = mxDuplicateArray(this->all_pix_ptr);
     this->OutParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_ok_data(p1, p2, idx, name); };
     this->OutParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
+    this->OutParList["pix_img_idx"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_img_idx(p1, p2, idx, name); };
 
     /* ********************************************************************************
      * retrieve binning parameters form BinningArg class and copy them into output array
@@ -781,7 +802,7 @@ mxArray* duplicate_or_allocate_array(mxArray const* const origin_ptr, mwSize nDi
     return target_ptr;
 };
 
-// check if input accumulators have not been changed and initalize them appropriately
+// check if input accumulators have not been changed and initialize them appropriately
 void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prhs[], bool force_update)
 {
     auto nDims = this->get_Matlab_n_dimensions();
@@ -813,6 +834,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         plhs[out_arg::Signal] = this->signal_ptr;
         plhs[out_arg::Error] = this->error_ptr;
     }
+    // pixels modes
     if (this->binMode >= opModes::sort_pix) {
         if (this->n_data_points > this->pix_ok_bin_idx.size()) {
             this->pix_ok_bin_idx.resize(this->n_data_points);
@@ -820,21 +842,21 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         // fill all positions of the pix_ok vector with certainly invalid value. Index can not be negative
         // this will indicate invalid elements
         std::fill(this->pix_ok_bin_idx.begin(), this->pix_ok_bin_idx.end(), -1);
-        if (this->npix_bin_start.size() != this->distr_size) {
-            this->npix_bin_start.resize(this->distr_size);
-            this->npix1.resize(this->distr_size);
-        }
-        std::fill(this->npix1.begin(), this->npix1.end(), 0); // nullify accumulators for npix1
-        // ranges calculated per each pixels block, i.e. calculations per call to bin_pixels_c
+        // allocate space for pixel data range, which is always calculated for
+        // any pixel mode
         this->pix_data_range_ptr = mxCreateDoubleMatrix(2, pix_flds::PIX_WIDTH, mxREAL);
         if (init_new_accumulators) {
             // just in case, clear unique run-id-s set (should be empty anyway at this stage)
             this->unique_runID.clear();
         }
-    } else {
-        // clear ranges left from previous call to binning functions
-        // as they are not needed for this call but may confuse output routines
-        this->pix_data_range_ptr = nullptr;
+        if (this->binMode < opModes::nosort) {
+            // accumulators needed for sorting pixels according to bins
+            if (this->npix_bin_start.size() != this->distr_size) {
+                this->npix_bin_start.resize(this->distr_size);
+                this->npix1.resize(this->distr_size);
+            }
+            std::fill(this->npix1.begin(), this->npix1.end(), 0); // nullify accumulators for npix1
+        }
     }
 }
 
@@ -905,6 +927,7 @@ BinningArg::BinningArg()
     , n_pix_retained(0)
     , pix_data_range_ptr(nullptr)
     , pix_ok_ptr(nullptr)
+    , pix_img_idx_ptr(nullptr)
 {
     /* initialize input Matlab parameters map with methods which  associate
      * Matlab field names with the methods, which set appropriate property value  */

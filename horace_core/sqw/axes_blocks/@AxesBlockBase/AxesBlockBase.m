@@ -756,7 +756,7 @@ classdef AxesBlockBase < serializable
             % convert different input forms into fully expanded common form
             [npix,s,e,pix_cand,unique_runid,use_mex]=...
                 obj.normalize_bin_input(coord_transf,mode,argi{:});
-            if mode>bin_mode.sort_and_uid
+            if mode>bin_mode.nosort
                 % temporary, until ticket #896 is completed
                 clOb = set_temporary_config_options('hor_config','use_mex',false);
                 [npix,s,e,pix_cand,unique_runid,use_mex]=...

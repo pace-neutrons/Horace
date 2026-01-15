@@ -54,28 +54,28 @@ function varargout = ...
 %          about number of pixels contributing into each bin of the grid,
 %          defined by this axes block.
 % Optional:
-% s,e  -- if proc_mode >=3, contains accumulated signal and errors from
+% s,e  -- if mode_to_bin >=3, contains accumulated signal and errors from
 %         the pixels, contributing into the grid. num_outputs >=3 requests
 %         pix_cand parameter to be present and not empty.
 % pix_ok
-%      -- if proc_mode >=4, returns input pix_cand contributed to
+%      -- if mode_to_bin >=4, returns input pix_cand contributed to
 %         the the cut and sorted by grid cell or left unsorted,
 %         depending on requested pix_indx output.
 %         IF return_selected is true, contains indices of kept pixels
 % unique_runid
-%      -- if proc_mode >=5, array, containing the unique runids from the
+%      -- if mode_to_bin >=5, array, containing the unique runids from the
 %         pixels, contributed to the cut. If input unique_runid was not
 %         empty, output unique_runid is combined with the input unique_runid
 %         and contains no duplicates.
 % pix_indx
-%      -- in proc_mode ==6, contains indices of the grid cells,
+%      -- in mode_to_bin ==6, contains indices of the grid cells,
 %         containing the pixels from input pix_cand. If this parameter is
 %         requested, the order of output pix corresponds to the order of
-%         pixels in PixelData. if proc_mode < 6, output pix are sorted by
+%         pixels in PixelData. if mode_to_bin < 6, output pix are sorted by
 %         npix bins.
 %
 % selected
-%      -- in proc_mode == 7, contains logical array with true where
+%      -- in mode_to_bin == 7, contains logical array with true where
 %         pixels were kept and false, where they are dropped
 
 persistent mex_code_holder; % the variable contains pointer, which ensure
@@ -109,7 +109,7 @@ end
 
 other_mex_input = struct( ...
     'coord_in',    coord,...                % input coordinates to bin. May be empty in modes when they are processed from transformed pixel data
-    'binning_mode',double(mode_to_bin), ...    % binning mode, what binning values to calculate and return
+    'binning_mode',double(mode_to_bin), ... % binning mode, what binning values to calculate and return
     'num_threads', num_threads,  ...        % how many threads to use in parallel computation
     'data_range',  data_range,...           % binning ranges
     'dimensions',   ndims, ...              % number of image dimensions (sum(nbins_all_dims > 1)))
@@ -190,7 +190,16 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if mode_to_bin< bin_mode.sort_pix && ~test_mex_inputs
         return;
     end
+    
+    if mode_to_bin == bin_mode.sigerr_sel        
+        % this mode does not return pixels and is similar to sigerr but in
+        % addition returns logical array with true for pixels selected in
+        % binning (used by symmetrisation routines)
+        varargout{bin_out.sigerr_sel} = out_struc.selected;
+        return;
+    end
 
+    % sort pixels and others return pixels data
     pix_ok_data  = out_struc.pix_ok_data;
     pix_ok_range = out_struc.pix_ok_data_range;
 
@@ -202,10 +211,10 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if mode_to_bin< bin_mode.sort_pix
         return;
     end
+    pix_ok = PixelDataMemory();    
     if isempty(pix_ok_data)
-        varargout{bin_out.pix_ok} = pix_ok_data;
+        varargout{bin_out.pix_ok} = pix_ok;
     else
-        pix_ok = PixelDataMemory();
         pix_ok = pix_ok.set_raw_data(pix_ok_data);
         varargout{bin_out.pix_ok} = pix_ok.set_data_range(pix_ok_range);
     end
@@ -219,7 +228,10 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if mode_to_bin < bin_mode.nosort
         return;
     end
-    varargout{bin_out.pix_indx}      = out_struc.pix_idx;
+    varargout{bin_out.pix_idx}      = out_struc.pix_img_idx;
+    if mode_to_bin < bin_mode.nosort_sel
+        return;
+    end    
     varargout{bin_out.selected}      = out_struc.selected;
 end
 

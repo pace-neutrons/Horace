@@ -196,6 +196,9 @@ if mode_to_bin== bin_mode.sigerr_cell
     end
     return;
 end
+if mode_to_bin == bin_mode.sig_err
+    return;
+end
 if mode_to_bin == bin_mode.sigerr_sel
     pix_ok = ok; % This is mode when instead of resulting pixels one returns
     % ok array with true where pixels were selected

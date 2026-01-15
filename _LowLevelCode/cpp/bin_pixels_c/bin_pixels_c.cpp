@@ -38,7 +38,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
             buf.str().c_str());
     }
 
-    //process input bining parameters and return pointer to the class which contains their values
+    //process input binning parameters and return pointer to the class which contains their values
     //if this is the call to the same binning parameters
     parse_inputs(plhs, prhs, bin_par_ptr);
 
@@ -132,7 +132,7 @@ bool find_special_inputs(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prh
             }
         } else {
             std::stringstream buf;
-            buf << "signle char input for bin_pixels_c function may be 'clear' or 'reset' (in single dashes ') Got: " << key;
+            buf << "single char input for bin_pixels_c function may be 'clear' or 'reset' (in single dashes ') Got: " << key;
             mexErrMsgIdAndTxt("HORACE:bin_pixels_c:invalid_argument",
                 buf.str().c_str());
         }
@@ -163,11 +163,10 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
 
     auto bin_arg_ptr = bin_arg_holder->class_ptr;
     if (bin_arg_ptr->new_binning_arguments_present(prhs)) {
-        bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
         force_update = true;
-    } else {
-        bin_arg_ptr->parse_changed_bin_inputs(prhs[in_arg::param_struct]);
     }
+    bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
+
     bin_arg_ptr->check_and_init_accumulators(plhs, prhs,force_update);
     return;
 };

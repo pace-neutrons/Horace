@@ -10,6 +10,7 @@ classdef bin_out < uint32
       unique_runid (5)
       pix_idx      (6)
       selected     (7)
-      N_outs       (7)
+      sigerr_sel   (4)
+      N_outs       (8)
    end
 end
