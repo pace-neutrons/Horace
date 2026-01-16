@@ -21,7 +21,280 @@ classdef test_bin_pixels_at_AxesBlock_mex_nomex < TestCase
             obj.no_mex = n_errors > 0;
         end
         %==================================================================
-        function performance_mex_nomex_mode6_sort_and_uid(obj)
+        function test_bin_pixels_mode8_sigerr_and_selected(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to bin pixels in mode 8');
+            end
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,30,1], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+            pix_coord = rand(9,20);
+            pix_id = [10,10,11,11,7, 5,5,5,10,10];
+            pix_coord(PixelDataBase.field_index('run_idx'),:) = [pix_id,pix_id];
+
+
+            pix = PixelDataMemory(pix_coord);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            in_coord = pix.coordinates;
+            [npix_nom,s_nom,e_nom,selected_nom] = AB.bin_pixels(in_coord,[],[],[],pix,'-return_selected');
+            assertEqual(size(npix_nom),[10,30]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+            [npix_mex,s_mex,e_mex,selected_mex] = AB.bin_pixels(in_coord,[],[],[],pix,'-return_selected');
+            assertEqual(size(npix_mex),[10,30]);
+
+            assertEqual(selected_nom,selected_mex)
+            assertEqual(npix_mex,npix_nom);
+            assertEqual(s_mex,s_nom);
+            assertEqual(e_mex,e_nom);
+        end
+        
+        function test_return_inputs_mex_mode8_sigerr_and_selected(obj)
+            % bin pixels and sort pixels, input/output parameters
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,1,40], ...
+                'img_range',[-1,-2,-3,-10;1,2,3,40]);
+            pix_id = [10,10,11,11,7, 5,5,5,10,10];
+            pix_coord = rand(9,10);
+            pix_coord(PixelDataBase.field_index('run_idx'),:) = pix_id;
+            pix = PixelDataMemory(pix_coord);
+
+            in_coord = pix.coordinates;
+            [npix,s,e,is_selected,out_data] = AB.bin_pixels(in_coord,[],[],[],pix,'-return_selected','-test_mex_inputs');
+
+            assertEqual(size(npix),[10,40]);
+            assertEqual(npix,zeros(10,40));
+            assertEqual(s,npix);
+            assertEqual(e,npix);
+            assertTrue(isempty(is_selected));
+            assertTrue(isa(is_selected,'logical'));
+
+            assertTrue(isempty(out_data.pix_ok_data_range));
+
+            assertEqual(out_data.coord_in,in_coord);
+            assertEqual(out_data.binning_mode,bin_mode.sigerr_sel);
+            assertEqual(out_data.num_threads, ...
+                config_store.instance().get_value('parallel_config','threads'));
+            assertEqual(out_data.data_range,AB.img_range)
+            assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
+            assertTrue(isempty(out_data.unique_runid));
+            assertFalse(out_data.force_double);
+            assertTrue(out_data.test_input_parsing);
+            assertTrue(isempty(out_data.alignment_matr));
+            assertEqual(out_data.pix_candidates,pix.data);
+            assertTrue(out_data.check_pix_selection);
+            assertTrue(isempty(out_data.pix_img_idx));
+            assertEqual(out_data.is_pix_selected,is_selected);
+        end
+        
+        %==================================================================
+        function performance_mex_nomex_mode7_nosort_idx_sel(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            % this will recover existing configuration after test have been
+            % finished and temporary mex/nomex values will be set within
+            % the loop.
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false,'log_level',-1);
+            %
+            AB = AxesBlockBase_tester('nbins_all_dims',[50,20,50,20], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+
+            n_points = 20000000;
+            n_repeats = 5;
+            npix_nomex = []; s_nomex = [];e_nomex=[];uniqId_nom = [];
+            npix_mex   = []; s_mex = [];  e_mex=[];uniqId_mex = [];
+
+            t_nomex = zeros(1,n_repeats);
+            t_mex  = zeros(1,n_repeats);
+            disp("*** Mex/nomex performance mode7 (bin pixels + unique runid + return idx + selected):")
+            for i= 1:n_repeats
+                fprintf('.')
+                pix_data = rand(9,n_points);
+                ids = 500+floor(100*rand(1,n_points));
+                pix_data(PixelDataBase.field_index('run_idx'),:) = ids;
+
+                pix = PixelDataMemory(pix_data);
+                coord = pix.coordinates;
+                config_store.instance.set_value('hor_config','use_mex',false);
+                t1 = tic();
+                [npix_nomex,s_nomex,e_nomex,pix_ok_nom,uniqId_nom,pix_idx_nom,is_sel_nom] = AB.bin_pixels(coord,npix_nomex,s_nomex,e_nomex,pix,uniqId_nom);
+                t_nomex(i) = toc(t1);
+                fprintf('.')
+
+                config_store.instance.set_value('hor_config','use_mex',true);
+
+                t1 = tic();
+                [npix_mex,s_mex,e_mex,pix_ok_mex,uniqId_mex,pix_idx_mex,is_sel_mex] = AB.bin_pixels(coord,npix_mex,s_mex,e_mex,pix,uniqId_mex);
+                t_mex(i) = toc(t1);
+
+                assertEqual(uint32(uniqId_nom),uniqId_mex);
+                assertEqual(uint64(pix_idx_nom),pix_idx_mex);
+                assertEqual(is_sel_nom,is_sel_mex);
+
+                assertEqual(npix_nomex,npix_mex)
+                assertEqualToTol(s_nomex,s_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(e_nomex,e_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-12,1.e-12])
+            end
+            tav_mex = sum(t_mex)/n_repeats;
+            tav_nom = sum(t_nomex)/n_repeats;
+            fprintf( ...
+                '\n*** time of first step,    nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
+                t_nomex(1),t_mex(1),t_nomex(1)/t_mex(1));
+            fprintf( ...
+                '*** Average time per step, nomex: %4.2g(sec)  mex: %4.2g(sec); Acceleration : %4.2g\n', ...
+                tav_nom,tav_mex,tav_nom/tav_mex);
+            % REFERENCE DATA: ndw2671
+            %*** Mex/nomex performance mode7 (bin pixels + unique runid + return idx + selected):
+            %*** time of first step,    nomex:  3.1(sec)  mex:  1.2(sec); Acceleration :  2.5
+            %*** Average time per step, nomex:  3.1(sec)  mex:  1.3(sec); Acceleration :  2.3
+        end
+
+        function test_bin_pixels_mex_nomex_mode7_nosort_and_sel_multipage(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,20,1], ...
+                'img_range',[0,0,0,0;0.8,0.8,1,0.8]);
+            pix_coord1 = rand(9,20);
+            pix_id = [10,10,11,11,7, 5,5,5,10,10];
+            pix_coord1(PixelDataBase.field_index('run_idx'),:) = [pix_id,pix_id];
+
+            pix_coord2 = rand(9,10);
+            pix_id = [10,11,7,11,7, 8,5,5,10,10];
+            pix_coord2(PixelDataBase.field_index('run_idx'),:) = pix_id;
+            pix1 = PixelDataMemory(pix_coord1);
+            pix2 = PixelDataMemory(pix_coord2);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+
+            npix_nom = [];   s_nom    = [];   e_nom    = [];
+            in_coord = pix1.coordinates;
+            [npix_nom,s_nom,e_nom,pix_ok_nom1,uniq_id1_nom,pix_idx_nom1,sel_nom1] = AB.bin_pixels(in_coord,npix_nom,s_nom,e_nom,pix1);
+            in_coord = pix2.coordinates;
+            [npix_nom,s_nom,e_nom,pix_ok_nom2,uniq_id2_nom,pix_idx_nom2,sel_nom2] = AB.bin_pixels(in_coord,npix_nom,s_nom,e_nom,pix2,uniq_id1_nom);
+            assertEqual(size(npix_nom),[10,20]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            npix_mex = []; s_mex    = [];   e_mex    = [];
+
+            in_coord = pix1.coordinates;
+            [npix_mex,s_mex,e_mex,pix_ok_mex1,uniq_id1_mex,pix_idx_mex1,sel_mex1] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix1);
+            assertEqual(pix_ok_nom1,pix_ok_mex1);
+            assertEqual(int64(pix_idx_nom1),pix_idx_mex1);
+            assertEqual(uint32(uniq_id1_nom),uniq_id1_mex)
+            assertEqual(sel_nom1,sel_mex1)
+            in_coord = pix2.coordinates;
+            [npix_mex,s_mex,e_mex,pix_ok_mex2,uniq_id2_mex,pix_idx_mex2,sel_mex2] = AB.bin_pixels(in_coord,npix_mex,s_mex,e_mex,pix2,uniq_id1_mex);
+            assertEqual(sel_nom2,sel_mex2)
+            assertEqual(size(npix_nom),[10,20]);
+
+            assertEqual(npix_mex,npix_nom);
+            assertEqualToTol(s_mex,s_nom);
+            assertEqualToTol(e_mex,e_nom);
+            assertEqual(int64(pix_idx_nom2),pix_idx_mex2);
+            assertEqual(uint32(uniq_id2_nom),uniq_id2_mex)
+
+            assertEqual(pix_ok_nom2,pix_ok_mex2);
+        end
+
+        function test_bin_pixels_mode7_nosort_and_sel(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to bin pixels in mode 5');
+            end
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,30,1], ...
+                'img_range',[0,0,0,0;1,0.8,1,0.8]);
+            pix_coord = rand(9,20);
+            pix_id = [10,10,11,11,7, 5,5,5,10,10];
+            pix_coord(PixelDataBase.field_index('run_idx'),:) = [pix_id,pix_id];
+
+
+            pix = PixelDataMemory(pix_coord);
+
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false);
+            in_coord = pix.coordinates;
+            [npix_nom,s_nom,e_nom,pix_ok_nom,unique_runid_nom,pix_id_nom,is_select_nom] = AB.bin_pixels(in_coord,[],[],[],pix);
+            assertEqual(size(npix_nom),[10,30]);
+
+            clear clObHor
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+            [npix_mex,s_mex,e_mex,pix_ok_mex,unique_runid_mex,pix_id_mex,is_select_mex] = AB.bin_pixels(in_coord,[],[],[],pix);
+            assertEqual(size(npix_mex),[10,30]);
+
+            assertEqual(uint32(unique_runid_nom),unique_runid_mex)
+            assertEqual(int64(pix_id_nom),pix_id_mex)
+            assertEqual(is_select_nom,is_select_mex);
+            assertEqual(npix_mex,npix_nom);
+            assertEqual(s_mex,s_nom);
+            assertEqual(e_mex,e_nom);
+            assertEqualToTol(pix_ok_nom,pix_ok_mex);
+
+            pix_sel = pix.get_pixels(is_select_mex);
+            assertEqualToTol(pix_sel,pix_ok_mex);
+
+        end
+
+        function test_return_inputs_mex_mode7_nosort_and_selected(obj)
+            % bin pixels and sort pixels, input/output parameters
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', true);
+
+            AB = AxesBlockBase_tester('nbins_all_dims',[10,1,1,40], ...
+                'img_range',[-1,-2,-3,-10;1,2,3,40]);
+            pix_id = [10,10,11,11,7, 5,5,5,10,10];
+            pix_coord = rand(9,10);
+            pix_coord(PixelDataBase.field_index('run_idx'),:) = pix_id;
+            pix = PixelDataMemory(pix_coord);
+
+            in_coord = pix.coordinates;
+            [npix,s,e,pix_ok,unique_id,pix_idx,is_selected,out_data] = AB.bin_pixels(in_coord,[],[],[],pix,'-test_mex_inputs');
+
+            assertEqual(size(npix),[10,40]);
+            assertEqual(npix,zeros(10,40));
+            assertEqual(s,npix);
+            assertEqual(e,npix);
+            assertTrue(isempty(unique_id));
+            assertTrue(isa(unique_id,'uint32'));
+            assertTrue(isempty(pix_idx));
+            assertTrue(isa(pix_idx,'int64'));
+            assertTrue(isempty(is_selected));
+            assertTrue(isa(is_selected,'logical'));
+
+            assertEqual(pix_ok.data,out_data.pix_ok_data);
+            assertEqual(pix_ok.data,pix_coord);
+            assertEqual(pix_ok.data_range,out_data.pix_ok_data_range);
+            % range matrix have been allocated and probably contains zeros
+            % but this is not guaranteed.
+            assertEqual(size(out_data.pix_ok_data_range),[2,9]);
+
+            assertEqual(out_data.coord_in,in_coord);
+            assertEqual(out_data.binning_mode,bin_mode.nosort_sel);
+            assertEqual(out_data.num_threads, ...
+                config_store.instance().get_value('parallel_config','threads'));
+            assertEqual(out_data.data_range,AB.img_range)
+            assertEqual(out_data.bins_all_dims,uint32(AB.nbins_all_dims));
+            assertTrue(isempty(out_data.unique_runid));
+            assertFalse(out_data.force_double);
+            assertTrue(out_data.test_input_parsing);
+            assertTrue(isempty(out_data.alignment_matr));
+            assertEqual(out_data.pix_candidates,pix.data);
+            assertTrue(out_data.check_pix_selection);
+            assertEqual(out_data.pix_img_idx,pix_idx);
+            assertEqual(out_data.is_pix_selected,is_selected);
+        end
+
+        %==================================================================
+        function performance_mex_nomex_mode6_nosort_idx(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
             end

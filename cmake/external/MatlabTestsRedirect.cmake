@@ -1,6 +1,6 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
-# file Copyright.txt or https://cmake.org/licensing for details.
-# This script is taken from CMake git repository Cmake version 3.24.0.rc1
+# file LICENSE.rst or https://cmake.org/licensing for details.
+
 # This is an undocumented internal helper for the FindMatlab
 # module ``matlab_add_unit_test`` command.
 
@@ -19,8 +19,8 @@
 #   -P FindMatlab_TestsRedirect.cmake
 
 set(Matlab_UNIT_TESTS_CMD -nosplash -nodesktop -nodisplay ${Matlab_ADDITIONAL_STARTUP_OPTIONS})
-if(WIN32)
-  set(Matlab_UNIT_TESTS_CMD ${Matlab_UNIT_TESTS_CMD} -wait)
+if(WIN32 AND maut_BATCH_OPTION STREQUAL "-r")
+  list(APPEND Matlab_UNIT_TESTS_CMD -wait)
 endif()
 
 if(NOT test_timeout)

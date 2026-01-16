@@ -166,7 +166,6 @@ void parse_inputs(mxArray* plhs[], mxArray const* prhs[], std::unique_ptr<class_
         force_update = true;
     }
     bin_arg_ptr->parse_bin_inputs(prhs[in_arg::param_struct]);
-
     bin_arg_ptr->check_and_init_accumulators(plhs, prhs,force_update);
     return;
 };
