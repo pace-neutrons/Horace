@@ -2,21 +2,20 @@
 #include "BinningArg.h"
 #include <algorithm>
 
-// use C-mutexes while binning the data
-// #define C_MUTEXES
-
-/**  return true if input coordinates lie outside of the ranges specified as input
+/**  Return true if input coordinates lie outside of the ranges specified as input.
 * 
-*    Template can be instantiated for any input numerical types convertible to double
+*    Template can be instantiated for any input numerical types convertible to double.
+*
 * Inputs:
-* coord_ptr   --  pointer to 2-Dimensional array of pixel coordinates allocated
-*                 as 1-Dimensional FORTRAN array of COORD_STRIDE*Num_pixels size.
-*                 where pixels coordinates are changed along first direction.
+* coord_ptr   --  pointer to the beginning of the  area containing 2-Dimensional array
+*                 of pixel coordinates allocated as 2-Dimensional MATLAB array of 
+*                 (COORD_STRIDE,Num_pixels) size with total size: COORD_STRIDE*Num_pixels.
+*                 Pixels coordinates are changed along first direction.
 * i           --  second index of the pixel array, indicating number of pixel to pick up
 *                 from pixels array
 * COORD_STRIDE -- size of the first dimension of the pixels array
 * cut_range    --  2*COORD_STRIDE array of pixel ranges to check. The ranges are
-*                  arranged in 2-Dimensional array with FORTRAN allocation in the form:
+*                  arranged in 2-Dimensional array with MATLAB allocation in the form:
 *                  [q1_min,q1_max,q2_min,q2_max,... q_COORD_STRIDE_min,q_COORD_STRIDE_max]
 * qi           --  Output vector of input q-coordinates converted in double
                    if all input coordinates are in range. Undefined if they are not
@@ -76,7 +75,7 @@ size_t inline pix_position(const std::vector<double>& qi, const std::vector<size
 /* calculate pixels position in image array and update pixels accumulators using this position
  *  Inputs:
  * pix_coord_ptr    -- pointer to the array pixels coordinates
- * pix_in_pix_pos   -- position of the pixel in 2D pixel data array, repesented as 1D array with pixels coordinates changing firest
+ * pix_in_pix_pos   -- position of the pixel in 2D pixel data array, represented as 1D array with pixels coordinates changing first
  * qi               -- 4-element array of pixels coordinates in target coordinate system
  * pax              -- 0 to 4 elements array defining projection axes
  * cut_range        -- 8-element array of cut ranges (min_q1,max_q1,min_q2,max_q2.... )
@@ -107,7 +106,7 @@ size_t inline add_pix_to_accumulators(const SRC* pix_coord_ptr, size_t pix_in_pi
 
     return il;
 };
-// copy selected pixels from oritinal array to the target array, containing only selected pixels
+// copy selected pixels from original array to the target array, containing only selected pixels
 // pixels are not sorted and array of indices which correspond to pixels positions according
 // to image is returned instead
 template <class SRC, class TRG>
@@ -128,10 +127,10 @@ void inline copy_resiults_to_final_arrays(BinningArg* const bin_par_ptr, const S
     size_t targ_pix_pos(0);
     size_t targ_pix_array_pos(0);
     for (size_t i = 0; i < data_size; i++) {
-        if (pix_ok_bin_idx[i] < 0) // drop pixels with have not been inculded above
+        if (pix_ok_bin_idx[i] < 0) // drop pixels with have not been included above
             continue;
 
-        size_t il = (size_t)pix_ok_bin_idx[i]; // numer of image cell pixel should go to
+        size_t il = (size_t)pix_ok_bin_idx[i]; // number of image cell pixel should go to
         pix_img_idx[targ_pix_pos] = il + 1; // MATLB indices start from 1 and these -- from 0
 
         if (align_result) {

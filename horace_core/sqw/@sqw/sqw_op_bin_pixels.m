@@ -47,7 +47,8 @@ function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
 %                              and step size
 %                              For example, [106, 4, 116] will define a plot
 %                              axis with bin edges 104-108, 108-112, 112-116.
-%                              if step is 0,
+%                              If step is 0, uses actual step, present in
+%                              source object.
 %
 %   p4_bin          Binning along the energy axis:
 %           - [] or ''          Plot axis: use bin boundaries of input data
