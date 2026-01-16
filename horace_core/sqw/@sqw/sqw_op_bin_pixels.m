@@ -48,19 +48,6 @@ function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
 %                              For example, [106, 4, 116] will define a plot
 %                              axis with bin edges 104-108, 108-112, 112-116.
 %                              if step is 0,
-%           - [plo, rdiff, phi, rwidth]
-%                                Integration axis: minimum range centre,
-%                                distance between range centres, maximum range
-%                                centre, range size for each cut.
-%                                When using this syntax, an array of cuts is
-%                                outputted. The number of cuts produced will
-%                                be the number of rdiff sized steps between plo
-%                                and phi; phi will be automatically increased
-%                                such that rdiff divides phi - plo.
-%                                For example, [106, 4, 113, 2] defines the
-%                                integration range for three cuts, the first
-%                                cut integrates the axis over 105-107, the
-%                                second over 109-111 and the third 113-115.
 %
 %   p4_bin          Binning along the energy axis:
 %           - [] or ''          Plot axis: use bin boundaries of input data
@@ -97,7 +84,8 @@ function wout = sqw_op_bin_pixels(obj, sqwop_func, pars, varargin)
 %               Default is false so resulting object intended to be put in
 %               memory but if the resulting object is too big to
 %               be stored in memory, result will be filebacked.
-%  combine with true/false value folloving key or option '-combine'
+%   combine with true/false value folloving key 
+%   or '-combine' option.
 %               if true or option '-combine' present, input sqw objects are
 %               treated as parts of a single sqw object and the result is
 %               build from the image of the first object, pixels of all

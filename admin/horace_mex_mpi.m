@@ -9,7 +9,7 @@ function [ok,mess] = horace_mex_mpi(varargin)
 % we supply MPI libraries together with Herbert. They may not work with any
 % Matlab version and with any OS so may be cases when it is preferable to
 % use system libraries but:
-use_her_mpich = false; % if true, use MPI libraries, provided with Herbert.
+use_her_mpich = true; % if true, use MPI libraries, provided with Herbert.
 % if false, modify script below providing the location of the MPI libraries
 % present on the system.
 
@@ -24,7 +24,7 @@ opt_file = '';
 if ispc()
     if use_her_mpich
         mpi_folder = fullfile(pths.low_level,'external','win64','MSMPI-8.0.12');
-        mpi_hdrs_folder = fullfile(mpi_folder,'include');
+        mpi_hdrs_folder = fullfile(mpi_folder,'Include');
         mpi_lib_folder = fullfile(mpi_folder,'lib');
 
     else
@@ -64,14 +64,14 @@ mpi_lib = fullfile(mpi_lib_folder,mpi_lib_2use);
 
 % code folder:
 code_folder = fullfile(pths.low_level,'cpp','cpp_communicator');
+common_include_folder = fullfile(pths.low_level,'cpp');
 input_files = fullfile(code_folder,input_files);
 
-% additional include folder, containing mpich
-add_include = ['-I',mpi_hdrs_folder];
+% common include folder with common code and additional include folder, containing mpich
+add_include ={['-I',common_include_folder],['-I',mpi_hdrs_folder]};
+
 if verbose
-    add_include = {'-v',add_include};
-else
-    add_include = {add_include};
+    add_include = {'-v',add_include{:}};
 end
 outdir = fullfile(pths.horace,'DLL',['_',computer],'_R2015a');
 
@@ -79,7 +79,7 @@ build_version_h(pths.root)
 try
     opt = sprintf('CXXFLAGS=$CFLAGS -fopenmp -std=c++17 -Wl,-rpath=%s,--enable-new-dtags,--no-undefined,-fopenmp',mpi_lib_folder);
     if isempty(opt_file)
-        mex('-v',add_include{:},opt,input_files{:},...
+        mex(add_include{:},opt,input_files{:},...add_include = {'-v',add_include{:}}
             mpi_lib{:},'-outdir',outdir);
     else
         mex(add_include{:},opt,input_files{:},...

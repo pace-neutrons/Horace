@@ -28,12 +28,12 @@ configure_file("version.h.template"
                "${Horace_ROOT}/_LowLevelCode/cpp/utility/version.h")
 
 # Runs docify
-configure_file("run_docify.m" "${CMAKE_CURRENT_BINARY_DIR}/run_docify.m")
-add_custom_target(run_docify)
-add_custom_command(
-    TARGET run_docify
-    COMMAND ${Matlab_MAIN_PROGRAM} -batch "run_docify"
-)
+#configure_file("run_docify.m" "${CMAKE_CURRENT_BINARY_DIR}/run_docify.m")
+#add_custom_target(run_docify)
+#add_custom_command(
+#    TARGET run_docify
+#    COMMAND ${Matlab_MAIN_PROGRAM} -batch "run_docify"
+#)
 
 # =============================================================================
 # Install commands

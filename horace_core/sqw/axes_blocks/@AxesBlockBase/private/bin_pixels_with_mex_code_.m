@@ -12,7 +12,7 @@ function varargout = ...
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          AxesBlockBase coordinate system
 % mode_to_bin
-%       -- the mode used to bin pixels. Depending on this number, 
+%       -- the mode used to bin pixels. Depending on this number,
 %          additional parts of the algorithm are deployed
 %          and additional output parameters are returned.
 %          The modes are defined and described in bin_mode enum.
@@ -58,25 +58,25 @@ function varargout = ...
 %         the pixels, contributing into the grid. num_outputs >=3 requests
 %         pix_cand parameter to be present and not empty.
 % pix_ok
-%      -- if mode_to_bin >=4, returns input pix_cand contributed to
+%      -- if mode_to_bin >=sort_pix(4), returns input pix_cand contributed to
 %         the the cut and sorted by grid cell or left unsorted,
 %         depending on requested pix_indx output.
 %         IF return_selected is true, contains indices of kept pixels
 % unique_runid
-%      -- if mode_to_bin >=5, array, containing the unique runids from the
-%         pixels, contributed to the cut. If input unique_runid was not
-%         empty, output unique_runid is combined with the input unique_runid
-%         and contains no duplicates.
+%      -- if mode_to_bin >=sort_and_uid(5), array, containing the unique
+%         runids from the pixels, contributed to the cut. If input
+%         unique_runid was not empty, output unique_runid is combined
+%         with the input unique_runid and contains no duplicates.
 % pix_indx
-%      -- in mode_to_bin ==6, contains indices of the grid cells,
+%      -- in mode_to_bin ==nosort(6), contains indices of the grid cells,
 %         containing the pixels from input pix_cand. If this parameter is
 %         requested, the order of output pix corresponds to the order of
-%         pixels in PixelData. if mode_to_bin < 6, output pix are sorted by
-%         npix bins.
+%         pixels in PixelData. if mode_to_bin < nosort(6), output pix
+%         are sorted by npix bins.
 %
 % selected
-%      -- in mode_to_bin == 7, contains logical array with true where
-%         pixels were kept and false, where they are dropped
+%      -- in mode_to_bin == nosort_sel(7), contains logical array with true
+%         where pixels were kept and false, where they are dropped
 
 persistent mex_code_holder; % the variable contains pointer, which ensure
 % constitency of subsequent calls to mex code.
@@ -130,6 +130,15 @@ if is_pix
         other_mex_input.alignment_matr  = [];
     end
 else
+    if iscell(pix_cand)
+        % this may be improved/simplified in a future by enabling mex code
+        % to process any type of data
+        for i=1:numel(pix_cand)
+            if ~isa(pix_cand{i},'double')
+                pix_cand{i} = double(pix_cand{i});
+            end
+        end
+    end
     other_mex_input.alignment_matr   = [];
     other_mex_input.pix_candidates   = pix_cand;
     other_mex_input.check_pix_selection  = false; % use all pixels, do not analyze selection
@@ -190,12 +199,11 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if mode_to_bin< bin_mode.sort_pix && ~test_mex_inputs
         return;
     end
-    
-    if mode_to_bin == bin_mode.sigerr_sel        
+    if mode_to_bin == bin_mode.sigerr_sel
         % this mode does not return pixels and is similar to sigerr but in
         % addition returns logical array with true for pixels selected in
         % binning (used by symmetrisation routines)
-        varargout{bin_out.sigerr_sel} = out_struc.selected;
+        varargout{bin_out.sigerr_sel} = out_struc.is_pix_selected;
         return;
     end
 
@@ -211,7 +219,7 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     if mode_to_bin< bin_mode.sort_pix
         return;
     end
-    pix_ok = PixelDataMemory();    
+    pix_ok = PixelDataMemory();
     if isempty(pix_ok_data)
         varargout{bin_out.pix_ok} = pix_ok;
     else
@@ -231,8 +239,7 @@ else  % otherwise, there are no such ouputs, output structure is flattened
     varargout{bin_out.pix_idx}      = out_struc.pix_img_idx;
     if mode_to_bin < bin_mode.nosort_sel
         return;
-    end    
-    varargout{bin_out.selected}      = out_struc.selected;
+    end
+    varargout{bin_out.selected}      = out_struc.is_pix_selected;
 end
-
 end
