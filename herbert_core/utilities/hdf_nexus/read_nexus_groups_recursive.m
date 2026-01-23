@@ -18,7 +18,6 @@ function datastruct = read_nexus_groups_recursive(filename, nexus_path)
         elseif exist('nexus_path', 'var')
             error('HERBERT:hdf_nexus:read_nexus_groups_recursive', 'filename provided as struct, but nexus_path also provided');
         end
-
         dinfo = filename;
         filename = dinfo.Filename;
       case {'string', 'char'}
@@ -31,7 +30,6 @@ function datastruct = read_nexus_groups_recursive(filename, nexus_path)
         else
             dinfo = nexus_path;
         end
-
       otherwise
         error('HERBERT:hdf_nexus:read_nexus_groups_recursive', ...
               'filename (%s) and nexus_path (%s) must be struct, char or string', ...
@@ -41,7 +39,24 @@ function datastruct = read_nexus_groups_recursive(filename, nexus_path)
     datastruct = read_nexus_datasets(filename, dinfo);
     for ii = 1:numel(dinfo.Groups)
         pathfields = split(dinfo.Groups(ii).Name, '/');
-        datastruct.(pathfields{end}) = read_nexus_groups_recursive(filename, dinfo.Groups(ii));
+        
+        % while spurious fields starting 'rep_' are present in nxspe files, ignore them.
+        % the formation of the datastruct field has been split up to ensure that the 'rep_'
+        % field does not generate an invalid field error (unclear why this was happening 
+        % but the refactor here fixes it.)
+            pfe = pathfields(end);
+            if strncmp(pfe{1},'rep_',4)
+                isrep = true;
+            elseif strcmp(pfe{1},'moderator')
+                isrep = false;
+            else
+                isrep = false;
+            end
+        if ~isrep
+        substruct = read_nexus_groups_recursive(filename, dinfo.Groups(ii));
+        datastruct.(pfe{1}) = substruct;
+
+        end
     end
 end
 
