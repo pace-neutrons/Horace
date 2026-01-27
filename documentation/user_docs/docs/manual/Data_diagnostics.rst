@@ -128,7 +128,7 @@ These artefacts will have spherical symmetry around the beam direction. To clear
    wout = instrument_view_cut(sqw_source,[0,theta_step,theta_max],[En_min,En_step,En_max]);
    
 Where *sqw_source* is an source ``sqw`` object with pixels, and two other arguments define binning in two directions. ``theta`` -- the angle between beam and detector directions and ``En`` are the energy transfer values.
-The algorithm makes the cut in the spherical coordinate system wich z-axis is aligned along the beam direction.
+The algorithm makes the cut in the spherical coordinate system which z-axis is aligned along the beam direction.
 According to Horace agreement, beam in Horace is directed along :math:`e_{x}` coordinate or direction :math:`\vec{u}` of the crystal (see Chapter on :ref:`Generating SQW files<manual/Generating_SQW_files:Generating SQW files>` for details):
 
 
@@ -210,11 +210,12 @@ To clarify this issue exactly, one may run ``instrument_view_cut`` with ``-check
 
 ::
 
-   wout = instrument_view_cut(source_sqw,[0,0.2,140],[],'-check_correspondence');
+   wout = instrument_view_cut(source_sqw,[0,140],[],'-check_correspondence');
    plot(wout)
    
-This option force 2D cut in :math:`|k_{f}|` - :math:`dE` coordinates. As these values are connected by 
-arithmetic relationship, the cut in these coordinates should represent a line. If one see a 2-dimensional image instead,
+This option force 2D cut in :math:`|k_{f}|` - :math:`dE` coordinates. Binning in :math:`\theta` direction is ignored 
+but integration range in :math:`\theta` direction is respected. As  :math:`|k_{f}|` - :math:`dE` are connected by 
+arithmetic relationship, the cut in these coordinates should become a line. If one see a 2-dimensional image instead,
 the correspondence between pixel information describing neutron "pseudo-events" and experiment information describing 
 runs and crystal orientation is violated. The following figure represents two ``sqw`` datasets, where the first one
 was build with correct correspondence between experiment and pixels information and the second one -- where
@@ -227,7 +228,7 @@ this correspondence have been broken.
 
    Correct -- a) and broken -- b) relationship between experiment information and pixels information.
    
-The dataset with broken pixel-experiment correspondence can be cut, sliced and multifitted, but Tobyfit would not 
-produce correct result on it. To use Tobyfit, one needs to rebuild such ``sqw`` dataser using Horace-4. If you do not 
+The dataset with broken pixel-experiment correspondence can be cut, sliced and multi-fitted, but Tobyfit would not 
+produce correct result on it. To use Tobyfit, one needs to rebuild such ``sqw`` dataset using Horace-4. If you do not 
 have original data to reproduce such ``sqw`` dataset and need to use Tobyfit, contact HoraceHelp@stfc.ac.uk. The team should
 be able to help you rebuilding such ``sqw`` dataset.
