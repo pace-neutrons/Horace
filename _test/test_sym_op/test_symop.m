@@ -34,13 +34,26 @@ classdef test_symop < TestCase
             end
             obj@TestCase(name)
         end
+        
+        function test_symop_transform_projection_eq_symop(~)
+            refl = SymopReflection([1,1,0],[0,0,1]);
+            lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            lp1 = refl.transform_proj(lp);
+            
+            pix = [eye(3),[1;1;0],[0;1;1],[1;0;1]];
+            transf_pix = lp1.transform_pix_to_img(pix);
+            pix_cc = lp.transform_img_to_pix(transf_pix);
+            
+            sym_pix = refl.transform_pix(pix,{},true(1,size(pix,2)),true);
+            assertEqual(pix_cc , sym_pix);
+        end
 
-        function test_symop_create_identity(obj)
+        function test_symop_create_identity(~)
             out = Symop.create(eye(3));
             assertTrue(isa(out, 'SymopIdentity'))
         end
 
-        function test_identity_constructor(obj)
+        function test_identity_constructor(~)
             out = SymopIdentity();
             assertTrue(isa(out, 'SymopIdentity'))
 
@@ -52,7 +65,7 @@ classdef test_symop < TestCase
         end
 
 
-        function test_identity_constructor_fail(obj)
+        function test_identity_constructor_fail(~)
             assertExceptionThrown(@() SymopIdentity(1), 'HORACE:symop:invalid_argument');
             assertExceptionThrown(@() SymopIdentity([1 0 0]), 'HORACE:symop:invalid_argument');
             assertExceptionThrown(@() SymopIdentity([1 0 0], 90), 'HORACE:symop:invalid_argument');
@@ -65,7 +78,7 @@ classdef test_symop < TestCase
             assertExceptionThrown(@() SymopIdentity(eye(3), [1 0 0]), 'HORACE:symop:invalid_argument');
         end
 
-        function test_symop_create_reflection(obj)
+        function test_symop_create_reflection(~)
             out = Symop.create([1 0 0], [0 1 0]);
             assertTrue(isa(out, 'SymopReflection'))
             assertEqual(out.u, [1; 0; 0])
