@@ -451,7 +451,7 @@ classdef aProjectionBase < serializable
                 obj.targ_proj = targ_proj;
 
                 if targ_proj.disable_pix_preselection_
-                    % select all pixels
+                    % select all pixels (slow, usually for debugging purposes)
                     bl_start = 1;
                     bl_size  = sum(npix(:));
                     return;
