@@ -225,9 +225,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
 
             % Transform proj
-            for i=numel(obj):-1:1
-                proj = obj(i).transform_proj_single(proj);
+            Transf = obj(1).R;
+            for i=numel(obj)-1:-1:1
+                Transf = obj(i).R*Transf;
             end
+            proj.sym_transformation = Transf;
         end
     end
 
@@ -263,19 +265,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     'Symmetry operation %s have not been implemented for non-orthogonal transformation %s',...
                     class(obj),class(proj))
             end
-            u_new = obj.R * lp.u(:);
-            v_new = obj.R * lp.v(:);
-
             offset_new = lp.offset(:);
             offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-            % ensure new u,v,w make a rh set
-            if ~isempty(proj.w)
-                w_new = obj.R * proj.w(:);
 
-            else
-                w_new = [];
-            end
-            proj = lp.set_directions(u_new, v_new, w_new, offset_new);
+            proj.offset = offset_new;
+            proj.sym_transformation = obj.R;            
         end
 
         function offset = compute_offset (obj, R, Minv, upix_offset)

@@ -299,11 +299,11 @@ classdef line_proj < LineProjBase
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
     properties(Constant, Access=private)
-        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type'}
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'sym_transformation'}
     end
     methods
         function ver  = classVersion(~)
-            ver = 7;
+            ver = 8;
         end
         function  flds = saveableFields(obj)
             flds = saveableFields@aProjectionBase(obj);
@@ -323,9 +323,6 @@ classdef line_proj < LineProjBase
             % Sets up the internal image transformation caches.
             %
             wout = check_combo_arg_(w);
-            % check arguments, possibly related to image offset (if
-            % defined)
-            wout = check_combo_arg@aProjectionBase(wout);
         end
     end
     %----------------------------------------------------------------------

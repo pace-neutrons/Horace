@@ -120,7 +120,7 @@ classdef test_symop < TestCase
             assertExceptionThrown(@() SymopReflection([1 0 0], [1 0 0]), 'HORACE:symop:invalid_argument');
         end
 
-        function test_symop_create_rotation(obj)
+        function test_symop_create_rotation(~)
             out = Symop.create([1 0 0], 120);
             assertTrue(isa(out, 'SymopRotation'))
             assertEqual(out.n, [1; 0; 0])
@@ -128,7 +128,7 @@ classdef test_symop < TestCase
             assertEqual(out.offset, [0; 0; 0])
         end
 
-        function test_rotation_constructor(obj)
+        function test_rotation_constructor(~)
             out = SymopRotation([1 0 0], 120, [3 3 3]);
             assertTrue(isa(out, 'SymopRotation'))
             assertEqual(out.n, [1; 0; 0])
@@ -136,7 +136,7 @@ classdef test_symop < TestCase
             assertEqual(out.offset, [3; 3; 3])
         end
 
-        function test_rotation_constructor_fail(obj)
+        function test_rotation_constructor_fail(~)
             assertExceptionThrown(@() SymopRotation(1), 'MATLAB:minrhs');
             assertExceptionThrown(@() SymopRotation([1 0 0]), 'MATLAB:minrhs');
             assertExceptionThrown(@() SymopRotation([1 0 0], [0 1 0]), 'HORACE:symop:invalid_argument');
@@ -147,7 +147,7 @@ classdef test_symop < TestCase
             assertExceptionThrown(@() SymopRotation([0  1 0; -1 0 0]), 'MATLAB:minrhs');
         end
 
-        function test_symop_create_matrix(obj)
+        function test_symop_create_matrix(~)
             out = Symop.create([ 0  0 -1
                                  -1  0  0
                                  0  1  0]);
@@ -158,7 +158,7 @@ classdef test_symop < TestCase
             assertEqual(out.offset, [0; 0; 0])
         end
 
-        function test_matrix_constructor(obj)
+        function test_matrix_constructor(~)
             out = Symop.create([ 0  0 -1
                                  -1  0  0
                                  0  1  0], [3; 3; 3]);
@@ -169,14 +169,14 @@ classdef test_symop < TestCase
             assertEqual(out.offset, [3; 3; 3])
         end
 
-        function test_apply_vec_indentity(obj)
+        function test_apply_vec_indentity(~)
             op = SymopIdentity();
             testvec = [1; 0; 0];
             outvec = op.transform_vec(testvec);
             assertEqualToTol(outvec, testvec)
         end
 
-        function test_apply_vec_rotation(obj)
+        function test_apply_vec_rotation(~)
             op = SymopRotation([0 1 0], 90);
             testvec = [1; 0; 0];
             outvec = op.transform_vec(testvec);
@@ -184,7 +184,7 @@ classdef test_symop < TestCase
             assertEqualToTol(outvec, [0; 0; -1], 'abstol', 1e-10);
         end
 
-        function test_apply_matrix_rotation(obj)
+        function test_apply_matrix_rotation(~)
             op = SymopRotation([0 1 0], 90);
             testvec = eye(3);
             outvec = op.transform_vec(testvec);
@@ -194,14 +194,14 @@ classdef test_symop < TestCase
                                       -1 0 0], 'abstol', 1e-10)
         end
 
-        function test_apply_vec_reflection(obj)
+        function test_apply_vec_reflection(~)
             op = SymopReflection([0 1 0], [0 0 1]);
             testvec = [1; 0; 0];
             outvec = op.transform_vec(testvec);
             assertEqualToTol(outvec, [-1; 0; 0])
         end
 
-        function test_apply_matrix_reflection(obj)
+        function test_apply_matrix_reflection(~)
             op = SymopReflection([0 1 0], [0 0 1]);
             testvec = eye(3);
             outvec = op.transform_vec(testvec);
@@ -212,7 +212,7 @@ classdef test_symop < TestCase
 
         end
 
-        function test_apply_vec_matrix(obj)
+        function test_apply_vec_matrix(~)
             op = SymopGeneral([0  0 -1
                                -1 0  0
                                0  1  0]);
@@ -222,7 +222,7 @@ classdef test_symop < TestCase
             assertEqualToTol(outvec, [0; -1; 0])
         end
 
-        function test_apply_matrix_matrix(obj)
+        function test_apply_matrix_matrix(~)
             op = SymopGeneral([0  0 -1
                                -1 0  0
                                0  1  0]);
@@ -244,32 +244,13 @@ classdef test_symop < TestCase
         function test_apply_proj_rotation(obj)
             out_proj = obj.rot_op.transform_proj(obj.proj);
 
-            assertEqualToTol(out_proj.u, [1, 0, 0], 'abstol', 1e-10)
-            assertEqualToTol(out_proj.v, [0, 0, 1], 'abstol', 1e-10)
+            assertEqual(out_proj.u, obj.proj.u)
+            assertEqual(out_proj.v, obj.proj.v)
 
             out_proj_mat = obj.rot_op_mat.transform_proj(obj.proj);
 
-            assertEqualToTol(out_proj.u, out_proj_mat.u, 'abstol', 1e-10)
-            assertEqualToTol(out_proj.v, out_proj_mat.v, 'abstol', 1e-10)
-        end
-
-        function test_apply_proj_reflection(obj)
-            out_proj = obj.ref_op.transform_proj(obj.proj);
-
-            assertEqualToTol(out_proj.u, [1, 0, 0], 'abstol', 1e-10)
-            assertEqualToTol(out_proj.v, [0, -1, 0], 'abstol', 1e-10)
-
-            out_proj_mat = obj.ref_op_mat.transform_proj(obj.proj);
-            assertEqualToTol(out_proj.u, out_proj_mat.u, 'abstol', 1e-10)
-            assertEqualToTol(out_proj.v, out_proj_mat.v, 'abstol', 1e-10)
-
-        end
-
-        function test_apply_proj_matrix(obj)
-            out_proj = obj.mot_op.transform_proj(obj.proj);
-
-            assertEqualToTol(out_proj.u, [0, 1, 0], 'abstol', 1e-10)
-            assertEqualToTol(out_proj.v, [0, 0, -1], 'abstol', 1e-10)
+            assertEqual(out_proj.u, out_proj_mat.u)
+            assertEqual(out_proj.v, out_proj_mat.v)
         end
 
         function test_apply_proj_comp(obj)

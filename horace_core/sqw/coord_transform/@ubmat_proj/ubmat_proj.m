@@ -274,9 +274,7 @@ classdef ubmat_proj < LineProjBase
             % Sets up the internal image transformation caches.
             %
             wout = check_combo_arg_(w);
-            % check arguments, possibly related to image offset (if
-            % defined)
-            wout = check_combo_arg@aProjectionBase(wout);
+
         end
     end
     %----------------------------------------------------------------------
