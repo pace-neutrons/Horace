@@ -67,10 +67,14 @@ classdef SymopIdentity < Symop
                  isequal(argin{1}, eye(3));
         end
     end
+    methods(Access=protected)
+        function  vec = do_vector_transformation(~,vec)
+        end        
+    end
 
     % Serializable interface
     methods
-        function flds = local_saveableFields(obj)
+        function flds = local_saveableFields(~)
             flds = {};
         end
     end

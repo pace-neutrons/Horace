@@ -1,9 +1,10 @@
 classdef SymopReflection < Symop
+    % class defines reflection operation 
 
     properties(Dependent)
-        u;
-        v;
-        normvec;
+        u; % first vector lying in and defining reflection plane
+        v; % second vector lying in and defining reflection plane
+        normvec; % read-only unit vector, orthogonal to reflection plane
     end
 
     properties(Access=private)
@@ -133,7 +134,7 @@ classdef SymopReflection < Symop
 
     % Serializable interface
     methods
-        function flds = local_saveableFields(obj)
+        function flds = local_saveableFields(~)
             flds = {'u', 'v', 'offset'};
         end
     end

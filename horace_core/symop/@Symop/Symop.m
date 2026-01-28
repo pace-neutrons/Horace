@@ -233,49 +233,49 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
     methods (Access=private)
         function proj = transform_proj_single (obj, proj)
+            % Transform input projection in such a way, that its
+            % pix to image transformation become equivalent to
+            % original pix to image transformation followed by symmetry
+            % transformation, i.e.:
+            % new_proj.transform_pix_to_img(vec) == obj.R*orig_proj.transform_pix_to_img(vec);
+            %
+            %
             % Note this function uses matrix Minv which transforms from rlu to
             % orthonormal components
-
             switch class(proj)
                 case 'line_proj'
-
-                    u_new = obj.R * proj.u(:);
-                    v_new = obj.R * proj.v(:);
-                    offset_new = proj.offset(:);
-                    offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-                    if ~isempty(proj.w)
-                        w_new = obj.R * proj.w(:);
-                        proj = proj.set_directions(u_new, v_new, [], offset_new);
-                    else
-                        proj = proj.set_directions(u_new, v_new, [], offset_new);
-                    end
+                    lp = proj;
                 case 'ubmat_proj'
                     lp = proj.get_line_proj();
-                    u_new = obj.R * proj.u(:);
-                    v_new = obj.R * proj.v(:);
-                    offset_new = proj.offset(:);
-                    proj = lp.set_directions(u_new, v_new, [], offset_new);
-
-                case {'sphere_proj','cylinder_proj','kf_sphere_proj'}
-                    if ~isa(obj,'SymopIdentity')
+                otherwise
+                    if isa(obj,'SymopIdentity')
+                        return
+                    else
                         error('HORACE:Symop:not_implemented', ...
-                            'Symmetry operation %s is not yet implemented for %s', ...
+                            'Symmetry operation %s is not yet implemented for proj class: %s', ...
                             class(obj),class(proj));
                     end
-
-                    %% TODO non-aligned ez/ey not supported
-                    % ez_new = obj.R * proj.ez(:);
-                    % ey_new = obj.R * proj.ey(:);
-
-                    %                 offset_new = proj.offset(:);
-                    %                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-                    %
-                    %                 proj.offset = offset_new;
-                otherwise
-                    error('HORACE:Symop:not_implemented', ...
-                        'Cannot transform projection class "%s"', class(proj));
             end
+            if (proj.nonorthogonal)
+                % HAVE NOT BEEN TESTED WITH NON-ORTHOGONAL TRANSFORMATION !
+                % and probably would not work and should not work
+                error('HORACE:Symop:not_implemented', ...
+                    'Symmetry operation %s have not been implemented for non-orthogonal transformation %s',...
+                    class(obj),class(proj))
+            end
+            u_new = obj.R * lp.u(:);
+            v_new = obj.R * lp.v(:);
 
+            offset_new = lp.offset(:);
+            offset_new(1:3) = obj.transform_vec(offset_new(1:3));
+            % ensure new u,v,w make a rh set
+            if ~isempty(proj.w)
+                w_new = obj.R * proj.w(:);
+
+            else
+                w_new = [];
+            end
+            proj = lp.set_directions(u_new, v_new, w_new, offset_new);
         end
 
         function offset = compute_offset (obj, R, Minv, upix_offset)
@@ -414,7 +414,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         function flds = saveableFields(obj)
             flds = obj.local_saveableFields();
         end
-
         function [isne, mess] = ne(A, B, varargin)
             isne = ~eq(A, B, varargin);
             mess = '';

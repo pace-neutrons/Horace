@@ -47,6 +47,18 @@ classdef test_symop < TestCase
             sym_pix = refl.transform_pix(pix,{},true(1,size(pix,2)),true);
             assertEqual(pix_cc , sym_pix);
         end
+        function test_symop_transform_projection_eq_symop_100(~)
+            refl = SymopReflection([1,0,0],[0,0,1]);
+            lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
+            lp1 = refl.transform_proj(lp);
+            
+            pix = [eye(3),[1;1;0],[0;1;1],[1;0;1]];
+            transf_pix = lp1.transform_pix_to_img(pix);
+            pix_cc = lp.transform_img_to_pix(transf_pix);
+            
+            sym_pix = refl.transform_pix(pix,{},true(1,size(pix,2)),true);
+            assertEqual(pix_cc , sym_pix);
+        end        
 
         function test_symop_create_identity(~)
             out = Symop.create(eye(3));

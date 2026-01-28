@@ -6,7 +6,7 @@ function [q_to_img,ulen,b_mat,obj] = projtransf_to_img_(obj)
 %   >> [q_to_img,ulen,b_mat,obj] = projaxes_to_rlu_(proj)
 %
 % The projection axes are three vectors that may or may not be orthogonal
-% which are used to create the bins in an sqw object.
+% which are used to create the bins in an sqw object's image.
 %
 % Input:
 % ------
