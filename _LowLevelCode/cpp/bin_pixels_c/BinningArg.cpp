@@ -264,7 +264,9 @@ void BinningArg::set_all_pix(mxArray const* const pField)
             auto data_type = mxGetClassID(a_cell_ptr);
             if (data_type != mxDOUBLE_CLASS) {
                 std::stringstream buf;
-                buf << "Binning the data-type N " << data_type << " have not been implemented yet";
+                buf << " Setting input pixel data to bin\n";
+                buf << " Binning for input datatype N: " << data_type << " have not been implemented yet\n";
+                buf << " You can bin datatype N " << mxDOUBLE_CLASS << " only";
                 mexErrMsgIdAndTxt("HORACE:bin_pixels_c:not_implemented",
                     buf.str().c_str());
             }
@@ -417,6 +419,20 @@ void BinningArg::return_pix_img_idx(mxArray* pFieldName, mxArray* pFieldValue, i
     mxSetCell(pFieldValue, fld_idx, pix_img_idx);
     this->pix_img_idx_ptr = nullptr;
 };
+// return array of pixels indices, which specify position of pixels within image cell
+void BinningArg::return_is_pix_selected(mxArray* pFieldName, mxArray* pFieldValue, int fld_idx, const std::string& field_name)
+{
+    mxSetCell(pFieldName, fld_idx, mxCreateString(field_name.c_str()));
+    mxArray* is_pix_selected(nullptr);
+    if (this->is_pix_selected_ptr) {
+        is_pix_selected = this->is_pix_selected_ptr;
+    } else {
+        is_pix_selected = mxCreateLogicalMatrix(0, 0);
+    }
+    mxSetCell(pFieldValue, fld_idx, is_pix_selected);
+    this->is_pix_selected_ptr = nullptr;
+};
+
 
 //===================================================================================
 // calculate steps used in binning over non-unit directions and numbers of these dimensions
@@ -477,12 +493,21 @@ void BinningArg::register_output_methods()
     this->Mode6ParList = this->Mode5ParList;
     this->Mode6ParList["pix_img_idx"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_img_idx(p1, p2, idx, name); };
 
+    this->Mode7ParList = this->Mode6ParList;
+    this->Mode7ParList["is_pix_selected"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_is_pix_selected(p1, p2, idx, name); };
+
+    this->Mode8ParList = this->Mode0ParList;
+    this->Mode8ParList["is_pix_selected"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_is_pix_selected(p1, p2, idx, name); };
+
+
     this->out_handlers[opModes::npix_only] = &Mode0ParList;
     this->out_handlers[opModes::sig_err] = &Mode0ParList;
     this->out_handlers[opModes::sigerr_cell] = &Mode0ParList;
     this->out_handlers[opModes::sort_pix] = &Mode4ParList;
     this->out_handlers[opModes::sort_and_uid] = &Mode5ParList;
     this->out_handlers[opModes::nosort] = &Mode6ParList;
+    this->out_handlers[opModes::nosort_sel] = &Mode7ParList;
+    this->out_handlers[opModes::siger_selected] = &Mode8ParList;
 };
 /**  Parse input binning arguments and set new BinningArg from MATLAB input arguments
  *    structure.
@@ -715,6 +740,7 @@ void BinningArg::return_test_inputs(mxArray* plhs[], int nlhs)
     this->OutParList["pix_ok_data"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_ok_data(p1, p2, idx, name); };
     this->OutParList["unique_runid"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_unique_runid(p1, p2, idx, name); };
     this->OutParList["pix_img_idx"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_pix_img_idx(p1, p2, idx, name); };
+    this->OutParList["is_pix_selected"] = [this](mxArray* p1, mxArray* p2, int idx, const std::string& name) { this->return_is_pix_selected(p1, p2, idx, name); };
 
     /* ********************************************************************************
      * retrieve binning parameters form BinningArg class and copy them into output array
@@ -835,7 +861,7 @@ void BinningArg::check_and_init_accumulators(mxArray* plhs[], mxArray const* prh
         plhs[out_arg::Error] = this->error_ptr;
     }
     // pixels modes
-    if (this->binMode >= opModes::sort_pix) {
+    if (this->binMode >= opModes::sort_pix && this->binMode<opModes::siger_selected) {
         if (this->n_data_points > this->pix_ok_bin_idx.size()) {
             this->pix_ok_bin_idx.resize(this->n_data_points);
         }
@@ -928,6 +954,7 @@ BinningArg::BinningArg()
     , pix_data_range_ptr(nullptr)
     , pix_ok_ptr(nullptr)
     , pix_img_idx_ptr(nullptr)
+    , is_pix_selected_ptr(nullptr)
 {
     /* initialize input Matlab parameters map with methods which  associate
      * Matlab field names with the methods, which set appropriate property value  */

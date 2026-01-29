@@ -112,6 +112,8 @@ public:
     mxArray* pix_ok_ptr; // pointer to array of all pixels retained after binning
     std::unordered_set<uint32_t> unique_runID; // set containing unique run_id-s of the
     mxArray* pix_img_idx_ptr; // pointer to array of pixel indices within the image cell 
+    mxArray* is_pix_selected_ptr; // pointer to logical array containing true where pixel 
+    //                               was selected for binning and false otherwise
     // processed pixels
     //********************************************************************************
     // helper values
@@ -120,7 +122,7 @@ public:
     std::vector<size_t> stride; // vector, which describes binning steps reflecting multidimensional array strides
     std::vector<size_t> bin_cell_idx_range; // vector containing allowed maximal indices of the binning (with nbins_all_dims>1) cells in binning directions
     // auxiliary array containing pixel indices over bins
-    std::vector<long> pix_ok_bin_idx;
+    std::vector<mxInt64> pix_ok_bin_idx;
     // auxiliary array defining ranges of the bins to sort pixels over
     std::vector<size_t> npix_bin_start;
     std::vector<size_t> npix1; // pixel distribution over bins calculated in single call to bin_pixels routine;
@@ -155,7 +157,7 @@ protected:
     void set_alignment_matrix(mxArray const* const pField); // matrix which have to be applied to raw pixels to bring them into Crystal Cartesian coordinate system
     void set_check_pix_selection(mxArray const* const pField); // if true, check if detector_id are negative which may suggest that pixels have been alreary used in previous binning operation
 
-    // register with parameters map all methods which
+    // register with parameters map all methods which return variable results to MATLAB
     void register_output_methods();
     // setters for binning results returned to MATLAB in output structure
     void return_npix_retained(mxArray* p1, mxArray* p2, int idx, const std::string& name);
@@ -167,7 +169,9 @@ protected:
     void return_unique_runid(mxArray* p1, mxArray* p2, int idx, const std::string& name);
     // setter to return pixels indices within the image cell
     void return_pix_img_idx(mxArray* p1, mxArray* p2, int fld_idx, const std::string& name);
-
+    // setter to return array containing true for selected pixels and false if they have not been selected
+    void return_is_pix_selected(mxArray* p1, mxArray* p2, int fld_idx, const std::string& name);
+    //
 public:
     BinningArg(); // construction
     // process binning arguments input values for new binning arguments cycle
@@ -201,6 +205,8 @@ private:
     OutHandlerMap Mode4ParList;
     OutHandlerMap Mode5ParList;
     OutHandlerMap Mode6ParList;
+    OutHandlerMap Mode7ParList;
+    OutHandlerMap Mode8ParList;
 
     std::unordered_map<opModes, OutHandlerMap*> out_handlers;
 };
