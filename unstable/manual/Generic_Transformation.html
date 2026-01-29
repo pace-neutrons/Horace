@@ -114,10 +114,10 @@
   <section id="generic-transformations">
 <h1><span class="section-number">15. </span>Generic Transformations<a class="headerlink" href="#generic-transformations" title="Permalink to this heading"></a></h1>
 <p>The previous chapters describe how one may do various
-<a class="reference internal" href="Unary_operations.html"><span class="doc">unary</span></a> or <a class="reference internal" href="Binary_operations.html"><span class="doc">binary operations</span></a> over your data or build analytical model and <a class="reference internal" href="Simulation.html"><span class="doc">simulate it over whole sqw file</span></a>.
+<a class="reference internal" href="Unary_operations.html"><span class="doc">unary</span></a> or <a class="reference internal" href="Binary_operations.html"><span class="doc">binary operations</span></a> over your data, apply <a class="reference internal" href="Symmetrising_etc.html"><span class="doc">symmetry operations</span></a> or build analytical model and <a class="reference internal" href="Simulation.html"><span class="doc">simulate it over whole sqw file</span></a>.
 As whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file can not be generally placed in memory, all these operations are
 based on special <code class="docutils literal notranslate"><span class="pre">PageOp</span></code> family of algorithms, which operate loading a page of data in memory
-and applying various operations to these data. For <a class="reference internal" href="Unary_operations.html"><span class="doc">unary</span></a> and <a class="reference internal" href="Binary_operations.html"><span class="doc">binary</span></a> operations we wrote these transformations for users and the <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> algorithm from <a class="reference internal" href="Simulation.html"><span class="doc">Simulation</span></a> section
+and applying various operations to these data. For <a class="reference internal" href="Unary_operations.html"><span class="doc">unary</span></a>, <a class="reference internal" href="Binary_operations.html"><span class="doc">binary</span></a> and <a class="reference internal" href="Symmetrising_etc.html"><span class="doc">symmetry operations</span></a> we wrote these transformations for users and the <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> algorithm from <a class="reference internal" href="Simulation.html"><span class="doc">Simulation</span></a> section
 gives user a set of rules to write his own model in <cite>hklE</cite> coordinate system and apply it to whole <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
 <section id="introduction">
 <h2><span class="section-number">15.1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
@@ -194,9 +194,9 @@ perform multiple unary or binary operations simultaneously while transforming la
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>output_sig_err<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">sqw_op_unary</span><span class="p">(</span>in_page_op,varargin<span class="p">)</span>
 <span class="w">   </span><span class="c">% Apply two simple transformations of signal of an sqw object in one go.</span>
 
-<span class="w">   </span><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">in_page_op</span><span class="p">.</span><span class="n">data</span><span class="p">;</span><span class="w">     </span><span class="c">% get access to page of pixel data</span>
-<span class="w">   </span><span class="n">data</span><span class="p">(</span><span class="mi">8</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">data</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="w">       </span><span class="c">% change pixel data signal by multiplying it by 2 and extracting 1</span>
-<span class="w">   </span><span class="n">output_sig_err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">8</span><span class="p">:</span><span class="mi">9</span><span class="p">,:);</span><span class="w"> </span><span class="c">% combine signal and unchanged error into form, requested by algorithm</span>
+<span class="w">   </span><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">in_page_op</span><span class="p">.</span><span class="n">data</span><span class="p">;</span><span class="w">       </span><span class="c">% get access to page of pixel data</span>
+<span class="w">   </span><span class="n">data</span><span class="p">(</span><span class="mi">8</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">data</span><span class="p">(</span><span class="mi">8</span><span class="p">,:)</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="w">    </span><span class="c">% change pixel data signal by multiplying it by 2 and extracting 1</span>
+<span class="w">   </span><span class="n">output_sig_err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">8</span><span class="p">:</span><span class="mi">9</span><span class="p">,:);</span><span class="w"> </span><span class="c">% extract signal and unchanged error into form, requested by algorithm</span>
 <span class="k">end</span>
 </pre></div>
 </div>
@@ -261,7 +261,8 @@ perform multiple unary or binary operations simultaneously while transforming la
 <span class="w">    </span><span class="c">% As this is special projection, it needs 5 rows of pixel data (needs run_id)</span>
 <span class="w">    </span><span class="c">% rather then the standard projection, which takes 4 rows.</span>
 <span class="w">    </span><span class="n">pix</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">bg_data</span><span class="p">.</span><span class="n">proj</span><span class="p">.</span><span class="n">transform_pix_to_img</span><span class="p">(</span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="p">,:));</span><span class="w"> </span><span class="c">% you may define your own</span>
-<span class="w">    </span><span class="c">% complex transformation to convert pixels in Cry</span>
+<span class="w">    </span><span class="c">% complex transformation to convert pixels from Crystal Cartesian coordinates to</span>
+<span class="w">    </span><span class="c">% image coordinates, but here you have your projection already defined to do that.</span>
 
 <span class="w">    </span><span class="c">% interpolate background signal on the pixels coordinates expressed</span>
 <span class="w">    </span><span class="c">% in instrument coordinate system.</span>
@@ -292,7 +293,7 @@ perform multiple unary or binary operations simultaneously while transforming la
 <a class="reference internal image-reference" href="../_images/Fe_BZ_signal.png"><img alt="Sample differential cross-section measured on MAPS" src="../_images/Fe_BZ_signal.png" style="width: 400px;" /></a>
 <figcaption>
 <p><span class="caption-text">Sample differential cross-section measured on MAPS and showing
-magnetic signal within read-cycle surrounded area and background signal (phonons)
+magnetic signal within red-cycle surrounded area and background signal (phonons)
 inside and outside of this area. Yellow box represents double-size Brillouin zone where
 data moved using shift operation and its top right quadrant – the area where data should
 be finally moved using folding and reflection.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
@@ -463,7 +464,8 @@ may be from different <code class="docutils literal notranslate"><span class="pr
 </tr>
 <tr class="row-odd"><td><p>2</p></td>
 <td><p>Multiple transformations
-applied to single data</p></td>
+applied to symmetrized
+data</p></td>
 <td><p>Not allowed</p></td>
 <td><p>simple modifications to standard script</p></td>
 </tr>
@@ -554,7 +556,8 @@ internal structure.</p></li>
 <span class="c">% into coordinate system, related to target projection</span>
 <span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="p">=</span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">proj_array</span><span class="p">)</span>
 <span class="w">    </span><span class="c">% input projections used for cut do not have lattice set up for them.</span>
-<span class="w">    </span><span class="c">% They need lattice so let&#39;s set it up here.</span>
+<span class="w">    </span><span class="c">% They need lattice to be fully defined and use projection methods so let&#39;s set it up here.</span>
+<span class="w">    </span><span class="c">% may be taken out of loop for performance though it is fast anyway.</span>
 <span class="w">    </span><span class="n">proj_array</span><span class="p">(</span><span class="nb">i</span><span class="p">).</span><span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">targ_proj</span><span class="p">.</span><span class="n">alatt</span><span class="p">;</span>
 <span class="w">    </span><span class="n">proj_array</span><span class="p">(</span><span class="nb">i</span><span class="p">).</span><span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">targ_proj</span><span class="p">.</span><span class="n">angdeg</span><span class="p">;</span>
 <span class="w">    </span><span class="c">% transform momentum transfer values from current page of data into</span>
@@ -626,7 +629,7 @@ in the comments to the function. The main idea of the operation is that you sele
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Jan 16, 2026, 3:15:16 PM.
+      <span class="lastupdated">Last updated on Jan 29, 2026, 10:22:49 AM.
       </span></p>
   </div>
 
