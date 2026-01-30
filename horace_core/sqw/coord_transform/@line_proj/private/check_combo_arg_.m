@@ -49,7 +49,7 @@ else
     obj.q_offset_cache_ = zeros(4,1);
     obj.img_scales_ = ones(1,4);
 end
-if ~isempty(obj.sym_transformation_)
+if ~isempty(obj.sym_transf_)
     obj.q_to_img_cache_(1:3,1:3) = ...
-        obj.sym_transformation_*obj.q_to_img_cache_(1:3,1:3);
+        obj.q_to_img_cache_(1:3,1:3)*obj.sym_transf_;
 end

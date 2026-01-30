@@ -96,7 +96,7 @@ classdef SymopGeneral < Symop
 
     % Serializable interface
     methods
-        function flds = local_saveableFields(obj)
+        function flds = local_saveableFields(~)
             flds = {'W', 'offset'};
         end
     end

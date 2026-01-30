@@ -23,30 +23,25 @@ function [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pb
 default_needed = cellfun(@is_default_needed, pbin);
 
 targ_proj = cellfun(@(x) x.transform_proj(targ_proj), ...
-                    sym, 'UniformOutput', false);
+    sym, 'UniformOutput', false);
 
 if any(default_needed)
     % Get the source binning ranges, transformed into target coordinate system.
-    source_binning = cellfun(@(proj) obj.get_targ_range(proj,default_needed,'-binning'), ...
-                             targ_proj, 'UniformOutput', false);
+    source_binning = obj.get_targ_range(targ_proj{1},default_needed,'-binning');
 else
     % empty binning as it will not be deployed
-    source_binning = repmat({cell(1,4)}, numel(sym), 1);
+    source_binning = cell(1,4);
 end
 
-targ_ax_block = cellfun(@(proj, sb) get_proj_axes_block(proj, sb, pbin), targ_proj, source_binning);
-targ_ax_block = targ_ax_block(:);
 targ_proj = vertcat(targ_proj{:});
-for i = 1:numel(targ_ax_block)
-    targ_ax_block(i).filename = obj.full_filename;
-end
-
+targ_ax_block = targ_proj(1).get_proj_axes_block(source_binning, pbin);
+targ_ax_block.filename = obj.full_filename;
 end
 
 function needed = is_default_needed(pb)
 
 needed = numel(pb) < 2 || ...
-         isinf(pb(1)) || ...
-         isinf(pb(end)) || ...
-         (numel(pb)==3 && pb(2)==0);
+    isinf(pb(1)) || ...
+    isinf(pb(end)) || ...
+    (numel(pb)==3 && pb(2)==0);
 end

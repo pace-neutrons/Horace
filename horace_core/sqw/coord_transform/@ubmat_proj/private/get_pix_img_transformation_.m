@@ -54,6 +54,6 @@ if nargout > 1
     end
 else % do not convert anything
 end
-if ~isempty(obj.sym_transformation_)
-    q_to_img   = obj.sym_transformation_ * q_to_img;
+if ~isempty(obj.sym_transf_)
+    q_to_img(1:3,1:3)   = q_to_img(1:3,1:3)* obj.sym_transf_;
 end

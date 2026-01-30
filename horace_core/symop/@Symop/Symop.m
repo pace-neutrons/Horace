@@ -48,6 +48,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
     properties (Access=private)
         offset_ = [0; 0; 0];  % offset vector for symmetry operator (rlu) (col)
+        u_offset_ = [0;0;0] % offset vector in Crystal Cartesian coordinate system (orthogonal, A^-1)
     end
 
     methods
@@ -85,7 +86,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
         function vec = transform_vec(obj, vec)
             % Transform a vector or list of vectors according to array of
-            % Symops stored in `obj`.
+            % Symops stored in `obj`. 
+            %
+            % To avoid confusion, vector coorinate system expected to be
+            % orthogonal and Crystal Cartesian (if offset present, it
+            % expressed in CC, if it is 0, other coordinates may be
+            % considered
             %
             % Input:
             %   obj    Array of symmetry operator objects
@@ -99,9 +105,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
 
             for i = numel(obj):-1:1
-                vec = vec - obj(i).offset;
+                vec = vec - obj(i).u_offset_;
                 vec = obj(i).R * vec;
-                vec = vec + obj(i).offset;
+                vec = vec + obj(i).u_offset_;
             end
         end
 
@@ -199,8 +205,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function proj = transform_proj (obj, proj)
+        function [proj,obj] = transform_proj (obj, proj)
             % Transform projection axes description by the symmetry operation
+            % or array of symmetry operations
             %
             %   >> proj = transform_proj (obj, proj)
             %
@@ -209,13 +216,13 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %   obj     Symmetry operator or array of symmetry operators
             %           If an array, then they are applied in order obj(1), obj(2),...
             %
-            %   proj    Projection object defining projection axes, with fields
-            %               u, v, w (optionally)
-            %           (other fields are unaffected)
+            %   proj    Projection object describing original coordinate
+            %           system
             %
             % Output:
             % -------
-            %   proj    Transformed projection
+            %   proj    Projection object describing coordinate system
+            %           modified by symmetry transformation(s)
             %
 
             % Check input
@@ -224,12 +231,26 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     'transform_proj requires projection');
             end
 
-            % Transform proj
-            Transf = obj(1).R;
-            for i=numel(obj)-1:-1:1
-                Transf = obj(i).R*Transf;
+            % Build transformation, constructed from number of primitive
+            % transformations.
+            sym_transf_mat = proj.sym_transf;
+            if isempty(sym_transf_mat )
+                sym_transf_mat = eye(3);
             end
-            proj.sym_transformation = Transf;
+            tot_offset = proj.offset(1:3);
+            for i=numel(obj):-1:1
+                sym_transf_mat = obj(i).R*sym_transf_mat;
+                tot_offset  = tot_offset + obj(i).offset';
+            end
+            % To avoid keeping unnecessary transformation matrices
+            % clear up unit transformation if obtained
+            dif = sym_transf_mat-eye(3);
+            if any(abs(dif(:))>4*eps('double'))
+                proj.sym_transf = sym_transf_mat;
+            else
+                proj.sym_transf= [];
+            end
+            proj.offset(1:3) = tot_offset;
         end
     end
 
@@ -388,7 +409,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             out.serial_name = 'SymopIdentity';
         end
 
-        function out = to_bare_struct(obj, bare)
+        function out = to_bare_struct(obj, varargin)
             out = struct('class', cell(numel(obj), 1), 'data', cell(numel(obj), 1));
             for i = 1:numel(obj)
                 out(i) = struct('class', class(obj(i)), ...
@@ -396,12 +417,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function out = from_bare_struct(obj, array_dat)
+        function out = from_bare_struct(~, array_dat)
             out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
             out = [out{:}];
         end
 
-        function ver = classVersion(obj)
+        function ver = classVersion(~)
             ver = 1;
         end
 
@@ -419,7 +440,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             iseq = numel(A) == numel(B);
             if ~iseq
                 mess = sprintf('Arrays not same size (%d, %d)', ...
-                    numel(objA), numel(objB));
+                    numel(A), numel(B));
                 return;
             end
 
@@ -443,13 +464,13 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 end
 
                 fld = objA.saveableFields();
-                for i = 1:numel(fld)
-                    iseq = objA.(fld{i}) == objB.(fld{i});
+                for j = 1:numel(fld)
+                    iseq = objA.(fld{j}) == objB.(fld{j});
                     if ~iseq
                         mess = sprintf('Objects differ in field %s (%s, %s)', ...
-                            fld{i}, ...
-                            disp2str(objA.(fld{i})), ...
-                            disp2str(objB.(fld{i})));
+                            fld{j}, ...
+                            disp2str(objA.(fld{j})), ...
+                            disp2str(objB.(fld{j})));
                         return;
                     end
                 end

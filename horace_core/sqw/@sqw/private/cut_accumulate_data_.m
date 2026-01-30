@@ -52,10 +52,9 @@ if isscalar(obj.data.npix) % single bin original grid
     block_sizes = obj.data.npix;
 else
     data_npix = obj.data.npix;
-    [block_starts, block_sizes] = arrayfun(@(proj, ax) sproj.get_nrange(data_npix , saxes, ax, proj), ...
-        targ_proj, targ_axes, 'UniformOutput', false);
+    [block_starts, block_sizes] = arrayfun(@(proj) sproj.get_nrange(data_npix, saxes, targ_axes, proj), ...
+        targ_proj, 'UniformOutput', false);
     [block_starts, block_sizes] = merge_ranges(block_starts, block_sizes);
-
 end
 
 if isempty(block_starts)
@@ -132,7 +131,7 @@ for iter = 1:num_chunks
         [npix, s, e] = targ_proj.bin_pixels(targ_axes, candidate_pix, npix, s, e);
     else
         for i = 1:numel(targ_proj)
-            [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e, '-return_selected');
+            [npix, s, e, selected] = targ_proj(i).bin_pixels(targ_axes, candidate_pix, npix, s, e, '-return_selected');
             candidate_pix = candidate_pix.tag(selected);
         end
     end
@@ -229,13 +228,13 @@ for iter = 1:num_chunks
         % pixels to avoid multiple usage of the same pixels.
         if apply_symmetries
             [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
-                targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e,unique_runid);
+                targ_proj(i).bin_pixels(targ_axes, candidate_pix, npix, s, e,unique_runid);
             % Apply symop to the transformed pixels to keep them in-sync with image
             pix_ok = sym{i}.transform_pix(pix_ok, {}, true(1,pix_ok.num_pixels), true);
             candidate_pix = candidate_pix.tag(selected);
         else
             [npix, s, e, pix_ok, unique_runid, pix_indx] = ...
-                targ_proj(i).bin_pixels(targ_axes(i), candidate_pix, npix, s, e,unique_runid);
+                targ_proj(i).bin_pixels(targ_axes, candidate_pix, npix, s, e,unique_runid);
         end
         npix_step_retained = pix_ok.num_pixels; % just for logging the progress
 

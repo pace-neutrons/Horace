@@ -10,3 +10,7 @@ else
     lp = line_proj(obj.u,obj.v,obj.w,obj.nonorthogonal,...
         obj.type,'offset',obj.offset,'label',obj.label,'title',obj.title);
 end
+% transfer symmetry transformation if one is defined
+if ~isempty(obj.sym_transf_)
+    lp.sym_transf = obj.sym_transf_;
+end

@@ -13,7 +13,7 @@ classdef LineProjBase < aProjectionBase
     properties(Dependent,Hidden)
         % Matrix obtained from SymOp and used for modifying pix_to_image
         % transformation according to the applied symmetry operation
-        sym_transformation
+        sym_transf
         %------------------------------------------------------------------
         % Properties left for compartibility with old data:
         %
@@ -45,7 +45,7 @@ classdef LineProjBase < aProjectionBase
     end
 
     properties(Access=protected)
-        sym_transformation_ = [];
+        sym_transf_ = [];
         % The properties used to optimize from_current_to_targ method
         % transformation, if both current and target projections are
         % LineProjBase classes
@@ -67,17 +67,21 @@ classdef LineProjBase < aProjectionBase
     %======================================================================
     % Accessors
     methods
-        function mat = get.sym_transformation(obj)
-            mat = obj.sym_transformation_;
+        function mat = get.sym_transf(obj)
+            mat = obj.sym_transf_;
         end
         %
-        function obj = set.sym_transformation(obj,mat)
-            if ~(isnumeric(mat) && all(size(mat) == [3,3]))
-                error('HORACE:LineProjBase:invalid_argument',...
-                    'Symmetry transformation should be defined by 3x3 matrix. Provided value have class %s and size: %s',...
-                    class(mat),disp2str(size(mat)));
+        function obj = set.sym_transf(obj,mat)
+            if isempty(mat)
+                obj.sym_transf_ = [];
+            else
+                if ~(isnumeric(mat) && all(size(mat) == [3,3]))
+                    error('HORACE:LineProjBase:invalid_argument',...
+                        'Symmetry transformation should be defined by 3x3 matrix. Provided value have class %s and size: %s',...
+                        class(mat),disp2str(size(mat)));
+                end
             end
-            obj.sym_transformation_ = mat;
+            obj.sym_transf_ = mat;
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg();
             end
