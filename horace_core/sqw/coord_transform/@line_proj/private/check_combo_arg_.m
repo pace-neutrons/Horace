@@ -52,4 +52,9 @@ end
 if ~isempty(obj.sym_transf_)
     obj.q_to_img_cache_(1:3,1:3) = ...
         obj.q_to_img_cache_(1:3,1:3)*obj.sym_transf_;
+    % final formula will multiply q_offset by product of image transformation
+    % matrix by symmetry transformation matrix so here we should divide it
+    % by symmetry transformation
+    q_offset = obj.sym_transf_\q_offset_cache(1:3);
+    obj.q_offset_cache_(1:3) = q_offset;
 end

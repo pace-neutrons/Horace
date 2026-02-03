@@ -299,7 +299,7 @@ classdef line_proj < LineProjBase
     % SERIALIZABLE INTERFACE
     %----------------------------------------------------------------------
     properties(Constant, Access=private)
-        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'sym_transformation'}
+        fields_to_save_ = {'u';'v';'w';'nonorthogonal';'type';'sym_transf'}
     end
     methods
         function ver  = classVersion(~)

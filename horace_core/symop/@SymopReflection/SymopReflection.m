@@ -80,7 +80,7 @@ classdef SymopReflection < Symop
 
         end
 
-        function R = calculate_transform(obj, Minv)
+        function R = calculate_transform(obj, Bmat)
         % Get transformation matrix for the symmetry operator in an orthonormal frame
         %
         % The transformation matrix converts the components of a vector which is
@@ -99,16 +99,16 @@ classdef SymopReflection < Symop
         % Input:
         % ------
         %   obj     Symmetry operator object (scalar)
-        %   Minv    Matrix to convert components of a vector given in rlu to those
-        %             in an orthonormal frame
+        %   Bmat    Matrix to convert components of a vector given in rlu
+        %           to those in an orthonormal frame
         %
         % Output:
         % -------
         %   R       Transformation matrix to be applied to the components of a
         %          vector given in the orthonormal frame for which Minv is defined
         % Determine the representation of u and v in the orthonormal frame
-            e1 = Minv * obj.u_;
-            e2 = Minv * obj.v_;
+            e1 = Bmat * obj.u_;
+            e2 = Bmat * obj.v_;
             n = cross(e1,e2);
             n = n / norm(n);
             % Create reflection matrix in the orthonormal frame

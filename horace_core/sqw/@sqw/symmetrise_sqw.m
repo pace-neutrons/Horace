@@ -97,8 +97,12 @@ win = sqw(win);
 wout = copy(win);
 
 [sym, fold] = validate_and_generate_sym(sym);
-% double wrapped cellarray
-transforms = @sym.transform_pix;
+if iscell(sym)
+    transforms = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
+else
+    % double wrapped cellarray
+    transforms = @sym.transform_pix;
+end
 % Need the projections to be wrapped in a cell array to be duplicated
 % for each symmetry operation we're applying, since the first cell array
 % may be unwrapped as an argument if 1 arg (as in this case), need

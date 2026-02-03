@@ -21,7 +21,7 @@ classdef test_symop < TestCase
         proj = line_proj([1 0 0], [0 1 0], ...
             'alatt', [3 3 3], ...
             'angdeg', [90 90 90]);
-        
+
         nort_proj = line_proj([1 0 0], [0 1 0], ...
             'alatt', [1 2 3], ...
             'angdeg', [80 70 120]);
@@ -217,7 +217,7 @@ classdef test_symop < TestCase
         end
 
         function test_apply_matrix_matrix(~)
-            
+
             op = SymopGeneral([0  0 -1
                 -1 0  0
                 0  1  0]);
@@ -236,13 +236,78 @@ classdef test_symop < TestCase
         end
 
         function test_apply_proj_rotation(obj)
-            out_proj  = obj.check_proj_transformation_correct(obj.rot_op,obj.proj);            
+            out_proj  = obj.check_proj_transformation_correct(obj.rot_op,obj.proj);
 
-            out_proj_mat  = obj.check_proj_transformation_correct(obj.rot_op_mat,obj.proj);                        
+            out_proj_mat  = obj.check_proj_transformation_correct(obj.rot_op_mat,obj.proj);
 
             assertEqualToTol(out_proj.sym_transf, out_proj_mat.sym_transf,'abstol',1.e-12)
         end
+        %==================================================================        
+        
+        %==================================================================
+        function test_combined_with_shift_works_on_non_orth(obj)
+            op = [SymopReflection([1,0,0],[0,0,1],[0,1,0]),SymopRotation([1,0,0],60)];
 
+            out_proj  = obj.check_proj_transformation_correct(op,obj.nort_proj);
+
+            assertEqual(out_proj.sym_transf,op.R);
+            assertFalse(all(out_proj.offset == 0));
+        end
+        
+        function test_folding_with_shift_works_on_non_orth(obj)
+            op = SymopReflection([1,0,0],[0,0,1],[0,1,0]);
+
+            out_proj  = obj.check_proj_transformation_correct(op,obj.nort_proj);
+
+            assertEqual(out_proj.sym_transf,op.R);
+            assertFalse(all(out_proj.offset == 0));
+        end
+
+        function test_folding_with_shift100_works(obj)
+            op = SymopReflection([1,0,0],[0,0,1],[1,0,0]);
+
+            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+
+            assertEqual(out_proj.sym_transf,op.R);
+            assertTrue(all(out_proj.offset == 0));
+        end
+
+        function test_folding_with_shift010_works(obj)
+            op = SymopReflection([1,0,0],[0,0,1],[0,1,0]);
+
+            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+
+            assertEqual(out_proj.sym_transf,op.R);
+            assertEqual(out_proj.offset,[0,-2,0,0]);
+        end        
+        
+        function test_rotation_with_shift_works_on_non_orth(obj)
+            op = SymopRotation([0,1,0],60,[0,1,0]);
+
+            out_proj  = obj.check_proj_transformation_correct(op,obj.nort_proj);
+
+            assertEqual(out_proj.sym_transf,op.R);
+            assertFalse(all(out_proj.offset == 0));
+        end
+
+        function test_rotation_with_shift100_works(obj)
+            op = SymopRotation([0,1,0],60,[1,0,0]);
+
+            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+
+            assertEqual(out_proj.sym_transf,op.R);
+            assertFalse(all(out_proj.offset == 0));
+        end
+
+        function test_rotation_with_shift010_works(obj)
+            op = SymopRotation([0,1,0],60,[0,1,0]);
+
+            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+
+            assertEqual(out_proj.sym_transf,op.R);
+            assertEqual(out_proj.offset,[0,0,0,0]);
+        end
+        %==================================================================
         function test_apply_proj_comp(obj)
 
             out_proj = obj.mot_op.transform_proj(obj.proj);
@@ -252,11 +317,11 @@ classdef test_symop < TestCase
         end
 
         function test_apply_ref_ref_back(obj)
-            out_proj  = obj.check_proj_transformation_correct(obj.refl_op,obj.proj);            
+            out_proj  = obj.check_proj_transformation_correct(obj.refl_op,obj.proj);
             ref_transf = eye(3);
             ref_transf(2,2) = -1;
-            assertEqualToTol(out_proj.sym_transf, ref_transf, 'abstol', 1e-14);            
-        
+            assertEqualToTol(out_proj.sym_transf, ref_transf, 'abstol', 1e-14);
+
             out_proj2  = obj.check_proj_transformation_correct(obj.refl_op,out_proj);
             assertTrue(isempty(out_proj2.sym_transf));
         end
@@ -281,7 +346,7 @@ classdef test_symop < TestCase
             out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
             assertTrue(isempty(out_proj.sym_transf));
         end
-        
+
         function test_apply_rot_60_min_60_nonortho(obj)
             op = [SymopRotation([1 0 0], 60), SymopRotation([1 0 0], -60)];
 
@@ -289,25 +354,40 @@ classdef test_symop < TestCase
             assertTrue(isempty(out_proj.sym_transf));
         end
 
+        function test_apply_rot60_min60_with_symOffset(obj)
+            op = [SymopRotation([1 0 0], 60,[1,1,0]), SymopRotation([1 0 0], -60,[1,1,0])];
+            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+            assertTrue(isempty(out_proj.sym_transf));
+            assertTrue(all(out_proj.offset == 0));
+        end
         function test_apply_rot_60_min_60(obj)
             op = [SymopRotation([1 0 0], 60), SymopRotation([1 0 0], -60)];
 
             out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
             assertTrue(isempty(out_proj.sym_transf));
         end
-
     end
     methods(Access=protected)
-        function out_proj = check_proj_transformation_correct(obj,op,proj)
-            out_proj = op.transform_proj(proj);
+        function [out_proj,op] = check_proj_transformation_correct(obj,op,proj)
+            % here we model transformations used in cut with symop
+            % create projection which would
+            [out_proj,op] = op.transform_proj(proj);
 
-            % 
+            % pixels coordinates are expressed in Crystal Cartesian system
+            % and symmetry transformed
             sym_pts = op.transform_vec(obj.points2transform);
+            % transform modified pixels into image coordinate system to bin
+            % them into new image
             sym_img_pts  = proj.transform_pix_to_img(sym_pts);
 
+            % symmetrytransform pixels into image coordinate system
             proj_sym_pts = out_proj.transform_pix_to_img(obj.points2transform);
 
             assertEqualToTol(sym_img_pts, proj_sym_pts, 'abstol', 1e-14)
+            % check if modified projection is invertable and satisfies
+            % generic projection requests.
+            rev_pts = out_proj.transform_img_to_pix(proj_sym_pts);
+            assertEqualToTol(obj.points2transform, rev_pts, 'abstol', 1e-14)
         end
     end
 end

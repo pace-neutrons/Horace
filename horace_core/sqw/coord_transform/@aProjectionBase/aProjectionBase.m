@@ -646,7 +646,7 @@ classdef aProjectionBase < serializable
             end
         end
 
-        function pix_img = transform_hkl_to_pix(obj,pix_hkl,varargin)
+        function pix_cc = transform_hkl_to_pix(obj,pix_hkl,varargin)
             % Converts from hkl coordinate system
             % to pixel coordinate system (Crystal Cartesian)
             %
@@ -660,11 +660,11 @@ classdef aProjectionBase < serializable
             %             coordinate, if requested, is the energy transfer)
             %
             % Output:
-            % pix_img   -- 4xNpix or 3xNpix vector of pixels coordinates
-            %              expressed in the coordinate system defined by
-            %              this projection
+            % pix_cc   -- 4xNpix or 3xNpix vector of pixels coordinates
+            %              expressed in the Crystal Cartesian coordinate
+            %              system
             ndim = size(pix_hkl,1);
-            pix_img = obj.bmatrix(ndim) * pix_hkl;
+            pix_cc = obj.bmatrix(ndim) * pix_hkl;
         end
 
         function pix_img = transform_hkl_to_img(obj,pix_hkl,varargin)

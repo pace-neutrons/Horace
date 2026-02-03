@@ -252,13 +252,13 @@ classdef ubmat_proj < LineProjBase
     %----------------------------------------------------------------------
     methods
         function ver  = classVersion(~)
-            ver = 1;
+            ver = 2;
         end
         function  flds = saveableFields(obj)
             %
             aproj_flds = saveableFields@aProjectionBase(obj);
             comp_fils = {'u_to_rlu','img_scales'};
-            flds = [comp_fils(:);aproj_flds(:)];
+            flds = [comp_fils(:);aproj_flds(:);'sym_transf'];
         end
         %------------------------------------------------------------------
         % check interdependent projection arguments

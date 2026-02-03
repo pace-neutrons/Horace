@@ -17,7 +17,10 @@ function [sym, fold] = validate_and_generate_sym(sym)
 
 if isa(sym, 'SymopReflection')
     fold = numel(sym);
-
+    the_same = is_same_offset(sym); 
+    if ~the_same
+        sym = mat2cell(sym);
+    end
 elseif isa(sym, 'SymopRotation')
 
     % Don't need to do the 360 mapping (last == ID)
@@ -38,6 +41,7 @@ elseif isa(sym, 'SymopRotation')
 elseif isa(sym,'SymopIdentity')
     fold = 1;
 elseif iscell(sym)
+    offsets_the_same = is_same_offset(sym);
     % If it's come from SymopRotation.fold or manual equivalent
     % We might have rot(0), or ID as first arg, all subsequent
     % rotations may be incremental (0, 90, 180, 270)
@@ -66,20 +70,23 @@ elseif iscell(sym)
 
         for i = 3:fold
             % If not regular fold
-            if ~(equal_to_tol(sym{i}.theta_deg, sym{2}.theta_deg, 'tol', 1e-4) || ...
-                    equal_to_tol(sym{i}.theta_deg / (i-1), sym{2}.theta_deg, 'tol', 1e-2))
-                error('HORACE:symmetrise_sqw:invalid_argument', ...
-                    ['Cell array rotation reduction must be either repeated array' ...
-                    ' of one rotation or evenly-spaced progression around unit circle'])
+            if (abs(sym{i}.theta_deg-sym{2}.theta_deg)>4*eps('single')) || ...
+                    (abs(sym{i}.theta_deg / (i-1)-sym{2}.theta_deg)>4*eps('single')) || ...
+                    ~offsets_the_same
+                error('HORACE:symmetrise_sqw:invalid_argument', [...
+                    'Cell array rotation reduction must be either repeated array of one rotation\n' ...
+                    'or evenly-spaced progression around unit circle\n'...
+                    'having zero or the same offset for all rotations'])
             end
         end
 
         fold = fold - 1;
         sym = repmat(sym{2}, fold, 1);
-
     elseif all(cellfun(@(x) isa(x, 'SymopReflection') || ...
             isa(x, 'SymopIdentity'), sym))
-        sym = cat(1, sym{:});
+        if offsets_the_same
+            sym = cat(1, sym{:});
+        end
         fold = numel(sym);
     else
         error('HORACE:symmetrise_sqw:not_implemented', ...
@@ -90,4 +97,21 @@ else
     error('HORACE:symmetrise_sqw:not_implemented', ...
         'Symmetrise does not currently support %s', class(sym))
 end
+end
+
+function same = is_same_offset(sym)
+% check if all offsets, present on symmetry transformation are the same
+if iscell(sym)
+    offsets = cellfun(@(x)(x.offset),sym,'UniformOutput',false);
+else
+    offsets = arrayfun(@(x)(x.offset),sym,'UniformOutput',false);
+end
+
+for off = offsets
+    same = any(abs(off{1}-offsets{1})<4*eps('double'));
+    if ~same
+        break
+    end
+end
+
 end
