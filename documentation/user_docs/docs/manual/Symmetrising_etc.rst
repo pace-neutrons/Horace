@@ -43,6 +43,10 @@ a vector which defines a point on the plane (the offset). The constructor for a
    For any ``Symop`` constructor the offset can be omitted and it will default
    to ``[0 0 0]``.
 
+`Cutting`_ with ``SymopReflection`` and `Symmetrising`_ (see below) use this transformation for reflecting 
+data from the half of the space separated by reflection plane into another half of the space. The target half-space 
+is the area where the vector, built on the reflection plane's 3-vectors according to right-hand rule is positive.
+
 Rotations
 ---------
 
