@@ -4,7 +4,7 @@ classdef SymopReflection < Symop
     properties(Dependent)
         u; % first vector lying in and defining reflection plane
         v; % second vector lying in and defining reflection plane
-        normvec; % read-only unit vector, orthogonal to reflection plane
+        normvec; % unit vector, orthogonal to reflection plane
     end
 
     properties(Access=private)

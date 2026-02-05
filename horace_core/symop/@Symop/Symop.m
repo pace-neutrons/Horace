@@ -40,10 +40,10 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     %   transform_proj  - Transform projection axes description by the symmetry operation
 
     properties(Dependent)
-        % Offset of transform
-        offset;
         % General transformation matrix for selected symmetry operation
         R;
+        % Offset of transform
+        offset;
     end
     properties(Dependent,Hidden)
         % helper property, used to transform offset from hkl to Crystal
@@ -372,46 +372,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods (Access=private)
-        function [sym_offset,symmetries] = extract_common_group_offset(symmetries)
-            % check if offset is the same within the group of symmetry
-            % transformations, extract common offset if some symmetry
-            % objects in the group does not have offset and throw if
-            % non-zero offsets are different.
-            %
-            % Set up common offset on each element of the group if some
-            % elements of the group had zero offset.
-            %
-            % Inputs:
-            %
-            % symmetries -- array of symop-s. (Should not contain identity)
-            zer = zeros(3,1);
-            sym_offset = zer;
-            n_sym_offsets = 0;
-            for obj=symmetries
-                if any(abs(obj.offset-zer)>4*eps('double'))
-                    n_sym_offsets = n_sym_offsets + 1;
-                    if n_sym_offsets>1
-                        if any(abs(obj.offset-sym_offset)>4*eps('double'))
-                            error('HORACE:Symop:not_implemented',[ ...
-                                'Multiple offsets for group of transformations are not implemented.\n',...
-                                'All transformations in a transformation group array must have the same offset\n',...
-                                'used by all transfomations in the group\n',...
-                                'or the same offset for each element of the group']);
-                        end
-                    else
-                        sym_offset  = obj.offset;
-                    end
-                end
-            end
-            if n_sym_offsets> 0 && n_sym_offsets ~= numel(obj)
-                % there are offsets set on one or multiple symmetries but
-                % some symmetries have zero offsets. This is not allowed as
-                % assumed that they all must have the same offset.
-                for obj=symmetries
-                    obj.offset = sym_offset;
-                end
-            end
-        end
         function lp = transform_proj_single (obj, proj,sym_transf_mat,sym_offset,bm)
             % Transform input projection in such a way, that its
             % pix to image transformation become equivalent to
@@ -553,8 +513,49 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
     end
 
-    % Serializable interface
+
     methods(Sealed,Access=protected)
+        function [sym_offset,symmetries] = extract_common_group_offset(symmetries)
+            % check if offset is the same within the group of symmetry
+            % transformations, extract common offset if some symmetry
+            % objects in the group does not have offset and throw if
+            % non-zero offsets in the group are different.
+            %
+            % Set up common offset on each element of the group if some
+            % elements of the group had zero offset.
+            %
+            % Inputs:
+            %
+            % symmetries -- array of symop-s. (Should not contain identity)
+            zer = zeros(3,1);
+            sym_offset = zer;
+            n_sym_offsets = 0;
+            for obj=symmetries
+                if any(abs(obj.offset-zer)>4*eps('double'))
+                    n_sym_offsets = n_sym_offsets + 1;
+                    if n_sym_offsets>1
+                        if any(abs(obj.offset-sym_offset)>4*eps('double'))
+                            error('HORACE:Symop:not_implemented',[ ...
+                                'Multiple offsets for group of transformations are not implemented.\n',...
+                                'All transformations in a transformation group array must have the same offset\n',...
+                                'used by all transfomations in the group\n',...
+                                'or the same offset for each element of the group']);
+                        end
+                    else
+                        sym_offset  = obj.offset;
+                    end
+                end
+            end
+            if n_sym_offsets> 0 && n_sym_offsets ~= numel(obj)
+                % there are offsets set on one or multiple symmetries but
+                % some symmetries have zero offsets. This is not allowed as
+                % assumed that they all must have the same offset.
+                for obj=symmetries
+                    obj.offset = sym_offset;
+                end
+            end
+        end
+        % Serializable interface
         function  [S,obj] = convert_old_struct (obj, S, varargin)
             if isfield(S,'n')
                 S.normvec = S.n;
@@ -562,6 +563,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
     end
     methods(Sealed)
+        % Serializable interface
         function ser = serialize(obj, varargin)
             ser = serialize@serializable(obj, varargin{:});
         end
