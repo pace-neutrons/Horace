@@ -1,4 +1,4 @@
-classdef test_symm < TestCase
+classdef test_symm < TestCaseWithSave
     % Validate the dnd symmetrisation routines
 
     properties
@@ -8,14 +8,26 @@ classdef test_symm < TestCase
         gam=0.1;
         amp=10;
         testdir;
+
+        test_sqw3d
+        test_sqw2d
     end
 
     methods
-        function this=test_symm(name)
-            this=this@TestCase(name);
-            this.testdir = fileparts(mfilename('fullpath'));
+        function obj=test_symm(varargin)
+            if nargin == 0
+                name = 'test_symm';
+            else
+                name = varargin{1};
+            end
+
+            obj=obj@TestCaseWithSave(name,'test_symm_ref_data.mat');
+            obj.testdir = fileparts(mfilename('fullpath'));
             hp = horace_paths;
-            this.testdir = hp.test_common;
+            obj.testdir = hp.test_common;
+            obj.test_sqw3d = read_sqw(fullfile(obj.testdir,'w3d_sqw.sqw'));
+            obj.test_sqw2d = read_sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+            obj.save();
         end
 
         function this=prepare_test_data(this)
@@ -83,50 +95,49 @@ classdef test_symm < TestCase
         % ------------------------------------------------------------------------------------------------
         % Tests
         % ------------------------------------------------------------------------------------------------
-        function this = test_sym_sqw_with_offsets(this)
+        function obj = test_sym_sqw_with_offsets(obj)
             % sqw symmetrisation:
-            w3d_sqw=read_sqw(fullfile(this.testdir,'w3d_sqw.sqw'));
+            w3d_sqw=copy(obj.test_sqw3d);
 
-            sym = [SymopReflection([-1,1,0],[0,0,1],[-0.5,-1,1.4]), ...
-                SymopReflection([-1,1,0],[0,0,1],[0.5,-1,1.4]), ...
-                SymopReflection([1,1,0],[0,0,1],[-1,-0.5,1.4]),...
-                SymopReflection([1,1,0],[0,0,1],[-1,0.5,1.4])];
+            % The correctness is checked
+            % from programers point of view.
+            sym = [...
+                SymopReflection([-1,1,0],[0,0,1],[-0.5,-0.5,1.485]), ...
+                SymopReflection([0,0,1],[-1,1,0],[0.5,0.5,1.485]), ...
+                SymopReflection([0,0,1],[1,1,0],[0.5,-0.5,1.485]),...
+                SymopReflection([1,1,0],[0,0,1],[-0.5,0.5,1.485])];
 
-            w3d_sqw_sym=symmetrise_sqw(w3d_sqw,sym(1));
+
+            w3d_sqw_sym=symmetrise_sqw(w3d_sqw,sym);
             % one pixel lost on edge, pity, but bearable.
             assertEqual(w3d_sqw.pix.num_pixels-1,w3d_sqw_sym.pix.num_pixels);
-            w3d_sqw_sym2=symmetrise_sqw(w3d_sqw_sym,sym(2));
-            assertEqual(w3d_sqw_sym.pix.num_pixels,w3d_sqw_sym2.pix.num_pixels);
-            w3d_sqw_sym3=symmetrise_sqw(w3d_sqw_sym2,sym(3));
-            assertEqual(w3d_sqw_sym3.pix.num_pixels,w3d_sqw_sym2.pix.num_pixels);
 
-            cc1=cut(w3d_sqw_sym,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
-            cc2=cut(w3d_sqw_sym3,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
+            % cut around elastic line to reduce amount of data to store but
+            % still have representative dataset
+            cc2=cut(w3d_sqw_sym,[-0.5,0.025,0.5],[-0.5,0.025,0.5],[20,25]);
+            assertEqualToTolWithSave(obj,cc2,'-ignore_date')
 
-            assertEqualToTol(cc1,cc2,-1e-6,'ignore_str', 1)
         end
         function obj = test_sym_sqw_group(obj)
             % sqw symmetrisation:
-            w3d_sqw=read_sqw(fullfile(obj.testdir,'w3d_sqw.sqw'));
+            w3d_sqw=copy(obj.test_sqw3d);
 
-            sym = [SymopReflection([0,0,1],[-1,1,0]), ...
-                SymopReflection([1,1,0],[0,0,1]), ...
-                SymopReflection([0,0,1],[-1,1,0])];
+            sym = [SymopReflection([-1,1,0],[0,0,1]), ...
+                SymopReflection([0,0,1],[1,1,0]), ...
+                SymopReflection([-1,1,0],[0,0,1])];
 
             w3d_sqw_sym3=symmetrise_sqw(w3d_sqw,sym);
             % one pixel lost on edge, pity, but bearable.
             assertEqual(w3d_sqw_sym3.pix.num_pixels,w3d_sqw.pix.num_pixels-1);
-
-            cc1=cut(w3d_sqw_sym,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
-            cc2=cut(w3d_sqw_sym3,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
-
-            assertEqualToTol(cc1,cc2,-1e-6,'ignore_str', 1)
+            % cut around elastic line to reduce amount of data to store but
+            % still have representative dataset
+            cc2=cut(w3d_sqw_sym3,[0.,0.025,1],[0.,0.025,1],[20,25]);
+            assertEqualToTolWithSave(obj,cc2,'-ignore_date')
         end
-        
-        
-        function this = test_sym_sqw(this)
+
+        function obj = test_sym_sqw(obj)
             % sqw symmetrisation:
-            w3d_sqw=read_sqw(fullfile(this.testdir,'w3d_sqw.sqw'));
+            w3d_sqw=copy(obj.test_sqw3d);
 
             sym = [SymopReflection([0,0,1],[-1,1,0]), ...
                 SymopReflection([1,1,0],[0,0,1]), ...
@@ -143,11 +154,11 @@ classdef test_symm < TestCase
             cc1=cut(w3d_sqw_sym,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
             cc2=cut(w3d_sqw_sym3,[0.2,0.025,1],[-0.1,0.1],[0,1.4,99.8]);
 
-            assertEqualToTol(cc1,cc2,-1e-6,'ignore_str', 1)
+            assertEqualToTol(cc1,cc2,-1e-6,'-ignore_str')
         end
 
         function obj = test_sym_rot(obj)
-            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+            w2d_sqw = copy(obj.test_sqw2d);
 
             sym = SymopRotation([0 0 1], 90);
 
@@ -161,7 +172,7 @@ classdef test_symm < TestCase
         end
 
         function obj = test_sym_rot_eges(obj)
-            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+            w2d_sqw = copy(obj.test_sqw2d);
             % cut it on fine bins and exact ranges to look better and
             % allow visualinspection for results
             w2d_sqw = cut(w2d_sqw,[-0.6+0.001,0.002,-0.4-0.001],[-0.65+0.001,0.002,-0.45-0.001]);
@@ -169,9 +180,7 @@ classdef test_symm < TestCase
 
             rc = 0.5*(w2d_sqw.data.img_range(1,:)+w2d_sqw.data.img_range(2,:))';
             rc = [rc(1:2);0];
-            % TODO: Re #1849 rot_centre at the moment is in Crystan Cartesian,
-            % but manual does not make it obvious. Have to be fixed, probably
-            % transform it into hkl
+
             rot_centre = proj.transform_img_to_pix(rc);
 
             sym = SymopRotation([0 0 1], 90,rot_centre);
@@ -184,23 +193,29 @@ classdef test_symm < TestCase
             %max_old_range = max(abs(eb'));
             ebcc = proj.transform_img_to_pix(eb);
 
-            sym_all = validate_and_generate_sym(sym);
+            sym_all = validate_and_generate_sym(sym,w2d_sqw.data.proj);
             transf_ranges = sym_all.transform_pix(ebcc);
             img_box_points      = proj.transform_pix_to_img(transf_ranges);
             img_db_range_minmax = min_max(img_box_points)';
 
             assertEqualToTol(img_db_range_minmax, ...
                 sqw2D_sym.data.img_range(:,1:3),1.e-14)
-
         end
 
-        function obj = test_sym_rot_in_proj(obj)
-            w2d_sqw = sqw(fullfile(obj.testdir,'sqw_2d_1.sqw'));
+        function obj = test_sym_rot_and_fold_around_point_outside(obj)
+            w2d_sqw = copy(obj.test_sqw2d);
 
+            % this operation rotates object anti-clockwise around point 0,
+            % located well out of range of the object 3 times.
+            % Object is rotated but remains unchanged.
+            % It is the question the interface for 3-fold rotation
+            % given this way is clear enough, but that what we currently
+            % have.
             sym = SymopRotation([0 0 1], 90);
+            sqw_sym = w2d_sqw.symmetrise_sqw(sym);
+            assertEqual(w2d_sqw.pix.num_pixels,sqw_sym.pix.num_pixels)
 
-            sqw_sym = w2d_sqw.symmetrise_sqw(sym, w2d_sqw.data.proj);
-
+            assertEqualToTolWithSave(obj,sqw_sym,'-ignore_date')
         end
 
         function obj = test_sym_sqw_fb(obj)

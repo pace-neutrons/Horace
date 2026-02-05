@@ -52,7 +52,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         b_matrix;
     end
 
-    properties (Access=private)
+    properties (Access=protected)
         offset_ = [0; 0; 0];  % offset vector for symmetry operator (rlu) (col)
         % this is not true
         u_offset_ = [0;0;0] % offset vector in Crystal Cartesian coordinate system (orthogonal, A^-1)
@@ -268,6 +268,14 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 error('HORACE:Symop:not_implemented', ...
                     'Transforming of %s pixels is not currently implemented',class(pix));
             end
+            if obj(1).offset_specified_uoffset_not_
+                error('HORACE:symop:invalid_argument',[ ...
+                    'You are attempting to symmetry-transform vector in Crystal Cartesial coordinate system,\n',...
+                    'but the information to transfer offset in rlu to CC have not been set.\n',...
+                    'Set up B-matrix, used to transfer vector into Crystal Cartesian coordinate system either by\n',...
+                    'using extended form of transform_proj method or assigning it directly to hidden Symop property: "b_matrix"'])
+            end
+
 
             % Do transformation
             if ~trust
@@ -368,7 +376,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % check if offset is the same within the group of symmetry
             % transformations, extract common offset if some symmetry
             % objects in the group does not have offset and throw if
-            % non-zero offset are different.
+            % non-zero offsets are different.
             %
             % Set up common offset on each element of the group if some
             % elements of the group had zero offset.
@@ -546,6 +554,13 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     % Serializable interface
+    methods(Sealed,Access=protected)
+        function  [S,obj] = convert_old_struct (obj, S, varargin)
+            if isfield(S,'n')
+                S.normvec = S.n;
+            end
+        end
+    end
     methods(Sealed)
         function ser = serialize(obj, varargin)
             ser = serialize@serializable(obj, varargin{:});
@@ -574,7 +589,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
 
         function ver = classVersion(~)
-            ver = 1;
+            ver = 2;
         end
 
         function flds = saveableFields(obj)
@@ -628,6 +643,5 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
             end
         end
-
     end
 end

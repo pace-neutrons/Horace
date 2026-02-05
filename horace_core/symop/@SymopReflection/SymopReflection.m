@@ -72,12 +72,13 @@ classdef SymopReflection < Symop
         % Compute whether the coordinates in `coords` are in the irreducible
         % set following the operation
 
+            u_offset = obj.u_offset_;
             if exist('proj', 'var')
-                selected = coords'*proj.transform_img_to_pix(obj.normvec) > 0;
+                norm_vec = proj.transform_hkl_to_pix(obj.normvec);
+                selected = (coords-u_offset)'*(norm_vec/norm(norm_vec)) > 0;
             else
-                selected = coords'*obj.normvec > 0;
+                selected = (coords-u_offset)'*obj.normvec > 0;
             end
-
         end
 
         function R = calculate_transform(obj, Bmat)
@@ -135,7 +136,7 @@ classdef SymopReflection < Symop
     % Serializable interface
     methods
         function flds = local_saveableFields(~)
-            flds = {'u', 'v', 'offset'};
+            flds = {'u', 'v', 'offset','b_matrix'};
         end
     end
 
