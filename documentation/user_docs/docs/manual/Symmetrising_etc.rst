@@ -45,7 +45,7 @@ a vector which defines a point on the plane (the offset). The constructor for a
 
 `Cutting`_ with ``SymopReflection`` and `Symmetrising`_ (see below) use this transformation for reflecting 
 data from the half of the space separated by reflection plane into another half of the space. The target half-space 
-is the area where the vector, built on the reflection plane's 3-vectors according to right-hand rule is positive.
+is the area where the vector, built on the vectors, defining reflection plane according to right-hand rule is positive.
 
 Rotations
 ---------
@@ -158,14 +158,21 @@ Groups of symmetry operators
 ----------------------------
 
 For a more complex transformation involving a series of rotations and
-reflections it is possible to construct an array of transformations to be
-applied in sequence (as a series of pre-multiplications, i.e. applied in the
-reverse order of the list).
+reflections applied to single area of space, it is possible to construct an array 
+of transformations to be applied in sequence (as a series of pre-multiplications,
+i.e. applied in the reverse order of the list).
 
 .. code-block:: matlab
 
    % Rotate 90 deg about X, Reflect across X, Rotate back 90 deg about X
    >> big_sym = [SymopRotation([1 0 0], 90), SymopReflection([0 1 0], [0 0 1]), SymopRotation([1 0 0], -90)];
+   
+.. note::
+
+  The group of symmetry operations can have only one offset. You may provide it with only one symmetry in the group,
+  but code will propagate it to all group's transformations. For example, the expression: ``[SymopRotation([1 0 0], 90,[1,0,0]), SymopReflection([0 1 0], [0 0 1])]`` is equivalent to: ``[SymopRotation([1 0 0], 90,[1,0,0]), SymopReflection([0 1 0], [0 0 1],[1,0,0])]``, Attempt to give different offsets to different operations,
+  e.g. ``[SymopRotation([1 0 0], 90,[1,0,0]), SymopReflection([0 1 0], [0 0 1],[0,1,0])]``; will fail.
+  Use cellarray of symmetry transformations to allow different offsets and apply symmetries to different areas of the object.
 
 Irreducible region
 ------------------
