@@ -30,8 +30,12 @@ function [targ_ax_block,targ_proj,sym] = define_target_axes_block(obj, targ_proj
 % check if default binning is necessary
 default_needed = cellfun(@is_default_needed, pbin);
 
-[targ_proj,sym] = cellfun(@(x) x.transform_proj(targ_proj), ...
-    sym, 'UniformOutput', false);
+if isa(targ_proj,'LineProjBase')
+    [targ_proj,sym] = cellfun(@(x) x.transform_proj(targ_proj), ...
+        sym, 'UniformOutput', false);
+else
+    targ_proj = {targ_proj};
+end
 
 if any(default_needed)
     % Get the source binning ranges, transformed into target coordinate system.

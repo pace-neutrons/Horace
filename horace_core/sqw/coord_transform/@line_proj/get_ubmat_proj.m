@@ -10,6 +10,6 @@ else
         'offset',obj.offset,'label',obj.label,'title',obj.title);
 end
 % transfer symmetry transformation if one is defined
-if ~isemty(obj.sym_transf_)
+if ~isempty(obj.sym_transf_)
     ubp.sym_transf = obj.sym_transf_;
 end
