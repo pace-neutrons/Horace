@@ -99,17 +99,17 @@ else
     error('HORACE:symmetrise_sqw:not_implemented', ...
         'Symmetrise does not currently support %s', class(sym))
 end
-if ~zero_offset
-    b_mat = proj.bmatrix(3);
-    is_cell = iscell(sym);
-    for i  =1:numel(sym)
-        if is_cell
-            sym{i}.b_matrix = b_mat;
-        else
-            sym(i).b_matrix = b_mat;
-        end
+
+b_mat = proj.bmatrix(3);
+is_cell = iscell(sym);
+for i  =1:numel(sym)
+    if is_cell
+        sym{i}.b_matrix = b_mat;
+    else
+        sym(i).b_matrix = b_mat;
     end
 end
+
 end
 
 function [same,is_zero_offset] = is_same_offset(sym)

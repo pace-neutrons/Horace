@@ -68,8 +68,13 @@ classdef SymopReflection < Symop
         end
 
         function normvec = get.normvec(obj)
-            normvec = cross(obj.u, obj.v);
-            normvec = normvec / norm(normvec);
+            bm = obj.b_matrix;            
+            if isempty(bm)
+                error('HORACE:SymopReflection:invalid_argument', ...
+                    'Proper normalization vector can be defined in orthogonal systems only')
+            end
+            normvec = cross(bm*obj.u, bm*obj.v);
+            normvec = bm\normvec / norm(normvec);
         end
 
         function selected = in_irreducible(obj, coords, proj)

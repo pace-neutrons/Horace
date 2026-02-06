@@ -143,7 +143,7 @@ dat.s    = 0;
 dat.e    = 0;
 dat.npix = 0;
 
-proj = dat.proj;
+
 % unique_id is needed to call sort pixels inside routine
 [dat.npix,dat.s,dat.e,pix,unique_id] = ...
     proj.bin_pixels(dat.axes,wout.pix,dat.npix,dat.s,dat.e);
