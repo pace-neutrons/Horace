@@ -44,11 +44,10 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         R;
         % Offset of transform
         offset;
-    end
-    properties(Dependent,Hidden)
-        % helper property, used to transform offset from hkl to Crystal
+        % helper property, used to transform offset from rlu to Crystal
         % Cartesian coordinate system used in marjority of pixel
-        % transformations
+        % transformations. May be omitted if offset is 0 and you do not
+        % use operations, which involve coordinate transformations.
         b_matrix;
     end
 
@@ -297,7 +296,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function [proj,obj] = transform_proj (obj, proj)
+        function [proj,out_obj] = transform_proj (obj, proj)
             % Transform projection axes description by the symmetry operation
             % or array of symmetry operations.
             %
@@ -365,6 +364,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 end
                 obj(i).do_check_combo_arg = true;
                 obj(i) = obj(i).check_combo_arg();
+            end
+            if numel(obj)>1
+                out_obj = SymopGeneral(sym_transf_mat,sym_offset);
+                out_obj.b_matrix = bm;
+            else
+                out_obj = obj;
             end
 
             proj = obj(1).transform_proj_single(proj,sym_transf_mat,sym_offset,bm);

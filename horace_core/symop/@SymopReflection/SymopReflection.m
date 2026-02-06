@@ -108,6 +108,14 @@ classdef SymopReflection < Symop
         %   R       Transformation matrix to be applied to the components of a
         %          vector given in the orthonormal frame for which Minv is defined
         % Determine the representation of u and v in the orthonormal frame
+        if nargin<2
+            Bmat = obj.b_matrix_;
+            if isempty(Bmat)
+                error('HORACE:SymopReflection:invalid_argument',[ ...
+                    'B-matrix have to be provided either as argument or\n' ...
+                    'as symmetry class property. In fact it is missing'])
+            end
+        end
             e1 = Bmat * obj.u_;
             e2 = Bmat * obj.v_;
             n = cross(e1,e2);

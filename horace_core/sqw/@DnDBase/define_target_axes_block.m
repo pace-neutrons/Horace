@@ -1,6 +1,10 @@
-function [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin, sym)
+function [targ_ax_block,targ_proj,sym] = define_target_axes_block(obj, targ_proj, pbin, sym)
 % Define target axes block from existing axes, cut inputs and the projections
-% transforming the data into target image.
+% transforming the data into target image. If symmetry operations are
+% provided, generate projections, which would correspond to specified
+% symmetry operations and do transformations from symmetry related areas
+% to target area.
+%
 % Inputs:
 % obj       -- DnD object
 % targ_proj -- the projection class which defines the
@@ -18,11 +22,15 @@ function [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pb
 %           -- the input target projection, which extracted
 %              some input parameters from source projection
 %              (e.g. lattice if undefined, etc)
+% sym       -- cellarray of modified symmetry operations, i.e.
+%              each single operation has b-matrix attached to it and any
+%              combinations (array) of symmetry operations are transformed
+%              into generic symop
 
 % check if default binning is necessary
 default_needed = cellfun(@is_default_needed, pbin);
 
-targ_proj = cellfun(@(x) x.transform_proj(targ_proj), ...
+[targ_proj,sym] = cellfun(@(x) x.transform_proj(targ_proj), ...
     sym, 'UniformOutput', false);
 
 if any(default_needed)

@@ -297,7 +297,7 @@ classdef test_symop < TestCase
             out_proj  = obj.check_proj_transformation_correct(op,sproj);
 
             assertEqual(out_proj.sym_transf,op.R);
-            assertEqual(out_proj.offset,[1,0,0]);
+            assertEqual(out_proj.offset,[1,0,0,0]);
         end
 
 
@@ -413,7 +413,7 @@ classdef test_symop < TestCase
             % them into new image
             sym_img_pts  = proj.transform_pix_to_img(sym_pts);
 
-            % symmetrytransform pixels into image coordinate system
+            % symmetry-transform pixels into image coordinate system
             proj_sym_pts = out_proj.transform_pix_to_img(obj.points2transform);
 
             assertEqualToTol(sym_img_pts, proj_sym_pts, 'abstol', 1e-14)

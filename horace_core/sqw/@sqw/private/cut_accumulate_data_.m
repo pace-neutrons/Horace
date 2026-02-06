@@ -229,7 +229,10 @@ for iter = 1:num_chunks
         if apply_symmetries
             [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
                 targ_proj(i).bin_pixels(targ_axes, candidate_pix, npix, s, e,unique_runid);
-            % Apply symop to the transformed pixels to keep them in-sync with image
+            % Apply symop to the transformed pixels into symmetry related area
+            % to keep them in-sync with image, built from pixels, symmetry
+            % transformed to this image. pix_ok are all selected so should
+            % be subject to symmetry operation
             pix_ok = sym{i}.transform_pix(pix_ok, {}, true(1,pix_ok.num_pixels), true);
             candidate_pix = candidate_pix.tag(selected);
         else

@@ -1,7 +1,7 @@
 classdef SymopRotation < Symop
 
     properties(Dependent)
-        normvec; % the vector describing the rotation axis direction
+        normvec;     % the vector describing the rotation axis direction (in rlu)
         theta_deg;  % Angle of rotation
     end
 
@@ -82,24 +82,23 @@ classdef SymopRotation < Symop
                     'alatt', [1, 1, 1]);
             end
 
-            if ~isequal(proj.angdeg, [90 90 90])
-                error('HORACE:SymopRotation:invalid_argument', ...
-                    ['Rotational reduction is only supported for an orthogonal projection. ', ...
-                    'If using symmetrise_sqw, please pass through an orthogonal projection'])
-            end
-
-            nr = obj.normvec / norm(obj.normvec);
-            if sum(abs(nr - [1; 0; 0])) > 1e-1
-                u = [1; 0; 0];
-            else
-                u = [0; 1; 0];
-            end
-
-            v = obj.transform_vec(u);
-
-            u = proj.transform_hkl_to_pix(u);
-            v = proj.transform_hkl_to_pix(v);
+            % if ~isequal(proj.angdeg, [90 90 90])
+            %     warining('HORACE:SymopRotation:non-orthogonal coordinate system', ...
+            %         ['Rotational reduction is only supported for an orthogonal projection. ', ...
+            %         'If using symmetrise_sqw, please pass through an orthogonal projection'])
+            % end
+            % 
             u_offset = proj.transform_hkl_to_pix(obj.offset);
+
+            nr = proj.transform_hkl_to_pix(obj.normvec);  % normvec
+            nr = nr/ norm(nr); %  provided in rlu, so to be converted in CC
+            if sum(abs(nr - [1; 0; 0])) > 1e-1  % these vectors considered
+                % to be in Crystal Cartesiab
+                u = [1; 0; 0] + u_offset ;
+            else
+                u = [0; 1; 0] + u_offset;
+            end
+            v = obj.transform_vec(u);
 
             normvec_u = cross(nr, u);
             normvec_v = cross(v, nr);
