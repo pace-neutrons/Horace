@@ -13,7 +13,7 @@ classdef SymopReflection < Symop
     end
 
     methods
-        function obj = SymopReflection(u, v, offset)
+        function obj = SymopReflection(u, v, offset,varargin)
             if nargin == 0
                 return
             end
@@ -37,6 +37,10 @@ classdef SymopReflection < Symop
             obj.u = u;
             obj.v = v;
             obj.offset = offset;
+            if nargin>3
+                obj.b_matrix = varargin{1};
+            end
+
         end
 
         function obj = set.u(obj, val)

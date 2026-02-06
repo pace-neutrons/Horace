@@ -10,7 +10,7 @@ classdef SymopGeneral < Symop
 
     methods
 
-        function obj = SymopGeneral(W, offset)
+        function obj = SymopGeneral(W, offset,varargin)
             if nargin == 0
                 return
             end
@@ -28,7 +28,9 @@ classdef SymopGeneral < Symop
 
             obj.W = W;
             obj.offset = offset;
-
+            if nargin>2
+                obj.b_matrix = varargin{1};
+            end
         end
 
         function obj = set.W(obj, val)

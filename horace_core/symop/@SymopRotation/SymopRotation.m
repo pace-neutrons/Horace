@@ -16,7 +16,7 @@ classdef SymopRotation < Symop
     end
 
     methods
-        function obj = SymopRotation(n, theta_deg, offset)
+        function obj = SymopRotation(n, theta_deg, offset,varargin)
             if nargin == 0
                 return
             end
@@ -35,6 +35,9 @@ classdef SymopRotation < Symop
             obj.normvec = n;
             obj.theta_deg = theta_deg;
             obj.offset = offset;    % make col vector
+            if nargin>3
+                obj.b_matrix = varargin{1};
+            end
 
         end
 
