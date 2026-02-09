@@ -566,92 +566,33 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
     methods(Sealed)
         % Serializable interface
-        % function ser = serialize(obj, varargin)
-        %     ser = serialize@serializable(obj, varargin{:});
-        % end
-        % 
-        % function ser = deserialize(obj, varargin)
-        %     ser = deserialize@serializable(obj, varargin{:});
-        % end
-
+        function ser = serialize(obj, varargin)
+            ser = serialize@serializable(obj, varargin{:});
+        end
         function out = to_struct(obj, varargin)
             out = to_struct@serializable(obj, varargin{:});
-            if numel(obj)> 1
-                out.serial_name = class(obj);
+            if ~isscalar(obj)
+                out.serial_name = 'SymopIdentity';
             end
         end
-
+        %
         function out = to_bare_struct(obj, varargin)
-            if isscalar(obj)
-                out = to_bare_struct@serializable(obj, varargin{:});
-                return;
-            end
             out = struct('class', cell(numel(obj), 1), 'data', cell(numel(obj), 1));
             for i = 1:numel(obj)
                 out(i) = struct('class', class(obj(i)), ...
                     'data', {cellfun(@(x) obj(i).(x), obj(i).saveableFields, 'UniformOutput', false)});
             end
         end
-        % 
-        % function out = from_bare_struct(~, array_dat)
-        %     out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
-        %     out = [out{:}];
-        % end
-
+        function out = from_bare_struct(~, array_dat)
+            out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
+            out = [out{:}];
+        end
+        %
         function ver = classVersion(~)
             ver = 2;
         end
-
         function flds = saveableFields(obj)
             flds = obj.local_saveableFields();
         end
-        % function [isne, mess] = ne(A, B, varargin)
-        %     isne = ~eq(A, B, varargin);
-        %     mess = '';
-        % end
-        % 
-        % function [iseq, mess] = eq(A, B, varargin)
-        % 
-        %     mess = '';
-        %     iseq = numel(A) == numel(B);
-        %     if ~iseq
-        %         mess = sprintf('Arrays not same size (%d, %d)', ...
-        %             numel(A), numel(B));
-        %         return;
-        %     end
-        % 
-        %     for i = 1:numel(A)
-        %         objA = A(i);
-        %         objB = B(i);
-        % 
-        %         iseq = class(objA) == class(objB);
-        %         if ~iseq
-        %             mess = sprintf('Objects not of same class (%s, %s)', ...
-        %                 class(objA), class(objB));
-        %             return;
-        %         end
-        % 
-        %         iseq = equal_to_tol(objA.saveableFields(), objB.saveableFields());
-        %         if ~iseq
-        %             mess = sprintf('Objects have mismatched fields (%s, %s)', ...
-        %                 disp2str(objA.saveableFields()), ...
-        %                 disp2str(objB.saveableFields()));
-        %             return;
-        %         end
-        % 
-        %         fld = objA.saveableFields();
-        %         for j = 1:numel(fld)
-        %             iseq = objA.(fld{j}) == objB.(fld{j});
-        %             if ~iseq
-        %                 mess = sprintf('Objects differ in field %s (%s, %s)', ...
-        %                     fld{j}, ...
-        %                     disp2str(objA.(fld{j})), ...
-        %                     disp2str(objB.(fld{j})));
-        %                 return;
-        %             end
-        %         end
-        % 
-        %     end
-        % end
     end
 end
