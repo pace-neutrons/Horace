@@ -71,7 +71,7 @@ classdef SymopReflection < Symop
             bm = obj.b_matrix;
             if isempty(bm)
                 error('HORACE:SymopReflection:invalid_argument', ...
-                    'Proper normalization vector can be defined in orthogonal systems only')
+                    'To obtain proper normalization vector, one needs to define B-matrix')
             end
             [ubm,um] = ubmatrix(obj.u,obj.v,bm);
             normvec = um'*cross(ubm*obj.u, ubm*obj.v); % um is rotation matrix so inversion == transpose

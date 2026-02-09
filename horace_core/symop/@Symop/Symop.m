@@ -576,16 +576,22 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
         function out = to_struct(obj, varargin)
             out = to_struct@serializable(obj, varargin{:});
-            out.serial_name = class(obj);
+            if numel(obj)> 1
+                out.serial_name = class(obj);
+            end
         end
 
-        % function out = to_bare_struct(obj, varargin)
-        %     out = struct('class', cell(numel(obj), 1), 'data', cell(numel(obj), 1));
-        %     for i = 1:numel(obj)
-        %         out(i) = struct('class', class(obj(i)), ...
-        %             'data', {cellfun(@(x) obj(i).(x), obj(i).saveableFields, 'UniformOutput', false)});
-        %     end
-        % end
+        function out = to_bare_struct(obj, varargin)
+            if isscalar(obj)
+                out = to_bare_struct@serializable(obj, varargin{:});
+                return;
+            end
+            out = struct('class', cell(numel(obj), 1), 'data', cell(numel(obj), 1));
+            for i = 1:numel(obj)
+                out(i) = struct('class', class(obj(i)), ...
+                    'data', {cellfun(@(x) obj(i).(x), obj(i).saveableFields, 'UniformOutput', false)});
+            end
+        end
         % 
         % function out = from_bare_struct(~, array_dat)
         %     out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
