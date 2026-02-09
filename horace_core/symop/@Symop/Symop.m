@@ -45,7 +45,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         % Offset of transform
         offset;
         % helper property, used to transform offset from rlu to Crystal
-        % Cartesian coordinate system used in marjority of pixel
+        % Cartesian coordinate system used in majority of pixel
         % transformations. May be omitted if offset is 0 and you do not
         % use operations, which involve coordinate transformations.
         b_matrix;
@@ -58,8 +58,8 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
         % CACHES for performance
         offset_specified_uoffset_not_ = false; % helper property used to ensure
-        % that offset in Crystal Cartesisian has been modified in
-        % accordence with offset in rlu. Calculations should not happen if they are asynchroneous
+        % that offset in Crystal Cartesian has been modified in
+        % accordance with offset in rlu. Calculations should not happen if they are asynchronous
         b_matrix_ = [];
     end
 
@@ -106,7 +106,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     methods(Abstract)
         R = calculate_transform(obj, B_mat)
         local_disp(obj)
-        selected = in_irreducible(obj, coords)
+        selected = in_irreducible(obj, coords,varagin)
     end
 
     methods(Sealed)
@@ -139,7 +139,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % Transform a vector or array of vectors according to array of
             % Symops stored in `obj`.
             %
-            % To avoid confusion, vector coorinate system expected to be
+            % To avoid confusion, vector coordinate system expected to be
             % orthogonal and Crystal Cartesian (if offset present, it
             % expressed in CC, if it is 0, other coordinates may be
             % considered
@@ -169,13 +169,13 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 use_rlu_offset = false;
             end
 
-            % only single offset is allowed on groupt of objects
+            % only single offset is allowed on group of objects
             if use_rlu_offset
                 shift = obj(1).offset;
             else
                 if obj(1).offset_specified_uoffset_not_
                     error('HORACE:symop:invalid_argument',[ ...
-                        'You are attempting to symmetry-transform vector in Crystal Cartesial coordinate system,\n',...
+                        'You are attempting to symmetry-transform vector in Crystal Cartesian coordinate system,\n',...
                         'but the information to transfer offset in rlu to CC have not been set.\n',...
                         'Set up B-matrix, used to transfer vector into Crystal Cartesian coordinate system either by\n',...
                         'using extended form of transform_proj method or assigning it directly to hidden Symop property: "b_matrix"'])
@@ -204,7 +204,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function pix = transform_pix(obj, pix, proj, selected, trust,use_rlu_offset)
+        function pix = transform_pix(obj, pix, abs_tol, selected, trust,use_rlu_offset)
             % Transform pixel coordinates into symmetry related coordinates
             %
             % The transformation converts the components of a vector which is
@@ -218,16 +218,15 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % Input:
             % ------
             %   obj         Symmetry operator or array of symmetry operators
-            %               If an array, then they are applied in order obj(1), obj(2),...
+            %               If an array, then they are applied in order
+            %               obj(end), obj(end-1),...obj(1);
+            %   pix         PixelData object or 3xNpix vector representing
+            %               pixels coordinates to transform
             %
-            %   upix_to_rlu Matrix to convert components of a vector in pixel coordinate
-            %              frame (which is an orthonormal frame) into rlu (3x3 matrix)
+            %  abs_tol     value of the tolerance, used in evaluation of
+            %              validity if pixels belong to irredusable zone
             %
-            %   upix_offset Offset of origin of pixel coordinate frame (rlu) (vector length 3)
-            %
-            %   pix         PixelData object
-            %
-            %   selected    Pixels to transform
+            %   selected    logical array specifying what pixels to transform
             %
             %   trust       Whether to trust that `selected` is valid
             %               and bypass `in_irreducible` checks.
@@ -236,11 +235,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % -------
             %   pix         Transformed PixelData object
 
-            if ~exist('proj', 'var')
-                proj = {};
+            if nargin < 3%~exist('abs_tol', 'var')
+                abs_tol = 0;
             end
             define_selected = false;
-            if ~exist('selected', 'var')
+            if nargin < 4 % ~exist('selected', 'var')
                 define_selected = true;
             end
             if nargin<5 % ~exist('trust', 'var')
@@ -269,17 +268,16 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
             if obj(1).offset_specified_uoffset_not_
                 error('HORACE:symop:invalid_argument',[ ...
-                    'You are attempting to symmetry-transform vector in Crystal Cartesial coordinate system,\n',...
+                    'You are attempting to symmetry-transform vector in Crystal Cartesian coordinate system,\n',...
                     'but the information to transfer offset in rlu to CC have not been set.\n',...
                     'Set up B-matrix, used to transfer vector into Crystal Cartesian coordinate system either by\n',...
                     'using extended form of transform_proj method or assigning it directly to hidden Symop property: "b_matrix"'])
             end
 
-
             % Do transformation
             if ~trust
                 for i = numel(obj):-1:1
-                    nin_zone = ~obj(i).in_irreducible(q_coordinates, proj{:});
+                    nin_zone = ~obj(i).in_irreducible(q_coordinates,abs_tol);
                     %in_zone(~selected) = false;
                     transform = selected & nin_zone';
                     q_coordinates(:,transform) = obj(i).transform_vec(q_coordinates(:,transform),use_rlu_offset);
@@ -338,7 +336,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %           Also, if offset is set on only one symmetry
             %           transformation, it will be propagated to all
             %           symmetry transformations.
-            %
             %
 
             % Check input
@@ -569,31 +566,31 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
     methods(Sealed)
         % Serializable interface
-        function ser = serialize(obj, varargin)
-            ser = serialize@serializable(obj, varargin{:});
-        end
-
-        function ser = deserialize(obj, varargin)
-            ser = deserialize@serializable(obj, varargin{:});
-        end
+        % function ser = serialize(obj, varargin)
+        %     ser = serialize@serializable(obj, varargin{:});
+        % end
+        % 
+        % function ser = deserialize(obj, varargin)
+        %     ser = deserialize@serializable(obj, varargin{:});
+        % end
 
         function out = to_struct(obj, varargin)
             out = to_struct@serializable(obj, varargin{:});
-            out.serial_name = 'SymopIdentity';
+            out.serial_name = class(obj);
         end
 
-        function out = to_bare_struct(obj, varargin)
-            out = struct('class', cell(numel(obj), 1), 'data', cell(numel(obj), 1));
-            for i = 1:numel(obj)
-                out(i) = struct('class', class(obj(i)), ...
-                    'data', {cellfun(@(x) obj(i).(x), obj(i).saveableFields, 'UniformOutput', false)});
-            end
-        end
-
-        function out = from_bare_struct(~, array_dat)
-            out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
-            out = [out{:}];
-        end
+        % function out = to_bare_struct(obj, varargin)
+        %     out = struct('class', cell(numel(obj), 1), 'data', cell(numel(obj), 1));
+        %     for i = 1:numel(obj)
+        %         out(i) = struct('class', class(obj(i)), ...
+        %             'data', {cellfun(@(x) obj(i).(x), obj(i).saveableFields, 'UniformOutput', false)});
+        %     end
+        % end
+        % 
+        % function out = from_bare_struct(~, array_dat)
+        %     out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
+        %     out = [out{:}];
+        % end
 
         function ver = classVersion(~)
             ver = 2;
@@ -602,53 +599,53 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         function flds = saveableFields(obj)
             flds = obj.local_saveableFields();
         end
-        function [isne, mess] = ne(A, B, varargin)
-            isne = ~eq(A, B, varargin);
-            mess = '';
-        end
-
-        function [iseq, mess] = eq(A, B, varargin)
-
-            mess = '';
-            iseq = numel(A) == numel(B);
-            if ~iseq
-                mess = sprintf('Arrays not same size (%d, %d)', ...
-                    numel(A), numel(B));
-                return;
-            end
-
-            for i = 1:numel(A)
-                objA = A(i);
-                objB = B(i);
-
-                iseq = class(objA) == class(objB);
-                if ~iseq
-                    mess = sprintf('Objects not of same class (%s, %s)', ...
-                        class(objA), class(objB));
-                    return;
-                end
-
-                iseq = equal_to_tol(objA.saveableFields(), objB.saveableFields());
-                if ~iseq
-                    mess = sprintf('Objects have mismatched fields (%s, %s)', ...
-                        disp2str(objA.saveableFields()), ...
-                        disp2str(objB.saveableFields()));
-                    return;
-                end
-
-                fld = objA.saveableFields();
-                for j = 1:numel(fld)
-                    iseq = objA.(fld{j}) == objB.(fld{j});
-                    if ~iseq
-                        mess = sprintf('Objects differ in field %s (%s, %s)', ...
-                            fld{j}, ...
-                            disp2str(objA.(fld{j})), ...
-                            disp2str(objB.(fld{j})));
-                        return;
-                    end
-                end
-
-            end
-        end
+        % function [isne, mess] = ne(A, B, varargin)
+        %     isne = ~eq(A, B, varargin);
+        %     mess = '';
+        % end
+        % 
+        % function [iseq, mess] = eq(A, B, varargin)
+        % 
+        %     mess = '';
+        %     iseq = numel(A) == numel(B);
+        %     if ~iseq
+        %         mess = sprintf('Arrays not same size (%d, %d)', ...
+        %             numel(A), numel(B));
+        %         return;
+        %     end
+        % 
+        %     for i = 1:numel(A)
+        %         objA = A(i);
+        %         objB = B(i);
+        % 
+        %         iseq = class(objA) == class(objB);
+        %         if ~iseq
+        %             mess = sprintf('Objects not of same class (%s, %s)', ...
+        %                 class(objA), class(objB));
+        %             return;
+        %         end
+        % 
+        %         iseq = equal_to_tol(objA.saveableFields(), objB.saveableFields());
+        %         if ~iseq
+        %             mess = sprintf('Objects have mismatched fields (%s, %s)', ...
+        %                 disp2str(objA.saveableFields()), ...
+        %                 disp2str(objB.saveableFields()));
+        %             return;
+        %         end
+        % 
+        %         fld = objA.saveableFields();
+        %         for j = 1:numel(fld)
+        %             iseq = objA.(fld{j}) == objB.(fld{j});
+        %             if ~iseq
+        %                 mess = sprintf('Objects differ in field %s (%s, %s)', ...
+        %                     fld{j}, ...
+        %                     disp2str(objA.(fld{j})), ...
+        %                     disp2str(objB.(fld{j})));
+        %                 return;
+        %             end
+        %         end
+        % 
+        %     end
+        % end
     end
 end

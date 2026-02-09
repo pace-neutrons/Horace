@@ -10,8 +10,8 @@ classdef SymopRotation < Symop
         theta_deg_;
     end
     properties(Dependent,Hidden)
-        % provide compartibility with old SymopRotation interface where
-        % normevtor is described by n
+        % provide compatibility with old SymopRotation interface where
+        % norm-vector is described by n
         n
     end
 
@@ -67,7 +67,7 @@ classdef SymopRotation < Symop
             theta_deg = obj.theta_deg_;
         end
 
-        function selected = in_irreducible(obj, coords, proj)
+        function selected = in_irreducible(obj, coords, tolerance)
             % Compute whether the coordinates in `coords` (Q) are in the irreducible
             % set following the symmetry reduction under this operator
             %
@@ -78,25 +78,13 @@ classdef SymopRotation < Symop
             % And thus any coordinate `q` from `Q` where
             % q*(n x u) > 0 && q*(v x n) > 0
             % belong to the irreducible set in the upper right quadrant
+            %
+            u_offset = obj.u_offset_; %proj.transform_hkl_to_pix(obj.offset);
 
-            if ~exist('proj', 'var')
-                proj = line_proj([1, 0, 0], [0, 1, 0], ...
-                    'angdeg', [90, 90, 90], ...
-                    'alatt', [1, 1, 1]);
-            end
-
-            % if ~isequal(proj.angdeg, [90 90 90])
-            %     warining('HORACE:SymopRotation:non-orthogonal coordinate system', ...
-            %         ['Rotational reduction is only supported for an orthogonal projection. ', ...
-            %         'If using symmetrise_sqw, please pass through an orthogonal projection'])
-            % end
-            % 
-            u_offset = proj.transform_hkl_to_pix(obj.offset);
-
-            nr = proj.transform_hkl_to_pix(obj.normvec);  % normvec
-            nr = nr/ norm(nr); %  provided in rlu, so to be converted in CC
+            nr = obj.b_matrix_*obj.normvec;  % provided in rlu, so to be converted in CC
+            nr = nr/ norm(nr);
             if sum(abs(nr - [1; 0; 0])) > 1e-1  % these vectors considered
-                % to be in Crystal Cartesiab
+                % to be in Crystal Cartesian
                 u = [1; 0; 0] + u_offset ;
             else
                 u = [0; 1; 0] + u_offset;
@@ -106,8 +94,13 @@ classdef SymopRotation < Symop
             normvec_u = cross(nr, u);
             normvec_v = cross(v, nr);
 
-            selected = ((coords-u_offset(:))'*normvec_u >= 0 & ...
-                (coords-u_offset(:))'*normvec_v > 0);
+            if tolerance <= 0
+                selected = ((coords-u_offset(:))'*normvec_u >= 0 & ...
+                    (coords-u_offset(:))'*normvec_v > 0);
+            else
+                selected = ((coords-u_offset(:))'*normvec_u + tolerance >= 0 & ...
+                    (coords-u_offset(:))'*normvec_v + tolerance > 0);
+            end
         end
 
         function R = calculate_transform(obj, BMatrix)

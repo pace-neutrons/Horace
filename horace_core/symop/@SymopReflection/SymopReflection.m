@@ -1,5 +1,5 @@
 classdef SymopReflection < Symop
-    % class defines reflection operation 
+    % class defines reflection operation
 
     properties(Dependent)
         u; % first vector lying in and defining reflection plane
@@ -24,14 +24,14 @@ classdef SymopReflection < Symop
 
             if ~SymopReflection.check_args({u, v, offset})
                 error('HORACE:symop:invalid_argument', ...
-                      ['Constructor arguments should be:\n', ...
-                       '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
-                       'Received: %s'], disp2str({u, v, offset}));
+                    ['Constructor arguments should be:\n', ...
+                    '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
+                    'Received: %s'], disp2str({u, v, offset}));
             end
 
             if norm(cross(u, v)) < 1e-2
                 error('HORACE:symop:invalid_argument', ...
-                      'Colinear vectors u & v')
+                    'Colinear vectors u & v')
             end
 
             obj.u = u;
@@ -46,7 +46,7 @@ classdef SymopReflection < Symop
         function obj = set.u(obj, val)
             if  ~obj.is_3vector(val)
                 error('HORACE:symop:invalid_argument', ...
-                      'Reflection vector u must be a three vector');
+                    'Reflection vector u must be a three vector');
             end
             obj.u_ = val(:);    % make col vector
         end
@@ -58,7 +58,7 @@ classdef SymopReflection < Symop
         function obj = set.v(obj, val)
             if  ~obj.is_3vector(val)
                 error('HORACE:symop:invalid_argument', ...
-                      'Reflection vector v must be a three vector');
+                    'Reflection vector v must be a three vector');
             end
             obj.v_ = val(:);    % make col vector
         end
@@ -68,63 +68,65 @@ classdef SymopReflection < Symop
         end
 
         function normvec = get.normvec(obj)
-            bm = obj.b_matrix;            
+            bm = obj.b_matrix;
             if isempty(bm)
                 error('HORACE:SymopReflection:invalid_argument', ...
                     'Proper normalization vector can be defined in orthogonal systems only')
             end
-            normvec = cross(bm*obj.u, bm*obj.v);
-            normvec = bm\normvec / norm(normvec);
+            [ubm,um] = ubmatrix(obj.u,obj.v,bm);
+            normvec = um'*cross(ubm*obj.u, ubm*obj.v); % um is rotation matrix so inversion == transpose
+            normvec = normvec / norm(normvec); % vector in CC coordinate system
         end
 
-        function selected = in_irreducible(obj, coords, proj)
-        % Compute whether the coordinates in `coords` are in the irreducible
-        % set following the operation
+        function selected = in_irreducible(obj, coords, tolerance)
+            % Compute whether the coordinates in `coords` are in the irreducible
+            % set following the operation.
+            % If tolerance is present, calculate the belonging coordinates
+            % including tolerance
 
             u_offset = obj.u_offset_;
-            if exist('proj', 'var')
-                norm_vec = proj.transform_hkl_to_pix(obj.normvec);
-                selected = (coords-u_offset)'*(norm_vec/norm(norm_vec)) > 0;
-            else
+            if tolerance <= 0
                 selected = (coords-u_offset)'*obj.normvec > 0;
+            else
+                selected = (coords-u_offset)'*(obj.normvec) + tolerance > 0;
             end
         end
 
         function R = calculate_transform(obj, Bmat)
-        % Get transformation matrix for the symmetry operator in an orthonormal frame
-        %
-        % The transformation matrix converts the components of a vector which is
-        % related by the symmetry operation into the equivalent vector. The
-        % coordinates of the vector are expressed in an orthonormal frame.
-        %
-        % For example, if the symmetry operation is a rotation by 90 degrees about
-        % [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3,0.1,2]
-        % is transformed into [0.1,-0.3,2].
-        %
-        % The transformation matrix accounts for reflection or rotation, but not
-        % translation associated with the offset in the symmetry operator.
-        %
-        %   >> R = calculate_transform (obj, Minv)
-        %
-        % Input:
-        % ------
-        %   obj     Symmetry operator object (scalar)
-        %   Bmat    Matrix to convert components of a vector given in rlu
-        %           to those in an orthonormal frame
-        %
-        % Output:
-        % -------
-        %   R       Transformation matrix to be applied to the components of a
-        %          vector given in the orthonormal frame for which Minv is defined
-        % Determine the representation of u and v in the orthonormal frame
-        if nargin<2
-            Bmat = obj.b_matrix_;
-            if isempty(Bmat)
-                error('HORACE:SymopReflection:invalid_argument',[ ...
-                    'B-matrix have to be provided either as argument or\n' ...
-                    'as symmetry class property. In fact it is missing'])
+            % Get transformation matrix for the symmetry operator in an orthonormal frame
+            %
+            % The transformation matrix converts the components of a vector which is
+            % related by the symmetry operation into the equivalent vector. The
+            % coordinates of the vector are expressed in an orthonormal frame.
+            %
+            % For example, if the symmetry operation is a rotation by 90 degrees about
+            % [0,0,1] in a cubic lattice with lattice parameter 2*pi, the point [0.3,0.1,2]
+            % is transformed into [0.1,-0.3,2].
+            %
+            % The transformation matrix accounts for reflection or rotation, but not
+            % translation associated with the offset in the symmetry operator.
+            %
+            %   >> R = calculate_transform (obj, Minv)
+            %
+            % Input:
+            % ------
+            %   obj     Symmetry operator object (scalar)
+            %   Bmat    Matrix to convert components of a vector given in rlu
+            %           to those in an orthonormal frame
+            %
+            % Output:
+            % -------
+            %   R       Transformation matrix to be applied to the components of a
+            %          vector given in the orthonormal frame for which Minv is defined
+            % Determine the representation of u and v in the orthonormal frame
+            if nargin<2
+                Bmat = obj.b_matrix_;
+                if isempty(Bmat)
+                    error('HORACE:SymopReflection:invalid_argument',[ ...
+                        'B-matrix have to be provided either as argument or\n' ...
+                        'as symmetry class property. In fact it is missing'])
+                end
             end
-        end
             e1 = Bmat * obj.u_;
             e2 = Bmat * obj.v_;
             n = cross(e1,e2);
@@ -144,9 +146,9 @@ classdef SymopReflection < Symop
     methods(Static)
         function is = check_args(argin)
             is = (numel(argin) == 2 || ...
-                  numel(argin) == 3 && Symop.is_3vector(argin{3})) && ...
-                  Symop.is_3vector(argin{1}) && ...
-                  Symop.is_3vector(argin{2});
+                numel(argin) == 3 && Symop.is_3vector(argin{3})) && ...
+                Symop.is_3vector(argin{1}) && ...
+                Symop.is_3vector(argin{2});
         end
     end
 

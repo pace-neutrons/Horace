@@ -101,7 +101,7 @@ end
 % for each symmetry operation we're applying, since the first cell array
 % may be unwrapped as an argument if 1 arg (as in this case), need
 % double wrapped cellarray
-wout.pix = wout.pix.apply(transforms, {{transf_proj(:)}}, false);
+wout.pix = wout.pix.apply(transforms, {}, false);
 
 %=========================================================================
 % Transform Ranges:
@@ -156,7 +156,7 @@ function cc_exist_range = find_ranges(sym,fold,cc_ranges,proj)
 %
 if isa(sym, 'SymopReflection')
     cc_exist_range = cc_ranges;
-    for i = 1:fold
+    for i = fold:-1:1
         % define plane through 3 points in-plane
         plane_points = sym(i).offset(:)+[zeros(3,1),sym(i).u(:),sym(i).v(:)];
         plane_points_cc = proj.transform_hkl_to_pix(plane_points);
@@ -165,15 +165,14 @@ if isa(sym, 'SymopReflection')
         cc_exist_range = [cc_exist_range,cross_points];
     end
 
-    for i = 1:fold
+    for i = fold:-1:1
         % transform existing range into transformed range
-        idx = ~sym(i).in_irreducible(cc_exist_range,proj);
-        cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
+        cc_exist_range = sym(i).transform_pix(cc_exist_range,1.e-7);
     end
 else
     %
     rot_center = sym.offset; % offset in Crystal Cartesian though should
     %  be hkl
-    cc_exist_range = sym.transform_pix([cc_ranges,rot_center]);
+    cc_exist_range = sym.transform_pix([cc_ranges,rot_center],1.e-7);
 end
 end

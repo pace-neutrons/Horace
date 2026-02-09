@@ -1,5 +1,5 @@
 classdef test_symm < TestCaseWithSave
-    % Validate the dnd symmetrisation routines
+    % Validate the dnd symmetrization routines
 
     properties
         % What we actually want to do is to simulate some cross-section that is
