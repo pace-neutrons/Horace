@@ -115,7 +115,7 @@ classdef test_symm < TestCaseWithSave
             % cut around elastic line to reduce amount of data to store but
             % still have representative dataset
             cc2=cut(w3d_sqw_sym,[-0.5,0.025,0.5],[-0.5,0.025,0.5],[20,25]);
-            assertEqualToTolWithSave(obj,cc2,'-ignore_date','-ignore_str')
+            assertEqualToTolWithSave(obj,cc2,'-ignore_date','-ignore_str','tol',1.e-14)
 
         end
         function obj = test_sym_sqw_group(obj)
@@ -132,7 +132,7 @@ classdef test_symm < TestCaseWithSave
             % cut around elastic line to reduce amount of data to store but
             % still have representative dataset
             cc2=cut(w3d_sqw_sym3,[0.,0.025,1],[0.,0.025,1],[20,25]);
-            assertEqualToTolWithSave(obj,cc2,'-ignore_date','-ignore_str');
+            assertEqualToTolWithSave(obj,cc2,'-ignore_date','-ignore_str','tol',1.e-14);
         end
 
         function obj = test_sym_sqw(obj)

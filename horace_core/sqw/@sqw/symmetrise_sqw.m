@@ -118,9 +118,9 @@ cc_ranges = proj.transform_img_to_pix(exp_range);
 % identify intersection points between the image range and the symmetry plane
 if iscell(sym)
     sym_arr = [sym{:}];
-    cc_exist_range = find_ranges(sym_arr,fold,cc_ranges,proj);    
+    cc_exist_range = find_ranges(sym_arr,cc_ranges,proj);
 else
-    cc_exist_range = find_ranges(sym,fold,cc_ranges,proj);
+    cc_exist_range = find_ranges(sym,cc_ranges,proj);
 end
 
 img_box_points      = proj.transform_pix_to_img(cc_exist_range);
@@ -144,7 +144,8 @@ dat.e    = 0;
 dat.npix = 0;
 
 
-% unique_id is needed to call sort pixels inside routine
+% unique_id is needed to call sort pixels inside bin routine to have pixels
+% sorted at the end of operation.
 [dat.npix,dat.s,dat.e,pix,unique_id] = ...
     proj.bin_pixels(dat.axes,wout.pix,dat.npix,dat.s,dat.e);
 [dat.s, dat.e] = normalize_signal(dat.s, dat.e, dat.npix);
@@ -152,27 +153,27 @@ wout.data = dat;
 wout.pix = pix;
 end
 
-function cc_exist_range = find_ranges(sym,fold,cc_ranges,proj)
+function cc_exist_range = find_ranges(sym,cc_ranges,proj)
 %
-if isa(sym, 'SymopReflection')
-    cc_exist_range = cc_ranges;
-    for i = fold:-1:1
+cc_exist_range = cc_ranges;
+for i = numel(sym):-1:1
+    if isa(sym, 'SymopReflection')
         % define plane through 3 points in-plane
         plane_points = sym(i).offset(:)+[zeros(3,1),sym(i).u(:),sym(i).v(:)];
         plane_points_cc = proj.transform_hkl_to_pix(plane_points);
         cross_points = box_intersect(cc_ranges, plane_points_cc);
         % and combine all them together
         cc_exist_range = [cc_exist_range,cross_points];
+    else
+        %
+        rot_center = proj.transform_hkl_to_pix(sym(i).offset(:)); % convert offset to Crystal Cartesian
+        cc_exist_range = [cc_exist_range,rot_center];
     end
 
-    for i = fold:-1:1
-        % transform existing range into transformed range
-        cc_exist_range = sym(i).transform_pix(cc_exist_range,1.e-7);
-    end
-else
-    %
-    rot_center = sym.offset; % offset in Crystal Cartesian though should
-    %  be hkl
-    cc_exist_range = sym.transform_pix([cc_ranges,rot_center],1.e-7);
 end
+for i = numel(sym):-1:1
+    % transform existing range into transformed range
+    cc_exist_range = sym(i).transform_pix(cc_exist_range,1.e-7);
+end
+
 end
