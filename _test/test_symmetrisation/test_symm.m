@@ -181,7 +181,7 @@ classdef test_symm < TestCaseWithSave
             rc = 0.5*(w2d_sqw.data.img_range(1,:)+w2d_sqw.data.img_range(2,:))';
             rc = [rc(1:2);0];
 
-            rot_centre = proj.transform_img_to_pix(rc);
+            rot_centre = proj.transform_img_to_hkl(rc);
 
             sym = SymopRotation([0 0 1], 90,rot_centre);
             sqw2D_sym = w2d_sqw.symmetrise_sqw(sym);
@@ -215,7 +215,7 @@ classdef test_symm < TestCaseWithSave
             sqw_sym = w2d_sqw.symmetrise_sqw(sym);
             assertEqual(w2d_sqw.pix.num_pixels,sqw_sym.pix.num_pixels)
 
-            assertEqualToTolWithSave(obj,sqw_sym,'-ignore_date','-ignore_str');
+            assertEqualToTolWithSave(obj,sqw_sym,'-ignore_date','-ignore_str','tol',1.e-14);
         end
 
         function obj = test_sym_sqw_fb(obj)

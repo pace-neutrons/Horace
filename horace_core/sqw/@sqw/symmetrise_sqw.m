@@ -62,14 +62,6 @@ if isa(varargin{end}, 'aProjectionBase')
         error('HORACE:symmetrise_sqw:invalid_argument', ...
             'Cannot symmetrise to non-orthogonal projection');
     end
-
-else
-    % Also projection under which transformation takes place (HKL [orthogonal, so 90, 90, 90]).
-    % alatt, however, is retained as the symmetrisation should not rescale.
-    %transf_proj = {line_proj([1 0 0], [0 1 0], ...
-    %    'alatt', win.data.proj.alatt, ...
-    %    'angdeg', [90, 90, 90])};
-    transf_proj = {win.data.proj};
 end
 
 
