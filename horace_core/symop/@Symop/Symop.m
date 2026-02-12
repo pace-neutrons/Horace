@@ -42,25 +42,25 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     properties(Dependent)
         % General transformation matrix for selected symmetry operation
         R;
-        % Offset of transform
+        % Offset of the symmetry transformation. (rlu) (col)
         offset;
-        % helper property, used to transform offset from rlu to Crystal
-        % Cartesian coordinate system used in majority of pixel
-        % transformations. May be omitted if offset is 0 and you do not
-        % use operations, which involve coordinate transformations.
+        % helper property (B-matrix after Bussing-Levy), used to transform 
+        % offset from rlu to Crystal Cartesian coordinate system used
+        % in majority of pixel transformations.
         b_matrix;
     end
 
     properties (Access=protected)
         offset_ = [0; 0; 0];  % offset vector for symmetry operator (rlu) (col)
-        % this is not true
+        %
         u_offset_ = [0;0;0] % offset vector in Crystal Cartesian coordinate system (orthogonal, A^-1)
-
-        % CACHES for performance
+        %
         offset_specified_uoffset_not_ = false; % helper property used to ensure
-        % that offset in Crystal Cartesian has been modified in
-        % accordance with offset in rlu. Calculations should not happen if they are asynchronous
-        b_matrix_ = [];
+        % that offset in Crystal Cartesian (CC) has been modified in
+        % accordance with offset in rlu. Calculations should not happen
+        % if they are not modified properly (e.g. if you set up offset in rlu,
+        % but  try to use u_offset_ in CC without setting up b-matrix
+        b_matrix_ = []; % holder for b-matrix value.
     end
 
     methods
@@ -106,7 +106,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     methods(Abstract)
         R = calculate_transform(obj, B_mat)
         local_disp(obj)
-        selected = in_irreducible(obj, coords,varagin)
+        selected = in_irreducible(obj, coords,varargin)
     end
 
     methods(Sealed)
