@@ -164,7 +164,8 @@ for i = numel(sym):-1:1
 
 end
 for i = numel(sym):-1:1
-    % transform existing range into transformed range
+    % transform existing range into transformed range. Add toll to ensure
+    % boundary points are included.
     cc_exist_range = sym(i).transform_pix(cc_exist_range,1.e-7);
 end
 

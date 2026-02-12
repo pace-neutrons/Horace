@@ -174,7 +174,7 @@ classdef test_symm < TestCaseWithSave
         function obj = test_sym_rot_eges(obj)
             w2d_sqw = copy(obj.test_sqw2d);
             % cut it on fine bins and exact ranges to look better and
-            % allow visualinspection for results
+            % allow visual inspection for results
             w2d_sqw = cut(w2d_sqw,[-0.6+0.001,0.002,-0.4-0.001],[-0.65+0.001,0.002,-0.45-0.001]);
             proj = w2d_sqw.data.proj;
 

@@ -44,7 +44,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         R;
         % Offset of the symmetry transformation. (rlu) (col)
         offset;
-        % helper property (B-matrix after Bussing-Levy), used to transform 
+        % helper property (B-matrix after Bussing-Levy), used to transform
         % offset from rlu to Crystal Cartesian coordinate system used
         % in majority of pixel transformations.
         b_matrix;
@@ -204,7 +204,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function pix = transform_pix(obj, pix, abs_tol, selected, trust,use_rlu_offset)
+        function pix = transform_pix(obj, pix, abs_tol,use_rlu_offset)
             % Transform pixel coordinates into symmetry related coordinates
             %
             % The transformation converts the components of a vector which is
@@ -222,14 +222,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %               obj(end), obj(end-1),...obj(1);
             %   pix         PixelData object or 3xNpix vector representing
             %               pixels coordinates to transform
-            %
             %  abs_tol     value of the tolerance, used in evaluation of
-            %              validity if pixels belong to irredusable zone
-            %
-            %   selected    logical array specifying what pixels to transform
-            %
-            %   trust       Whether to trust that `selected` is valid
-            %               and bypass `in_irreducible` checks.
+            %              validity if pixels belonging to irreducible zone
+            % use_rlu_offset
+            %              when pixels are transformed and offset present,
+            %              use its value expressed in rlu rather then in
+            %              Crystal Cartesian as normal
             %
             % Output:
             % -------
@@ -238,14 +236,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             if nargin < 3%~exist('abs_tol', 'var')
                 abs_tol = 0;
             end
-            define_selected = false;
-            if nargin < 4 % ~exist('selected', 'var')
-                define_selected = true;
-            end
-            if nargin<5 % ~exist('trust', 'var')
-                trust = false;
-            end
-            if nargin<6 % ~exist('use_rlu_offset','var')
+            if nargin<4 % ~exist('use_rlu_offset','var')
                 use_rlu_offset = false;
             end
 
@@ -253,15 +244,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             if isa(pix,'PixelDataMemory')
                 q_coordinates = pix.q_coordinates;
                 is_pix_obj = true;
-                if define_selected
-                    selected = true(1,pix.num_pixels);
-                end
+                selected = true(1,pix.num_pixels);
             elseif isnumeric(pix) && size(pix,1) == 3
                 q_coordinates = pix;
                 is_pix_obj = false;
-                if define_selected
-                    selected = true(1,size(pix,2));
-                end
+                selected = true(1,size(pix,2));
             else
                 error('HORACE:Symop:not_implemented', ...
                     'Transforming of %s pixels is not currently implemented',class(pix));
@@ -275,17 +262,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
 
             % Do transformation
-            if ~trust
-                for i = numel(obj):-1:1
-                    nin_zone = ~obj(i).in_irreducible(q_coordinates,abs_tol);
-                    %in_zone(~selected) = false;
-                    transform = selected & nin_zone';
-                    q_coordinates(:,transform) = obj(i).transform_vec(q_coordinates(:,transform),use_rlu_offset);
-                end
-            else
-                for i = numel(obj):-1:1
-                    q_coordinates(:, selected) = obj(i).transform_vec(q_coordinates(:, selected),use_rlu_offset);
-                end
+
+            for i = numel(obj):-1:1
+                nin_zone = ~obj(i).in_irreducible(q_coordinates,abs_tol);
+                %in_zone(~selected) = false;
+                transform = selected & nin_zone';
+                q_coordinates(:,transform) = obj(i).transform_vec(q_coordinates(:,transform),use_rlu_offset);
             end
             if is_pix_obj
                 pix.q_coordinates = q_coordinates;
@@ -314,10 +296,8 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %           obj(end), obj(end-1),...obj(1);
             %           All symmetry operations in array must have the same
             %           offset. If non-zero offset is set on one symmetry
-            %           operation out of array, it will be distribured to
+            %           operation out of array, it will be distributed to
             %           all operations in the array.
-            %
-            %
             %   proj    Projection object describing original coordinate
             %           system
             %
@@ -325,12 +305,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % -------
             %   proj    Projection object describing coordinate system
             %           modified by symmetry transformation(s)
-            %   obj     input array of symmetries modified by having b-matrix
+            %   out_obj Input array of symmetries modified by having b-matrix
             %           taken from input projection and set on each symmetry
             %           operation.
             %           This matrix is necessary if symmetry operations
             %           are using offset and allow to transfer offset
-            %           expressed in hkl coordinate system into Crystan
+            %           expressed in hkl coordinate system into Crystal
             %           Cartesian coordinate system, where all symmetry
             %           transformations should be applied initially.
             %           Also, if offset is set on only one symmetry
@@ -440,7 +420,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %       angle   Angle of rotation in degrees                                      [scalar]
             %       offset  [Optional] Vector defining a point in reciprocal lattice units
             %               through which the rotation axis passes
-            %               Default: [0,0,0] i.e. the rotation axis goes throught the origin
+            %               Default: [0,0,0] i.e. the rotation axis goes through the origin
             %
             %   Reflection:
             %       >> obj = Symop.create (u, v)
@@ -452,7 +432,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %               (in reciprocal lattice units: (h,k,l))
             %       offset  [Optional] Vector connecting the mirror plane to the origin
             %               i.e. is an offset vector (in reciprocal lattice units: (h,k,l))
-            %               Default: [0,0,0] i.e. the mirror plane goes throught the origin
+            %               Default: [0,0,0] i.e. the mirror plane goes through the origin
             %
             %   Symmetry Motion operator:
             %       >> obj = Symop.create(W, offset)
@@ -462,7 +442,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %       W       A transformation operation in matrix form.                        [3x3 matrix]
             %               W can represent the identity element {eye(3)},
             %               the inversion element {-eye(3)}, any rotation
-            %               or any rotoinversion. The elements of W are
+            %               or any roto-inversion. The elements of W are
             %               almost certainly integers.
             %       offset  [Optional] The origin at which the transformation
             %               is performed, expressed in r.l.u.
@@ -540,7 +520,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                             error('HORACE:Symop:not_implemented',[ ...
                                 'Multiple offsets for group of transformations are not implemented.\n',...
                                 'All transformations in a transformation group array must have the same offset\n',...
-                                'used by all transfomations in the group\n',...
+                                'used by all transformations in the group\n',...
                                 'or the same offset for each element of the group']);
                         end
                     else

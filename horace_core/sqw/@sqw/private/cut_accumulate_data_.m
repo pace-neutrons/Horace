@@ -233,7 +233,7 @@ for iter = 1:num_chunks
             % to keep them in-sync with image, built from pixels, symmetry
             % transformed to this image. pix_ok are all selected so should
             % be subject to symmetry operation
-            pix_ok = sym{i}.transform_pix(pix_ok, {}, true(1,pix_ok.num_pixels), true);
+            pix_ok = sym{i}.transform_pix(pix_ok);
             candidate_pix = candidate_pix.tag(selected);
         else
             [npix, s, e, pix_ok, unique_runid, pix_indx] = ...

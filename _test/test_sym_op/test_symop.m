@@ -46,7 +46,7 @@ classdef test_symop < TestCase
             transf_pix = lp1.transform_pix_to_img(pix);
             pix_cc = lp.transform_img_to_pix(transf_pix);
 
-            sym_pix = refl.transform_pix(pix,{},true(1,size(pix,2)),true);
+            sym_pix = refl.transform_pix(pix);
             assertEqualToTol(pix_cc , sym_pix,'tol',1.e-14);
         end
 
@@ -59,7 +59,7 @@ classdef test_symop < TestCase
             transf_pix = lp1.transform_pix_to_img(pix);
             pix_cc = lp.transform_img_to_pix(transf_pix);
 
-            sym_pix = refl.transform_pix(pix,{},true(1,size(pix,2)),true);
+            sym_pix = refl.transform_pix(pix);
             assertEqualToTol(pix_cc , sym_pix,'tol',1.e-14);
         end
 
