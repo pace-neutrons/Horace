@@ -40,20 +40,24 @@ classdef test_symop < TestCase
         function test_symop_transform_projection_eq_symop(~)
             refl = SymopReflection([1,1,0],[0,0,1]);
             lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
-            lp1 = refl.transform_proj(lp);
+            [lp1,refl] = refl.transform_proj(lp);
 
             pix = [eye(3),[1;1;0],[0;1;1],[1;0;1]];
             transf_pix = lp1.transform_pix_to_img(pix);
             pix_cc = lp.transform_img_to_pix(transf_pix);
 
-            sym_pix = refl.transform_pix(pix);
+            sym_pix = refl.transform_vec(pix);
             assertEqualToTol(pix_cc , sym_pix,'tol',1.e-14);
+
+            sym_pix = refl.transform_pix(pix);
+            nrefl_pix = ~pix'*refl.normvec()>0;
+            assertEqualToTol(pix_cc(:,nrefl_pix) , sym_pix(:,nrefl_pix),'tol',1.e-14);
         end
 
         function test_symop_transform_projection_eq_symop_100(~)
             refl = SymopReflection([1,0,0],[0,0,1]);
             lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
-            lp1 = refl.transform_proj(lp);
+            [lp1,refl] = refl.transform_proj(lp);
 
             pix = [eye(3),[1;1;0],[0;1;1],[1;0;1]];
             transf_pix = lp1.transform_pix_to_img(pix);
@@ -100,7 +104,7 @@ classdef test_symop < TestCase
             assertEqual(out.offset, [0; 0; 0])
         end
 
-        function test_reflection_constructor(obj)
+        function test_reflection_constructor(~)
             out = SymopReflection([1 1 0], [0 1 1], [3 3 3]);
             assertTrue(isa(out, 'SymopReflection'))
             assertEqual(out.u, [1; 1; 0])
@@ -108,7 +112,7 @@ classdef test_symop < TestCase
             assertEqual(out.offset, [3; 3; 3])
         end
 
-        function test_reflection_constructor_fail(obj)
+        function test_reflection_constructor_fail(~)
             assertExceptionThrown(@() SymopReflection(1), 'MATLAB:minrhs');
             assertExceptionThrown(@() SymopReflection([1 0 0]), 'MATLAB:minrhs');
             assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:symop:invalid_argument');

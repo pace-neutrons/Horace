@@ -227,13 +227,18 @@ for iter = 1:num_chunks
         % if there are symmetries, we need to transform pixels and tag used
         % pixels to avoid multiple usage of the same pixels.
         if apply_symmetries
+            % Both projection and symop here perform transformation into 
+            % single adjusent image/pixels area.
+            % Pixels from symmetry related CC area are transformed 
+            % into main image area using symmetry-modification target_proj.
             [npix, s, e, pix_ok, unique_runid, pix_indx, selected] = ...
                 targ_proj(i).bin_pixels(targ_axes, candidate_pix, npix, s, e,unique_runid);
-            % Apply symop to the transformed pixels into symmetry related area
-            % to keep them in-sync with image, built from pixels, symmetry
-            % transformed to this image. pix_ok are all selected so should
-            % be subject to symmetry operation
-            pix_ok = sym{i}.transform_pix(pix_ok);
+            % The same pixels are transformed into CC area, corresponding
+            % to the main image area using sym transformation
+            % to keep them in-sync with image.
+            % pix_ok are all selected so should
+            % be subject to the symmetry operation
+            pix_ok.q_coordinates = sym{i}.transform_vec(pix_ok.q_coordinates);
             candidate_pix = candidate_pix.tag(selected);
         else
             [npix, s, e, pix_ok, unique_runid, pix_indx] = ...

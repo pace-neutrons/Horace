@@ -135,6 +135,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % on serializable interface
             [iseq,mess] = equal_to_tol@serializable(obj1,obj2,varargin{:});
         end
+
         function vec = transform_vec(obj, vec,use_rlu_offset)
             % Transform a vector or array of vectors according to array of
             % Symops stored in `obj`.
@@ -244,11 +245,9 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             if isa(pix,'PixelDataMemory')
                 q_coordinates = pix.q_coordinates;
                 is_pix_obj = true;
-                selected = true(1,pix.num_pixels);
             elseif isnumeric(pix) && size(pix,1) == 3
                 q_coordinates = pix;
                 is_pix_obj = false;
-                selected = true(1,size(pix,2));
             else
                 error('HORACE:Symop:not_implemented', ...
                     'Transforming of %s pixels is not currently implemented',class(pix));
@@ -262,11 +261,8 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
 
             % Do transformation
-
             for i = numel(obj):-1:1
-                nin_zone = ~obj(i).in_irreducible(q_coordinates,abs_tol);
-                %in_zone(~selected) = false;
-                transform = selected & nin_zone';
+                transform  = ~obj(i).in_irreducible(q_coordinates,abs_tol);
                 q_coordinates(:,transform) = obj(i).transform_vec(q_coordinates(:,transform),use_rlu_offset);
             end
             if is_pix_obj
