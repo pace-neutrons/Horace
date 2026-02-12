@@ -49,6 +49,7 @@ classdef test_symop < TestCase
             sym_pix = refl.transform_pix(pix,{},true(1,size(pix,2)),true);
             assertEqualToTol(pix_cc , sym_pix,'tol',1.e-14);
         end
+
         function test_symop_transform_projection_eq_symop_100(~)
             refl = SymopReflection([1,0,0],[0,0,1]);
             lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);

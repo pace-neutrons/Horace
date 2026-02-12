@@ -73,11 +73,13 @@ classdef SymopRotation < Symop
             %
             % For a rotation `R` about axis `n` of angle `theta`:
             %
-            % For any `u` not parallel to `n` and v = R*u;
+            % For any `u` not parallel to `normvec` and v = R*u;
             % The planes defined by UN, VN encapsulate the reduced region
             % And thus any coordinate `q` from `Q` where
-            % q*(n x u) > 0 && q*(v x n) > 0
-            % belong to the irreducible set in the upper right quadrant
+            % q*(normvec x u) > 0 && q*(v x normvec) > 0
+            % belong to the irreducible set in the upper right quadrant. 
+            % In expression above `x` means cross and `*` -- scalar
+            % products.
             %
             u_offset = obj.u_offset_; %proj.transform_hkl_to_pix(obj.offset);
 
