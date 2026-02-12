@@ -3,15 +3,12 @@ function make_horace_distribution_kit(varargin)
 % Horace to work into single zip file
 %
 %Usage:
-%>>make_horace_distribution_kin(['-reveal_code','-compact'])
+%>>make_horace_distribution_kin(['-compact'])
 %
 %where optional arguments are:
-%'-reveal_code'  -- if present, do not request p-code Horace; default pCode
-%                    the private Horace folders
 %'-compact'         -- if present, request dropping the demo and test files
 %                   with test folders, default -- compress demo and tests
 %                   together with main code.
-%'-noherbert'    -- do not pack Herbert together with Horace
 %
 % excludes (not copies to distribution) all files and subfolders of a folder where
 % _exclude_all.txt file is found
@@ -30,8 +27,6 @@ function make_horace_distribution_kit(varargin)
 % after renaming the file Horace_on.m.template to horace_on.m.
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 %
 % known keys
 options = {'-reveal_code','-compact','-noherbert'};
@@ -40,7 +35,7 @@ if ~ok
     error('MAKE_HORACE_DISTRIBUTION_KIT:invalid_argument',err_mess);
 end% default key values
 %
-common_files_to_distribute = {'LICENSE','README.md','CMakeLists.txt'};
+common_files_to_distribute = {'LICENSE','README.md','CMakeLists.txt','VERSION'};
 
 pths = horace_paths;
 hor_root_dir = pths.root; % MUST have rootpath so that horace_init, horace_off are included
@@ -67,15 +62,12 @@ horace_targ_dir = [target_Dir,'/Horace'];
 
 % copy everything, which can be found core Horace folder
 copy_files_list(fullfile(hor_root_dir,'horace_core'),fullfile(horace_targ_dir,'horace_core'),'+_');
+copy_files_list(fullfile(hor_root_dir,'herbert_core'),fullfile(horace_targ_dir,'herbert_core'),'+_');
 % copy source code files from system directory
 copy_files_list(fullfile(hor_root_dir,'_LowLevelCode'),fullfile(horace_targ_dir,'_LowLevelCode'),...
     '+_','h','cpp','c','sln','vcproj');
 copy_files_list(fullfile(hor_root_dir,'admin'),fullfile(horace_targ_dir,'admin'));
 copy_files_list(fullfile(hor_root_dir,'cmake'),fullfile(horace_targ_dir,'cmake'));
-%
-hor_on_template = fullfile(horace_targ_dir,'admin','horace_on.m.template');
-copyfile(hor_on_template,fullfile(target_Dir,'horace_on.m.template'),'f');
-delete(hor_on_template);
 %
 common_files_to_distribute = cellfun(@(x)(fullfile(hor_root_dir,x)),common_files_to_distribute,...
     'UniformOutput',false);
@@ -92,36 +84,19 @@ end
 % if necessary, copy demo and test folders
 if ~no_demo
     % copy source code files from system directory
-    copy_files_list(fullfile(hor_root_dir,'_test'),fullfile(horace_targ_dir,'_test'),'+_')
-    copy_files_list(fullfile(hor_root_dir,'demo'),fullfile(horace_targ_dir,'demo'),'+_')
+    copy_files_list(fullfile(hor_root_dir,'_test'),fullfile(horace_targ_dir,'_test'),'+_');
+    copy_files_list(fullfile(hor_root_dir,'demo'),fullfile(horace_targ_dir,'demo'),'+_');
 end
 %
-disp('!    The HORACE program files collected successfully ==============!')
-if(~reveal_code)
-    disp('!    p-coding private Horace parts and deleting unnecessary folders=!')
-    pCode_Horace_kit(fullfile(horace_targ_dir,'horace_core'));
-    disp('!    Horace p-coding completed =====================================!')
-end
 
-% if Herbert used, add Herbert distribution kit to the distribution
-if ~no_herbert
-    argi{1}='-run_by_horace';
-    if ~no_demo
-        argi{2} = '-full';
-    end
-    make_herbert_distribution_kit(target_Dir,argi{:});
-    pref='';
-else
-    pref='_only';
-end
 %
 %
 disp('!    Start compressing all necessary files together ================!')
 %
 if no_demo
-    horace_file_name=['Horace',pref,'_nodemo.zip'];
+    horace_file_name='Horace_nodemo_distribution_kit.zip';
 else
-    horace_file_name= ['horace',pref,'_distribution_kit.zip'];
+    horace_file_name= 'Horace_distribution_kit.zip';
 end
 horace_file_name=fullfile(current_dir,horace_file_name);
 if(exist(horace_file_name,'file'))
