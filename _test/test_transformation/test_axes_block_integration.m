@@ -86,6 +86,7 @@ classdef test_axes_block_integration < TestCase
 
             assertEqual(reb_data,2*ones(ab_r.dims_as_ssize))
         end
+        
         function test_ab_alignment_iax_aligned(~)
             clOb = set_temporary_warning('off','HORACE:realign_bin_edges:invalid_argument');
 

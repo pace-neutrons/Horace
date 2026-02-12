@@ -69,13 +69,12 @@ try % mex C++
     end
     % simple OMP routines
     % build C++ files
-    % mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
-    %     'c_serialize.cpp')
-    % mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
-    %     'c_deserialize.cpp')
-    % mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
-    %     'c_serial_size.cpp')
-
+    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+        'c_serialize.cpp')
+    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+        'c_deserialize.cpp')
+    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+        'c_serial_size.cpp')
 
     mex_single([cpp_in_rel_dir 'accumulate_cut_c'], out_rel_dir, ...
         'accumulate_cut_c.cpp');
@@ -94,7 +93,6 @@ try % mex C++
         'GetMD5.cpp');
     mex_single([cpp_in_rel_dir 'mex_bin_plugin'], out_rel_dir, ...
         'mex_bin_plugin.cpp');
-
 
     % create the procedure to access hdf files
     if build_hdf_reader

@@ -20,9 +20,9 @@ T retrieve_value(const char* err_id, const mxArray* prhs)
     return static_cast<T>(pVector[0]);
 }
 
+// Return size in bytes of different MATLAB mx types.
 size_t get_byte_length(const char* err_id, const mxArray* prhs)
 {
-
     mxClassID category = mxGetClassID(prhs);
     switch (category) {
     case mxINT8_CLASS:
@@ -111,7 +111,7 @@ void retrieve_string(const mxArray* param, std::string& result, const char* Erro
 Inputs:
 ModeName -- pointer to string, indicating mode name if error occurs
 is_test_mode -- boolean string, indicating that the init is done in test mode
-prhs     -- array of input array of pointers to the right hand parameters, recevied from Matlab
+prhs     -- array of input array of pointers to the right hand parameters, received from Matlab
 nrgs     -- size of  input array of pointers
 Outputs:
 AddPar   -- the reference to structure, containing additional information about inputs
@@ -129,7 +129,6 @@ void process_init_mode(const char* ModeName, bool is_test_mode, const mxArray* p
     }
     if (mpi_holder_ptr == nullptr) {
         mpi_holder_ptr = new class_handle<MPI_wrapper>(CLASS_HANDLE_SIGNATURE);
-    } else {
     }
     init_par.is_tested = is_test_mode;
 
@@ -164,8 +163,8 @@ prhs  --  array of pointers to right hand side parameters
 work_mode         -- retrieved IO operations mode.
 data_address      -- address of the node to communicate with
 data_tag          -- MPI messages tag
-is_synchronous    -- for send/receive operations, if the communication mode is synchroneous
-data_buffer       -- refernece to pointert to the buffer with data. Defined for send and undef for labReceive/labProbe
+is_synchronous    -- for send/receive operations, if the communication mode is synchronous
+data_buffer       -- reference to pointer to the buffer with data. Defined for send and undef for labReceive/labProbe
 nbytes_to_transfer-- number of bytes to transfer over mpi.
 
 AddParr    -- The structure, containing additional parameters, different operation calls may need to process and
@@ -200,7 +199,7 @@ input_types parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
         data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source address", prhs[(int)ReceiveInputs::source_id]) - 1;
         // the source data tag
         data_tag[0] = (int32_t)retrieve_value<mxInt32>("labReceive: source tag", prhs[(int)ReceiveInputs::tag]);
-        // if the transfer is synchroneous or not
+        // if the transfer is synchronous or not
         is_synchronous = (bool)retrieve_value<mxUint8>("labReceive: is synchronous", prhs[(int)ReceiveInputs::is_synchronous]);
 
         work_mode = input_types::labReceive;
@@ -217,7 +216,7 @@ input_types parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
         data_addresses[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination address", prhs[(int)SendInputs::dest_id]) - 1;
         // the sending data tag
         data_tag[0] = (int32_t)retrieve_value<mxInt32>("labSend: destination tag", prhs[(int)SendInputs::tag]);
-        // if the transfer is synchroneous or not
+        // if the transfer is synchronous or not
         is_synchronous = (bool)retrieve_value<mxUint8>("labSend: is synchronous", prhs[(int)SendInputs::is_synchronous]);
         // retrieve pointer to serialized data to transfer
         size_t vector_size, bytesize;
@@ -259,12 +258,12 @@ input_types parse_inputs(int nlhs, int nrhs, const mxArray* prhs[],
         work_mode = input_types::clearAll;
     } else {
         std::stringstream err;
-        err << " Unknow operation mode: " << mex_mode;
+        err << " Unknown operation mode: " << mex_mode;
         throw_error("MPI_MEX_COMMUNICATOR:invalid_argument", err.str().c_str());
     }
     if (work_mode != input_types::close_mpi && nrhs < 1) {
         throw_error("MPI_MEX_COMMUNICATOR:invalid_argument",
-            "MPI communicator needs at least one argument to return the instance of the communicatir");
+            "MPI communicator needs at least one argument to return the instance of the communicator");
     }
     // finally retrieve communicator pointer from MATLAB. If it was just initialized by init routine have already returned
     // and here we come with modes, when object is retrieved from MATLAB

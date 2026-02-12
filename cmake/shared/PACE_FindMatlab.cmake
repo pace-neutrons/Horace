@@ -46,11 +46,11 @@ module. You'll find the FindMatlab.cmake script bundled with this repo.
 #]=======================================================================]
 include(PACE_MatlabHelpers)
 
-set(MATLAB_ADDITIONAL_VERSIONS
-  "R2023b=23.2"
-  "R2023a=23.1"
-  "R2022b=9.13"
-  )
+#set(MATLAB_ADDITIONAL_VERSIONS
+#  "R2023b=23.2"
+#  "R2023a=23.1"
+#  "R2022b=9.13"
+#  )
 
 # Call `find_package(Matlab)` using passed in arguments `Matlab_ROOT_DIR` and/or
 # `Matlab_RELEASE` to find the desired version.

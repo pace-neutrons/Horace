@@ -27,9 +27,9 @@ void calc_output_size(mwSize const *const dimsA, size_t ndimsA, mwSize const *co
 * ----------
 * res     -- pointer to the contents of allocated MATLAB matrix which contains result
 * a       -- pointer to the contents of the first MATLAB matrix participating in multiplication operation
-* b       -- pointer to the contents of the seconr MATLAB matrix participating in multiplication operation
+* b       -- pointer to the contents of the second MATLAB matrix participating in multiplication operation
 * Mi      -- number of elements in the first dimension of matrices to multiply (columns for a and rows for b matrices)
-* Mj      -- number of elements in the second dimension of matrices to multiply (rosw for a and columns for b marices)
+* Mj      -- number of elements in the second dimension of matrices to multiply (rows for a and columns for b matrices)
 * Mk0     -- product of all remaining (except first and second) dimensions of matrix a to multiply
 * Mk      -- product of all remaining (except first and second) dimensions of matrix b to multiply
 * expandA -- boolean containing true if Mk0<Mk. False otherwise.
@@ -81,5 +81,3 @@ void  mat_multiply(Rz *rez, L const *const a, R const*const b, size_t Mi, size_t
     }
 
 }
-
-
