@@ -40,27 +40,59 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     %   transform_proj  - Transform projection axes description by the symmetry operation
 
     properties(Dependent)
-        % Offset of transform
-        offset;
-        % General transformation matrix for operator
+        % General transformation matrix for selected symmetry operation
         R;
+        % Offset of the symmetry transformation. (rlu) (col)
+        offset;
+        % helper property (B-matrix after Bussing-Levy), used to transform
+        % offset from rlu to Crystal Cartesian coordinate system used
+        % in majority of pixel transformations.
+        b_matrix;
     end
 
-    properties (Access=private)
+    properties (Access=protected)
         offset_ = [0; 0; 0];  % offset vector for symmetry operator (rlu) (col)
+        %
+        u_offset_ = [0;0;0] % offset vector in Crystal Cartesian coordinate system (orthogonal, A^-1)
+        %
+        offset_specified_uoffset_not_ = false; % helper property used to ensure
+        % that offset in Crystal Cartesian (CC) has been modified in
+        % accordance with offset in rlu. Calculations should not happen
+        % if they are not modified properly (e.g. if you set up offset in rlu,
+        % but  try to use u_offset_ in CC without setting up b-matrix
+        b_matrix_ = []; % holder for b-matrix value.
     end
 
     methods
         function offset = get.offset(obj)
             offset = obj.offset_;
         end
-
         function obj = set.offset(obj, val)
             if ~obj.is_3vector(val)
                 error('HORACE:symop:invalid_argument', ...
                     'Offset must be a numeric 3-vector')
             end
             obj.offset_ = val(:);
+            obj.offset_specified_uoffset_not_  = true;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
+
+        function bm = get.b_matrix(obj)
+            bm = obj.b_matrix_;
+        end
+        function obj = set.b_matrix(obj,matr)
+            if ~(isempty(matr) || obj.is_3x3matrix(matr))
+                error('HORACE:symop:invalid_argument', [...
+                    'B-matrix must be a numeric 3x3-martix converting rlu to Crystal Cartesian.\n',...
+                    'Provided object type is %s and size %s'],...
+                    class(matr),disp2str(size(matr)))
+            end
+            obj.b_matrix_ = matr;
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
 
         function R = get.R(obj)
@@ -72,24 +104,61 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods(Abstract)
-        R = calculate_transform(obj, Minv)
+        R = calculate_transform(obj, B_mat)
         local_disp(obj)
-        selected = in_irreducible(obj, coords)
+        selected = in_irreducible(obj, coords,varargin)
     end
 
     methods(Sealed)
+        function obj = check_combo_arg(obj)
+            % check interdependent class variables and
+            % put them into consistent state
+            %
+            % Here we synchronize u_offset and offset if B-matrix is
+            % defined. If not, they remain unsynchronized
+            zero_offset =  all(obj.offset_ == 0);
+            if zero_offset
+                obj.u_offset_ = zeros(3,1);
+                obj.offset_specified_uoffset_not_  = false;
+            else
+                if isempty(obj.b_matrix_)
+                    obj.offset_specified_uoffset_not_  = true;
+                else
+                    obj.u_offset_ = obj.b_matrix_*obj.offset_;
+                    obj.offset_specified_uoffset_not_  = false;
+                end
+            end
+
+        end
         function [iseq,mess] = equal_to_tol(obj1,obj2,varargin)
             % overload equal_to_tol as this method requested to be called
             % on serializable interface
             [iseq,mess] = equal_to_tol@serializable(obj1,obj2,varargin{:});
         end
-        function vec = transform_vec(obj, vec)
-            % Transform a vector or list of vectors according to array of
+
+        function vec = transform_vec(obj, vec,use_rlu_offset)
+            % Transform a vector or array of vectors according to array of
             % Symops stored in `obj`.
+            %
+            % To avoid confusion, vector coordinate system expected to be
+            % orthogonal and Crystal Cartesian (if offset present, it
+            % expressed in CC, if it is 0, other coordinates may be
+            % considered
             %
             % Input:
             %   obj    Array of symmetry operator objects
             %   vec    3xN list of 3-vectors to transform
+            %   use_rlu_offset
+            %          normally input vector is expressed in Crystal
+            %          Cartesian coordinate system, so offset should be
+            %          defined accordingly. In some cases (e.g. tests)
+            %          one may want to transform vector expressed in rlu.
+            %          In this case,
+            %          this property should be set to true. The option
+            %          should be used carefully, to ensure that vector is
+            %          in rlu indeed and not in arbitrary image coordinate
+            %          system.
+            %          Important for cases where offset is present.
             % Output:
             %   vec    Transformed set of vectors
 
@@ -97,12 +166,29 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 error('HORACE:symop:invalid_argument', ...
                     'Input must be list of 3-vectors')
             end
-
-            for i = numel(obj):-1:1
-                vec = vec - obj(i).offset;
-                vec = obj(i).R * vec;
-                vec = vec + obj(i).offset;
+            if nargin<3
+                use_rlu_offset = false;
             end
+
+            % only single offset is allowed on group of objects
+            if use_rlu_offset
+                shift = obj(1).offset;
+            else
+                if obj(1).offset_specified_uoffset_not_
+                    error('HORACE:symop:invalid_argument',[ ...
+                        'You are attempting to symmetry-transform vector in Crystal Cartesian coordinate system,\n',...
+                        'but the information to transfer offset in rlu to CC have not been set.\n',...
+                        'Set up B-matrix, used to transfer vector into Crystal Cartesian coordinate system either by\n',...
+                        'using extended form of transform_proj method or assigning it directly to hidden Symop property: "b_matrix"'])
+                end
+                shift = obj(1).u_offset_;
+            end
+
+            vec = vec - shift;
+            for i = numel(obj):-1:1
+                vec = obj(i).R * vec;
+            end
+            vec = vec + shift;
         end
 
         function disp(obj)
@@ -119,7 +205,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function pix = transform_pix(obj, pix, proj, selected, trust)
+        function pix = transform_pix(obj, pix, abs_tol,use_rlu_offset)
             % Transform pixel coordinates into symmetry related coordinates
             %
             % The transformation converts the components of a vector which is
@@ -133,64 +219,51 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % Input:
             % ------
             %   obj         Symmetry operator or array of symmetry operators
-            %               If an array, then they are applied in order obj(1), obj(2),...
+            %               If an array, then they are applied in order
+            %               obj(end), obj(end-1),...obj(1);
+            %   pix         PixelData object or 3xNpix vector representing
+            %               pixels coordinates to transform
+            %  abs_tol     value of the tolerance, used in evaluation of
+            %              validity if pixels belonging to irreducible zone
+            % use_rlu_offset
+            %              when pixels are transformed and offset present,
+            %              use its value expressed in rlu rather then in
+            %              Crystal Cartesian as normal
             %
-            %   upix_to_rlu Matrix to convert components of a vector in pixel coordinate
-            %              frame (which is an orthonormal frame) into rlu (3x3 matrix)
-            %
-            %   upix_offset Offset of origin of pixel coordinate frame (rlu) (vector length 3)
-            %
-            %   pix         PixelData object
-            %
-            %   selected    Pixels to transform
-            %
-            %   trust       Whether to trust that `selected` is valid
-            %               and bypass `in_irreducible` checks.
             % Output:
             % -------
             %   pix         Transformed PixelData object
 
-            if ~exist('proj', 'var')
-                proj = {};
+            if nargin < 3%~exist('abs_tol', 'var')
+                abs_tol = 0;
             end
-            define_selected = false;
-            if ~exist('selected', 'var')
-                define_selected = true;
-            end
-            if ~exist('trust', 'var')
-                trust = false;
+            if nargin<4 % ~exist('use_rlu_offset','var')
+                use_rlu_offset = false;
             end
 
             % Check input
             if isa(pix,'PixelDataMemory')
                 q_coordinates = pix.q_coordinates;
                 is_pix_obj = true;
-                if define_selected
-                    selected = true(1,pix.num_pixels);
-                end
             elseif isnumeric(pix) && size(pix,1) == 3
                 q_coordinates = pix;
                 is_pix_obj = false;
-                if define_selected
-                    selected = true(1,size(pix,2));
-                end
             else
                 error('HORACE:Symop:not_implemented', ...
                     'Transforming of %s pixels is not currently implemented',class(pix));
             end
+            if obj(1).offset_specified_uoffset_not_
+                error('HORACE:symop:invalid_argument',[ ...
+                    'You are attempting to symmetry-transform vector in Crystal Cartesian coordinate system,\n',...
+                    'but the information to transfer offset in rlu to CC have not been set.\n',...
+                    'Set up B-matrix, used to transfer vector into Crystal Cartesian coordinate system either by\n',...
+                    'using extended form of transform_proj method or assigning it directly to hidden Symop property: "b_matrix"'])
+            end
 
             % Do transformation
-            if ~trust
-                for i = numel(obj):-1:1
-                    nin_zone = ~obj(i).in_irreducible(q_coordinates, proj{:});
-                    %in_zone(~selected) = false;
-                    transform = selected & nin_zone';
-                    q_coordinates(:,transform) = obj(i).transform_vec(q_coordinates(:,transform));
-                end
-            else
-                for i = numel(obj):-1:1
-                    q_coordinates(:, selected) = obj(i).transform_vec(q_coordinates(:, selected));
-                end
+            for i = numel(obj):-1:1
+                transform  = ~obj(i).in_irreducible(q_coordinates,abs_tol);
+                q_coordinates(:,transform) = obj(i).transform_vec(q_coordinates(:,transform),use_rlu_offset);
             end
             if is_pix_obj
                 pix.q_coordinates = q_coordinates;
@@ -199,23 +272,46 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function proj = transform_proj (obj, proj)
+        function [proj,out_obj] = transform_proj (obj, proj)
             % Transform projection axes description by the symmetry operation
+            % or array of symmetry operations.
+            %
+            % NOTE:
+            % first operation in symmetry array should not be a
+            % SymopIdentity unless it is intentional as all other
+            % transformations in the array will be ignored.
+            % Array of transformations should not contain SymopIdentity as
+            % the result may be confusing.
             %
             %   >> proj = transform_proj (obj, proj)
             %
             % Input:
             % ------
             %   obj     Symmetry operator or array of symmetry operators
-            %           If an array, then they are applied in order obj(1), obj(2),...
-            %
-            %   proj    Projection object defining projection axes, with fields
-            %               u, v, w (optionally)
-            %           (other fields are unaffected)
+            %           If an array, then symmetries are applied in order:
+            %           obj(end), obj(end-1),...obj(1);
+            %           All symmetry operations in array must have the same
+            %           offset. If non-zero offset is set on one symmetry
+            %           operation out of array, it will be distributed to
+            %           all operations in the array.
+            %   proj    Projection object describing original coordinate
+            %           system
             %
             % Output:
             % -------
-            %   proj    Transformed projection
+            %   proj    Projection object describing coordinate system
+            %           modified by symmetry transformation(s)
+            %   out_obj Input array of symmetries modified by having b-matrix
+            %           taken from input projection and set on each symmetry
+            %           operation.
+            %           This matrix is necessary if symmetry operations
+            %           are using offset and allow to transfer offset
+            %           expressed in hkl coordinate system into Crystal
+            %           Cartesian coordinate system, where all symmetry
+            %           transformations should be applied initially.
+            %           Also, if offset is set on only one symmetry
+            %           transformation, it will be propagated to all
+            %           symmetry transformations.
             %
 
             % Check input
@@ -223,66 +319,84 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 error('HORACE:Symop:invalid_argument', ...
                     'transform_proj requires projection');
             end
+            [sym_offset,obj] = obj.extract_common_group_offset();
 
-            % Transform proj
-            for i=numel(obj):-1:1
-                proj = obj(i).transform_proj_single(proj);
+            % Build transformation, constructed from number of primitive
+            % transformations available in array of transformations
+            sym_transf_mat = proj.sym_transf;
+            if isempty(sym_transf_mat )
+                sym_transf_mat = eye(3);
             end
+            bm = proj.bmatrix(3);
+            for i=numel(obj):-1:1
+                obj(i).do_check_combo_arg = false;
+                obj(i).b_matrix = bm;
+                if ~isa(obj(i),'SymopIdentity')
+                    sym_transf_mat = obj(i).R*sym_transf_mat;
+                    obj(i).offset = sym_offset;
+                end
+                obj(i).do_check_combo_arg = true;
+                obj(i) = obj(i).check_combo_arg();
+            end
+            if numel(obj)>1
+                out_obj = SymopGeneral(sym_transf_mat,sym_offset);
+                out_obj.b_matrix = bm;
+            else
+                out_obj = obj;
+            end
+
+            proj = obj(1).transform_proj_single(proj,sym_transf_mat,sym_offset,bm);
         end
     end
 
     methods (Access=private)
-        function proj = transform_proj_single (obj, proj)
+        function lp = transform_proj_single (obj, proj,sym_transf_mat,sym_offset,bm)
+            % Transform input projection in such a way, that its
+            % pix to image transformation become equivalent to
+            % original pix to image transformation followed by symmetry
+            % transformation, i.e.:
+            % new_proj.transform_pix_to_img(vec) == obj.R*orig_proj.transform_pix_to_img(vec);
+            %
+            %
             % Note this function uses matrix Minv which transforms from rlu to
             % orthonormal components
-
             switch class(proj)
                 case 'line_proj'
-
-                    u_new = obj.R * proj.u(:);
-                    v_new = obj.R * proj.v(:);
-                    offset_new = proj.offset(:);
-                    offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-                    if ~isempty(proj.w)
-                        w_new = obj.R * proj.w(:);
-                        proj = proj.set_directions(u_new, v_new, [], offset_new);
-                    else
-                        proj = proj.set_directions(u_new, v_new, [], offset_new);
-                    end
+                    lp = proj;
                 case 'ubmat_proj'
                     lp = proj.get_line_proj();
-                    u_new = obj.R * proj.u(:);
-                    v_new = obj.R * proj.v(:);
-                    offset_new = proj.offset(:);
-                    proj = lp.set_directions(u_new, v_new, [], offset_new);
-
-                case {'sphere_proj','cylinder_proj','kf_sphere_proj'}
-                    if ~isa(obj,'SymopIdentity')
+                otherwise
+                    if isa(obj,'SymopIdentity')
+                        return
+                    else
                         error('HORACE:Symop:not_implemented', ...
-                            'Symmetry operation %s is not yet implemented for %s', ...
+                            'Symmetry operation %s is not yet implemented for proj class: %s', ...
                             class(obj),class(proj));
                     end
-
-                    %% TODO non-aligned ez/ey not supported
-                    % ez_new = obj.R * proj.ez(:);
-                    % ey_new = obj.R * proj.ey(:);
-
-                    %                 offset_new = proj.offset(:);
-                    %                 offset_new(1:3) = obj.transform_vec(offset_new(1:3));
-                    %
-                    %                 proj.offset = offset_new;
-                otherwise
-                    error('HORACE:Symop:not_implemented', ...
-                        'Cannot transform projection class "%s"', class(proj));
             end
 
-        end
+            % To avoid keeping unnecessary transformation matrices
+            % and multiply by them later, clear up unit transformation
+            % if this is the transformation to apply to projection.
+            dif = sym_transf_mat-eye(3);
+            if any(abs(dif(:))>4*eps('double'))
+                lp.do_check_combo_arg = false;
+                lp.sym_transf = sym_transf_mat;
+            else
+                lp.sym_transf= [];
+                return
+            end
+            offset_old = lp.offset(1:3);
+            offset_old_cc = bm*offset_old(:);
+            sym_offset_cc = bm*sym_offset(:);
+            % new offset in Crystal Cartesian
+            offset_cc = sym_transf_mat*sym_offset_cc(:) -sym_offset_cc(:)+offset_old_cc(:);
 
-        function offset = compute_offset (obj, R, Minv, upix_offset)
+            offset_new = bm\offset_cc; % new offset in hkl
 
-            dp = Minv*(obj.offset - upix_offset(:));
-            offset = dp - R \ dp;
-
+            lp.offset(1:3) = offset_new';
+            lp.do_check_combo_arg = true;
+            lp = lp.check_combo_arg();
         end
     end
 
@@ -302,7 +416,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %       angle   Angle of rotation in degrees                                      [scalar]
             %       offset  [Optional] Vector defining a point in reciprocal lattice units
             %               through which the rotation axis passes
-            %               Default: [0,0,0] i.e. the rotation axis goes throught the origin
+            %               Default: [0,0,0] i.e. the rotation axis goes through the origin
             %
             %   Reflection:
             %       >> obj = Symop.create (u, v)
@@ -314,7 +428,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %               (in reciprocal lattice units: (h,k,l))
             %       offset  [Optional] Vector connecting the mirror plane to the origin
             %               i.e. is an offset vector (in reciprocal lattice units: (h,k,l))
-            %               Default: [0,0,0] i.e. the mirror plane goes throught the origin
+            %               Default: [0,0,0] i.e. the mirror plane goes through the origin
             %
             %   Symmetry Motion operator:
             %       >> obj = Symop.create(W, offset)
@@ -324,7 +438,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %       W       A transformation operation in matrix form.                        [3x3 matrix]
             %               W can represent the identity element {eye(3)},
             %               the inversion element {-eye(3)}, any rotation
-            %               or any rotoinversion. The elements of W are
+            %               or any roto-inversion. The elements of W are
             %               almost certainly integers.
             %       offset  [Optional] The origin at which the transformation
             %               is performed, expressed in r.l.u.
@@ -352,14 +466,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
                     obj = SymopGeneral(varargin{:});
                 else
-
                     error('HORACE:symop:invalid_argument', ...
                         ['Constructor arguments should be one of:\n', ...
                         '- Rotation:   symop(3vector, scalar, [3vector])\n', ...
                         '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
                         '- General:    symop(3x3matrix, [3vector])\n', ...
                         'Received: %s'], disp2str(varargin));
-
                 end
             end
         end
@@ -375,94 +487,88 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
 
         function is = is_3x3matrix(elem)
-            is = isnumeric(elem) && numel(elem) == 9;
+            is = isnumeric(elem) && all(size(elem) == [3,3]);
         end
     end
 
-    % Serializable interface
+
+    methods(Sealed,Access=protected)
+        function [sym_offset,symmetries] = extract_common_group_offset(symmetries)
+            % check if offset is the same within the group of symmetry
+            % transformations, extract common offset if some symmetry
+            % objects in the group does not have offset and throw if
+            % non-zero offsets in the group are different.
+            %
+            % Set up common offset on each element of the group if some
+            % elements of the group had zero offset.
+            %
+            % Inputs:
+            %
+            % symmetries -- array of symop-s. (Should not contain identity)
+            zer = zeros(3,1);
+            sym_offset = zer;
+            n_sym_offsets = 0;
+            for obj=symmetries
+                if any(abs(obj.offset-zer)>4*eps('double'))
+                    n_sym_offsets = n_sym_offsets + 1;
+                    if n_sym_offsets>1
+                        if any(abs(obj.offset-sym_offset)>4*eps('double'))
+                            error('HORACE:Symop:not_implemented',[ ...
+                                'Multiple offsets for group of transformations are not implemented.\n',...
+                                'All transformations in a transformation group array must have the same offset\n',...
+                                'used by all transformations in the group\n',...
+                                'or the same offset for each element of the group']);
+                        end
+                    else
+                        sym_offset  = obj.offset;
+                    end
+                end
+            end
+            if n_sym_offsets> 0 && n_sym_offsets ~= numel(obj)
+                % there are offsets set on one or multiple symmetries but
+                % some symmetries have zero offsets. This is not allowed as
+                % assumed that they all must have the same offset.
+                for obj=symmetries
+                    obj.offset = sym_offset;
+                end
+            end
+        end
+        % Serializable interface
+        function  [S,obj] = convert_old_struct (obj, S, varargin)
+            if isfield(S,'n')
+                S.normvec = S.n;
+            end
+        end
+    end
     methods(Sealed)
+        % Serializable interface
         function ser = serialize(obj, varargin)
             ser = serialize@serializable(obj, varargin{:});
         end
-
-        function ser = deserialize(obj, varargin)
-            ser = deserialize@serializable(obj, varargin{:});
-        end
-
         function out = to_struct(obj, varargin)
             out = to_struct@serializable(obj, varargin{:});
-            out.serial_name = 'SymopIdentity';
+            if ~isscalar(obj)
+                out.serial_name = 'SymopIdentity';
+            end
         end
-
-        function out = to_bare_struct(obj, bare)
+        %
+        function out = to_bare_struct(obj, varargin)
             out = struct('class', cell(numel(obj), 1), 'data', cell(numel(obj), 1));
             for i = 1:numel(obj)
                 out(i) = struct('class', class(obj(i)), ...
                     'data', {cellfun(@(x) obj(i).(x), obj(i).saveableFields, 'UniformOutput', false)});
             end
         end
-
-        function out = from_bare_struct(obj, array_dat)
+        function out = from_bare_struct(~, array_dat)
             out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
             out = [out{:}];
         end
-
-        function ver = classVersion(obj)
-            ver = 1;
+        %
+        function ver = classVersion(~)
+            ver = 2;
         end
-
         function flds = saveableFields(obj)
             flds = obj.local_saveableFields();
         end
-
-        function [isne, mess] = ne(A, B, varargin)
-            isne = ~eq(A, B, varargin);
-            mess = '';
-        end
-
-        function [iseq, mess] = eq(A, B, varargin)
-
-            mess = '';
-            iseq = numel(A) == numel(B);
-            if ~iseq
-                mess = sprintf('Arrays not same size (%d, %d)', ...
-                    numel(objA), numel(objB));
-                return;
-            end
-
-            for i = 1:numel(A)
-                objA = A(i);
-                objB = B(i);
-
-                iseq = class(objA) == class(objB);
-                if ~iseq
-                    mess = sprintf('Objects not of same class (%s, %s)', ...
-                        class(objA), class(objB));
-                    return;
-                end
-
-                iseq = equal_to_tol(objA.saveableFields(), objB.saveableFields());
-                if ~iseq
-                    mess = sprintf('Objects have mismatched fields (%s, %s)', ...
-                        disp2str(objA.saveableFields()), ...
-                        disp2str(objB.saveableFields()));
-                    return;
-                end
-
-                fld = objA.saveableFields();
-                for i = 1:numel(fld)
-                    iseq = objA.(fld{i}) == objB.(fld{i});
-                    if ~iseq
-                        mess = sprintf('Objects differ in field %s (%s, %s)', ...
-                            fld{i}, ...
-                            disp2str(objA.(fld{i})), ...
-                            disp2str(objB.(fld{i})));
-                        return;
-                    end
-                end
-
-            end
-        end
-
     end
 end

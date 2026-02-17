@@ -100,7 +100,7 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
         % if the plotting operation should adjust aspect ratio when plotting sqw objects
         status = adjust_aspect(obj)
         % build target axes for cut
-        [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin, sym)
+        [targ_ax_block,targ_proj,sym] = define_target_axes_block(w, targ_proj, pbin, sym)
         %------------------------------------------------------------------
         % Calculate qh,qk,ql,en for the centres of the bins.
         qw=calculate_qw_bins(win,varargin)

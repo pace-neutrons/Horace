@@ -3,7 +3,7 @@ function wout=symmetrise_sqw(win,varargin)
 %
 % v1,v2,v3 interface is deprecated and provided for backwards compatibility only
 %
-% wout = symmetrise_sqw(win, sym)
+% wout = symmetrise_sqw(win)
 % DEPRECATED wout = symmetrise_sqw(win,v1,v2,v3)
 %
 % WORKS ONLY FOR DATA OBJECTS OF SQW-TYPE (I.E. WITH PIXEL INFO RETAINED).
@@ -18,12 +18,6 @@ function wout=symmetrise_sqw(win,varargin)
 %          which will apply 360/theta_deg rotations
 %          to reduce data into the positive quadrant
 %          ** N.B. ** 360/theta_deg MUST be integral
-%
-% proj
-%    Projection used for rotational reduction
-%
-%    Symmetrisation affects pixels in HKL and should take place in
-%    orthogonal basis even if the projection is not.
 %
 % v1 and v2 are two vectors which lie in the plane of the reflection plane.
 % v3 is a vector connecting the plane to the origin (i.e. specifies an
@@ -68,19 +62,11 @@ if isa(varargin{end}, 'aProjectionBase')
         error('HORACE:symmetrise_sqw:invalid_argument', ...
             'Cannot symmetrise to non-orthogonal projection');
     end
-
-else
-    % Also projection under which transformation takes place (HKL [orthogonal, so 90, 90, 90]).
-    % alatt, however, is retained as the symmetrisation should not rescale.
-    transf_proj = {line_proj([1 0 0], [0 1 0], ...
-        'alatt', win.data.proj.alatt, ...
-        'angdeg', [90, 90, 90])};
 end
 
 
 if isscalar(varargin) && isa(varargin{1}, 'Symop') || ...
         (iscell(varargin{1}) && all(cellfun(@(x) isa(x, 'Symop'), varargin{1})))
-
     sym = varargin{1};
 elseif numel(varargin) == 3
     warning('HORACE:symmetrise_sqw:deprecated', ...
@@ -95,15 +81,19 @@ end
 
 win = sqw(win);
 wout = copy(win);
+proj = win.data.proj;
 
-[sym, fold] = validate_and_generate_sym(sym);
-% double wrapped cellarray
-transforms = @sym.transform_pix;
+[sym, fold] = validate_and_generate_sym(sym, proj);
+if iscell(sym)
+    transforms = cellfun(@(x)@(varargin)x.transform_pix(varargin{:}), sym, 'UniformOutput', false);
+else
+    transforms = @sym.transform_pix;
+end
 % Need the projections to be wrapped in a cell array to be duplicated
 % for each symmetry operation we're applying, since the first cell array
 % may be unwrapped as an argument if 1 arg (as in this case), need
 % double wrapped cellarray
-wout.pix = wout.pix.apply(transforms, {{transf_proj(:)}}, false);
+wout.pix = wout.pix.apply(transforms, {}, false);
 
 %=========================================================================
 % Transform Ranges:
@@ -111,32 +101,18 @@ wout.pix = wout.pix.apply(transforms, {{transf_proj(:)}}, false);
 % Get image range:
 % image range
 existing_range = wout.data.img_range;
-proj = win.data.proj;
+
 
 % expand img_box into whole box and transform image range into pix range
 exp_range = expand_box(existing_range(1,1:3), existing_range(2,1:3));
 cc_ranges = proj.transform_img_to_pix(exp_range);
 
 % identify intersection points between the image range and the symmetry plane
-if isa(sym, 'SymopReflection')
-    cc_exist_range = cc_ranges;
-    for i = 1:fold
-        cross_points = box_intersect(cc_ranges, ...
-            [sym(i).u+sym(i).offset,sym(i).v+sym(i).offset,sym(i).offset]);
-        % and combine all them together
-        cc_exist_range = [cc_exist_range,cross_points];
-    end
-
-    for i = 1:fold
-        % transform existing range into transformed range
-        idx = ~sym(i).in_irreducible(cc_exist_range);
-        cc_exist_range(:,idx) = sym(i).transform_vec(cc_exist_range(:,idx));
-    end
+if iscell(sym)
+    sym_arr = [sym{:}];
+    cc_exist_range = find_ranges(sym_arr,cc_ranges,proj);
 else
-    % 
-    rot_center = sym.offset; % offset in Crystal Cartesian though should
-    %  be hkl
-    cc_exist_range = sym.transform_pix([cc_ranges,rot_center]);
+    cc_exist_range = find_ranges(sym,cc_ranges,proj);
 end
 
 img_box_points      = proj.transform_pix_to_img(cc_exist_range);
@@ -153,17 +129,44 @@ cleanup_obj = onCleanup(@()set(hor_config, 'log_level', oll));
 
 % Build target object from symmetry-modified pixels and new data range
 dat = wout.data;
-dat.axes.img_range = all_sym_range;    
+dat.axes.img_range = all_sym_range;
 
 dat.s    = 0;
 dat.e    = 0;
 dat.npix = 0;
 
-proj = dat.proj;
-% unique_id is needed to call sort pixels inside routine
+
+% unique_id is needed to call sort pixels inside bin routine to have pixels
+% sorted at the end of operation.
 [dat.npix,dat.s,dat.e,pix,unique_id] = ...
     proj.bin_pixels(dat.axes,wout.pix,dat.npix,dat.s,dat.e);
 [dat.s, dat.e] = normalize_signal(dat.s, dat.e, dat.npix);
 wout.data = dat;
 wout.pix = pix;
+end
+
+function cc_exist_range = find_ranges(sym,cc_ranges,proj)
+%
+cc_exist_range = cc_ranges;
+for i = numel(sym):-1:1
+    if isa(sym, 'SymopReflection')
+        % define plane through 3 points in-plane
+        plane_points = sym(i).offset(:)+[zeros(3,1),sym(i).u(:),sym(i).v(:)];
+        plane_points_cc = proj.transform_hkl_to_pix(plane_points);
+        cross_points = box_intersect(cc_ranges, plane_points_cc);
+        % and combine all them together
+        cc_exist_range = [cc_exist_range,cross_points];
+    else
+        %
+        rot_center = proj.transform_hkl_to_pix(sym(i).offset(:)); % convert offset to Crystal Cartesian
+        cc_exist_range = [cc_exist_range,rot_center];
+    end
+
+end
+for i = numel(sym):-1:1
+    % transform existing range into transformed range. Add toll to ensure
+    % boundary points are included.
+    cc_exist_range = sym(i).transform_pix(cc_exist_range,1.e-7);
+end
+
 end

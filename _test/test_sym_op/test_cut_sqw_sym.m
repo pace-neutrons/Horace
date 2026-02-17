@@ -21,11 +21,13 @@ classdef test_cut_sqw_sym < TestCaseWithSave
 
     methods
 
-        function obj = test_cut_sqw_sym(name)
-            if nargin<1
+        function obj = test_cut_sqw_sym(varargin)
+            if nargin == 0
                 name = 'test_cut_sqw_sym';
+            else
+                name = varargin{1};
             end
-            obj@TestCaseWithSave(name)
+            obj=obj@TestCaseWithSave(name,'test_cut_sqw_sym_output.mat');            
 
             % Read in data
             this_path = fileparts(mfilename('fullpath'));
@@ -136,21 +138,24 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                 {SymopIdentity(), op}, '-nopix');
 
             w3sym = cut_sqw(obj.data_source, obj.proj, ubin_half, ...
-                            obj.width, obj.width, obj.ebins, ...
-                            {SymopIdentity(), op}, '-nopix');
+                obj.width, obj.width, obj.ebins, ...
+                {SymopIdentity(), op}, '-nopix');
 
-            assertEqualToTol(w1sym, w2sym, 'ignore_str', 1, 'tol',[eps("single"), eps("single")]);
-            assertEqualToTol(w1sym, w3sym, 'ignore_str', 1, 'tol', [eps("single"), eps("single")]);
+            assertEqualToTol(w1sym, w2sym, '-ignore_str', 'tol',[eps("single"), eps("single")]);
+            assertEqualToTol(w1sym, w3sym, '-ignore_str', 'tol', [eps("single"), eps("single")]);
         end
 
-
         function test_cut_sym_with_pix(obj)
-        % Test symmetrisation, keeping pixels
+            % Test symmetrisation, keeping pixels
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
             w2sym = cut(obj.data, obj.proj, obj.bin,...
                 obj.width, obj.width, obj.ebins, obj.sym);
 
-            obj.assertEqualToTolWithSave(w2sym.data, obj.tol_sp,'ignore_str',1);
+            obj.assertEqualToTolWithSave(w2sym, obj.tol_sp,'-ignore_str');
+
+            % check pixels are there in correct places.
+            w2s_ss = cut(w2sym,[],[]);
+            assertEqualToTol(w2s_ss,w2sym)
         end
 
         function test_cut_sym_with_nopix(obj)
@@ -159,7 +164,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             d2sym = cut(obj.data, obj.proj, obj.bin,...
                 obj.width, obj.width, obj.ebins, obj.sym, '-nopix');
 
-            obj.assertEqualToTolWithSave(d2sym, obj.tol_sp,'ignore_str',1);
+            obj.assertEqualToTolWithSave(d2sym, obj.tol_sp,'-ignore_str');
         end
 
         function test_cut_sqw_sym_P2__1_3(obj)
@@ -169,12 +174,8 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             clOb = set_temporary_config_options(hor_config, 'log_level', -1);
             c = cut(obj.data2, obj.proj2, ...
                 obj.ubin2, obj.vbin2, obj.wbin2, obj.ebin2, ...
-                obj.sym2, '-nopix');
-
-            ref = obj.getReferenceDataset('test_cut_sqw_sym_P2__1_3', ...
-                                          'test_cut_sqw_sym_P2__1_3_1');
-
-            assertEqualToTol(c, ref, obj.tol_sp,'ignore_str',1);
+                obj.sym2);
+            obj.assertEqualToTolWithSave(c, obj.tol_sp,'-ignore_str');
         end
 
         %------------------------------------------------------------------------

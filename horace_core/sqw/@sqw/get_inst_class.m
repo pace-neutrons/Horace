@@ -1,8 +1,10 @@
-function [main_inst, all_inst] = get_inst_class (obj)
+function [main_inst, all_inst] = get_inst_class (obj,varargin)
 % Determine the instrument type in a collection of sqw objects and retrieve
 % main instrument (Single instrument?)
 %
 %   >> [inst,all_inst] = get_inst_class (obj)              % single sqw array
+%   >> [inst,all_inst] = get_inst_class (obj,obj2,obj3,obj4) % multiple
+%       sqw objects
 %
 % Input:
 % ------
@@ -33,10 +35,31 @@ end
 main_inst = inst{1};
 inst_type = class(main_inst);
 same_type = cellfun(@(x)isa(x,inst_type),inst);
-if ~same_type
+
+if ~all(same_type)
     error('HORACE:tobyfit:not_implemented',...
         'Tobyfit does not currently support different types of instruments or some instruments for some runs are empty')
 end
+
+if nargin>1
+    for i=1:numel(varargin)
+        objN = varargin{i};
+        if ~isa(objN,'sqw')
+            error('HORACE:sqw:invalid_argumet',...
+                'get_inst_class works for cellarray of sqw objects only but class of input object N%d is: %s', ...
+                i+1,class(objN));
+        end
+        [instN,all_inst] = objN.get_inst_class();
+        if ~all_inst
+            return
+        end
+        if ~isa(instN,inst_type)
+            error('HORACE:tobyfit:not_implemented',...
+                'Tobyfit does not currently support different types of instruments or some instruments for some runs are empty')
+        end
+    end
+end
+
 for i=2:numel(obj)
     [other_inst,all_inst] = obj(i).experiment_info.get_inst_class();
     if ~all_inst
@@ -47,5 +70,4 @@ for i=2:numel(obj)
         error('HORACE:tobyfit:not_implemented',...
             'Tobyfit does not currently support different types of instruments or some instruments for some runs are empty')
     end
-
 end

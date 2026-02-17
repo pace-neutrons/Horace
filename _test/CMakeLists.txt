@@ -65,6 +65,7 @@ set(HORACE_TESTS
     "test_sqw"
     "test_sqw_class"
     "test_sqw_file"
+    "test_sqw_models"
     "test_sqw_pageOpMethods"
     "test_sqw_pixels"
     "test_sym_op"
@@ -83,15 +84,6 @@ set(HORACE_SYSTEM_TESTS
     "test_TF_let"
     "test_TF_refine_crystal"
 )
-message(" TESTING AGAINST MATLAB VERSION: ${Matlab_RELEASE}")
-IF ("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
-    if ("${Matlab_RELEASE}" STREQUAL "R2018b")
-    # Run tests for 2018b Matlab on Windows Jenkins in reverse order
-    # to avoid running parallel tests simultaneously with other version(s).
-    #
-       list(REVERSE TEST_DIRECTORIES_HORACE)
-    endif()
-ENDIF()
 
 #-------------------------------------------------------------------------------
 # Combine all the tests into single variable
@@ -101,6 +93,16 @@ set(TEST_SUITES
     "${HORACE_TESTS}"
     "${HORACE_SYSTEM_TESTS}"
 )
+
+message(" TESTING AGAINST MATLAB VERSION: ${Matlab_RELEASE}")
+IF ("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
+    if ("${Matlab_RELEASE}" STREQUAL "R2018b")
+    # Run tests for 2018b Matlab on Windows Jenkins in reverse order
+    # to avoid running parallel tests simultaneously with other version(s).
+    #
+       list(REVERSE TEST_SUITES)
+    endif()
+ENDIF()
 
 # ------------------------------------------------------------------------------
 # Add the local_init directory - which contains worker_v4 and herbert_on -

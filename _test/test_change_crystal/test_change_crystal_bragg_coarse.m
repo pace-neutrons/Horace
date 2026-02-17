@@ -696,7 +696,7 @@ classdef test_change_crystal_bragg_coarse < TestCaseWithSave
 
             test_obj = read_sqw(obj.misaligned_sqw_file);
             % the Bragg points positions found by fitting measured Bragg
-            % peaks shape to Gaussian and identifying the Gaussian centerpoints
+            % peaks shape to Gaussian and identifying the Gaussian centre-points
             % See test_u_alignment_tf_way for the procedure of obtaining
             % them
             rlu_real = [...
