@@ -36,9 +36,15 @@ The core of both algorithms is set of `Symop` operations. The inheritance diagra
 
 #symmetrise_sqw
 
-The algorithm is based on the concept of **irreducible zone**, defined for `SymopRotation` and `SymopReflection` only. For `SymopReflection` irreducible zone is the half-plane constrained by the reflection plane in the direction of the normal to this plane. For `SymopRotation` its the corner between two planes located at the rotation centre defined by `offset`. The angle *&theta;* between planes is equal to the rotation angle `theta_deg` defined for `symop_rotation`. Fig.2 provides example of irreducible zones for `SymopReflection` with `u=[1,0,0]`, `v=[0,1,0]` and `offset` [2,0,0] and `SymopRotation` with `offset` [1,1,0] constructed in cubic orthogonal coordinate system expressed in `rlu`.
+The algorithm is based on the concept of **irreducible zone**, defined for `SymopRotation` and `SymopReflection` only. For `SymopReflection` irreducible zone is the half-plane constrained by the reflection plane in the direction of the normal to this plane. For `SymopRotation` its the corner between two planes located at the rotation centre defined by `offset`. The angle *&theta;* between planes is equal to the rotation angle `theta_deg` defined for `symop_rotation`.
 
-![Fig.2. Irreducible zones for a) `SymopReflection` and b) `SymopRotation` ](../diagrams/Symops_irreducible.png)
+Fig.2 provides example of irreducible zones for `SymopReflection` with `u=[1,0,0]`, `v=[0,1,0]` and `offset` [2,0,0] and `SymopRotation` with `offset` [1,1,0] constructed in cubic orthogonal coordinate system expressed in `rlu`.
+
+![Fig.2. Irreducible zones for a) `SymopReflection` and b) `SymopRotation`](../diagrams/Symops_irreducible.png)
+
+`validate_and_generate_sym` method of `Symop` works with `SymopRotation` and `SymopReflection` and checks validity of input transformations for applicability with `symmetrise_sqw`. It is possible that current implementation of this method does not cover all reasonable 
+
+Multiple reflections may be defined by cellarray of reflections. If `validate_and_generate_sym` receives single `SymopRotation`, it will be transformed into multiple rotations 
 
 
 
