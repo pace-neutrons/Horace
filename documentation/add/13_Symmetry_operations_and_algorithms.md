@@ -31,7 +31,12 @@ only, while `cut` would work with any transformation.
 
 The core of both algorithms is set of `Symop` operations. The inheritance diagram for all symmetry operations classes used by Horace is presented on Fig.1.
 
-![Fig.1. Symop Classes Inheritance diagram with two algorithms which use `Symop`](../diagrams/Symops_diagram.png)
+<figure>
+  <img src="../diagrams/Symops_diagram.png" alt="Symops Inheritance Diagram">
+  <figcaption>
+    Fig.1. Symop Classes Inheritance diagram with two algorithms which use `Symop`
+  </figcaption>
+</figure>
 
 
 #symmetrise_sqw
@@ -42,9 +47,8 @@ Fig.2 provides example of irreducible zones for `SymopReflection` with `u=[1,0,0
 
 ![Fig.2. Irreducible zones for a) `SymopReflection` and b) `SymopRotation`](../diagrams/Symops_irreducible.png)
 
+
 `validate_and_generate_sym` method of `Symop` works with `SymopRotation` and `SymopReflection` and checks validity of input transformations for applicability with `symmetrise_sqw`. It is possible that current implementation of this method does not cover all reasonable 
 
 Multiple reflections may be defined by cellarray of reflections. If `validate_and_generate_sym` receives single `SymopRotation`, it will be transformed into multiple rotations 
-
-
 
