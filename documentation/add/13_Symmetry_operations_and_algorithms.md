@@ -29,6 +29,6 @@ which would pick up set of zones, symmetry related to the original one and apply
 The core of both algorithms is set of `Symop` operations. The inheritance diagram for all symmetry operations classes used by Horace is presented on Fig 1.
 
 
-![Fig.1. Symop Classes Inheritance](../diagrams/sqw-dnd.png)
+![Fig.1. Symop Classes Inheritance](../diagrams/Symops_diagram.png)
 
 
