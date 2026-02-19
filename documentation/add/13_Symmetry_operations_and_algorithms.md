@@ -2,7 +2,7 @@
 Date: 2026-02-05
 
 
-#Overview of operations
+##Overview of operations
 
 Horace allows to define various symmetry operations and apply them to `sqw` objects. 
 If done correctly, with proper account for symmetry of the system, symmetry operations
@@ -39,16 +39,27 @@ The core of both algorithms is set of `Symop` operations. The inheritance diagra
 </figure>
 
 
-#symmetrise_sqw
+
+##symmetrise_sqw
 
 The algorithm is based on the concept of **irreducible zone**, defined for `SymopRotation` and `SymopReflection` only. For `SymopReflection` irreducible zone is the half-plane constrained by the reflection plane in the direction of the normal to this plane. For `SymopRotation` its the corner between two planes located at the rotation centre defined by `offset`. The angle *&theta;* between planes is equal to the rotation angle `theta_deg` defined for `symop_rotation`.
 
 Fig.2 provides example of irreducible zones for `SymopReflection` with `u=[1,0,0]`, `v=[0,1,0]` and `offset` [2,0,0] and `SymopRotation` with `offset` [1,1,0] constructed in cubic orthogonal coordinate system expressed in `rlu`.
 
-![Fig.2. Irreducible zones for a) `SymopReflection` and b) `SymopRotation`](../diagrams/Symops_irreducible.png)
+<figure>
+  <img src="../diagrams/Symops_irreducible.png" alt="Irreducible zones for symops">
+  <figcaption>
+    Fig.2. Irreducible zones for a) `SymopReflection` and b) `SymopRotation`
+  </figcaption>
+</figure>
 
+`validate_and_generate_sym` method of `Symop` works with `SymopRotation` and `SymopReflection` and checks validity of input transformations for applicability with `symmetrise_sqw`. It accepts only rotations or only reflections and is possible that current implementation of this method does not cover all reasonable combinations of the transformations.
 
-`validate_and_generate_sym` method of `Symop` works with `SymopRotation` and `SymopReflection` and checks validity of input transformations for applicability with `symmetrise_sqw`. It is possible that current implementation of this method does not cover all reasonable 
+Multiple reflections may be defined by cellarray of reflections. If `validate_and_generate_sym` receives single `SymopRotation`, it will be transformed into array of multiple rotations with number of rotations `n_rot` according to formula: `n_rot = 360/theta_deg` and requests that `n_rot` is integer.
 
-Multiple reflections may be defined by cellarray of reflections. If `validate_and_generate_sym` receives single `SymopRotation`, it will be transformed into multiple rotations 
+`trasform_pix` method of `symop` is the core of `symmetrise_sqw` algorithm. 
+It accepts `PixelDataMemory` class or [3 x npix] array of pixels coordinates and 
+array including single element array or cellarray of symmetry transformations. The method checks if pixels belong to irreducible zone and if not, applies subsequent symmetry transformation to the pixels which would not belong to the irreducible. After each transformation it checks which pixels are in irreducible, and all pixels which are not in irreducible are subject of subsequent transformation. 
+
+`
 
