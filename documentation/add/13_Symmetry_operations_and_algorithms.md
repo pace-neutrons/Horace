@@ -91,20 +91,31 @@ Horace 4.1 implementation of `symmetrise_sqw` is fully memory based. Applying `s
 
 ## `cut` with `Symop`
 
-The idea of symmetrisation which uses `cut` with `Symop` is based on the fact that `cut` uses `line_proj` method `transform_pix_to_image` to take pixels in Crystal Cartesian coordinate system and transform them into image coordinate system. Then pixels are binned using image's `axes_block` to obtain target image and sorted according to the image bins for next cuts to be able to use pixels preselection. 
+The idea of symmetrisation which uses `cut` with `Symop` is based on the fact that `cut` uses `line_proj` method `transform_pix_to_image` to take pixels in Crystal Cartesian coordinate system and transform them into image coordinate system. Then pixels are binned using image's `axes_block` to obtain target image and sorted according to the image bins for next cuts to be able to use pixels preselection.
 
 `tranform_pix_to_image` method of `line_proj` modifies pixels using simple matrix expression:
 
 $$
-    pix_{img} =\hat{M}_{tr}*(pix_{cc} - offset_{cc});
+    pix_{img} =\hat{M}_{tr}*(pix_{cc} - offset_{cc}); \qquad \qquad \qquad (1)
 $$
 
-where $$\hat{M}_{tr}$$ is the scaled $$\hat {UB}$$ matrix which transforms pixels expressed in Crystal Cartesian coordinate system into image coordinate system.
 
-Symmetry is applied to pixels expressed in Crystal Cartesian coordinate system, so modified projection would use transformation:
+where $$\hat{M}_{tr}$$ is the scaled $$\hat {UB}$$ matrix which transforms pixels expressed in Crystal Cartesian (CC) coordinate system into image coordinate system and $$pix_{cc}$$ and $$offset_{cc}$$ are the CC coordinates of pixels and CC offset correspondingly.
+
+Symmetry is applied to pixels expressed in CC coordinate system, so modified projection would use transformation:
 
 $$
-    pix_{sym_img} =\hat{M}_{tr}*\hat{R}_{sym}*(pix_{cc} - \hat{R}_{sym}\offset_{cc});
+    pix_{sym\\_img} =\hat{M}_{tr}* \hat{R}_{sym}*(pix_{cc} - \frac{mod\\_ffset_{cc}}{\hat{R}_{sym}}); \qquad (2)
 $$
 
-Where \hat{R}_{sym} -- is the transformation matrix defined by the symmetry operation.
+Where $$\hat{R}_{sym}$$ -- is the transformation matrix defined by the symmetry operation.
+
+As both projection and `Symop` may have different offsets, $$mod\\_offset_{cc}$$ in the expression above is the combination of the `line_proj` and `Symop` offsets modified according to the formula:
+
+$$
+    mod\\_offset_{cc} = \hat{R}_{sym}*sym\\_offset_{cc} -sym\\_offset_{cc}+proj\\_offset_{cc} \qquad (3)
+$$
+
+where $$sym\\_offset_{cc}$$ and $$proj\\_offset_{cc}$$ are `Symop` and `line_proj` offsets correspondingly expressed in CC coordinate system.
+
+As transformations, used in `line_proj` are invertible, the inversion of formula (1) is used for transforming image coordinates into CC coordinate system and the projection, modified according to expressions (1)-(3) can be used for 
