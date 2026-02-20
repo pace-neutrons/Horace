@@ -37,7 +37,7 @@ The core of both algorithms is set of `Symop` operations. The inheritance diagra
   <figcaption>
     Fig.1. Symop Classes Inheritance diagram with two algorithms which use `Symop`
   </figcaption>
-</figure>
+</figure><br>
 
 The list of specific `Symop` properties and methods used in symmetrisation is presented in Table 1:
 
@@ -73,7 +73,7 @@ Fig.2 provides example of irreducible zones for `SymopReflection` with `u=[1,0,0
   <figcaption>
     Fig.2. Irreducible zones for a) `SymopReflection` and b) `SymopRotation`
   </figcaption>
-</figure>
+</figure><br>
 
 
 `validate_and_generate_sym` method of `Symop` works with `SymopRotation` and `SymopReflection` and checks validity of input transformations for applicability with `symmetrise_sqw`. It accepts only rotations or only reflections and it is possible that current implementation of this method does not cover all reasonable combinations of the transformations users may be interested in.
@@ -100,7 +100,7 @@ $$
 $$
 
 
-where $$\hat{M}_{tr}$$ is the scaled $$\hat{UB}$$ matrix which transforms pixels expressed in Crystal Cartesian (CC) coordinate system into image coordinate system and $$pix_{cc}$$ and $$offset_{cc}$$ are the CC coordinates of pixels and CC offset correspondingly.
+where $$\hat{M}_{tr}$$ is the scaled $$\hat{UB}^{-1}$$ matrix which transforms pixels expressed in Crystal Cartesian (CC) coordinate system into image coordinate system and $$pix_{cc}$$ and $$offset_{cc}$$ are the CC coordinates of pixels and CC offset correspondingly.
 
 Symmetry is applied to pixels expressed in CC coordinate system, so modified projection would use transformation:
 
@@ -127,5 +127,7 @@ As transformations, used in `line_proj` are invertible, the inversion of formula
   <figcaption>
     Fig.3. Original and symmetry related area generated within `cut` using `transform_proj` method. These two areas will be added together. 
   </figcaption>
-</figure>
+</figure> <br>
 
+
+You may provide cellarray of symmetry transformations to `cut`. If elements of this cellarray are build from array of transformations, `transform_proj` method would combine each element of the transformation together into `SymopGeneric` transformation. This transformation will generate appropriate projection and will be applied instead of original transformation array. 
