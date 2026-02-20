@@ -1,4 +1,4 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.6 Chrome/140.0.7339.249 Electron/38.8.0 Safari/537.36" version="29.3.6" pages="2">
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.6 Chrome/140.0.7339.249 Electron/38.8.0 Safari/537.36" version="29.3.6" pages="3">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="ClassDiagram">
     <mxGraphModel dx="1434" dy="1079" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -376,6 +376,62 @@
         </mxCell>
         <mxCell id="TIDXz2Z-86F3Tmx6211A-3" parent="1" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" value="b)" vertex="1">
           <mxGeometry height="40" width="100" x="310" y="290" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="k2sMnQcokDnhIvFHMV2m" name="cut_with_symop">
+    <mxGraphModel dx="1487" dy="946" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;fillWeight=4;hachureGap=8;hachureAngle=45;fillColor=#1ba1e2;sketch=1;" value="" vertex="1">
+          <mxGeometry height="280" width="360" x="260" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-5" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="340" y="321" as="sourcePoint" />
+            <mxPoint x="570" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-14" connectable="0" parent="Cv9k1GBmluz4BwZ3ni9K-5" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=16;" value="[1,0,0]" vertex="1">
+          <mxGeometry relative="1" x="0.7968" y="2" as="geometry">
+            <mxPoint x="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-6" parent="1" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;" value="Symmetry related area" vertex="1">
+          <mxGeometry height="40" width="78" x="422" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-10" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="339.5" y="321" as="sourcePoint" />
+            <mxPoint x="339.5" y="111" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-13" connectable="0" parent="Cv9k1GBmluz4BwZ3ni9K-10" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=16;" value="[0,1,0]" vertex="1">
+          <mxGeometry relative="1" x="0.8381" y="-2" as="geometry">
+            <mxPoint y="6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-3" parent="1" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;direction=west;textDirection=vertical-rl;" value="main area" vertex="1">
+          <mxGeometry height="80" width="40" x="320" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-11" edge="1" parent="1" style="endArrow=classic;startArrow=classic;html=1;rounded=0;curved=1;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <Array as="points">
+              <mxPoint x="400" y="250" />
+            </Array>
+            <mxPoint x="340" y="250" as="sourcePoint" />
+            <mxPoint x="410" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-12" connectable="0" parent="Cv9k1GBmluz4BwZ3ni9K-11" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];textOpacity=80;" value="&lt;font face=&quot;Symbol&quot; style=&quot;font-size: 24px;&quot;&gt;&lt;i style=&quot;&quot;&gt;q = 90&lt;sup&gt;o&lt;/sup&gt;&lt;/i&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.3013" y="-15" as="geometry">
+            <mxPoint x="12" y="6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Cv9k1GBmluz4BwZ3ni9K-15" parent="1" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" value="Cut with SymopRotation([0,0,1],90)" vertex="1">
+          <mxGeometry height="30" width="390" x="250" y="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

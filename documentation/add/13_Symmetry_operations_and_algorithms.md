@@ -100,7 +100,7 @@ $$
 $$
 
 
-where $$\hat{M}_{tr}$$ is the scaled $$\hat {UB}$$ matrix which transforms pixels expressed in Crystal Cartesian (CC) coordinate system into image coordinate system and $$pix_{cc}$$ and $$offset_{cc}$$ are the CC coordinates of pixels and CC offset correspondingly.
+where $$\hat{M}_{tr}$$ is the scaled $$\hat{UB}$$ matrix which transforms pixels expressed in Crystal Cartesian (CC) coordinate system into image coordinate system and $$pix_{cc}$$ and $$offset_{cc}$$ are the CC coordinates of pixels and CC offset correspondingly.
 
 Symmetry is applied to pixels expressed in CC coordinate system, so modified projection would use transformation:
 
@@ -110,7 +110,7 @@ $$
 
 Where $$\hat{R}_{sym}$$ -- is the transformation matrix defined by the symmetry operation.
 
-As both projection and `Symop` may have different offsets, $$mod\\_offset_{cc}$$ in the expression above is the combination of the `line_proj` and `Symop` offsets modified according to the formula:
+As both `line_proj` and `Symop` may have different offsets, $$mod\\_offset_{cc}$$ in the expression above is the combination of the `line_proj` and `Symop` offsets modified according to the formula:
 
 $$
     mod\\_offset_{cc} = \hat{R}_{sym}*sym\\_offset_{cc} -sym\\_offset_{cc}+proj\\_offset_{cc} \qquad (3)
@@ -118,4 +118,14 @@ $$
 
 where $$sym\\_offset_{cc}$$ and $$proj\\_offset_{cc}$$ are `Symop` and `line_proj` offsets correspondingly expressed in CC coordinate system.
 
-As transformations, used in `line_proj` are invertible, the inversion of formula (1) is used for transforming image coordinates into CC coordinate system and the projection, modified according to expressions (1)-(3) can be used for 
+As transformations, used in `line_proj` are invertible, the inversion of formula (1) is used for transforming image coordinates into CC coordinate system and the projection, modified according to expressions (1)-(3) can be used for transforming symmetry related image areas. 
+
+`transform_proj` method sets hidden `line_porj` property `sym_transf` with value of the symmetry transformation matrix $$\hat{R}_{sym}$$. This modifies input projection into symmetry related projections, which describes symmetry related area of input image. For example, if you provide `SymopRotation([0,0,1],90)` for `cut` made in ranges presented at Fig.3, the algorithm will add to this rotation a `SymopIdentity` transformation and `transform_proj` will return two projections, where first is the original one, modified b and the second one would transform pixels from symmetry related area  into the main area (Fig.3)
+
+<figure>
+  <img src="../diagrams/Cut_with_symop_rotation.png" alt="Cut with SymopRotation">
+  <figcaption>
+    Fig.3. Original and symmetry related area generated within `cut` using `transform_proj` method. These two areas will be added together. 
+  </figcaption>
+</figure>
+
