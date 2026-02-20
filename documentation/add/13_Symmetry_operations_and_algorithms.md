@@ -32,12 +32,12 @@ only, while `cut` would work with any transformation.
 
 The core of both algorithms is set of `Symop` operations. The inheritance diagram for all symmetry operations classes used by Horace is presented on Fig.1.
 
-<figure>
+<figure style="margin-bottom: 1.5em;">
   <img src="../diagrams/Symops_diagram.png" alt="Symops Inheritance Diagram">
-  <figcaption><italic>
-    Fig.1. Symop Classes Inheritance diagram with two algorithms which use `Symop`
-  </italic></figcaption><br>
-</figure><br>
+  <figcaption><em>
+    Fig.1. Symop Classes Inheritance diagram with two algorithms which use <code>Symop</code>
+  </em></figcaption>
+</figure>
 
 The list of specific `Symop` properties and methods used in symmetrisation is presented in Table 1:
 
@@ -68,11 +68,11 @@ The algorithm is based on the concept of **irreducible zone**, defined for `Symo
 
 Fig.2 provides example of irreducible zones for `SymopReflection` with `u=[1,0,0]`, `v=[0,1,0]` and `offset` [2,0,0] and `SymopRotation` with `offset` [1,1,0] constructed in cubic orthogonal coordinate system expressed in `rlu`.
 
-<figure>
-  <img src="../diagrams/Symops_irreducible.png" alt="Irreducible zones for symops">
-  <figcaption><italic>
-    Fig.2. Irreducible zones for a) `SymopReflection` and b) `SymopRotation`
-  </italic></figcaption><br>
+<figure style="margin-bottom: 1.5em;">
+  <img src="../diagrams/Symops_irreducible.png" alt="Irreducible zones for Symops">
+  <figcaption><em>
+    Fig.2. Irreducible zones for a) <code>SymopReflection</code> and b) <code>SymopRotation</code>
+  </em></figcaption>
 </figure>
 
 
@@ -122,12 +122,11 @@ As transformations, used in `line_proj` are invertible, the inversion of formula
 
 `transform_proj` method sets hidden `line_porj` property `sym_transf` with value of the symmetry transformation matrix $$\hat{R}_{sym}$$. This modifies input projection into symmetry related projections, which describes symmetry related area of input image. For example, if you provide `SymopRotation([0,0,1],90)` for `cut` made in ranges presented at Fig.3, the algorithm will add to this rotation a `SymopIdentity` transformation and `transform_proj` will return two projections, where first is the original one, modified b and the second one would transform pixels from symmetry related area  into the main area (Fig.3)
 
-<figure>
+<figure style="margin-bottom: 1.5em;">
   <img src="../diagrams/Cut_with_symop_rotation.png" alt="Cut with SymopRotation">
-  <figcaption><italic>
-    Fig.3. Original and symmetry related area generated within `cut` using `transform_proj` method. These two areas will be added together. 
-  </italic></figcaption><br>
+  <figcaption><em>
+    Fig.3. Original and symmetry related area generated within <code>cut</code> using <code>transform_proj</code> method. These two areas will be added together. 
+  </em></figcaption>
 </figure>
-
 
 You may provide cellarray of symmetry transformations to `cut`. If elements of this cellarray are build from array of transformations, `transform_proj` method would combine each element of the transformation together into `SymopGeneric` transformation. This transformation will generate appropriate projection and will be applied instead of original transformation array. 
