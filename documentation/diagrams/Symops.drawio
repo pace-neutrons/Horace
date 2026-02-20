@@ -365,15 +365,6 @@
         <mxCell id="ya_-MkdkU4P0U5JeMU-o-48" parent="1" style="shape=waypoint;sketch=0;fillStyle=solid;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;" value="" vertex="1">
           <mxGeometry height="20" width="20" x="414" y="229" as="geometry" />
         </mxCell>
-        <mxCell id="ya_-MkdkU4P0U5JeMU-o-49" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;" value="Text" vertex="1">
-          <mxGeometry height="30" width="50" x="465" y="110" as="geometry" />
-        </mxCell>
-        <mxCell id="ya_-MkdkU4P0U5JeMU-o-50" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;" value="Text" vertex="1">
-          <mxGeometry height="30" width="50" x="465" y="110" as="geometry" />
-        </mxCell>
-        <mxCell id="ya_-MkdkU4P0U5JeMU-o-51" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;" value="Text" vertex="1">
-          <mxGeometry height="30" width="50" x="465" y="110" as="geometry" />
-        </mxCell>
         <mxCell id="ya_-MkdkU4P0U5JeMU-o-52" parent="1" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" value="SymopReflection" vertex="1">
           <mxGeometry height="40" width="100" x="126" y="30" as="geometry" />
         </mxCell>
