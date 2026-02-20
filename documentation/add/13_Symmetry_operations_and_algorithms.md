@@ -34,9 +34,9 @@ The core of both algorithms is set of `Symop` operations. The inheritance diagra
 
 <figure>
   <img src="../diagrams/Symops_diagram.png" alt="Symops Inheritance Diagram">
-  <figcaption>
+  <figcaption><italic>
     Fig.1. Symop Classes Inheritance diagram with two algorithms which use `Symop`
-  </figcaption>
+  </italic></figcaption><br>
 </figure><br>
 
 The list of specific `Symop` properties and methods used in symmetrisation is presented in Table 1:
@@ -70,10 +70,10 @@ Fig.2 provides example of irreducible zones for `SymopReflection` with `u=[1,0,0
 
 <figure>
   <img src="../diagrams/Symops_irreducible.png" alt="Irreducible zones for symops">
-  <figcaption>
+  <figcaption><italic>
     Fig.2. Irreducible zones for a) `SymopReflection` and b) `SymopRotation`
-  </figcaption>
-</figure><br>
+  </italic></figcaption><br>
+</figure>
 
 
 `validate_and_generate_sym` method of `Symop` works with `SymopRotation` and `SymopReflection` and checks validity of input transformations for applicability with `symmetrise_sqw`. It accepts only rotations or only reflections and it is possible that current implementation of this method does not cover all reasonable combinations of the transformations users may be interested in.
@@ -124,10 +124,10 @@ As transformations, used in `line_proj` are invertible, the inversion of formula
 
 <figure>
   <img src="../diagrams/Cut_with_symop_rotation.png" alt="Cut with SymopRotation">
-  <figcaption>
+  <figcaption><italic>
     Fig.3. Original and symmetry related area generated within `cut` using `transform_proj` method. These two areas will be added together. 
-  </figcaption>
-</figure> <br>
+  </italic></figcaption><br>
+</figure>
 
 
 You may provide cellarray of symmetry transformations to `cut`. If elements of this cellarray are build from array of transformations, `transform_proj` method would combine each element of the transformation together into `SymopGeneric` transformation. This transformation will generate appropriate projection and will be applied instead of original transformation array. 
