@@ -91,7 +91,8 @@ Horace 4.1 implementation of `symmetrise_sqw` is fully memory based. Applying `s
 
 ## `cut` with `Symop`
 
-The idea of symmetrisation which uses `cut` with `Symop` is based on the fact that `cut` uses `line_proj` method `transform_pix_to_image` to take pixels in Crystal Cartesian coordinate system and transform them into image coordinate system. Then pixels are binned using image's `axes_block` to obtain target image and sorted according to the image bins for next cuts to be able to use pixels preselection.
+The idea of symmetrisation which uses `cut` with `Symop` is based on the similarity of transformation used by `line_proj` and `Symop`. `cut` uses `line_proj` method `transform_pix_to_image` to take pixels in Crystal Cartesian (CC) coordinate system and transform them into image coordinate system.
+Then pixels are binned using image's `axes_block` to obtain target image and sorted according to the image bins for next cuts to be able to use pixels preselection.
 
 `tranform_pix_to_image` method of `line_proj` modifies pixels using simple matrix expression:
 
@@ -102,7 +103,7 @@ $$
 
 where $$\hat{M}_{tr}$$ is the scaled $$\hat{UB}^{-1}$$ matrix which transforms pixels expressed in Crystal Cartesian (CC) coordinate system into image coordinate system and $$pix_{cc}$$ and $$offset_{cc}$$ are the CC coordinates of pixels and CC offset correspondingly.
 
-Symmetry is applied to pixels expressed in CC coordinate system, so modified projection would use transformation:
+Symmetries are applied to pixels in CC coordinates and actually have form described by equation (1) with different transformation matrix and offset.  A modified projection can combine projection transformation and symmetry transformation to perform `cut` with symmetries.  Such modified projection would have form:
 
 $$
     pix_{sym\\_img} =\hat{M}_{tr}* \hat{R}_{sym}*(pix_{cc} - \frac{mod\\_ffset_{cc}}{\hat{R}_{sym}}); \qquad (2)
@@ -120,13 +121,15 @@ where $$sym\\_offset_{cc}$$ and $$proj\\_offset_{cc}$$ are `Symop` and `line_pro
 
 As transformations, used in `line_proj` are invertible, the inversion of formula (1) is used for transforming image coordinates into CC coordinate system and the projection, modified according to expressions (1)-(3) can be used for transforming symmetry related image areas. 
 
-`transform_proj` method sets hidden `line_porj` property `sym_transf` with value of the symmetry transformation matrix $$\hat{R}_{sym}$$. This modifies input projection into symmetry related projections, which describes symmetry related area of input image. For example, if you provide `SymopRotation([0,0,1],90)` for `cut` made in ranges presented at Fig.3, the algorithm will add to this rotation a `SymopIdentity` transformation and `transform_proj` will return two projections, where first is the original one, modified b and the second one would transform pixels from symmetry related area  into the main area (Fig.3)
+`transform_proj` method of `Symop` sets hidden `line_porj` property `sym_transf` with value of the symmetry transformation matrix $$\hat{R}_{sym}$$. This modifies input projection into symmetry related projections, which describes symmetry related area of input image. For example, if you provide `SymopRotation([0,0,1],90)` for `cut` made in ranges presented at Fig.3, the algorithm will add to this rotation a `SymopIdentity` transformation and `transform_proj` will return two projections, where first is the original one, and the second one would transform pixels from symmetry related area into the main area (Fig.3)
 
 <figure style="margin-bottom: 1.5em;">
   <img src="../diagrams/Cut_with_symop_rotation.png" alt="Cut with SymopRotation">
   <figcaption><em>
-    Fig.3. Original and symmetry related area generated within <code>cut</code> using <code>transform_proj</code> method. These two areas will be added together. 
+    Fig.3. Original and symmetry related area generated within <code>cut</code> using <code>transform_proj</code> method. These two areas will be added together into the main area.
   </em></figcaption>
 </figure>
 
-You may provide cellarray of symmetry transformations to `cut`. If elements of this cellarray are build from array of transformations, `transform_proj` method would combine each element of the transformation together into `SymopGeneric` transformation. This transformation will generate appropriate projection and will be applied instead of original transformation array. 
+The `cut` algorithm calculates image by using modified `line_proj` for transforming pixels from symmetry related areas in CC coordinates into the main image and binning data in the main image system of coordinates. After that, the pixels from symmetry related areas which fit main image are transformed into CC coordinates corresponding main image area using `Symop.transform_vec` method.
+
+You may provide cellarray of symmetry transformations to `cut`. If elements of this cellarray are build from array of transformations, `transform_proj` method would combine each element of the transformation together into `SymopGeneric` transformation. This transformation will generate appropriate `line_proj` and is applied instead of original transformation array.
