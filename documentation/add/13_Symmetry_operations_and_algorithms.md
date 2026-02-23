@@ -103,7 +103,7 @@ $$
 
 where $$\hat{M}_{tr}$$ is the scaled $$\hat{UB}^{-1}$$ matrix which transforms pixels expressed in Crystal Cartesian (CC) coordinate system into image coordinate system and $$pix_{cc}$$ and $$offset_{cc}$$ are the CC coordinates of pixels and CC offset correspondingly.
 
-Symmetries are applied to pixels in CC coordinates and actually have form described by equation (1) with different transformation matrix and offset.  A modified projection can combine projection transformation and symmetry transformation to perform `cut` with symmetries.  Such modified projection would have form:
+Symmetries are applied to pixels in CC coordinates and actually have form described by equation (1) with different transformation matrix and offset.  A modified projection can combine projection transformation and symmetry transformation to transform pixels in CC into symmetry related image. Such modified projection would have form:
 
 $$
     pix_{sym\\_img} =\hat{M}_{tr}* \hat{R}_{sym}*(pix_{cc} - \frac{mod\\_ffset_{cc}}{\hat{R}_{sym}}); \qquad (2)
@@ -118,6 +118,8 @@ $$
 $$
 
 where $$sym\\_offset_{cc}$$ and $$proj\\_offset_{cc}$$ are `Symop` and `line_proj` offsets correspondingly expressed in CC coordinate system.
+
+Cut with symmetries is done by using multiple symmetry-modified projections to extract data from areas, which are symmetry-related to main area of the `cut` and add them together into main cut area.
 
 As transformations, used in `line_proj` are invertible, the inversion of formula (1) is used for transforming image coordinates into CC coordinate system and the projection, modified according to expressions (1)-(3) can be used for transforming symmetry related image areas. 
 
