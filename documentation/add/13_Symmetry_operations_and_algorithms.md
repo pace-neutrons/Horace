@@ -27,7 +27,7 @@ and apply transformations, which will move all symmetry related pixels from all 
 symmetry area. Horace allows to do this in two different ways: 1) Symmetrise whole `sqw` object using `symmetrise_sqw` algorithm and 2) Take `sqw` object and make `cut` with symmetry operations, 
 which would pick up set of zones, symmetry related to the original one and apply symmetry operations to pixels, contributing into symmetry related zones to move them to the original one.
 
-At the moment `symmetrise_sqw` works with `SymopRotation` and `SymopReflection` transformations
+In Horace 4.1 `symmetrise_sqw` works with `SymopRotation` and `SymopReflection` transformations
 only, while `cut` would work with any transformation.
 
 The core of both algorithms is set of `Symop` operations. The inheritance diagram for all symmetry operations classes used by Horace is presented on Fig.1.
@@ -106,7 +106,7 @@ where $$\hat{M}_{tr}$$ is the scaled $$\hat{UB}^{-1}$$ matrix which transforms p
 Symmetries are applied to pixels in CC coordinates and actually have form described by equation (1) with different transformation matrix and offset.  A modified projection can combine projection transformation and symmetry transformation to transform pixels in CC into symmetry related image. Such modified projection would have form:
 
 $$
-    pix_{sym\\_img} =\hat{M}_{tr}* \hat{R}_{sym}*(pix_{cc} - \frac{mod\\_ffset_{cc}}{\hat{R}_{sym}}); \qquad (2)
+    pix_{sym\\_img} =\hat{M}_{tr}* \hat{R}_{sym}*(pix_{cc} - \hat{R}_{sym}^{-1} * mod\\_offset_{cc});\qquad (2)
 $$
 
 Where $$\hat{R}_{sym}$$ -- is the transformation matrix defined by the symmetry operation.
