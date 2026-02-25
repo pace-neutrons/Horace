@@ -110,6 +110,10 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods(Sealed)
+        % Check sym is a valid symmetry reduction for symmetrise_sqw and
+        % modify it according to symmetry rules  used in symmetrise_sqw.
+        [sym, fold] = validate_and_generate_sym(sym)
+        
         function obj = check_combo_arg(obj)
             % check interdependent class variables and
             % put them into consistent state
@@ -130,6 +134,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
 
         end
+        
         function [iseq,mess] = equal_to_tol(obj1,obj2,varargin)
             % overload equal_to_tol as this method requested to be called
             % on serializable interface

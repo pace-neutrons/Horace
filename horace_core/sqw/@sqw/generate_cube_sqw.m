@@ -82,7 +82,7 @@ if sqw_axes.nbins_all_dims(4) == 1
         efix = 1;
     end
 else
-    en = sqw_axes.p{4};
+    en = sqw_axes.p{end};
     efix = max(en)*1.01;
 end
 

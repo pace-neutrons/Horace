@@ -1,5 +1,8 @@
 classdef test_cut_sym_cube < TestCase
 
+    properties
+        ref_samp
+    end
     properties(Constant)
         nil = [0 0 0];
 
@@ -22,6 +25,20 @@ classdef test_cut_sym_cube < TestCase
                 name = 'test_cut_sym_cube';
             end
             obj@TestCase(name)
+            proj = line_proj([1,0,0],[0,1,0],'alatt',2*pi,'angdeg',90);
+            ab   = line_axes('img_range',[-1,-1,-1,0;1,1,1,10],'nbins_all_dims',[100,100,1,100]);
+            function weight = build_img(h,k,~,e,varargin)
+                weight = zeros(size(h));
+                left = h<0;
+                h(left) = -h(left);
+                left = k<0;                
+                k(left) = -k(left);
+                r = (h-0.5).^2+(k-0.5).^2;
+                width = 0.9-(0.9/10)*(10-e);
+                is_signal = r<width & r>=width-0.2;
+                weight(is_signal)=1;
+            end
+            obj.ref_samp = sqw.generate_cube_sqw(ab,proj,@build_img);
         end
 
         function test_cut_sym_identity_stripped(~)

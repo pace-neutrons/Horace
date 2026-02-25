@@ -1,4 +1,4 @@
-function w=display(w)
+function w=disp(w)
 % Display sqw object to screen
 %   >> display(w)
 
@@ -13,7 +13,7 @@ if isempty(w)
     disp([' Empty object of class ',class_name])
     disp(' ')
 else
-    if numel(w)==1
+    if isscalar(w)
         sqw_display_single(w)
     else
         sz = size(w);
