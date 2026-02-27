@@ -1,6 +1,5 @@
 #pragma once
 
-namespace std{
 
 template<typename T>
 class span{
@@ -32,4 +31,3 @@ private:
     pointer   ptr_;
     size_type size_;
 };
-}

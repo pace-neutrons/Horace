@@ -24,10 +24,14 @@ inline void omp_set_num_threads(int nThreads) {};
 #endif
 
 // check span supported
-#if defined(__cpp_lib_span) 
+//#undef __cpp_lib_span
+#if defined(__cpp_lib_span)
     #include <span>
+    template<class T, std::size_t Extent = std::dynamic_extent>
+    using span = std::span<T, Extent>;
+
 #else
-    #include "./../span.hpp"
+    #include "./span.hpp"
 #endif
 
 
@@ -118,7 +122,7 @@ void vec_to_mat_multiply() {
 /* Initialize pixel ranges for calculating correct range.
  *  This means assigning to min/max holders values which are completely invalid, namely
  *  minima equal to maximal double value and maxima equal to minimal double value */
-inline void init_min_max_range_calc(std::span<double>& pix_ranges, size_t PIX_STRIDE)
+inline void init_min_max_range_calc(span<double>& pix_ranges, size_t PIX_STRIDE)
 {
     auto max_range = std::numeric_limits<double>::max();
     auto min_range = -max_range;
@@ -128,9 +132,9 @@ inline void init_min_max_range_calc(std::span<double>& pix_ranges, size_t PIX_ST
     }
 };
 
-// identify range of all pixel coordinates for given inital pixels position
+// identify range of all pixel coordinates for given initial pixels position
 template <class SRC>
-void inline calc_pix_ranges(std::span<double>& pix_ranges, SRC const* const pix_data_ptr, size_t PIX_STRIDE, size_t i)
+void inline calc_pix_ranges(span<double>& pix_ranges, SRC const* const pix_data_ptr, size_t PIX_STRIDE, size_t i)
 {
     size_t ip0 = i * PIX_STRIDE;
     for (size_t j = 0; j < PIX_STRIDE; j++) {

@@ -57,10 +57,10 @@ void sort_pixels_by_bins( TG * const pPixelSorted, size_t nPixelsSorted, double 
         throw("Sort_pixels_by_bins: pixels data and their cell distributions are inconsistent ");
     }
     bool calc_pix_range(false);
-    std::span<double> pix_range;
+    span<double> pix_range;
     if (pPixRange) {
         calc_pix_range = true;
-        pix_range = std::span<double>(pPixRange, 2 * pix_flds::PIX_WIDTH);
+        pix_range = span<double>(pPixRange, 2 * pix_flds::PIX_WIDTH);
         init_min_max_range_calc(pix_range, (size_t)pix_flds::PIX_WIDTH);
     }
 
