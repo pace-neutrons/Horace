@@ -233,6 +233,15 @@ the axis of rotation, :math:`\vec{u}` is the x- (or y-) axis (as above) and
    For an angle > 90 degrees or folds < 4, this will cover the positive quadrant
    and some of a negative domain.
 
+Examples of irreducible zones for ``SymopReflection`` and ``SymopRotation`` are presented on the picture below:
+
+.. figure:: ../images/Symops_irreducible.png 
+   :align: center
+   :width: 500
+
+
+
+
 Commands for cuts and slices
 ============================
 
@@ -432,7 +441,7 @@ regions are folded onto each other:
    achieve this is to put the routine into current Matlab working folder -- the
    folder from which you run the symmetrisation. If this routine uses some
    additional user functions, located elsewhere on a custom user path, these
-   routines have to be intialised by the user routine. This can be achieved by
+   routines have to be initialised by the user routine. This can be achieved by
    the following piece of code added to the beginning of your custom
    symmetrisation routine:
 
@@ -538,6 +547,19 @@ according to the symmetry operations as though the |SQW| had been symmetrised.
    :width: 500
 
 
+.. _single-transform-note:
+
+.. Note::
+
+    By design, you may apply only single symmetry transformation to pixels within a cut. Its done intentionally, to avoid double counting and wrong statistics in cases like the image below, where you cut with ``SymopRotation`` by 90deg with a command like: ``w2 = cut(an_sqw,line_proj([-1,1,0],[-1,-1,0]),[-2,0.01,2],[-0.2.0.01,0.2],[],[],SymopRotation([0,0,1],90)`` and do not want to count pixels contributed into red-crossed area twice. 
+
+.. figure:: ../images/Symops_cut_overlap.png
+   :align: center
+   :width: 400
+
+The consequence of that is that you can not make cut which will do two transformations on the same pixels. If you need this, you have to perform two cuts or
+build your own generic transformation with symmetry, as described in :ref:`Generic Transformations. <sqw-op-bin-pixels-algorithm>`
+
 Combining
 =========
 
@@ -591,6 +613,11 @@ rebinned.
 
 Rebin the sqw object ``win`` with the boundaries (and projection axes) of the
 template object ``w2``.
+
+.. Note:
+
+   ``rebin_sqw`` in fact is interface to ``cut(win,[lo1,step1,hi1],[lo2,step2,hi2],...)`` providing
+   different ways of supplying bin ranges to the ``cut``.
 
 
 Symmetrise data, then unfold back to original range
@@ -689,6 +716,9 @@ Limitations
   for sqw objects, since they require access to individual detector pixel
   information. The functions will work for any dimensionality of object,
   however.
+  
+* As described above, ``cut`` with symmetry operations can apply only one symmetry transformations to pixels within a symmetry-related area. 
+  Pixels from  
 
 ..
   Removed due to #1447
@@ -803,7 +833,9 @@ new object with the transformed pixels.
 ``transform_proj``
 ------------------
 
-``transform_proj`` is used to transform subclasses of the ``aProjection``
-type. It is an internal function which creates a new projection with the
+``transform_proj`` is used to transform subclasses of the ``LineProjBase``
+type and check and modify input symmetry operations into the form, corresponding to this projection,
+including setting up ``B-matrix`` used for correct ``offset``-s interpretation. 
+It is an internal function which creates a new ``line_proj`` with the
 symmetries applied and is not normally needed by users, but is recorded here for
 completeness.

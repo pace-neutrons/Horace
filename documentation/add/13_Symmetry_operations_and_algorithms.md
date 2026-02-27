@@ -69,7 +69,7 @@ The algorithm is based on the concept of **irreducible zone**, defined for `Symo
 Fig.2 provides example of irreducible zones for `SymopReflection` with `u=[1,0,0]`, `v=[0,1,0]` and `offset` [2,0,0] and `SymopRotation` with `offset` [1,1,0] constructed in cubic orthogonal coordinate system expressed in `rlu`.
 
 <figure style="margin-bottom: 1.5em;">
-  <img src="../diagrams/Symops_irreducible.png" alt="Irreducible zones for Symops">
+  <img src="../user_docs/docs/images/Symops_irreducible.png" alt="Irreducible zones for Symops">
   <figcaption><em>
     Fig.2. Irreducible zones for a) <code>SymopReflection</code> and b) <code>SymopRotation</code>
   </em></figcaption>
@@ -140,7 +140,7 @@ You may provide cellarray of symmetry transformations to `cut`. If elements of t
 By design, you may apply only single symmetry transformation to pixels within a cut. Its done intentionally, to avoid double counting and wrong statistics in cases like Fig 4., where you cut with `SymopRotation` by 90deg and do not want to count pixels contributed into red-crossed area twice. 
 
 <figure style="margin-bottom: 1.5em;">
-  <img src="../diagrams/Symops_cut_overlap.png" alt="Cut overlap">
+  <img src="../user_docs/docs/images/Symops_cut_overlap.png" alt="Cut overlap">
   <figcaption><em>
     Fig.4. Two cuts related by <code>SymopRotation</code> with overlapped area between them. The area is marked by red cross.
   </em></figcaption>

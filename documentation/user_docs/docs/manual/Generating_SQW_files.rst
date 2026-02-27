@@ -259,7 +259,7 @@ the additional argument ``'transform_sqw'`` which takes a function handle:
 .. code-block:: matlab
 
    gen_sqw (spefile, par_file, sym_sqw_file, efix, emode, alatt, angdeg,...
-       u, v, psi, omega, dpsi, gl, gs,'transform_sqw',@(x)(symmetrise_sqw(x,v1,v2,v3)))
+       u, v, psi, omega, dpsi, gl, gs,'transform_sqw',@(x)(symmetrise_sqw(x,SymopReflection(v1,v2,v3))))
 
 
 or more generally
@@ -282,10 +282,10 @@ type positions are folded on to each other:
 
    function wout = user_symmetrisation_routine(win)
 
-   wout=symmetrise_sqw(win,[1,1,0],[0,0,1],[0,0,0]);   % fold about line (1,1,0) in HK plane
-   wout=symmetrise_sqw(wout,[-1,1,0],[0,0,1],[0,0,0]); % fold about line (-1,1,0) in HK plane
-   wout=symmetrise_sqw(wout,[1,0,1],[0,1,0],[0,0,0]);  % fold about line (1,0,1) in HL plane
-   wout=symmetrise_sqw(wout,[1,0,-1],[0,1,0],[0,0,0]); % fold about line (1,0,-1) in HL plane
+   wout=symmetrise_sqw(win,SymopReflection([1,1,0],[0,0,1]));   % fold about line (1,1,0) in HK plane
+   wout=symmetrise_sqw(wout,SymopReflection([-1,1,0],[0,0,1])); % fold about line (-1,1,0) in HK plane
+   wout=symmetrise_sqw(wout,SymopReflection([1,0,1],[0,1,0]));  % fold about line (1,0,1) in HL plane
+   wout=symmetrise_sqw(wout,SymopReflection([1,0,-1],[0,1,0])); % fold about line (1,0,-1) in HL plane
 
 
 see very important notes on the technical details of symmetrising a whole
