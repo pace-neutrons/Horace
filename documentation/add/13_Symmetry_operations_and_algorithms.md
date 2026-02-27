@@ -135,3 +135,15 @@ As transformations, used in `line_proj` are invertible, the inversion of formula
 The `cut` algorithm calculates image by using modified `line_proj` for transforming pixels from symmetry related areas in CC coordinates into the main image and binning data in the main image system of coordinates. After that, the pixels from symmetry related areas which fit main image are transformed into CC coordinates corresponding main image area using `Symop.transform_vec` method.
 
 You may provide cellarray of symmetry transformations to `cut`. If elements of this cellarray are build from array of transformations, `transform_proj` method would combine each element of the transformation together into `SymopGeneric` transformation. This transformation will generate appropriate `line_proj` and is applied instead of original transformation array.
+
+**IMPORTANT:**
+By design, you may apply only single symmetry transformation to pixels within a cut. Its done intentionally, to avoid double counting and wrong statistics in cases like Fig 4., where you cut with `SymopRotation` by 90deg and do not want to count pixels contributed into red-crossed area twice. 
+
+<figure style="margin-bottom: 1.5em;">
+  <img src="../diagrams/Symops_cut_overlap.png" alt="Cut overlap">
+  <figcaption><em>
+    Fig.4. Two cuts related by <code>SymopRotation</code> with overlapped area between them. The area is marked by red cross.
+  </em></figcaption>
+</figure>
+
+The consequence of that is that you can not build cut which will do two transformations on the same pixels. If you need this, you have to perform two cuts.
