@@ -11,7 +11,6 @@
 #include <sstream>
 #include <memory>
 #include <mutex>
-#include <span>
 #include <type_traits>
 //#include <omp_guard.hpp>
 
@@ -22,6 +21,14 @@ inline void omp_set_num_threads(int nThreads) {};
 #define omp_get_thread_num()  0
 #else
 #include <omp.h>
+#endif
+
+// check span supported
+#include <version>
+#if defined(__cpp_lib_span) && __cpp_lib_span >= 202002L
+    #include <span>
+#else
+    #include "./span.hpp"
 #endif
 
 
