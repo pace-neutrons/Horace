@@ -32,3 +32,4 @@ private:
     pointer   ptr_;
     size_type size_;
 };
+}

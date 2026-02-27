@@ -24,8 +24,7 @@ inline void omp_set_num_threads(int nThreads) {};
 #endif
 
 // check span supported
-#include <version>
-#if defined(__cpp_lib_span) && __cpp_lib_span >= 202002L
+#if defined(__cpp_lib_span) 
     #include <span>
 #else
     #include "./span.hpp"
