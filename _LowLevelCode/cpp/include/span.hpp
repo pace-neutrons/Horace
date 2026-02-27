@@ -3,7 +3,7 @@
 namespace std{
 
 template<typename T>
-class span<T> {
+class span{
 public:
     using element_type = T;
     using value_type   = std::remove_cv_t<T>;
