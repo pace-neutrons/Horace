@@ -27,7 +27,7 @@ inline void omp_set_num_threads(int nThreads) {};
 #if defined(__cpp_lib_span) 
     #include <span>
 #else
-    #include "./span.hpp"
+    #include "./../span.hpp"
 #endif
 
 
