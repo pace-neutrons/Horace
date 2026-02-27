@@ -193,7 +193,7 @@ classdef test_symm < TestCaseWithSave
             %max_old_range = max(abs(eb'));
             ebcc = proj.transform_img_to_pix(eb);
 
-            sym_all = validate_and_generate_sym(sym,w2d_sqw.data.proj);
+            sym_all = Symop.validate_and_generate_sym(sym,w2d_sqw.data.proj);
             transf_ranges = sym_all.transform_pix(ebcc);
             img_box_points      = proj.transform_pix_to_img(transf_ranges);
             img_db_range_minmax = min_max(img_box_points)';

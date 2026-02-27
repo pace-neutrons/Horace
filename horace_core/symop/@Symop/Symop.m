@@ -108,11 +108,13 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         local_disp(obj)
         selected = in_irreducible(obj, coords,varargin)
     end
-
-    methods(Sealed)
+    methods(Static)
         % Check sym is a valid symmetry reduction for symmetrise_sqw and
         % modify it according to symmetry rules  used in symmetrise_sqw.
-        [sym, fold] = validate_and_generate_sym(sym)
+        [sym, fold] = validate_and_generate_sym(sym,varargin)        
+    end
+
+    methods(Sealed)
         
         function obj = check_combo_arg(obj)
             % check interdependent class variables and
