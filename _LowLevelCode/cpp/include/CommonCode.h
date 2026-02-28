@@ -29,7 +29,6 @@ inline void omp_set_num_threads(int nThreads) {};
     #include <span>
     template<class T, std::size_t Extent = std::dynamic_extent>
     using span = std::span<T, Extent>;
-
 #else
     #include "./span.hpp"
 #endif
