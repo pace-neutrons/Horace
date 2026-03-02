@@ -95,7 +95,7 @@ end
 % collapse first dimension, all along it should be ok for pixel be ok
 if is_pix
     % Add filter to ignore pix, used previously through symmetry and binning operation
-    ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx >= 0;
+    ok = all(coord>=r1 & coord<=r2,1) & pix_cand.detector_idx >= 0; % use explicit value of selected pixels tag (negative det-id)
 else
     ok = all(coord>=r1 & coord<=r2,1);
 end

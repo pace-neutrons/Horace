@@ -44,8 +44,16 @@ end
 if alignment_needed
     q_to_img(1:3,1:3) = q_to_img(1:3,1:3)*alignment_mat;
 end
+%
+if ~isempty(obj.sym_transf_)
+    % It does not actually used as symmetries change ubmat_proj into
+    % line_proj, but do that for consistency with line_proj, if somebody
+    % decides to apply ubmat_proj manually.
+    q_to_img(1:3,1:3)   = q_to_img(1:3,1:3)* obj.sym_transf_;
+    shift(1:3)= obj.sym_transf_\shift(1:3);
+end
 if nargout > 1
-    % convert shift, expressed in hkl into crystal Cartesian coordinate
+    % convert shift, expressed in rlu into crystal Cartesian coordinate
     % system
     shift = bmat*shift(:);
     if alignment_needed

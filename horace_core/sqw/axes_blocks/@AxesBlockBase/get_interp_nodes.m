@@ -4,14 +4,14 @@ function  [nodes,inside] = get_interp_nodes(obj,this_proj,char_sizes)
 % The grid values contain 1 for the nodes which may belong to the AxesBlock
 % shape and zeros for the nodes which would not.
 %
-% The grid is used for calculating interseptions between the AxesBlock
+% The grid is used for calculating intersections between the AxesBlock
 % shape and the reference grid, which contains information about pixels
 % positions.
 %
 % Inputs:
 % obj     -- initialized axes block which describes shape for intersection
 % this_proj
-%         -- aProjection class, descrbing the sapes' coordinate system
+%         -- aProjection class, describing the source' coordinate system
 % char_sizes
 %         -- 4-element array which contains characteristic sizes of the
 %            grid to build over the shape to calculate its intersection

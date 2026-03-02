@@ -79,7 +79,8 @@ build_version_h(pths.root)
 try
     opt = sprintf('CXXFLAGS=$CFLAGS -fopenmp -std=c++17 -Wl,-rpath=%s,--enable-new-dtags,--no-undefined,-fopenmp',mpi_lib_folder);
     if isempty(opt_file)
-        mex(add_include{:},opt,input_files{:},...add_include = {'-v',add_include{:}}
+        %set verbose==true to see verbose output for debugging
+        mex(add_include{:},opt,input_files{:},...
             mpi_lib{:},'-outdir',outdir);
     else
         mex(add_include{:},opt,input_files{:},...

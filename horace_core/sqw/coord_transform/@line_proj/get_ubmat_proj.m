@@ -9,3 +9,7 @@ else
     ubp = ubmat_proj(obj.u_to_rlu,obj.img_scales,...
         'offset',obj.offset,'label',obj.label,'title',obj.title);
 end
+% transfer symmetry transformation if one is defined
+if ~isempty(obj.sym_transf_)
+    ubp.sym_transf = obj.sym_transf_;
+end

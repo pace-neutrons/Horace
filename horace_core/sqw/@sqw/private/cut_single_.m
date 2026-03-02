@@ -21,7 +21,7 @@ function wout = cut_single_(w, targ_proj, targ_axes, opt, log_level, sym)
 %            else it will be DnD object.
 %            This output argument can be omitted if `outfile` is specified.
 %
-return_cut  =  nargout>0;
+%return_cut  =  nargout>0;
 %
 outfile_specified = isfield(opt, 'outfile') && ~isempty(opt.outfile);
 

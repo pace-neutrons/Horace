@@ -521,7 +521,7 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
 
         % build the axes block which specified by projection and target cut
         % parameters
-        [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, input_pbin,varagin);
+        [targ_ax_block,targ_proj,sym] = define_target_axes_block(obj, targ_proj, input_pbin,sym);
         %================================================================
         % Filename, Filepath
         function fn = get.full_filename(obj)

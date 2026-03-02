@@ -246,7 +246,7 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
             status  = obj.data.adjust_aspect();
         end
         % build target axes for cut
-        [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin, sym)
+        [targ_ax_block,targ_proj,sym] = define_target_axes_block(w, targ_proj, pbin, sym)
         function qw=calculate_qw_bins(win,varargin)
             % Calculate qh,qk,ql,en for the centres of the bins of an
             % n-dimensional sqw dataset
