@@ -1,5 +1,8 @@
 #pragma once
 
+// highly simplified but sufficient for current Horace code replacement
+// of std::span macro used for compilers not fully supporting C++ 2000 standard
+// Chat-GPT stripped-off version.
 
 template<typename T>
 class span{
