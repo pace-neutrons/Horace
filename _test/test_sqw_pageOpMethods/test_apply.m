@@ -70,6 +70,7 @@ classdef test_apply < TestCase
             assertEqual(sqw_fb.experiment_info.n_runs,85)
 
             sym = SymopReflection([1 0 0], [0 1 0]);
+            sym.b_matrix = sqw_mb.data.proj.bmatrix(3);
             sqw_ap_fb = sqw_fb.apply(@sym.transform_pix, {}, false);
             % operation on old file format have dropped non-contributed
             % runs
@@ -84,10 +85,14 @@ classdef test_apply < TestCase
 
             sym = [SymopReflection([1 0 0], [0 1 0]), ...
                 SymopReflection([1 0 0], [0 0 1])];
+            sqw_mb = sqw.generate_cube_sqw(10);
+            for i = 1:numel(sym)
+                sym(i).b_matrix = eye(3);
+            end
+            
             func = arrayfun(@(x) @x.transform_pix, sym, 'UniformOutput', false);
 
             % Apply MB
-            sqw_mb = sqw.generate_cube_sqw(10);
             sqw_ap_mb = sqw_mb.apply(func, {}, false);
 
             % Apply FB

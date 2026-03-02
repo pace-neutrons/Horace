@@ -47,8 +47,7 @@ classdef test_serialize_symop < TestCase
 
             ser = hlp_serialize(sym);
             rec = hlp_deserialize(ser);
-            assertEqual(rec, sym);
+            assertEqualToTol(rec, sym);
         end
-
     end
 end

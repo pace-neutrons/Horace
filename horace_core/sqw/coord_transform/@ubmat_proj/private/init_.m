@@ -1,5 +1,5 @@
 function obj = init_(obj,narg,varargin)
-%INIT_ Main part of line_proj constructor
+%INIT_ Main part of ubmat_proj constructor
 %
 % initialization routine taking any parameters that non-default
 % constructor would take and initiating internal state of the

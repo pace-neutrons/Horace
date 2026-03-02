@@ -143,7 +143,7 @@ end
 
 for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
-    [targ_ax_block, targ_proj] = obj.define_target_axes_block(targ_proj, pbin_tmp, sym);
+    [targ_ax_block, targ_proj,sym] = obj.define_target_axes_block(targ_proj, pbin_tmp, sym);
 
     if return_cut
         wout{cut_num} = cut_single_(obj, targ_proj, targ_ax_block, opt, log_level, sym);

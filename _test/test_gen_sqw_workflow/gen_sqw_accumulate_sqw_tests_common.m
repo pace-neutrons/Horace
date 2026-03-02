@@ -380,7 +380,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % remove pixels went out range because round-off errors during
             % double/single pixels transformation when pixels are written
             % to disk
-            cut_range = w_inm.data.axes.get_cut_range();            
+            cut_range = w_inm.data.axes.get_cut_range();
             w_inm = w_inm.cut(cut_range{:});
 
             sym = SymopReflection([0,1,0], [0,0,1], [0,0,0]);
@@ -397,40 +397,33 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
                 'transform_sqw',@(x)symmetrise_sqw(x,sym));
 
-
-            loc_proj=struct('u',u,'v',v);
-
-            w1_inf_sym = cut(sqw_file_sym,loc_proj,[0,0.025,1.5],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            w1_inm_sym = cut(w_mem_sym,loc_proj,[0,0.025,1.5],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w1_inf_sym = cut(sqw_file_sym,[0,0.025,1.5],[-0.5,0],[-0.5,0.5],[-Inf,Inf]);
+            w1_inm_sym = cut(w_mem_sym,[0,0.025,1.5],[-0.5,0],[-0.5,0.5],[-Inf,Inf]);
             % Uncomment to see the cut shapes
             %             acolor('r')
             %             plot(w1_inf_sym)
             %             acolor('k')
             %             pd(w1_inm_sym)
 
-            assertEqualToTol(w1_inf_sym,w1_inm_sym,'ignore_str',true,'tol',1.e-6)
+            assertEqualToTol(w1_inf_sym,w1_inm_sym,'-ignore_str','tol',1.e-6)
 
             w_inf_sym = read_sqw(sqw_file_sym);
-            assertEqualToTol(w_inf_sym.data.img_range,w_mem_sym.data.img_range,1.e-13)            
+            assertEqualToTol(w_inf_sym.data.img_range,w_mem_sym.data.img_range,1.e-13)
             % remove pixels went out range because round-off errors during
             % double/single pixels transformation when pixels are written
             % to disk
-            cut_range = w_inf_sym.data.axes.get_cut_range();            
-            w_inf_sym = w_inf_sym.cut(cut_range{:}); 
-            % still one pixels was saved due to step-by step in-file
-            % symmetrisation
+            cut_range = w_inf_sym.data.axes.get_cut_range();
+            w_inf_sym = w_inf_sym.cut(cut_range{:});
+
             assertEqual(w_inf_sym.npixels,w_mem_sym.npixels+1)
-            assertEqualToTol(w_inf_sym.pix.data_range,w_mem_sym.pix.data_range,1.e-13)            
+            assertEqualToTol(w_inf_sym.pix.data_range,w_mem_sym.pix.data_range,1.e-13)
             clear hc_config_cleanup;
             % assign equal values to image cell where rough pixel have
             % contributed
-            w_mem_sym.data.s(6132453)=w_inf_sym.data.s(6132453);
-            w_mem_sym.data.e(6132453)=w_inf_sym.data.e(6132453);            
-            w_mem_sym.data.npix(6132453) =w_mem_sym.data.npix(6132453)+1;            
-            assertEqualToTol(w_mem_sym.data,w_inf_sym.data,'ignore_str',true,'tol',1.e-13)
-
-
-
+            w_mem_sym.data.s(6132474)=w_inf_sym.data.s(6132474);
+            w_mem_sym.data.e(6132474)=w_inf_sym.data.e(6132474);
+            w_mem_sym.data.npix(6132474) =w_mem_sym.data.npix(6132474)+1;
+            assertEqualToTol(w_mem_sym.data,w_inf_sym.data,'-ignore_str','tol',1.e-13)
         end
 
         function test_accumulate_sqw14(obj,varargin)

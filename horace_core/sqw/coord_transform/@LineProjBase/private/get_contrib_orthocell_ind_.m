@@ -9,6 +9,8 @@ function  contrib_ind = get_contrib_orthocell_ind_(source_proj,...
 bsize = cur_axes_block.nbins_all_dims(1:3)+1; % the size of q_block; (+1 to size(npix) accounting for the left axis range)
 
 bin_range = targ_axes_block.img_range;
+% use the fact that energy axis is orthogonal to 3 q-axis to
+% select indices in dE direction efficiently.
 [any_inside,e_inside] = AxesBlockBase.bins_in_1Drange(dEgrid,bin_range(:,4));
 if ~any_inside
     contrib_ind = [];
