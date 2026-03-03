@@ -98,6 +98,10 @@ classdef SymopGeneral < Symop
 
     % Serializable interface
     methods
+        function obj = check_combo_arg(obj)
+            obj = obj.check_offset_b_matrix_consistency();
+        end
+        
         function flds = local_saveableFields(~)
             flds = {'W', 'offset'};
         end

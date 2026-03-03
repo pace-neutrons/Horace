@@ -74,6 +74,9 @@ classdef SymopIdentity < Symop
 
     % Serializable interface
     methods
+        function obj = check_combo_arg(obj)
+        end
+        
         function flds = local_saveableFields(~)
             flds = {};
         end

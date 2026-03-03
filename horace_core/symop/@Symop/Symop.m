@@ -107,36 +107,16 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         R = calculate_transform(obj, B_mat)
         local_disp(obj)
         selected = in_irreducible(obj, coords,varargin)
+        obj = check_combo_arg(obj);
     end
     methods(Static)
         % Check sym is a valid symmetry reduction for symmetrise_sqw and
         % modify it according to symmetry rules  used in symmetrise_sqw.
-        [sym, fold] = validate_and_generate_sym(sym,varargin)        
+        [sym, fold] = validate_and_generate_sym(sym,varargin)
     end
 
     methods(Sealed)
-        
-        function obj = check_combo_arg(obj)
-            % check interdependent class variables and
-            % put them into consistent state
-            %
-            % Here we synchronize u_offset and offset if B-matrix is
-            % defined. If not, they remain unsynchronized
-            zero_offset =  all(obj.offset_ == 0);
-            if zero_offset
-                obj.u_offset_ = zeros(3,1);
-                obj.offset_specified_uoffset_not_  = false;
-            else
-                if isempty(obj.b_matrix_)
-                    obj.offset_specified_uoffset_not_  = true;
-                else
-                    obj.u_offset_ = obj.b_matrix_*obj.offset_;
-                    obj.offset_specified_uoffset_not_  = false;
-                end
-            end
 
-        end
-        
         function [iseq,mess] = equal_to_tol(obj1,obj2,varargin)
             % overload equal_to_tol as this method requested to be called
             % on serializable interface
@@ -498,7 +478,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
     end
 
-
     methods(Sealed,Access=protected)
         function [sym_offset,symmetries] = extract_common_group_offset(symmetries)
             % check if offset is the same within the group of symmetry
@@ -546,7 +525,28 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 S.normvec = S.n;
             end
         end
+        function obj = check_offset_b_matrix_consistency(obj)
+            % check consistency between offset and b-matrix. 
+            % If offset is defined then b-matrix is necessary for symmetry 
+            % to work. Set internal flags which would prevent 
+            % further calculations in case of offset is defined and
+            % b-matrix is not. 
+            %
+            zero_offset =  all(obj.offset_ == 0);
+            if zero_offset
+                obj.u_offset_ = zeros(3,1);
+                obj.offset_specified_uoffset_not_  = false;
+            else
+                if isempty(obj.b_matrix_)
+                    obj.offset_specified_uoffset_not_  = true;
+                else
+                    obj.u_offset_ = obj.b_matrix_*obj.offset_;
+                    obj.offset_specified_uoffset_not_  = false;
+                end
+            end
+        end
     end
+
     methods(Sealed)
         % Serializable interface
         function ser = serialize(obj, varargin)

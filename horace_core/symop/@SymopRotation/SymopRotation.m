@@ -184,6 +184,10 @@ classdef SymopRotation < Symop
 
     % Serializable interface
     methods
+        function obj = check_combo_arg(obj)
+            obj = obj.check_offset_b_matrix_consistency();
+        end
+        
         function flds = local_saveableFields(~)
             flds = {'normvec', 'theta_deg', 'offset','b_matrix'};
         end
