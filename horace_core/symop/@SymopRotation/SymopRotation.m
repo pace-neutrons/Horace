@@ -77,7 +77,7 @@ classdef SymopRotation < Symop
             % The planes defined by UN, VN encapsulate the reduced region
             % And thus any coordinate `q` from `Q` where
             % q*(normvec x u) > 0 && q*(v x normvec) > 0
-            % belong to the irreducible set in the upper right quadrant. 
+            % belong to the irreducible set in the upper right quadrant.
             % In expression above `x` means cross and `*` -- scalar
             % products.
             %
@@ -185,9 +185,22 @@ classdef SymopRotation < Symop
     % Serializable interface
     methods
         function obj = check_combo_arg(obj)
+            if isempty(obj.b_matrix_)
+                obj.R_ = obj.calculate_transform(eye(3));
+            else
+                obj.R_ = obj.calculate_transform(obj.b_matrix_);
+            end
             obj = obj.check_offset_b_matrix_consistency();
         end
-        
+
+    end
+    methods(Access = protected)
+        function   obj = set_R(obj,varargin)
+            error('HORACE:symop:invalid_argument',[ ...
+                'You can not set up rotation matrix directly.\n' ...
+                'Use SymopGeneral or input properties of SymopRotation class'])
+        end
+
         function flds = local_saveableFields(~)
             flds = {'normvec', 'theta_deg', 'offset','b_matrix'};
         end

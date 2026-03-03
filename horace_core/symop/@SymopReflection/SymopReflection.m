@@ -5,77 +5,112 @@ classdef SymopReflection < Symop
         u; % first vector lying in and defining reflection plane
         v; % second vector lying in and defining reflection plane
         normvec; % unit vector, orthogonal to reflection plane
+        is_rlu; % boolean variable which defines which units the vectors
+        %       above are expressed in. Default true. (rlu, reciprocal
+        %       lattice units)
     end
 
     properties(Access=private)
-        u_;
-        v_;
+        u_ = [1;0;0];
+        v_ = [0;1;0];
+        normvec_ = [0;0;1];
+        is_rlu_;
+        set_from_normvec_ = false % true if the  is set from normal to
+        % the plane
     end
 
     methods
-        function obj = SymopReflection(u, v, offset,varargin)
+        function obj = SymopReflection(varargin)
+            % Construct Reflection operation:
+            %
+            % Possible inputs:
+            % >>obj = SymopReflection(u,v);
+            % >>obj = SymopReflection(u,v,offset);
+            % >>obj = SymopReflection(__,b_matrix);
+            % >>obj = SymopReflection(__,b_matrix,is_rlu);
+            %
+            % >>obj = SymopReflection('normal',normal,'offset',offset);
+            %
+            % Where:
+            % u, v  -- two 3-vectors giving two directions that lie in a mirror plane
+            %          (in reciprocal lattice units: (h,k,l), unless is_rlu is set to false)
+            % offset   [Optional] 3-vector connecting the mirror plane to the origin
+            %           i.e. is an offset vector (in reciprocal lattice units: (h,k,l))
+            %          Default: [0,0,0] i.e. the mirror plane goes through the origin
+            % or, optionally,
+            % 'normal' keyword normal following by 3-vector defining normal
             if nargin == 0
                 return
             end
-
-            if ~exist('offset', 'var')
-                offset = obj.offset;
+            if strncmp(varargin{1},'no',2)
+                % reflection plane is defined by bormal
+                flds = {'normal','offset','b_matrix','is_rlu'};
+            else
+                flds = obj.saveableFields();
             end
-
-            if ~SymopReflection.check_args({u, v, offset})
-                error('HORACE:symop:invalid_argument', ...
-                    ['Constructor arguments should be:\n', ...
-                    '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
-                    'Received: %s'], disp2str({u, v, offset}));
+            [obj,remains] = ...
+                set_positional_and_key_val_arguments(obj,...
+                flds,false,varargin{:});
+            if ~isempty(remains)
+                error('HORACE:SymopReflection:invalid_argument', ...
+                    'Additional arguments %s have not been recognized', ...
+                    disp2str(remains));
             end
-
-            if norm(cross(u, v)) < 1e-2
-                error('HORACE:symop:invalid_argument', ...
-                    'Colinear vectors u & v')
-            end
-
-            obj.u = u;
-            obj.v = v;
-            obj.offset = offset;
-            if nargin>3
-                obj.b_matrix = varargin{1};
-            end
-
         end
-
-        function obj = set.u(obj, val)
-            if  ~obj.is_3vector(val)
-                error('HORACE:symop:invalid_argument', ...
-                    'Reflection vector u must be a three vector');
+        function is = get.is_rlu(obj)
+            if isempty(obj.is_rlu_)
+                is = true;
+            else
+                is = obj.is_rlu_;
             end
-            obj.u_ = val(:);    % make col vector
+        end
+        function obj= set.is_rlu(obj,val)
+            obj.is_rlu_ = logical(val);
         end
 
         function u = get.u(obj)
             u = obj.u_;
         end
-
-        function obj = set.v(obj, val)
+        function obj = set.u(obj, val)
             if  ~obj.is_3vector(val)
-                error('HORACE:symop:invalid_argument', ...
-                    'Reflection vector v must be a three vector');
+                error('HORACE:SymopReflection:invalid_argument', ...
+                    'Reflection vector u must be a three vector');
             end
-            obj.v_ = val(:);    % make col vector
+            obj.set_from_normvec_ = false;
+            obj.u_ = val(:);    % make col vector
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
 
         function v = get.v(obj)
             v = obj.v_;
         end
+        function obj = set.v(obj, val)
+            if  ~obj.is_3vector(val)
+                error('HORACE:SymopReflection:invalid_argument', ...
+                    'Reflection vector v must be a three vector');
+            end
+            obj.set_from_normvec_ = false;
+            obj.v_ = val(:);    % make col vector
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
+        end
 
         function normvec = get.normvec(obj)
-            bm = obj.b_matrix;
-            if isempty(bm)
-                error('HORACE:SymopReflection:invalid_argument', ...
-                    'To obtain proper normalization vector, one needs to define B-matrix')
+            normvec = obj.normvec_;
+        end
+        function obj = set.normvec(obj,val)
+            if  ~obj.is_3vector(val)
+                error('HORACE:symop:invalid_argument', ...
+                    'plane-normal vector normvec must be a three vector');
             end
-            [ubm,um] = ubmatrix(obj.u,obj.v,bm);
-            normvec = um'*cross(ubm*obj.u, ubm*obj.v); % um is rotation matrix so inversion == transpose
-            normvec = normvec / norm(normvec); % vector in CC coordinate system
+            obj.set_from_normvec_ = true;
+            obj.normvec_ = val(:);
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
 
         function selected = in_irreducible(obj, coords, tolerance)
@@ -92,7 +127,7 @@ classdef SymopReflection < Symop
             end
         end
 
-        function R = calculate_transform(obj, Bmat)
+        function R = calculate_transform(obj, varargin)
             % Get transformation matrix for the symmetry operator in an orthonormal frame
             %
             % The transformation matrix converts the components of a vector which is
@@ -119,27 +154,21 @@ classdef SymopReflection < Symop
             %   R       Transformation matrix to be applied to the components of a
             %          vector given in the orthonormal frame for which Minv is defined
             % Determine the representation of u and v in the orthonormal frame
-            if nargin<2
-                Bmat = obj.b_matrix_;
-                if isempty(Bmat)
-                    error('HORACE:SymopReflection:invalid_argument',[ ...
-                        'B-matrix have to be provided either as argument or\n' ...
-                        'as symmetry class property. In fact it is missing'])
-                end
-            end
-            e1 = Bmat * obj.u_;
-            e2 = Bmat * obj.v_;
-            n = cross(e1,e2);
-            n = n / norm(n);
+            n = obj.normvec_;
             % Create reflection matrix in the orthonormal frame
             R = eye(3) - 2*(n*n');
         end
 
         function local_disp(obj)
+            if obj.is_rlu
+                units = 'rlu';
+            else
+                units = 'cc';
+            end
             fprintf('Reflection operator:\n');
-            fprintf(' In-plane u (rlu): %s\n', mat2str(obj.u, 2));
-            fprintf(' In-plane v (rlu): %s\n', mat2str(obj.v, 2));
-            fprintf('     offset (rlu): %s\n', mat2str(obj.offset, 2));
+            fprintf(' In-plane u (%s): %s\n',units,mat2str(obj.u, 2));
+            fprintf(' In-plane v (%s): %s\n',units,mat2str(obj.v, 2));
+            fprintf('     offset (%s): %s\n',units,mat2str(obj.offset, 2));
         end
     end
 
@@ -155,11 +184,18 @@ classdef SymopReflection < Symop
     % Serializable interface
     methods
         function obj = check_combo_arg(obj)
+            obj = check_and_caclulate_vectors_and_R_(obj);
             obj = obj.check_offset_b_matrix_consistency();
         end
+    end
+    methods(Access = protected)
+        function   obj = set_R(obj,varargin)
+            error('HORACE:SymopReflection:invalid_argument',[...
+                'You can not set up reflection matrix directly.\n' ...
+                'Use SymopGeneral or input properties of SymopReflection class'])
+        end
         function flds = local_saveableFields(~)
-            flds = {'u', 'v', 'offset','b_matrix'};
+            flds = {'u', 'v', 'offset','b_matrix','is_rlu'};
         end
     end
-
 end

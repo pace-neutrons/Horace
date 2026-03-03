@@ -39,8 +39,11 @@ classdef test_symop < TestCase
 
         function test_symop_transform_projection_eq_symop(~)
             refl = SymopReflection([1,1,0],[0,0,1]);
+            assertTrue(refl.is_rlu)
+
             lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             [lp1,refl] = refl.transform_proj(lp);
+            assertTrue(refl.is_rlu)
 
             pix = [eye(3),[1;1;0],[0;1;1],[1;0;1]];
             transf_pix = lp1.transform_pix_to_img(pix);
@@ -58,6 +61,7 @@ classdef test_symop < TestCase
             refl = SymopReflection([1,0,0],[0,0,1]);
             lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             [lp1,refl] = refl.transform_proj(lp);
+            assertTrue(refl.is_rlu)
 
             pix = [eye(3),[1;1;0],[0;1;1],[1;0;1]];
             transf_pix = lp1.transform_pix_to_img(pix);
@@ -68,7 +72,7 @@ classdef test_symop < TestCase
         end
 
         function test_symop_create_identity(~)
-            out = Symop.create(eye(3));
+            out = Symop.create('I',eye(3));
             assertTrue(isa(out, 'SymopIdentity'))
         end
 
@@ -83,25 +87,13 @@ classdef test_symop < TestCase
             assertTrue(isa(out, 'SymopIdentity'))
         end
 
-        function test_identity_constructor_fail(~)
-            assertExceptionThrown(@() SymopIdentity(1), 'HORACE:symop:invalid_argument');
-            assertExceptionThrown(@() SymopIdentity([1 0 0]), 'HORACE:symop:invalid_argument');
-            assertExceptionThrown(@() SymopIdentity([1 0 0], 90), 'HORACE:symop:invalid_argument');
-            assertExceptionThrown(@() SymopIdentity([1 0 0], [0 1 0]), 'HORACE:symop:invalid_argument');
-            assertExceptionThrown(@() SymopIdentity([0  1 0
-                -1 0 0
-                0  0 1]), 'HORACE:symop:invalid_argument');
-
-            % Non-zero offset
-            assertExceptionThrown(@() SymopIdentity(eye(3), [1 0 0]), 'HORACE:symop:invalid_argument');
-        end
-
         function test_symop_create_reflection(~)
-            out = Symop.create([1 0 0], [0 1 0]);
+            out = Symop.create('Refl',[1 0 0], [0 1 0]);
             assertTrue(isa(out, 'SymopReflection'))
             assertEqual(out.u, [1; 0; 0])
             assertEqual(out.v, [0; 1; 0])
             assertEqual(out.offset, [0; 0; 0])
+            assertTrue(out.is_rlu)
         end
 
         function test_reflection_constructor(~)
@@ -110,24 +102,25 @@ classdef test_symop < TestCase
             assertEqual(out.u, [1; 1; 0])
             assertEqual(out.v, [0; 1; 1])
             assertEqual(out.offset, [3; 3; 3])
+            assertTrue(out.is_rlu)
         end
 
         function test_reflection_constructor_fail(~)
-            assertExceptionThrown(@() SymopReflection(1), 'MATLAB:minrhs');
-            assertExceptionThrown(@() SymopReflection([1 0 0]), 'MATLAB:minrhs');
-            assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:symop:invalid_argument');
-            assertExceptionThrown(@() SymopReflection([1 0 0], 90), 'HORACE:symop:invalid_argument');
-            assertExceptionThrown(@() SymopReflection(eye(3)), 'MATLAB:minrhs');
+            assertExceptionThrown(@() SymopReflection(1), 'HORACE:SymopReflection:invalid_argument');
+            assertExceptionThrown(@() SymopReflection([0 1 0]), 'HORACE:SymopReflection:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:SymopReflection:invalid_argument');
+            assertExceptionThrown(@() SymopReflection([1 0 0], 90), 'HORACE:SymopReflection:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(eye(3)), 'HORACE:SymopReflection:invalid_argument');
             assertExceptionThrown(@() SymopReflection([0  1 0
                 -1 0 0
-                0  0 1], 90), 'HORACE:symop:invalid_argument');
+                0  0 1], 90), 'HORACE:SymopReflection:invalid_argument');
 
             % Test colinear vectors
-            assertExceptionThrown(@() SymopReflection([1 0 0], [1 0 0]), 'HORACE:symop:invalid_argument');
+            assertExceptionThrown(@() SymopReflection([1 0 0], [1 0 0]), 'HORACE:SymopReflection:invalid_argument');
         end
 
         function test_symop_create_rotation(~)
-            out = Symop.create([1 0 0], 120);
+            out = Symop.create('Rot',[1 0 0], 120);
             assertTrue(isa(out, 'SymopRotation'))
             assertEqual(out.n, [1; 0; 0])
             assertEqual(out.theta_deg, 120)
@@ -154,7 +147,7 @@ classdef test_symop < TestCase
         end
 
         function test_symop_create_matrix(~)
-            out = Symop.create([ 0  0 -1
+            out = Symop.create('General',[ 0  0 -1
                 -1  0  0
                 0  1  0]);
             assertTrue(isa(out, 'Symop'))
@@ -165,7 +158,7 @@ classdef test_symop < TestCase
         end
 
         function test_matrix_constructor(~)
-            out = Symop.create([ 0  0 -1
+            out = Symop.create('General',[ 0  0 -1
                 -1  0  0
                 0  1  0], [3; 3; 3]);
             assertTrue(isa(out, 'Symop'))
@@ -260,7 +253,7 @@ classdef test_symop < TestCase
         function test_folding_with_shift_works_on_non_orth(obj)
             op = SymopReflection([1,0,0],[0,0,1],[0,1,0]);
 
-            out_proj  = obj.check_proj_transformation_correct(op,obj.nort_proj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,obj.nort_proj);
 
             assertEqual(out_proj.sym_transf,op.R);
             assertFalse(all(out_proj.offset == 0));
@@ -269,7 +262,7 @@ classdef test_symop < TestCase
         function test_folding_with_shift100_works(obj)
             op = SymopReflection([1,0,0],[0,0,1],[1,0,0]);
 
-            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,obj.proj);
 
             assertEqual(out_proj.sym_transf,op.R);
             assertTrue(all(out_proj.offset == 0));
@@ -278,7 +271,7 @@ classdef test_symop < TestCase
         function test_folding_with_shift010_works(obj)
             op = SymopReflection([1,0,0],[0,0,1],[0,1,0]);
 
-            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,obj.proj);
 
             assertEqual(out_proj.sym_transf,op.R);
             assertEqual(out_proj.offset,[0,-2,0,0]);
@@ -287,10 +280,12 @@ classdef test_symop < TestCase
         function test_rotation_with_shift_works_on_non_orth(obj)
             op = SymopRotation([0,1,0],60,[0,1,0]);
 
-            out_proj  = obj.check_proj_transformation_correct(op,obj.nort_proj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,obj.nort_proj);
 
             assertEqual(out_proj.sym_transf,op.R);
-            assertFalse(all(out_proj.offset == 0));
+            % Re #1908 Check it! was false before Re #1668, but
+            % proj_transformation is stil correct!
+            assertTrue(all(out_proj.offset == 0));
         end
 
         function test_rotation_with_shift_on_proj_100_works(obj)
@@ -299,17 +294,16 @@ classdef test_symop < TestCase
             sproj = obj.proj;
             sproj.offset = [1,0,0];
 
-            out_proj  = obj.check_proj_transformation_correct(op,sproj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,sproj);
 
             assertEqual(out_proj.sym_transf,op.R);
             assertEqual(out_proj.offset,[1,0,0,0]);
         end
 
-
         function test_rotation_with_shift100_works(obj)
             op = SymopRotation([0,1,0],60,[1,0,0]);
 
-            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,obj.proj);
 
             assertEqual(out_proj.sym_transf,op.R);
             assertFalse(all(out_proj.offset == 0));
@@ -320,7 +314,7 @@ classdef test_symop < TestCase
 
             sproj = obj.proj;
             sproj.offset = [0,1,0];
-            out_proj  = obj.check_proj_transformation_correct(op,sproj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,sproj);
 
             assertEqual(out_proj.sym_transf,op.R);
             assertEqual(out_proj.offset,[0,1,0,0]);
@@ -331,7 +325,7 @@ classdef test_symop < TestCase
 
             sproj = obj.proj;
             sproj.offset = [0,1,0];
-            out_proj  = obj.check_proj_transformation_correct(op,sproj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,sproj);
 
             assertEqual(out_proj.sym_transf,op.R);
             assertEqual(out_proj.offset,[0,1,0,0]);
@@ -340,7 +334,7 @@ classdef test_symop < TestCase
         function test_rotation_with_shift010_works(obj)
             op = SymopRotation([0,1,0],60,[0,1,0]);
 
-            out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
+            [out_proj,op]  = obj.check_proj_transformation_correct(op,obj.proj);
 
             assertEqual(out_proj.sym_transf,op.R);
             assertEqual(out_proj.offset,[0,0,0,0]);
@@ -398,11 +392,18 @@ classdef test_symop < TestCase
             assertTrue(isempty(out_proj.sym_transf));
             assertTrue(all(out_proj.offset == 0));
         end
+
         function test_apply_rot_60_min_60(obj)
             op = [SymopRotation([1 0 0], 60), SymopRotation([1 0 0], -60)];
 
             out_proj  = obj.check_proj_transformation_correct(op,obj.proj);
             assertTrue(isempty(out_proj.sym_transf));
+        end
+
+        function test_create_unknown_operation(~)
+            err = assertExceptionThrown(@()Symop.create('SomeOperation',1,2,3), ...
+                'HORACE:Symop:invalid_argument');
+            assertTrue(strncmpi(err.message,'Short name',10))
         end
     end
     methods(Access=protected)

@@ -1,22 +1,8 @@
 classdef SymopIdentity < Symop
 
     methods
-        function obj = SymopIdentity(id, offset)
-            if ~exist('id', 'var')
-                id = eye(3);
-            end
-            if ~exist('offset', 'var')
-                offset = [0; 0; 0];
-            end
-
-            if ~SymopIdentity.check_args({id, offset})
-                error('HORACE:symop:invalid_argument', ...
-                    ['Constructor arguments should be:\n', ...
-                    '[1 0 0  [0\n', ...
-                    ' 0 1 0 , 0\n', ...
-                    ' 0 0 1]  0]\n', ...
-                    'Actual arguments received : %s'], disp2str({id, offset}));
-            end
+        function obj = SymopIdentity(varargin)
+            obj = obj.check_combo_arg();
         end
 
         function selected = in_irreducible(~, coords,varargin)
@@ -55,7 +41,7 @@ classdef SymopIdentity < Symop
         end
 
         function local_disp(~)
-            disp('Identity operator (no symmetrisation)')
+            fprintf('Identity operator (no symmetrisation)\n')
         end
     end
 
@@ -75,11 +61,17 @@ classdef SymopIdentity < Symop
     % Serializable interface
     methods
         function obj = check_combo_arg(obj)
+            obj.R_ = eye(3);
         end
-        
+    end
+    methods(Access = protected)
+        function   obj = set_R(obj,varargin)
+            obj.R_ = eye(3);
+        end        
         function flds = local_saveableFields(~)
             flds = {};
         end
     end
+
 
 end
