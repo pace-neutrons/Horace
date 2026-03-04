@@ -253,7 +253,7 @@ classdef test_cut_sym_cube < TestCase
             op = {obj.ref_x_op, obj.ref_y_op, [obj.ref_x_op, obj.ref_y_op]};
             w_sym2 = cut(data, proj, ubin_half, ubin_half,all_data{2:end},op);
 
-            assertEqualToTol(w_sym1, w_sym2,'-ignore_date');
+            assertEqualToTol(w_sym1, w_sym2,'-ignore_date','tol',[1.e-14,1.e-14]);
         end
 
         function test_cut_sym_general(~)

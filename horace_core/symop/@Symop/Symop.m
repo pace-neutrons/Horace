@@ -479,8 +479,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
 
         function [is,elem] = check_and_brush_3vector(elem)
-            % in all usages here vector module should not be too small.
-            is = isnumeric(elem) && numel(elem) == 3 && norm(elem)>1.e-6;
+            is = isnumeric(elem) && numel(elem) == 3;
             if ~is
                 return;
             end
