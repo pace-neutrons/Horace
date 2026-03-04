@@ -146,7 +146,8 @@ classdef SymopRotation < Symop
     end
     methods(Access = protected)
         function obj = set_normvector(obj,val)
-            if  ~obj.is_3vector(val) || all(val==0)
+            [is,val] = obj.check_and_brush_3vector(val)        
+            if  ~is || all(val==0)
                 error('HORACE:symop:invalid_argument', ...
                     'Rotation vector n must be a three vector with at last one non-zero element');
             end
@@ -157,8 +158,8 @@ classdef SymopRotation < Symop
     methods(Static)
         function is = check_args(argin)
             is = (numel(argin) == 2 || ...
-                numel(argin) == 3 && Symop.is_3vector(argin{3})) && ...
-                Symop.is_3vector(argin{1}) && ...
+                numel(argin) == 3 && Symop.check_and_brush_3vector(argin{3})) && ...
+                Symop.check_and_brush_3vector(argin{1}) && ...
                 isscalar(argin{2});
         end
 

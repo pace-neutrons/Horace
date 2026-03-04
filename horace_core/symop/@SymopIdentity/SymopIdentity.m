@@ -45,14 +45,6 @@ classdef SymopIdentity < Symop
         end
     end
 
-    methods(Static)
-        function is = check_args(argin)
-            is = (isscalar(argin) || ...
-                numel(argin) == 2 && Symop.is_3vector(argin{2}) && ...
-                all(argin{2} == 0)) && ...
-                isequal(argin{1}, eye(3));
-        end
-    end
     methods(Access=protected)
         function  vec = do_vector_transformation(~,vec)
         end

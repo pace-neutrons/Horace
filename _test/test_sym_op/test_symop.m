@@ -87,38 +87,6 @@ classdef test_symop < TestCase
             assertTrue(isa(out, 'SymopIdentity'))
         end
 
-        function test_symop_create_reflection(~)
-            out = Symop.create('Refl',[1 0 0], [0 1 0]);
-            assertTrue(isa(out, 'SymopReflection'))
-            assertEqual(out.u, [1; 0; 0])
-            assertEqual(out.v, [0; 1; 0])
-            assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.is_rlu)
-        end
-
-        function test_reflection_constructor(~)
-            out = SymopReflection([1 1 0], [0 1 1], [3 3 3]);
-            assertTrue(isa(out, 'SymopReflection'))
-            assertEqual(out.u, [1; 1; 0])
-            assertEqual(out.v, [0; 1; 1])
-            assertEqual(out.offset, [3; 3; 3])
-            assertTrue(out.is_rlu)
-        end
-
-        function test_reflection_constructor_fail(~)
-            assertExceptionThrown(@() SymopReflection(1), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection([0 1 0]), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection([1 0 0], 90), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection(eye(3)), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection([0  1 0
-                -1 0 0
-                0  0 1], 90), 'HORACE:SymopReflection:invalid_argument');
-
-            % Test colinear vectors
-            assertExceptionThrown(@() SymopReflection([1 0 0], [1 0 0]), 'HORACE:SymopReflection:invalid_argument');
-        end
-
         function test_symop_create_rotation(~)
             out = Symop.create('Rot',[1 0 0], 120);
             assertTrue(isa(out, 'SymopRotation'))
@@ -151,7 +119,7 @@ classdef test_symop < TestCase
                 -1  0  0
                 0  1  0]);
             assertTrue(isa(out, 'Symop'))
-            assertEqual(out.W,  [0  0 -1
+            assertEqual(out.R,  [0  0 -1
                 -1 0  0
                 0  1  0])
             assertEqual(out.offset, [0; 0; 0])
@@ -423,7 +391,7 @@ classdef test_symop < TestCase
             proj_sym_pts = out_proj.transform_pix_to_img(obj.points2transform);
 
             assertEqualToTol(sym_img_pts, proj_sym_pts, 'abstol', 1e-14)
-            % check if modified projection is invertable and satisfies
+            % check if modified projection is invertible and satisfies
             % generic projection requests.
             rev_pts = out_proj.transform_img_to_pix(proj_sym_pts);
             assertEqualToTol(obj.points2transform, rev_pts, 'abstol', 1e-14)

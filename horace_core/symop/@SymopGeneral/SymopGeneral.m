@@ -1,7 +1,7 @@
 classdef SymopGeneral < Symop
 
     properties(Dependent,Hidden)
-        W; % redundan interface. Use R for modern
+        W; % redundant interface. Use R for modern
     end
 
     methods
@@ -28,7 +28,7 @@ classdef SymopGeneral < Symop
                 obj.b_matrix = varargin{1};
             end
         end
-        % Retundant properties used for compartibility only
+        % Redundant properties used for compatibility only
         function obj = set.W(obj, val)
             obj = set_R(obj,val);
         end

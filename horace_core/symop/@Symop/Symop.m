@@ -63,15 +63,22 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         b_matrix_ = []; % holder for b-matrix value.
         R_   = []
     end
+    properties(Constant,Access=private)
+        tol = 1.e-12 % vector or matrix elements smaller that this value
+        % considered to be 0. Introduced to not keep out small elements
+        % appearing as the results of matrix operations.
+    end
 
     methods
         function offset = get.offset(obj)
             offset = obj.offset_;
         end
         function obj = set.offset(obj, val)
-            if ~obj.is_3vector(val)
+            [is,val] = obj.check_and_brush_3vector(val);
+            if ~is
                 error('HORACE:symop:invalid_argument', ...
-                    'Offset must be a numeric 3-vector')
+                    'Offset must be a numeric 3-vector. It is %s',...
+                    disp2str(val));
             end
             obj.offset_ = val(:);
             obj.offset_specified_uoffset_not_  = true;
@@ -98,7 +105,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
         function R = get.R(obj)
             % Return general transformation matrix for operator
-             R = obj.R_;
+            R = obj.R_;
         end
         function obj = set.R(obj,val)
             obj = set_R(obj,val);
@@ -121,6 +128,41 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         % Check sym is a valid symmetry reduction for symmetrise_sqw and
         % modify it according to symmetry rules  used in symmetrise_sqw.
         [sym, fold] = validate_and_generate_sym(sym,varargin)
+
+        function  [u,v,normvec] = get_uv_from_normvec(normvec,normvec_in_rlu,bmat)
+            %SET_UV_FROM_NORMVEC Given normvec to a plane, and assuming that
+            % main part (the longest component) of this vector is parallel
+            % to z-axis of some coordinate system, identify this coordinate
+            % system and return u,v vectors of this system, which belong to
+            % a plane, orthogonal to this vector.
+            %
+            % This is unambiguous operation in orthogonal system, but for
+            % non-orthogonal coordinate system may return unexpected
+            % results, so it is better to use u,v to define plane in
+            % non-orthogonal system.
+            %
+            % Inputs:
+            % normvec         -- normal vector used to identify plane of
+            %                    interest
+            % normvec_in_rlu  -- boolean set to true if input vector is
+            %                    expressed in rlu
+            % bmat            -- b-matrix used for conversion from rlu to
+            %                    Crystal Cartesian coordinate system
+            %
+            % Returns:
+            % u               -- first vector located in plane of interest,
+            %                    orthogonal to normvect
+            % v               -- second vector located in plane of
+            %                    interest, orthogonal to normvect.
+            % normvec         -- unit vector in CC coordinate system
+            %                    defined by input normvect but normalized
+            %                    so that its CC projection has unit length.
+            %                    if "normvec_in_rlu" is true, this vector
+            %                    is converted to rlu.
+
+            [u,v,normvec] = get_uv_from_normvec_(normvec,normvec_in_rlu,bmat);
+        end
+
     end
     methods(Sealed)
 
@@ -432,12 +474,18 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
         function is = check_args(argin)
             is = (isscalar(argin) || ...
-                numel(argin) == 2 && Symop.is_3vector(argin{2})) && ...
+                numel(argin) == 2 && Symop.check_and_brush_3vector(argin{2})) && ...
                 Symop.is_3x3matrix(argin{1});
         end
 
-        function is = is_3vector(elem)
-            is = isnumeric(elem) && numel(elem) == 3;
+        function [is,elem] = check_and_brush_3vector(elem)
+            % in all usages here vector module should not be too small.
+            is = isnumeric(elem) && numel(elem) == 3 && norm(elem)>1.e-6;
+            if ~is
+                return;
+            end
+            small = abs(elem)< Symop.tol;
+            elem(small) = 0;
         end
 
         function is = is_3x3matrix(elem)
@@ -447,8 +495,8 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
 
     methods(Sealed,Access=protected)
         function [sym_offset,symmetries] = extract_common_group_offset(symmetries)
-            % check if offset is the same within the group of symmetry
-            % transformations, extract common offset if some symmetry
+            % check if offset is the same within the array
+            % of symmetry transformations, extract common offset if some symmetry
             % objects in the group does not have offset and throw if
             % non-zero offsets in the group are different.
             %
@@ -456,35 +504,13 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % elements of the group had zero offset.
             %
             % Inputs:
-            %
             % symmetries -- array of symop-s. (Should not contain identity)
-            zer = zeros(3,1);
-            sym_offset = zer;
-            n_sym_offsets = 0;
-            for obj=symmetries
-                if any(abs(obj.offset-zer)>4*eps('double'))
-                    n_sym_offsets = n_sym_offsets + 1;
-                    if n_sym_offsets>1
-                        if any(abs(obj.offset-sym_offset)>4*eps('double'))
-                            error('HORACE:Symop:not_implemented',[ ...
-                                'Multiple offsets for group of transformations are not implemented.\n',...
-                                'All transformations in a transformation group array must have the same offset\n',...
-                                'used by all transformations in the group\n',...
-                                'or the same offset for each element of the group']);
-                        end
-                    else
-                        sym_offset  = obj.offset;
-                    end
-                end
-            end
-            if n_sym_offsets> 0 && n_sym_offsets ~= numel(obj)
-                % there are offsets set on one or multiple symmetries but
-                % some symmetries have zero offsets. This is not allowed as
-                % assumed that they all must have the same offset.
-                for obj=symmetries
-                    obj.offset = sym_offset;
-                end
-            end
+            %
+            % Returns:
+            % sym_offset -- offset common for all symmetries provided as input
+            % symmetries -- Input array of symmetry transformations modified so that
+            %               each member of this array have common offset set-up.            %
+            [sym_offset,symmetries] = extract_common_group_offset_(symmetries);
         end
         % Serializable interface
         function  [S,obj] = convert_old_struct (obj, S, varargin)
