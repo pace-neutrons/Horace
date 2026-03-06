@@ -14,12 +14,12 @@ classdef test_symop_reflection < TestCase
         %==================================================================        
         function test_symop_reflection_with_genBM_and_normal111_inRlu(~)
             bm = bmatrix([1,2,3],[70,80,120]);
-            out = SymopReflection('normvec',[1 1 1],'b_matrix',bm,'nrmv_in_rlu',true);
-            assertEqualToTol(out.normvec,[0.9439;0.2563;0.2080],'tol',1.e-4);
-            assertEqual(out.u, [-0.3230;0.6770;-0.3230],'tol',1.e-4)
-            assertEqualToTol(out.v, [-0.0676;0.4306; 1.1963],'tol',1.e-4)
+            out = SymopReflection('normvec',[1 1 1],'b_matrix',bm,'rlu');
+            assertEqualToTol(out.normvec,bm*[1;1;1]/norm(bm*[1;1;1]),'tol',1.e-14);
+            assertEqual(out.u, [ -0.3831; 0.8722;-0.0811],'tol',1.e-4)
+            assertEqualToTol(out.v, [ 0.0004;0.3275;1.4364],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -31,12 +31,12 @@ classdef test_symop_reflection < TestCase
 
         function test_symop_reflection_with_genBM_and_normal111(~)
             bm = bmatrix([1,2,3],[70,80,120]);
-            out = SymopReflection('normvec',[1 1 1],'b_matrix',bm);
+            out = SymopReflection('normvec',[1 1 1],'b_matrix',bm,'cc');
             assertEqual(out.normvec,[1;1;1]/sqrt(3));
-            assertEqual(out.u, [-0.1132; 0.2004;-0.9358],'tol',1.e-4)
-            assertEqualToTol(out.v, [-0.3669;0.4888;0.2223],'tol',1.e-4)
+            assertEqual(out.u, [-0.3633; 0.5199;-0.5073],'tol',1.e-4)
+            assertEqualToTol(out.v, [-0.1789;0.2003;0.8786],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -48,12 +48,12 @@ classdef test_symop_reflection < TestCase
 
         function test_symop_reflection_with_genBM_and_normal010(~)
             bm = bmatrix([1,2,3],[70,80,120]);
-            out = SymopReflection('normvec',[0 1 0],'b_matrix',bm);
+            out = SymopReflection('normvec',[0 1 0],'b_matrix',bm,'cc');
             assertEqual(out.normvec,[0;1;0]);
-            assertEqualToTol(out.u, [-0.0722; 0.2280;1.00000],'tol',1.e-4);
-            assertEqualToTol(out.v, [0.2903;0.1134;0.49750],'tol',1.e-4)
+            assertEqualToTol(out.u, [1; 0; 0],'tol',1.e-14);
+            assertEqualToTol(out.v, [-0.2213;-0.8719;-3.8240],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -65,12 +65,12 @@ classdef test_symop_reflection < TestCase
 
         function test_symop_reflection_with_genBM_and_normal100(~)
             bm = bmatrix([1,2,3],[70,80,120]);
-            out = SymopReflection('normvec',[1 0 0],'b_matrix',bm);
+            out = SymopReflection('normvec',[1 0 0],'b_matrix',bm,'cc');
             assertEqual(out.normvec,[1;0;0]);
-            assertEqualToTol(out.u, [-0.3167;1.0; 0],'tol',1.e-4)
-            assertEqualToTol(out.v, [0.0924; 0.3640;1.5963],'tol',1.e-4)
+            assertEqualToTol(out.u, [0.0563;0.2220;0.9734],'tol',1.e-4)
+            assertEqualToTol(out.v, [0.1932;-0.6098; 0],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -80,14 +80,14 @@ classdef test_symop_reflection < TestCase
             assertEqualToTol((bm*out.v)'*out.normvec,0,'tol',1.e-14)
         end
 
-        function test_symop_reflection_with_genBM_and_normal001(~)
+        function test_symop_reflection_with_genBM_and_normal001rlu(~)
             bm = bmatrix([1,2,3],[70,80,120]);
-            out = SymopReflection('normvec',[0 0 1],'b_matrix',bm);
-            assertEqual(out.normvec,[0;0;1]);
-            assertEqual(out.u, [1; 0; 0])
-            assertEqualToTol(out.v, [-0.7588;2.3956; 0],'tol',1.e-4)
+            out = SymopReflection('normvec',[0 0 1],'b_matrix',bm,'rlu');
+            assertEqual(out.normvec,bm*[0;0;1]/(norm(bm*[0;0;1])));
+            assertEqualToTol(out.u, [-0.3020;0.9533;0.4014],'tol',1.e-4)
+            assertEqualToTol(out.v, [-0.3761;-0.1470;-0.6445],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -96,15 +96,38 @@ classdef test_symop_reflection < TestCase
             assertEqualToTol((bm*out.u)'*out.normvec,0,'tol',1.e-14)
             assertEqualToTol((bm*out.v)'*out.normvec,0,'tol',1.e-14)
         end        
+        
+        function test_symop_reflection_with_genBM_and_normal001(~)
+            bm = bmatrix([1,2,3],[70,80,120]);
+            out = SymopReflection('normvec',[0 0 1],'b_matrix',bm,'cc');
+            assertEqual(out.normvec,[0;0;1]);
+            assertEqual(out.u, [1; 0; 0])
+            assertEqualToTol(out.v, [-0.7588;2.3956; 0],'tol',1.e-4)
+            assertEqual(out.offset, [0; 0; 0])
+            assertFalse(out.input_nrmv_in_rlu)
+
+            % check if normvec is orthogonal to uv plane
+            c1 = cross(bm*out.u,bm*out.v);
+            c1 = c1/norm(c1);
+            assertEqualToTol(c1,out.normvec,'tol',1.e-14);
+            assertEqualToTol((bm*out.u)'*out.normvec,0,'tol',1.e-14)
+            assertEqualToTol((bm*out.v)'*out.normvec,0,'tol',1.e-14)
+        end        
+        function test_symop_reflection_with_genBM_fails_without_descr(~)
+            bm = bmatrix([1,2,3],[70,80,120]);
+            assertExceptionThrown(@()SymopReflection('normvec',[0 0 1],'b_matrix',bm), ...
+                'HORACE:symop:invalid_argument');
+        end        
         %==================================================================
         function test_symop_reflection_with_orthoBM_and_normal111_inRlu(~)
             bm = bmatrix([1,2,3],[90,90,90]);
-            out = SymopReflection('normvec',[1 1 1],'b_matrix',bm,'nrmv_in_rlu',true);
-            assertEqualToTol(out.normvec,[0.8571; 0.4286; 0.2857],'tol',1.e-4);
-            assertEqual(out.u, [ -0.1837; 0.8163; -0.1837],'tol',1.e-4)
-            assertEqualToTol(out.v, [-0.1429; 0;1.2857],'tol',1.e-4)
+            out = SymopReflection('normvec',[1 1 1],'b_matrix',bm,'rlu');
+            % should be the same as cc for orthogonal lattice
+            assertEqual(out.normvec,bm*[1;1;1]/norm(bm*[1;1;1]));
+            assertEqual(out.u, [-0.0816;-0.0816;0.9184],'tol',1.e-4)
+            assertEqualToTol(out.v, [ 0.1429;-0.5714;0],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -117,11 +140,12 @@ classdef test_symop_reflection < TestCase
         function test_symop_reflection_with_orthoBM_and_normal111(~)
             bm = bmatrix([1,2,3],[90,90,90]);
             out = SymopReflection('normvec',[1 1 1],'b_matrix',bm);
+
             assertEqual(out.normvec,[1;1;1]/sqrt(3));
-            assertEqual(out.u, [-0.1667;0.6667;-0.5000],'tol',1.e-4)
-            assertEqualToTol(out.v, [-0.2887; 0; 0.8660],'tol',1.e-4)
+            assertEqual(out.u, [0.6667;-0.6667;-1.000],'tol',1.e-4)
+            assertEqualToTol(out.v, [0;1.1547;-1.7321],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -135,10 +159,10 @@ classdef test_symop_reflection < TestCase
             bm = bmatrix([1,2,3],[90,90,90]);
             out = SymopReflection('normvec',[0 1 0],'b_matrix',bm);
             assertEqual(out.normvec,[0;1;0]);
-            assertEqual(out.u, [0; 0; 1])
-            assertEqualToTol(out.v, [0.3333; 0; 0],'tol',1.e-4)
+            assertEqual(out.u, [1; 0; 0])
+            assertEqualToTol(out.v, [0; 0; -3],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -155,7 +179,7 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [0; 1; 0])
             assertEqual(out.v, [0; 0; 1.5])
             assertEqual(out.offset, [0; 0; 0])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -172,7 +196,7 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [1; 0; 0])
             assertEqual(out.v, [0; 2; 0])
             assertEqual(out.offset, [0; 0; 0])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -188,16 +212,18 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [1; 0; 0])
             assertEqual(out.v, [0; 1; 0])
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.nrmv_in_rlu)
+            assertTrue(out.input_nrmv_in_rlu)
+            disp_res = evalc('disp(out)');
+            assertTrue(istext(disp_res));
         end
 
         function test_symop_reflection_with_normal010(~)
             out = SymopReflection('normvec',[0 1 0]);
             assertEqual(out.normvec,[0;1;0]);
-            assertEqual(out.u, [0; 0; 1])
-            assertEqual(out.v, [1; 0; 0])
+            assertEqual(out.u, [1; 0; 0])
+            assertEqual(out.v, [0; 0; -1])
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.nrmv_in_rlu)
+            assertTrue(out.input_nrmv_in_rlu)
         end
 
         function test_symop_reflection_with_normal100(~)
@@ -206,7 +232,7 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [0; 1; 0])
             assertEqual(out.v, [0; 0; 1])
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.nrmv_in_rlu)
+            assertTrue(out.input_nrmv_in_rlu)
         end
         %==================================================================
         function test_symop_create_reflection(~)
@@ -215,32 +241,18 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [1; 0; 0])
             assertEqual(out.v, [0; 1; 0])
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.nrmv_in_rlu)
+            assertTrue(out.input_nrmv_in_rlu)
             assertEqual(out.normvec,[0;0;1]);
-        end
-
-        function test_reflection_constructor_with_bmat_rlu_true_ignored(~)
-            bm = bmatrix([1,2,3],[70,80,110]);
-            out = SymopReflection([1 1 0], [0 1 1], [3 3 3],bm,true);
-            assertTrue(isa(out, 'SymopReflection'))
-            assertEqual(out.u, [1; 1; 0])
-            assertEqual(out.v, [0; 1; 1])
-            assertEqual(out.offset, [3; 3; 3])
-            assertFalse(out.nrmv_in_rlu)
-            % check if normvec is orthogonal to uv plane
-            c1 = cross(bm*out.u,bm*out.v);
-            c1 = c1/norm(c1);
-            assertEqualToTol(c1,out.normvec);
         end
 
         function test_reflection_constructor_with_bmat(~)
             bm = bmatrix([1,2,3],[70,80,110]);
             out = SymopReflection([1 1 0], [0 1 1], [3 3 3],bm);
-            assertTrue(isa(out, 'SymopReflection'))
+
             assertEqual(out.u, [1; 1; 0])
             assertEqual(out.v, [0; 1; 1])
             assertEqual(out.offset, [3; 3; 3])
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
             c1 = c1/norm(c1);
@@ -249,15 +261,15 @@ classdef test_symop_reflection < TestCase
 
         function test_reflection_constructor_bm_later(~)
             out = SymopReflection([1 1 0], [0 1 1], [3 3 3]);
-            assertTrue(isa(out, 'SymopReflection'))
+
             assertEqual(out.u, [1; 1; 0])
             assertEqual(out.v, [0; 1; 1])
             assertEqual(out.offset, [3; 3; 3])
-            assertTrue(out.nrmv_in_rlu)
+            assertTrue(out.input_nrmv_in_rlu)
             old_normvec = out.normvec;
             bm = bmatrix([1,2,3],[70,80,110]);
             out.b_matrix = bm;
-            assertFalse(out.nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
             c1 = c1/norm(c1);
@@ -272,7 +284,7 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [1; 1; 0])
             assertEqual(out.v, [0; 1; 1])
             assertEqual(out.offset, [3; 3; 3])
-            assertTrue(out.nrmv_in_rlu)
+            assertTrue(out.input_nrmv_in_rlu)
             % check if normvec is orthogonal to uv plane
             c1 = cross(out.u,out.v);
             c1 = c1/norm(c1);

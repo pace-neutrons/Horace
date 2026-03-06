@@ -128,6 +128,17 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         % Check sym is a valid symmetry reduction for symmetrise_sqw and
         % modify it according to symmetry rules  used in symmetrise_sqw.
         [sym, fold] = validate_and_generate_sym(sym,varargin)
+        
+        function inputs = parse_sym_normvec_inputs(flds,varargin)
+            % helper function used for parsing inputs defining reflection
+            % or rotation operation from normal vector to a plane.
+            % Inputs: 
+            % flds   -- field names used for defining operation.
+            % Returns:
+            % inputs -- list of key-values pairs used to define appropriate
+            %           symop
+            inputs = parse_sym_normvec_inputs_(flds,varargin{:});
+        end
 
         function  [u,v,normvec] = get_uv_from_normvec(normvec,normvec_in_rlu,bmat)
             %SET_UV_FROM_NORMVEC Given normvec to a plane, and assuming that

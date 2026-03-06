@@ -29,32 +29,46 @@ function [u,v,normvec] = get_uv_from_normvec_(normvec,normvec_in_rlu,bmat)
 %                    if normvec_in_rlu is true, this vector is converted to
 %                    rlu
 
-% take 3 basic right handed coordinate system in rlu
-uv_trial = {{[1;0;0],[0;1;0]},{[0;1;0],[0;0;1]},{[0;0;1],[1;0;0]}};
+if isempty(normvec_in_rlu)
+    if is_diagonal_matr(bmat)
+        normvec_in_rlu = false;
+    else
+        error('HORACE:symop:invalid_argument',[ ...
+            'When normvector is defined in non-orthogonal system,\n' ...
+            'one have to provide the description of this sytem, namely providing key ("rlu" or "cc")\n' ...
+            'to constructor or setting hidden property "nrmv_in_rlu" to true or false\n' ...
+            'This description have not been provided']);
+    end
+end
 
 if normvec_in_rlu
     normvec = bmat*normvec(:);
 end
 normvec = normvec/norm(normvec);
- 
-max_length = 0;
-for i = 1:3
-    uv = uv_trial{i};
-    ubm = ubmatrix(uv{:},bmat);
-    sys_normal = cross(ubm*uv{1},ubm*uv{2});
-    length = abs((ubm*normvec(:))'*(sys_normal(:)/norm(sys_normal)));
-    if length>max_length
-        max_length = length;
-        uv_selected = uv;
+
+u_suggestions = {[1;0;0],[0;1;0],[0;0;1]};
+max_val = 0;
+u_selected = [];
+for i=1:3
+    u = bmat\u_suggestions{i};
+    u = u/norm(u);
+    ortho_vec_length = norm(cross(u(:),normvec));
+    if ortho_vec_length == 1
+        u_selected = u(:);
+        break;
+    end
+    if ortho_vec_length > max_val
+        u_selected = u(:);
+        max_val = ortho_vec_length;
     end
 end
-u = bmat*uv_selected{1};
+u = u_selected;
+
+u = bmat*u(:);
 
 u = u - (normvec'*(normvec(:)'*u))'; % extract projection to the normvec
 
-[~,v] = Symop.check_and_brush_3vector(bmat\cross(normvec,u)); % get normal vector and convert to rlu
+[~,v] = Symop.check_and_brush_3vector(bmat\cross(normvec,u)); % get normal vector to uv and convert to it rlu
 [~,u] = Symop.check_and_brush_3vector(bmat\u);% convert to rlu
-if normvec_in_rlu
-    [~,normvec] = Symop.check_and_brush_3vector(bmat\normvec);
-end
+
 end

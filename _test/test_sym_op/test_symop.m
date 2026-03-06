@@ -39,11 +39,11 @@ classdef test_symop < TestCase
 
         function test_symop_transform_projection_eq_symop(~)
             refl = SymopReflection([1,1,0],[0,0,1]);
-            assertTrue(refl.nrmv_in_rlu)
+            assertTrue(refl.input_nrmv_in_rlu)
 
             lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             [lp1,refl] = refl.transform_proj(lp);
-            assertFalse(refl.nrmv_in_rlu)
+            assertFalse(refl.input_nrmv_in_rlu)
 
             pix = [eye(3),[1;1;0],[0;1;1],[1;0;1]];
             transf_pix = lp1.transform_pix_to_img(pix);
@@ -61,7 +61,7 @@ classdef test_symop < TestCase
             refl = SymopReflection([1,0,0],[0,0,1]);
             lp = line_proj([1,0,0],[0,1,0],'alatt',1,'angdeg',90);
             [lp1,refl] = refl.transform_proj(lp);
-            assertFalse(refl.nrmv_in_rlu)
+            assertFalse(refl.input_nrmv_in_rlu)
 
             pix = [eye(3),[1;1;0],[0;1;1],[1;0;1]];
             transf_pix = lp1.transform_pix_to_img(pix);

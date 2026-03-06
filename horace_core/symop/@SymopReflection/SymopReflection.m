@@ -5,23 +5,26 @@ classdef SymopReflection < Symop
         u; % first vector lying in and defining reflection plane
         v; % second vector lying in and defining reflection plane
         normvec; % unit vector in CC system, orthogonal to the reflection
-        %          plane.
-        nrmv_in_rlu; % boolean variable which defines units of normvec
-        %       The property affects only case when you set up reflection
-        %       plane by providing its normvec. Normally
-        %       the vector is treated as the vector in some system,
-        %       defined by two lattice vectors which cross-product is
-        %       closest to the provided one. If this property is
-        %       set to true, input normvec is treated as expressed in
-        %       rlu. In this case the output normvec is derived by
-        %       dividing this vector by b-matrix and normalizing result.
+        %          plane. Input normvector defines it but does not equal to
+        %          it, as input may be expressed in rlu
+    end
+    properties(Dependent,Hidden)
+        input_nrmv_in_rlu; % boolean variable which defines units of input 
+        %       normvec.  The property affects only case when you set up 
+        %       reflection plane by providing its normvec. Normally
+        %       the vector is treated as the vector defined in Crystal
+        %       Cartesian coordinate system, which does not matter for
+        %       orthogonal lattice. For non-orthogonal lattice this value
+        %       have to be defined as true of false, which defines the way,
+        %       normvector have to be treated when B-matrix becomes
+        %       available
     end
 
     properties(Access=private)
         u_ = [1;0;0];
         v_ = [0;1;0];
         normvec_ = [0;0;1];
-        nrmv_in_rlu_ = false;
+        input_nrmv_in_rlu_;  %
         set_from_normvec_ = false % true if the reflection plane is set
         % by defining the normal vector to the plane.
     end
@@ -36,15 +39,15 @@ classdef SymopReflection < Symop
             % >>obj = SymopReflection(__,b_matrix);
             %
             % Alternatively, set up reflection plane from the notmal to it.
-            % All parameters have to be present as key-value pair with
-            % first parameters beeing 'no[rmal]'
-            % >>obj = SymopReflection('normal',normal,'offset',offset);
-            % >>obj = SymopReflection(__,'b_matrix',b_matrix,'nrmv_in_rlu',[true|false]);
+            % 'normal','offset' and 'b_matrix' parameters have to be present
+            % as key-value pairs
+            % >>obj = SymopReflection("no[rmal]",normal,"of[fset]",offset);
+            % >>obj = SymopReflection(__,"b_matrix",b_matrix,['rlu'|'cc']);
             %
             % Where:
             % u, v     --  two 3-vectors giving two directions that lie in
             %              a mirror plane (in reciprocal lattice units:
-            %              (h,k,l), unless is_rlu is set to false)
+            %              (h,k,l))
             % offset   --  [Optional] 3-vector connecting the mirror plane
             %              to the origin i.e. is an offset vector
             %              (in reciprocal lattice units: (h,k,l))
@@ -52,39 +55,56 @@ classdef SymopReflection < Symop
             %              through the origin.
             % b_matrix --  Bussing-Levy matrix converting from rlu to Crystal
             %              Cartesian coordinates.
-            % nrmv_in_rlu
-            %          -- if true, normal vector is expressed in rlu.
-            %             Ignored if reflection plane is defined by
-            %             u,v vectors.
+            %
+            % Opional for orthogonal, mandatory for non-orthogonal
+            %              coordinate system:
+            % coord-sytem
+            %          -- 'rlu' or 'cc'. By default, normal vector is
+            %              defined in Crystal Cartesian coordinate system,
+            %              which is not important if your lattice is
+            %              orthogonal.
+            % WARNING: -- you must provide 'rlu' or 'cc' parameter if your
+            %             crystal lattice is not orthogonal, to emphasisise,
+            %             that you understand the meaining of you lattice
+            %             vector in non-orthogonal system. In majority of
+            %             cases for non-orthogonal system it is easier to
+            %             define reflection plane by defining two vectors
+            %             in this plane
             if nargin == 0
                 return
             end
-            if strncmp(varargin{1},'no',2)
+            if istext(varargin{1})
                 % reflection plane is defined by normal to it
-                flds = {'normvec','offset','b_matrix','nrmv_in_rlu'};
+                flds = {'normvec','offset','b_matrix','input_nrmv_in_rlu'};
+                argi = Symop.parse_sym_normvec_inputs(flds,varargin{:});
+
             else
                 flds = obj.saveableFields();
+                argi = varargin;
             end
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
-                flds,false,varargin{:});
+                flds,false,argi{:});
             if ~isempty(remains)
                 error('HORACE:SymopReflection:invalid_argument', ...
                     'Additional arguments %s have not been recognized', ...
                     disp2str(remains));
             end
         end
-        function is = get.nrmv_in_rlu(obj)
-            is = obj.nrmv_in_rlu_;
+        function is = get.input_nrmv_in_rlu(obj)
+            if isempty(obj.input_nrmv_in_rlu_)
+                is  = true;
+            else
+                is = obj.input_nrmv_in_rlu_;
+            end
         end
-        function obj= set.nrmv_in_rlu(obj,val)
-            obj.nrmv_in_rlu_ = logical(val);
+        function obj= set.input_nrmv_in_rlu(obj,val)
+            obj.input_nrmv_in_rlu_ = logical(val);
         end
 
         function u = get.u(obj)
             u = obj.u_;
         end
-
         function obj = set.u(obj, val)
             [is,val] = obj.check_and_brush_3vector(val);
             if  ~is
@@ -118,16 +138,12 @@ classdef SymopReflection < Symop
             % method always returns normvec in Crystal Cartesian as this is
             % the system of coordinates, all calculations are performed in.
             normvec = obj.normvec_;
-            if obj.nrmv_in_rlu_ && ~isempty(obj.b_matrix_)
-                normvec = obj.b_matrix_*normvec;
-                normvec = normvec/norm(normvec);
-            end
         end
         function obj = set.normvec(obj,val)
             [is,val] = obj.check_and_brush_3vector(val);
             if  ~is
                 error('HORACE:symop:invalid_argument', ...
-                    'plane-normal vector normvec must be a three vector');
+                    'plane-normal vector normvec must be a three-elements vector');
             end
             obj.set_from_normvec_ = true;
             obj.normvec_ = val(:);
@@ -183,22 +199,21 @@ classdef SymopReflection < Symop
         end
 
         function local_disp(obj)
-            if obj.nrmv_in_rlu
-                n = obj.normvec_;
-                normvec_units = 'rlu';
+            if obj.input_nrmv_in_rlu
+                units = '(rlu)';
             else
-                n = obj.normvec;
-                if obj.set_from_normvec_
-                    normvec_units = 'ucc';
-                else
-                    normvec_units = ' cc';
-                end
+                units = ' (cc)';
             end
             fprintf('Reflection operator:\n');
-            fprintf(' In-plane u(rlu): %s;',mat2str(obj.u, 2));
+            cu = mat2str(obj.u, 2);  cof = mat2str(obj.offset, 2);
+            len_cu = numel(cu);  len_cof = numel(cof);
+            max_len = max(len_cu,len_cof);
+            f1 =sprintf(' In-plane u(rlu): %%%ds;',max_len);
+            f2 =sprintf('     offset(rlu): %%%ds; ',max_len);            
+            fprintf(f1,cu);
             fprintf(' In-plane v(rlu): %s\n',mat2str(obj.v, 2));
-            fprintf('     offset(rlu): %s; ',mat2str(obj.offset, 2));
-            fprintf('   normvec(%s): %s\n',normvec_units,mat2str(n, 2));
+            fprintf(f2,mat2str(obj.offset,2));
+            fprintf('  normvec %s: %s\n',units,mat2str(obj.normvec, 2));
         end
     end
 
@@ -216,7 +231,7 @@ classdef SymopReflection < Symop
                 'Use SymopGeneral or input properties of SymopReflection class'])
         end
         function flds = local_saveableFields(~)
-            flds = {'u', 'v', 'offset','b_matrix','nrmv_in_rlu'};
+            flds = {'u', 'v', 'offset','b_matrix'};
         end
     end
 end
