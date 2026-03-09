@@ -437,12 +437,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
         end
 
-        function is = check_args(argin)
-            is = (isscalar(argin) || ...
-                numel(argin) == 2 && Symop.check_and_brush_3vector(argin{2})) && ...
-                Symop.is_3x3matrix(argin{1});
-        end
-
         function [is,elem] = check_and_brush_3vector(elem)
             is = isnumeric(elem) && numel(elem) == 3;
             if ~is
