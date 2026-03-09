@@ -6,26 +6,27 @@ classdef SymopGeneral < Symop
 
     methods
 
-        function obj = SymopGeneral(W, offset,varargin)
+        function obj = SymopGeneral(varargin)
+            % General transformation class constructor
+            %>>op = SymopRotation(R,offset)
+            %>>op = SymopRotation(R,offset,b_matrix)
+            %Inputs:
+            % R --  3x3 matrix defining generic symmetry transformation
+            % Optional:
+            % offset -- center of transformation
+            % 
+
             if nargin == 0
                 return
             end
-
-            if ~exist('offset', 'var')
-                offset = obj.offset;
-            end
-
-            if ~Symop.check_args({W, offset})
-                error('HORACE:symop:invalid_argument', ...
-                    ['Constructor arguments should be:\n', ...
-                    '- General:  Symop(3x3matrix, [3vector])\n', ...
-                    'Received: %s'], disp2str(W));
-            end
-
-            obj.R = W;
-            obj.offset = offset;
-            if nargin>2
-                obj.b_matrix = varargin{1};
+            flds = obj.saveableFields();
+            [obj,remains] = ...
+                set_positional_and_key_val_arguments(obj,...
+                flds,false,varargin{:});
+            if ~isempty(remains)
+                error('HORACE:SymopRotation:invalid_argument', ...
+                    'Additional arguments %s have not been recognized', ...
+                    disp2str(remains));
             end
         end
         % Redundant properties used for compatibility only
@@ -102,7 +103,7 @@ classdef SymopGeneral < Symop
         end
 
         function flds = local_saveableFields(~)
-            flds = {'W', 'offset'};
+            flds = {'R', 'offset','b_matrix'};
         end
     end
 

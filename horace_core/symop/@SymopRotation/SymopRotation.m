@@ -1,5 +1,5 @@
 classdef SymopRotation < SymopSetPlaneInterface
-
+    % Class defines rotation operations
     properties(Dependent)
         theta_deg;  % Angle of rotation
     end
@@ -13,7 +13,7 @@ classdef SymopRotation < SymopSetPlaneInterface
         % provide compatibility with old SymopRotation interface where
         % norm-vector is described by n
         n
-        % vectors, orthogonal to edges of irreducible zone
+        % vectors, orthogonal to edges of irreducible zone for rotation
         normvec_u;
         normvec_v;
     end
