@@ -51,7 +51,7 @@ classdef SymopSetPlaneInterface < Symop
         function obj = set.u(obj, val)
             [is,val] = obj.check_and_brush_3vector(val);
             if  ~is
-                error('HORACE:SymopReflection:invalid_argument', ...
+                error('HORACE:SymopSetPlaneIntrerface:invalid_argument', ...
                     'Reflection vector u must be a three vector');
             end
             obj.set_from_normvec_ = false;
@@ -67,7 +67,7 @@ classdef SymopSetPlaneInterface < Symop
         function obj = set.v(obj, val)
             [is,val] = obj.check_and_brush_3vector(val);
             if  ~is
-                error('HORACE:SymopReflection:invalid_argument', ...
+                error('HORACE:SymopSetPlaneIntrerface:invalid_argument', ...
                     'Reflection vector v must be a three vector');
             end
             obj.set_from_normvec_ = false;
@@ -85,7 +85,7 @@ classdef SymopSetPlaneInterface < Symop
         function obj = set.normvec(obj,val)
             [is,val] = obj.check_and_brush_3vector(val);
             if  ~is
-                error('HORACE:symop:invalid_argument', ...
+                error('HORACE:SymopSetPlaneIntrerface:invalid_argument', ...
                     'plane-normal vector normvec must be a three-elements vector');
             end
             obj.set_from_normvec_ = true;
@@ -96,21 +96,32 @@ classdef SymopSetPlaneInterface < Symop
         end
     end
     %----------------------------------------------------------------------
-    methods(Static)
-        function [inputs,coord_defined_at] = parse_sym_normvec_inputs(flds,varargin)
-            % helper function used for parsing inputs defining reflection
-            % or rotation operation from normal vector to a plane.
+    methods(Static,Access=protected)
+        function [argi,input_nrmv_in_rlu] = check_and_sanitize_coord(varargin)
+            % check if option cc or rlu, which defines coordinate system
+            % used for input normvector is provided and extract its value
+            % if it indeed provided
+
             % Inputs:
-            % flds   -- field names used for defining operation.
+            % varargin  -- inputs, used by Rotation or Reflection
+            %
             % Returns:
-            % inputs -- list of key-values pairs used to define appropriate
-            %           symop
-            % coord_defined_at
-            %        -- if system of coordinates (rlu or cc) of normvector
-            %           is defined as constructor input, index, which
-            %           contains its value. Empty otherwise
-            [inputs,coord_defined_at] = parse_sym_normvec_inputs_(flds,varargin{:});
+            % argi      -- varargin with 'cc' or 'rlu' stripped-off the
+            %              vararin if found
+            % input_nrmv_in_rlu
+            %           -- logical containin true if varargin contains
+            %           'rlu', false if 'cc' and empty if not found.
+            is_coord_def = cellfun(@(prop)(istext(prop)&&ismember(prop,{'cc','rlu'})),varargin);
+            def_at = find(is_coord_def);
+            input_nrmv_in_rlu = [];
+            if isempty(def_at)
+                argi = varargin;
+            else
+                argi = varargin(~is_coord_def);
+                input_nrmv_in_rlu = strcmp(varargin{def_at},'rlu');
+            end
         end
+        
         function  [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec(normvec,normvec_in_rlu,bmat)
             %SET_UV_FROM_NORMVEC Given normvec to a plane, and assuming that
             % main part (the longest component) of this vector is parallel
@@ -145,7 +156,18 @@ classdef SymopSetPlaneInterface < Symop
             [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec_(normvec,normvec_in_rlu,bmat);
         end
     end
-    methods(Access = protected)
+
+    methods
+        function obj = check_combo_arg(obj,input_in_rlu)
+            if nargin>1
+                obj.input_nrmv_in_rlu_ = input_in_rlu;
+            end
+            obj = check_and_caclulate_vectors_and_R_(obj);
+            obj = obj.check_offset_b_matrix_consistency();
+        end
+    end
+    
+    methods(Access = protected)        
         function obj = set_input_nrmv_in_rlu(obj,val)
             % main part of the nrmv_in_rlu setter used by reflection and
             % rotation.
@@ -156,7 +178,7 @@ classdef SymopSetPlaneInterface < Symop
             if istext(val)
                 is_rlu = ismember({'rlu','cc'},val);
                 if all(~is_rlu)
-                    error('HORACE:Symop:invalid_argument', ...
+                    error('HORACE:SymopSetPlaneIntrerface:invalid_argument', ...
                         ['you can set up "input_nrmv_in_rlu" using "rlu" or "cc" strings or true|false values\n' ...
                         'provided: %s'],disp2str(val));
                 end
@@ -167,6 +189,12 @@ classdef SymopSetPlaneInterface < Symop
             if obj.do_check_combo_arg_
                 obj = obj.check_combo_arg(input_is_rlu);
             end
-        end        
+        end
+
+        function   obj = set_R(obj,varargin)
+            error('HORACE:SymopSetPlaneIntrerface:invalid_argument',[ ...
+                'You can not set up rotation matrix directly.\n' ...
+                'Use SymopGeneral or input properties of SymopRotation class'])
+        end
     end
 end

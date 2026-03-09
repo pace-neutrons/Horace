@@ -116,7 +116,7 @@ classdef test_symop_reflection < TestCase
         function test_symop_reflection_with_genBM_fails_without_descr(~)
             bm = bmatrix([1,2,3],[70,80,120]);
             assertExceptionThrown(@()SymopReflection('normvec',[0 0 1],'b_matrix',bm), ...
-                'HORACE:symop:invalid_argument');
+                'HORACE:Symop:invalid_argument');
         end
         %==================================================================
         function test_symop_reflection_with_orthoBM_and_normal111_inRlu(~)
@@ -290,7 +290,7 @@ classdef test_symop_reflection < TestCase
         end
 
         function test_set_coord_in_orth_using_normvec_rlu(~)
-            out = SymopReflection('nor',[1 0 0],'offset',[3 3 3],'rlu');
+            out = SymopReflection('norm',[1 0 0],'offset',[3 3 3],'rlu');
             assertEqual(out.normvec,[1;0;0]);
             assertEqual(out.input_nrmv_in_rlu,true);
             assertEqual(out.u,[0;1;0])
@@ -311,7 +311,7 @@ classdef test_symop_reflection < TestCase
         
 
         function test_set_coord_in_nonorth_using_normvec_cc(~)
-            out = SymopReflection('nor',[1 0 0],'offset',[3 3 3],'cc');
+            out = SymopReflection('norm',[1 0 0],'offset',[3 3 3],'cc');
             assertEqual(out.normvec,[1;0;0]);
             assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.u,[0;1;0])
@@ -331,7 +331,7 @@ classdef test_symop_reflection < TestCase
         end
 
         function test_set_coord_in_nonorth_using_normvec_rlu(~)
-            out = SymopReflection('nor',[1 0 0],'offset',[3 3 3],'rlu');
+            out = SymopReflection('norm',[1 0 0],'offset',[3 3 3],'rlu');
             assertEqual(out.normvec,[1;0;0]);
             assertEqual(out.input_nrmv_in_rlu,true);
             assertEqual(out.u,[0;1;0])
@@ -361,7 +361,7 @@ classdef test_symop_reflection < TestCase
         end
 
         function test_reflection_construct_normal_fails_on_nonort_without_coord(~)
-            out = SymopReflection('nor',[1 1 0],'offset',[3 3 3]);
+            out = SymopReflection('norm',[1 1 0],'offset',[3 3 3]);
             bm = bmatrix([1,2,3],[70,90,90]);
             function thrower()
                 out.b_matrix = bm;
@@ -374,14 +374,14 @@ classdef test_symop_reflection < TestCase
         end
 
         function test_reflection_constructor_fail(~)
-            assertExceptionThrown(@() SymopReflection(1), 'HORACE:SymopReflection:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(1), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
             assertExceptionThrown(@() SymopReflection([0 1 0]), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection([1 0 0], 90), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection(eye(3)), 'HORACE:SymopReflection:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
+            assertExceptionThrown(@() SymopReflection([1 0 0], 90), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(eye(3)), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
             assertExceptionThrown(@() SymopReflection([0  1 0
                 -1 0 0
-                0  0 1], 90), 'HORACE:SymopReflection:invalid_argument');
+                0  0 1], 90), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
 
             % Test collinear vectors
             assertExceptionThrown(@() SymopReflection([1 0 0], [1 0 0]), 'HORACE:SymopReflection:invalid_argument');

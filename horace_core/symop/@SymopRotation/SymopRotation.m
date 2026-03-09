@@ -1,12 +1,10 @@
-classdef SymopRotation < Symop
+classdef SymopRotation < SymopSetPlaneInterface
 
     properties(Dependent)
-        normvec;     % the vector describing the rotation axis direction (in rlu)
         theta_deg;  % Angle of rotation
     end
 
     properties(Access=private)
-        normvec_;
         theta_deg_;
     end
     properties(Dependent,Hidden)
@@ -16,40 +14,57 @@ classdef SymopRotation < Symop
     end
 
     methods
-        function obj = SymopRotation(n, theta_deg, offset,varargin)
+        function obj = SymopRotation(varargin)
+            % Rotation class constructor:
+            % 1)
+            %>>op = SymopRotation(u,v,thetadeg,offset)
+            %>>op = SymopRotation(__,b_matrix,["cc"|"rlu"]);
+            %Inputs:
+            % u,v  --  two vectors, which define rotation plane (two vectors
+            %          in the plane,which define it)
+            % or
+            % 2)
+            %>>op = SymopRotation(rot_axis,thetadeg,offset)
+            %>>op = SymopRotation(__,b_matrix,["cc"|"rlu"]);
+            % Inputs:
+            % rot_axis -- define rotation axis (normal to rotation
+            %             plane)
+            % thetadeg -- rotation angle
+            % offset   -- the position of the rotation axis
+            %
+            %NOTE:
+            % "cc" or "rlu" options are mandatory for non-orthogonal lattice
+            % defined by rotation axis, but ignored if the axis is defined
+            % by u,v vectors.
             if nargin == 0
                 return
             end
-
-            if ~exist('offset', 'var')
-                offset = zeros(3,1);
+            [argi,input_nrmv_in_rlu] = SymopSetPlaneInterface.check_and_sanitize_coord(varargin{:});
+            %
+            flds = obj.saveableFields();
+            if ischar(argi{1}) % all defined by key-value pairs
+                defined_by_normvec = false;
+                flds = ['normvec';flds(:)];
+            else
+                defined_by_normvec = numel(argi)>1 && isscalar(argi{2});
             end
 
-            if ~SymopRotation.check_args({n, theta_deg, offset})
-                error('HORACE:symop:invalid_argument', ...
-                    ['Constructor arguments should be:\n', ...
-                    '- Rotation:   symop(3vector, scalar, [3vector])\n', ...
-                    'Received: %s'], disp2str({n, theta_deg, offset}));
+            if defined_by_normvec %
+                flds = ['normvec',flds(3:end)];
+                 obj.input_nrmv_in_rlu_ = input_nrmv_in_rlu;
             end
-
-            obj.normvec = n;
-            obj.theta_deg = theta_deg;
-            obj.offset = offset;    % make col vector
-            if nargin>3
-                obj.b_matrix = varargin{1};
+            [obj,remains] = ...
+                set_positional_and_key_val_arguments(obj,...
+                flds,false,argi{:});
+            if ~isempty(remains)
+                error('HORACE:SymopRotation:invalid_argument', ...
+                    'Additional arguments %s have not been recognized', ...
+                    disp2str(remains));
             end
-
         end
 
-        function obj = set.normvec(obj, val)
-            obj = obj.set_normvector(val);
-        end
         function obj= set.n(obj,val)
             obj = obj.set_normvector(val);
-        end
-
-        function n = get.normvec(obj)
-            n = obj.normvec_;
         end
         function n = get.n(obj)
             n = obj.normvec_;
@@ -82,30 +97,18 @@ classdef SymopRotation < Symop
             % products.
             %
             u_offset = obj.u_offset_; %proj.transform_hkl_to_pix(obj.offset);
-
-            nr = obj.b_matrix_*obj.normvec;  % provided in rlu, so to be converted in CC
-            nr = nr/ norm(nr);
-            if sum(abs(nr - [1; 0; 0])) > 1e-1  % these vectors considered
-                % to be in Crystal Cartesian
-                u = [1; 0; 0] + u_offset ;
-            else
-                u = [0; 1; 0] + u_offset;
-            end
-            v = obj.transform_vec(u);
-
-            normvec_u = cross(nr, u);
-            normvec_v = cross(v, nr);
+            nr = obj.normvec;  % in CC
 
             if tolerance <= 0
-                selected = ((coords-u_offset(:))'*normvec_u >= 0 & ...
-                    (coords-u_offset(:))'*normvec_v > 0);
+                selected = ((coords-u_offset(:))'*nr >= 0 & ...
+                    (coords-u_offset(:))'*nr > 0);
             else
-                selected = ((coords-u_offset(:))'*normvec_u + tolerance >= 0 & ...
-                    (coords-u_offset(:))'*normvec_v + tolerance > 0);
+                selected = ((coords-u_offset(:))'*nr + tolerance >= 0 & ...
+                    (coords-u_offset(:))'*nr + tolerance > 0);
             end
         end
 
-        function R = calculate_transform(obj, BMatrix)
+        function R = calculate_transform(obj, varargin)
             % Get transformation matrix for the symmetry operator in an orthonormal frame
             %
             % The transformation matrix converts the components of a vector which is
@@ -132,37 +135,16 @@ classdef SymopRotation < Symop
             %   R      Transformation matrix to be applied to the components of a
             %          vector given in the orthonormal frame for which Minv is defined
             % Express rotation vector in orthonormal frame
-            nr = BMatrix * obj.normvec_;
+            nr = obj.normvec;
             % Perform active rotation (hence reversal of sign of theta
-            R = rotvec_to_rotmat(-obj.theta_deg_*nr/norm(nr));
+            R = rotvec_to_rotmat(-obj.theta_deg_*nr);
         end
 
         function local_disp(obj)
-            fprintf('Rotation operator:\n');
-            fprintf('       axis (rlu): %s\n', mat2str(obj.normvec, 2));
-            fprintf('      angle (deg): %5.2f\n', obj.theta_deg);
-            fprintf('     offset (rlu): %s\n', mat2str(obj.offset, 2));
+            local_disp_(obj);
         end
     end
-    methods(Access = protected)
-        function obj = set_normvector(obj,val)
-            [is,val] = obj.check_and_brush_3vector(val);
-            if  ~is || all(val==0)
-                error('HORACE:symop:invalid_argument', ...
-                    'Rotation vector n must be a three vector with at last one non-zero element');
-            end
-            obj.normvec_ = val(:);    % make col vector
-        end
-    end
-
     methods(Static)
-        function is = check_args(argin)
-            is = (numel(argin) == 2 || ...
-                numel(argin) == 3 && Symop.check_and_brush_3vector(argin{3})) && ...
-                Symop.check_and_brush_3vector(argin{1}) && ...
-                isscalar(argin{2});
-        end
-
         function sym = fold(nfold, axis, offset)
             % Generate cell array of symmetry required for a n-Fold rotational symmetry reduction
             validateattributes(nfold, {'numeric'}, {'integer'})
@@ -182,29 +164,20 @@ classdef SymopRotation < Symop
 
         end
     end
-
     % Serializable interface
     methods
-        function obj = check_combo_arg(obj)
-            if isempty(obj.b_matrix_)
-                obj.R_ = obj.calculate_transform(eye(3));
-            else
-                obj.R_ = obj.calculate_transform(obj.b_matrix_);
+        function obj = check_combo_arg(obj,varargin)
+            if isempty(obj.theta_deg_)
+                error('HORACE:SymopRotation:invalid_argument', ...
+                    'Rotation angle have to be set if any other class property is set')
             end
-            obj = obj.check_offset_b_matrix_consistency();
+            obj = check_combo_arg@SymopSetPlaneInterface(obj,varargin{:});
         end
 
     end
     methods(Access = protected)
-        function   obj = set_R(obj,varargin)
-            error('HORACE:symop:invalid_argument',[ ...
-                'You can not set up rotation matrix directly.\n' ...
-                'Use SymopGeneral or input properties of SymopRotation class'])
-        end
-
         function flds = local_saveableFields(~)
-            flds = {'normvec', 'theta_deg', 'offset','b_matrix'};
+            flds = {'u','v','theta_deg', 'offset','b_matrix'};
         end
     end
-
 end

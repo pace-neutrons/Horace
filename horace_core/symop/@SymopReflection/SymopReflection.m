@@ -13,7 +13,7 @@ classdef SymopReflection < SymopSetPlaneInterface
             % Alternatively, set up reflection plane from the notmal to it.
             % 'normal','offset' and 'b_matrix' parameters have to be present
             % as key-value pairs
-            % >>obj = SymopReflection("no[rmal]",normal,"of[fset]",offset);
+            % >>obj = SymopReflection("norm[al]",normal,"offs[et]",offset);
             % >>obj = SymopReflection(__,"b_matrix",b_matrix,['rlu'|'cc']);
             %
             % Where:
@@ -45,18 +45,14 @@ classdef SymopReflection < SymopSetPlaneInterface
             if nargin == 0
                 return
             end
+            [argi,input_nrmv_in_rlu] = SymopSetPlaneInterface.check_and_sanitize_coord(varargin{:});            
             if istext(varargin{1})
                 % reflection plane is defined by normal to it
-                flds = {'normvec','offset','b_matrix','input_nrmv_in_rlu'};
-                [argi,coord_defined_at] = SymopSetPlaneInterface.parse_sym_normvec_inputs(flds,varargin{:});
+                flds = {'normvec','offset','b_matrix'};
                 obj.set_from_normvec_ = true;
-                if coord_defined_at>0
-                    obj.input_nrmv_in_rlu_ = argi{coord_defined_at};
-                end
-
+                obj.input_nrmv_in_rlu_ = input_nrmv_in_rlu;
             else
                 flds = obj.saveableFields();
-                argi = varargin;
             end
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
@@ -115,42 +111,12 @@ classdef SymopReflection < SymopSetPlaneInterface
         end
 
         function local_disp(obj)
-            if obj.input_nrmv_in_rlu % call to public method to get correct
-                % answer regardless of the actual coordinate system is set
-                % up or not
-                units = '(rlu)';
-            else
-                units = ' (cc)';
-            end
-            fprintf('Reflection operator:\n');
-            cu = mat2str(obj.u, 2);  cof = mat2str(obj.offset, 2);
-            len_cu = numel(cu);  len_cof = numel(cof);
-            max_len = max(len_cu,len_cof);
-            f1 =sprintf(' In-plane u(rlu): %%%ds;',max_len);
-            f2 =sprintf('     offset(rlu): %%%ds; ',max_len);
-            fprintf(f1,cu);
-            fprintf(' In-plane v(rlu): %s\n',mat2str(obj.v, 2));
-            fprintf(f2,mat2str(obj.offset,2));
-            fprintf('  normvec %s: %s\n',units,mat2str(obj.normvec, 2));
+            local_disp_(obj);
         end
     end
 
     % Serializable interface
-    methods
-        function obj = check_combo_arg(obj,input_in_rlu)
-            if nargin>1
-                obj.input_nrmv_in_rlu_ = input_in_rlu;
-            end
-            obj = check_and_caclulate_vectors_and_R_(obj);
-            obj = obj.check_offset_b_matrix_consistency();
-        end
-    end
     methods(Access = protected)
-        function  out = set_R(~,varargin)
-            error('HORACE:SymopReflection:invalid_argument',[...
-                'You can not set up reflection matrix directly.\n' ...
-                'Use SymopGeneral or input properties of SymopReflection class'])
-        end
         function flds = local_saveableFields(~)
             flds = {'u', 'v', 'offset','b_matrix'};
         end
