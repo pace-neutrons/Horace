@@ -128,56 +128,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         % Check sym is a valid symmetry reduction for symmetrise_sqw and
         % modify it according to symmetry rules  used in symmetrise_sqw.
         [sym, fold] = validate_and_generate_sym(sym,varargin)
-
-        function [inputs,coord_defined_at] = parse_sym_normvec_inputs(flds,varargin)
-            % helper function used for parsing inputs defining reflection
-            % or rotation operation from normal vector to a plane.
-            % Inputs:
-            % flds   -- field names used for defining operation.
-            % Returns:
-            % inputs -- list of key-values pairs used to define appropriate
-            %           symop
-            % coord_defined_at
-            %        -- if system of coordinates (rlu or cc) of normvector
-            %           is defined as constructor input, index, which
-            %           contains its value. Empty otherwise
-            [inputs,coord_defined_at] = parse_sym_normvec_inputs_(flds,varargin{:});
-        end
-
-        function  [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec(normvec,normvec_in_rlu,bmat)
-            %SET_UV_FROM_NORMVEC Given normvec to a plane, and assuming that
-            % main part (the longest component) of this vector is parallel
-            % to z-axis of some coordinate system, identify this coordinate
-            % system and return u,v vectors of this system, which belong to
-            % a plane, orthogonal to this vector.
-            %
-            % This is unambiguous operation in orthogonal system, but for
-            % non-orthogonal coordinate system may return unexpected
-            % results, so it is better to use u,v to define plane in
-            % non-orthogonal system.
-            %
-            % Inputs:
-            % normvec         -- normal vector used to identify plane of
-            %                    interest
-            % normvec_in_rlu  -- boolean set to true if input vector is
-            %                    expressed in rlu
-            % bmat            -- b-matrix used for conversion from rlu to
-            %                    Crystal Cartesian coordinate system
-            %
-            % Returns:
-            % u               -- first vector located in plane of interest,
-            %                    orthogonal to normvect
-            % v               -- second vector located in plane of
-            %                    interest, orthogonal to normvect.
-            % normvec         -- unit vector in CC coordinate system
-            %                    defined by input normvect but normalized
-            %                    so that its CC projection has unit length.
-            %                    if "normvec_in_rlu" is true, this vector
-            %                    is converted to rlu.
-
-            [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec_(normvec,normvec_in_rlu,bmat);
-        end
-
     end
     methods(Sealed)
 
@@ -508,28 +458,6 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods(Sealed,Access=protected)
-        function obj = set_input_nrmv_in_rlu(obj,val)
-            % main part of the nrmv_in_rlu setter used by reflection and
-            % rotation.
-            %
-            % If you set up operation using normvector, changning this
-            % parameter also changes normvector units between rlu and cc
-            %
-            if istext(val)
-                is_rlu = ismember({'rlu','cc'},val);
-                if all(~is_rlu)
-                    error('HORACE:Symop:invalid_argument', ...
-                        ['you can set up "input_nrmv_in_rlu" using "rlu" or "cc" strings or true|false values\n' ...
-                        'provided: %s'],disp2str(val));
-                end
-                input_is_rlu = is_rlu(1);
-            else
-                input_is_rlu = logical(val);
-            end
-            if obj.do_check_combo_arg_
-                obj = obj.check_combo_arg(input_is_rlu);
-            end
-        end
         function [sym_offset,symmetries] = extract_common_group_offset(symmetries)
             % check if offset is the same within the array
             % of symmetry transformations, extract common offset if some symmetry

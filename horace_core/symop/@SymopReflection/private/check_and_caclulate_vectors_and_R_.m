@@ -11,7 +11,7 @@ end
 
 if obj.set_from_normvec_
     [obj.u_,obj.v_,obj.normvec_,input_nrmv_in_rlu] = ...
-        Symop.get_uv_from_normvec(obj.normvec_,obj.input_nrmv_in_rlu_,Bmat);
+        SymopSetPlaneInterface.get_uv_from_normvec(obj.normvec_,obj.input_nrmv_in_rlu_,Bmat);
     if use_bmat % b-mat was defined so we can now rely on u,v plane for further operations
         obj.set_from_normvec_ = false;
         obj.input_nrmv_in_rlu_ = input_nrmv_in_rlu;
