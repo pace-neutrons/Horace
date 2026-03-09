@@ -6,11 +6,16 @@ classdef SymopRotation < SymopSetPlaneInterface
 
     properties(Access=private)
         theta_deg_;
+        normvec_u_;
+        normvec_v_;
     end
     properties(Dependent,Hidden)
         % provide compatibility with old SymopRotation interface where
         % norm-vector is described by n
         n
+        % vectors, orthogonal to edges of irreducible zone
+        normvec_u;
+        normvec_v;
     end
 
     methods
@@ -51,7 +56,7 @@ classdef SymopRotation < SymopSetPlaneInterface
 
             if defined_by_normvec %
                 flds = ['normvec',flds(3:end)];
-                 obj.input_nrmv_in_rlu_ = input_nrmv_in_rlu;
+                obj.input_nrmv_in_rlu_ = input_nrmv_in_rlu;
             end
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
@@ -69,6 +74,14 @@ classdef SymopRotation < SymopSetPlaneInterface
         function n = get.n(obj)
             n = obj.normvec_;
         end
+
+        function un = get.normvec_u(obj)
+            un = obj.normvec_u_;
+        end
+        function vn = get.normvec_v(obj)
+            vn = obj.normvec_v_;
+        end
+
 
         function obj = set.theta_deg(obj, val)
             if ~isnumeric(val) || ~isscalar(val)
@@ -97,14 +110,15 @@ classdef SymopRotation < SymopSetPlaneInterface
             % products.
             %
             u_offset = obj.u_offset_; %proj.transform_hkl_to_pix(obj.offset);
-            nr = obj.normvec;  % in CC
+            nrmv_u = obj.normvec_u_;
+            nrmv_v = obj.normvec_v_;
 
             if tolerance <= 0
-                selected = ((coords-u_offset(:))'*nr >= 0 & ...
-                    (coords-u_offset(:))'*nr > 0);
+                selected = ((coords-u_offset(:))'*nrmv_u >= 0 & ...
+                    (coords-u_offset(:))'*nrmv_v  > 0);
             else
-                selected = ((coords-u_offset(:))'*nr + tolerance >= 0 & ...
-                    (coords-u_offset(:))'*nr + tolerance > 0);
+                selected = ((coords-u_offset(:))'*nrmv_u + tolerance >= 0 & ...
+                    (coords-u_offset(:))'*nrmv_v  + tolerance > 0);
             end
         end
 
@@ -145,21 +159,38 @@ classdef SymopRotation < SymopSetPlaneInterface
         end
     end
     methods(Static)
-        function sym = fold(nfold, axis, offset)
-            % Generate cell array of symmetry required for a n-Fold rotational symmetry reduction
-            validateattributes(nfold, {'numeric'}, {'integer'})
-
-            if ~exist('offset', 'var')
-                offset = [0; 0; 0];
-            end
+        function sym = fold(nfold, axis, varargin)
+            % Generate cell array of symmetry required for a n-Fold
+            % rotational symmetry reduction
+            % Inputs:
+            % nfold        -- number of rotation symmetry operations
+            % axis         -- either 3-component vector defining rotation
+            %                 axis or 2x3 matrix, which define 2 vectors,
+            %                 defining the rotation plane. See coord_system
+            %                 below.
+            % offset       -- if provided, 3-vector defining position of
+            %                 the rotation axis (rlu)
+            % coord_system --
+            %                 shoule be 'rlu' or 'cc'. This value is necessary
+            %                 when axis is defined by single vector and
+            %                 wen crystal lattice is non-orthogonal, as axis
+            %                 direction in non-orthogonal system differs
+            %                 depending on this setting. Will be ignored
+            %                 for orthogonal lattice or when axis is
+            %                 defined by two vectors
+            %
+            [offset,coord_system,normal_defined] = check_fold_arguments_(nfold, axis, varargin{:});
 
             sym = cell(nfold, 1);
-
             ang = 360 / nfold;
 
             sym{1} = SymopIdentity();
             for i = 2:nfold
-                sym{i} = SymopRotation(axis, ang*(i-1), offset);
+                if normal_defined
+                    sym{i} = SymopRotation(axis, ang*(i-1), offset,coord_system);
+                else
+                    sym{i} = SymopRotation(axis(1,:),axis(2,:),ang*(i-1), offset);
+                end
             end
 
         end
@@ -172,6 +203,22 @@ classdef SymopRotation < SymopSetPlaneInterface
                     'Rotation angle have to be set if any other class property is set')
             end
             obj = check_combo_arg@SymopSetPlaneInterface(obj,varargin{:});
+            % define edges of irreducible zone.
+            nr = obj.normvec;
+            if isempty(obj.b_matrix)
+                u_cc = obj.u(:);
+                use_rlu_offset = true; % allows to construct rotation without
+                % setting b-matrix. To obtain correct results, b-matrix
+                % have to be set later
+            else
+                u_cc = obj.b_matrix*obj.u(:);
+                use_rlu_offset = false;                
+            end
+            u_cc = u_cc/norm(u_cc);
+            v_cc = obj.transform_vec(u_cc,use_rlu_offset);
+            obj.normvec_u_ = cross(nr, u_cc);
+            obj.normvec_v_ = cross(v_cc, nr);
+
         end
 
     end

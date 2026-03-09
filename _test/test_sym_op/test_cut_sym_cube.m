@@ -158,21 +158,18 @@ classdef test_cut_sym_cube < TestCase
 
             tsqw = sqw.generate_cube_sqw(10);
             tsqw.data.angdeg = [90, 90, 120];
-            % define rotation axis as the one, orthogonal to
-            % [1,0,0],[0,1,0] plane
-            % TODO: Re #1908; #1668. Regularize input according to these
-            % tickets.
+            %
             uv_cc = tsqw.data.proj.transform_hkl_to_pix([[1,0,0]',[0,1,0]']);
             ort = cross(uv_cc(:,1),uv_cc(:,2));
             rot_axis = tsqw.data.proj.transform_pix_to_hkl(ort);
 
-            wtmp = symmetrise_sqw(tsqw, SymopRotation.fold(2, rot_axis));
+            wtmp = symmetrise_sqw(tsqw, SymopRotation.fold(2, rot_axis,'cc'));
             res_sqw = cut(wtmp, line_proj([1 0 0], [0 1 0]), ...
                 [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
 
             res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                 [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
-                SymopRotation.fold(2, [0,0,1]));
+                SymopRotation.fold(2, [0,0,1],'cc'));
 
             assertEqual(res_sqw.data, res_sqw2.data)
 

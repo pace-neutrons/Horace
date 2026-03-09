@@ -116,7 +116,7 @@ classdef test_symop_reflection < TestCase
         function test_symop_reflection_with_genBM_fails_without_descr(~)
             bm = bmatrix([1,2,3],[70,80,120]);
             assertExceptionThrown(@()SymopReflection('normvec',[0 0 1],'b_matrix',bm), ...
-                'HORACE:Symop:invalid_argument');
+                'HORACE:SymopSetPlaneInterface:invalid_argument');
         end
         %==================================================================
         function test_symop_reflection_with_orthoBM_and_normal111_inRlu(~)
@@ -366,7 +366,7 @@ classdef test_symop_reflection < TestCase
             function thrower()
                 out.b_matrix = bm;
             end
-            assertExceptionThrown(@thrower,'HORACE:Symop:invalid_argument');
+            assertExceptionThrown(@thrower,'HORACE:SymopSetPlaneInterface:invalid_argument');
             out.input_nrmv_in_rlu = false;
 
             out.b_matrix = bm;
