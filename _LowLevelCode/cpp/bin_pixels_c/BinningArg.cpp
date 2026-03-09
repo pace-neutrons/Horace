@@ -200,13 +200,13 @@ void BinningArg::set_unique_runid(mxArray const* const pField)
 
         this->unique_runID.clear();
         uint32_t* unique_runid_ptr = reinterpret_cast<uint32_t*>(mxGetPr(pField));
-        std::span<uint32_t> uique_runid(unique_runid_ptr, n_elements);
+        span<uint32_t> uique_runid(unique_runid_ptr, n_elements);
         for (auto runid : uique_runid) {
             this->unique_runID.insert(runid);
         }
     }
 }
-// boolean parameters which would request output transformed pixels always been double regardless of input pixels
+// Boolean parameters which would request output transformed pixels always been double regardless of input pixels
 void BinningArg::set_force_double(mxArray const* const pField)
 {
     if (!mxIsScalar(pField)) {
@@ -361,7 +361,7 @@ void BinningArg::return_unique_runid(mxArray* pFieldName, mxArray* pFieldValue, 
         unique_runid_ptr = mxCreateNumericMatrix(1, this->unique_runID.size(), mxUINT32_CLASS, mxREAL);
         auto ids = reinterpret_cast<uint32_t*>(mxGetPr(unique_runid_ptr));
         // copy data from unordered set to unique_runid
-        std::span<uint32_t> unique_runid(ids, this->unique_runID.size());
+        span<uint32_t> unique_runid(ids, this->unique_runID.size());
         size_t ic = 0;
         for (auto it_ids : this->unique_runID) {
             unique_runid[ic] = it_ids;
