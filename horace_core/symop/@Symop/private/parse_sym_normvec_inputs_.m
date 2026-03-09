@@ -1,4 +1,4 @@
-function inputs = parse_sym_normvec_inputs_(flds,varargin)
+function [inputs,coord_defined_at] = parse_sym_normvec_inputs_(flds,varargin)
 %PARSE_SYM_NORMVEC_INOUTS helper function used for parsing inputs defining
 %reflection or rotation operation from normal vector to a plane.
 %
@@ -7,10 +7,14 @@ function inputs = parse_sym_normvec_inputs_(flds,varargin)
 % Returns:
 % inputs -- list of key-values pairs used to define appropriate
 %           symop
+% coord_defined_at
+%        -- if system of coordinates (rlu or cc) of normvector
+%           is defined as constructor input, index, which
+%           contains its value. Empty otherwise.
 
 inputs = cell(1,2*numel(flds));
 b_matrix_defined = 0;
-coord_defined = false;
+coord_defined_at = 0;
 ifc = 1;
 while ifc <= numel(varargin)
     arg_val = varargin{ifc};
@@ -36,6 +40,7 @@ while ifc <= numel(varargin)
     if ismember(arg_val,{'rlu','cc'})
         inputs{ifc} = 'input_nrmv_in_rlu';
         inputs{ifc+1} = strcmp(arg_val,'rlu');
+        coord_defined_at = ifc+1;
         ifc = ifc+2;
         coord_defined = true;
         continue;

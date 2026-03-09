@@ -11,7 +11,7 @@ classdef test_symop_reflection < TestCase
             end
             obj@TestCase(name)
         end
-        %==================================================================        
+        %==================================================================
         function test_symop_reflection_with_genBM_and_normal111_inRlu(~)
             bm = bmatrix([1,2,3],[70,80,120]);
             out = SymopReflection('normvec',[1 1 1],'b_matrix',bm,'rlu');
@@ -27,7 +27,7 @@ classdef test_symop_reflection < TestCase
             assertEqualToTol(c1,out.normvec,'tol',1.e-14);
             assertEqualToTol((bm*out.u)'*out.normvec,0,'tol',1.e-14)
             assertEqualToTol((bm*out.v)'*out.normvec,0,'tol',1.e-14)
-        end        
+        end
 
         function test_symop_reflection_with_genBM_and_normal111(~)
             bm = bmatrix([1,2,3],[70,80,120]);
@@ -95,8 +95,8 @@ classdef test_symop_reflection < TestCase
             assertEqualToTol(c1,out.normvec,'tol',1.e-14);
             assertEqualToTol((bm*out.u)'*out.normvec,0,'tol',1.e-14)
             assertEqualToTol((bm*out.v)'*out.normvec,0,'tol',1.e-14)
-        end        
-        
+        end
+
         function test_symop_reflection_with_genBM_and_normal001(~)
             bm = bmatrix([1,2,3],[70,80,120]);
             out = SymopReflection('normvec',[0 0 1],'b_matrix',bm,'cc');
@@ -112,12 +112,12 @@ classdef test_symop_reflection < TestCase
             assertEqualToTol(c1,out.normvec,'tol',1.e-14);
             assertEqualToTol((bm*out.u)'*out.normvec,0,'tol',1.e-14)
             assertEqualToTol((bm*out.v)'*out.normvec,0,'tol',1.e-14)
-        end        
+        end
         function test_symop_reflection_with_genBM_fails_without_descr(~)
             bm = bmatrix([1,2,3],[70,80,120]);
             assertExceptionThrown(@()SymopReflection('normvec',[0 0 1],'b_matrix',bm), ...
                 'HORACE:symop:invalid_argument');
-        end        
+        end
         %==================================================================
         function test_symop_reflection_with_orthoBM_and_normal111_inRlu(~)
             bm = bmatrix([1,2,3],[90,90,90]);
@@ -135,7 +135,7 @@ classdef test_symop_reflection < TestCase
             assertEqualToTol(c1,out.normvec,'tol',1.e-14);
             assertEqualToTol((bm*out.u)'*out.normvec,0,'tol',1.e-14)
             assertEqualToTol((bm*out.v)'*out.normvec,0,'tol',1.e-14)
-        end        
+        end
 
         function test_symop_reflection_with_orthoBM_and_normal111(~)
             bm = bmatrix([1,2,3],[90,90,90]);
@@ -277,10 +277,8 @@ classdef test_symop_reflection < TestCase
             assertFalse(all(old_normvec == out.normvec));
         end
 
-
         function test_reflection_constructor_no_bm(~)
             out = SymopReflection([1 1 0], [0 1 1], [3 3 3]);
-            assertTrue(isa(out, 'SymopReflection'))
             assertEqual(out.u, [1; 1; 0])
             assertEqual(out.v, [0; 1; 1])
             assertEqual(out.offset, [3; 3; 3])
@@ -289,6 +287,69 @@ classdef test_symop_reflection < TestCase
             c1 = cross(out.u,out.v);
             c1 = c1/norm(c1);
             assertEqualToTol(c1,out.normvec);
+        end
+
+        function test_set_coord_in_nonorth_using_normvec_cc(~)
+            out = SymopReflection('nor',[1 0 0],'offset',[3 3 3],'cc');
+            assertEqual(out.normvec,[1;0;0]);
+            assertEqual(out.input_nrmv_in_rlu,false);
+            assertEqual(out.u,[0;1;0])
+            assertEqual(out.v,[0;0;1])
+            bm = bmatrix([1,2,3],[70,120,80]);
+            out.b_matrix = bm;
+            assertEqual(out.input_nrmv_in_rlu,false);
+            assertEqual(out.normvec,[1;0;0]);
+            assertEqualToTol(out.u,[-0.1604; 0.2194;0.96240],1.e-4)
+            assertEqualToTol(out.v,[-0.1177;-0.6029; 0],1.e-4)
+
+            out.input_nrmv_in_rlu = true; % now its ignores it
+            assertEqual(out.input_nrmv_in_rlu,false);
+            assertEqual(out.normvec,[1;0;0]);
+            assertEqualToTol(out.u,[-0.1604; 0.2194;0.96240],1.e-4)
+            assertEqualToTol(out.v,[-0.1177;-0.6029; 0],1.e-4)
+        end
+
+        function test_set_coord_in_nonorth_using_normvec_rlu(~)
+            out = SymopReflection('nor',[1 0 0],'offset',[3 3 3],'rlu');
+            assertEqual(out.normvec,[1;0;0]);
+            assertEqual(out.input_nrmv_in_rlu,true);
+            assertEqual(out.u,[0;1;0])
+            assertEqual(out.v,[0;0;1])
+            bm = bmatrix([1,2,3],[70,120,80]);
+            out.b_matrix = bm;
+            assertEqual(out.input_nrmv_in_rlu,true);
+            assertEqual(out.normvec,[1;0;0]);
+            assertEqualToTol(out.u,[-0.1604; 0.2194;0.96240],1.e-4)
+            assertEqualToTol(out.v,[-0.1177;-0.6029; 0],1.e-4)
+
+            out.input_nrmv_in_rlu = false; % now its ignores it
+            assertEqual(out.input_nrmv_in_rlu,true);
+            assertEqual(out.normvec,[1;0;0]);
+            assertEqualToTol(out.u,[-0.1604; 0.2194;0.96240],1.e-4)
+            assertEqualToTol(out.v,[-0.1177;-0.6029; 0],1.e-4)
+        end
+
+        function test_set_coord_in_nonorth_using_uv(~)
+            out = SymopReflection([0 1 0],[0 0 1],[3 3 3]);
+            assertEqual(out.normvec,[1;0;0]);
+            assertEqual(out.input_nrmv_in_rlu,true);
+            bm = bmatrix([1,2,3],[70,120,80]);
+            out.b_matrix = bm;
+            assertEqual(out.input_nrmv_in_rlu,false);
+            assertEqualToTol(out.normvec,[0.7845;0.3668;-0.5000],1.e-4);
+        end
+
+        function test_reflection_construct_normal_fails_on_nonort_without_coord(~)
+            out = SymopReflection('nor',[1 1 0],'offset',[3 3 3]);
+            bm = bmatrix([1,2,3],[70,90,90]);
+            function thrower()
+                out.b_matrix = bm;
+            end
+            assertExceptionThrown(@thrower,'HORACE:Symop:invalid_argument');
+            out.input_nrmv_in_rlu = false;
+
+            out.b_matrix = bm;
+            assertEqualToTol(out.b_matrix,bm);
         end
 
         function test_reflection_constructor_fail(~)

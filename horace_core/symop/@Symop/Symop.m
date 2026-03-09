@@ -117,7 +117,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         R = calculate_transform(obj, B_mat)
         local_disp(obj)
         selected = in_irreducible(obj, coords,varargin)
-        obj = check_combo_arg(obj);
+        obj = check_combo_arg(obj,varargin);
     end
     methods(Abstract,Access=protected)
         flds = local_saveableFields(obj);
@@ -128,16 +128,20 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         % Check sym is a valid symmetry reduction for symmetrise_sqw and
         % modify it according to symmetry rules  used in symmetrise_sqw.
         [sym, fold] = validate_and_generate_sym(sym,varargin)
-        
-        function inputs = parse_sym_normvec_inputs(flds,varargin)
+
+        function [inputs,coord_defined_at] = parse_sym_normvec_inputs(flds,varargin)
             % helper function used for parsing inputs defining reflection
             % or rotation operation from normal vector to a plane.
-            % Inputs: 
+            % Inputs:
             % flds   -- field names used for defining operation.
             % Returns:
             % inputs -- list of key-values pairs used to define appropriate
             %           symop
-            inputs = parse_sym_normvec_inputs_(flds,varargin{:});
+            % coord_defined_at
+            %        -- if system of coordinates (rlu or cc) of normvector
+            %           is defined as constructor input, index, which
+            %           contains its value. Empty otherwise
+            [inputs,coord_defined_at] = parse_sym_normvec_inputs_(flds,varargin{:});
         end
 
         function  [u,v,normvec] = get_uv_from_normvec(normvec,normvec_in_rlu,bmat)
@@ -504,6 +508,28 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods(Sealed,Access=protected)
+        function obj = set_input_nrmv_in_rlu(obj,val)
+            % main part of the nrmv_in_rlu setter used by reflection and
+            % rotation.
+            %
+            % If you set up operation using normvector, changning this
+            % parameter also changes normvector units between rlu and cc
+            %
+            if istext(val)
+                is_rlu = ismember({'rlu','cc'},val);
+                if all(~is_rlu)
+                    error('HORACE:Symop:invalid_argument', ...
+                        ['you can set up "input_nrmv_in_rlu" using "rlu" or "cc" strings or true|false values\n' ...
+                        'provided: %s'],disp2str(val));
+                end
+                input_is_rlu = is_rlu(1);
+            else
+                input_is_rlu = logical(val);
+            end
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg(input_is_rlu);
+            end
+        end
         function [sym_offset,symmetries] = extract_common_group_offset(symmetries)
             % check if offset is the same within the array
             % of symmetry transformations, extract common offset if some symmetry

@@ -9,8 +9,8 @@ classdef SymopReflection < Symop
         %          it, as input may be expressed in rlu
     end
     properties(Dependent,Hidden)
-        input_nrmv_in_rlu; % boolean variable which defines units of input 
-        %       normvec.  The property affects only case when you set up 
+        input_nrmv_in_rlu; % boolean variable which defines units of input
+        %       normvec.  The property affects only case when you set up
         %       reflection plane by providing its normvec. Normally
         %       the vector is treated as the vector defined in Crystal
         %       Cartesian coordinate system, which does not matter for
@@ -76,7 +76,11 @@ classdef SymopReflection < Symop
             if istext(varargin{1})
                 % reflection plane is defined by normal to it
                 flds = {'normvec','offset','b_matrix','input_nrmv_in_rlu'};
-                argi = Symop.parse_sym_normvec_inputs(flds,varargin{:});
+                [argi,coord_defined_at] = Symop.parse_sym_normvec_inputs(flds,varargin{:});
+                obj.set_from_normvec_ = true;
+                if coord_defined_at>0
+                    obj.input_nrmv_in_rlu_ = argi{coord_defined_at};
+                end
 
             else
                 flds = obj.saveableFields();
@@ -99,7 +103,10 @@ classdef SymopReflection < Symop
             end
         end
         function obj= set.input_nrmv_in_rlu(obj,val)
-            obj.input_nrmv_in_rlu_ = logical(val);
+            if ~obj.set_from_normvec_
+                return;
+            end
+            obj = obj.set_input_nrmv_in_rlu(val);
         end
 
         function u = get.u(obj)
@@ -199,7 +206,9 @@ classdef SymopReflection < Symop
         end
 
         function local_disp(obj)
-            if obj.input_nrmv_in_rlu
+            if obj.input_nrmv_in_rlu % call to public method to get correct
+                % answer regardless of the actual coordinate system is set
+                % up or not
                 units = '(rlu)';
             else
                 units = ' (cc)';
@@ -209,7 +218,7 @@ classdef SymopReflection < Symop
             len_cu = numel(cu);  len_cof = numel(cof);
             max_len = max(len_cu,len_cof);
             f1 =sprintf(' In-plane u(rlu): %%%ds;',max_len);
-            f2 =sprintf('     offset(rlu): %%%ds; ',max_len);            
+            f2 =sprintf('     offset(rlu): %%%ds; ',max_len);
             fprintf(f1,cu);
             fprintf(' In-plane v(rlu): %s\n',mat2str(obj.v, 2));
             fprintf(f2,mat2str(obj.offset,2));
@@ -219,7 +228,10 @@ classdef SymopReflection < Symop
 
     % Serializable interface
     methods
-        function obj = check_combo_arg(obj)
+        function obj = check_combo_arg(obj,input_in_rlu)
+            if nargin>1
+                obj.input_nrmv_in_rlu_ = input_in_rlu;
+            end
             obj = check_and_caclulate_vectors_and_R_(obj);
             obj = obj.check_offset_b_matrix_consistency();
         end
