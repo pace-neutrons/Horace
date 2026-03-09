@@ -15,6 +15,7 @@ function [inputs,coord_defined_at] = parse_sym_normvec_inputs_(flds,varargin)
 inputs = cell(1,2*numel(flds));
 b_matrix_defined = 0;
 coord_defined_at = 0;
+coord_defined = false;
 ifc = 1;
 while ifc <= numel(varargin)
     arg_val = varargin{ifc};

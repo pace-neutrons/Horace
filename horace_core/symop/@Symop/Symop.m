@@ -144,7 +144,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             [inputs,coord_defined_at] = parse_sym_normvec_inputs_(flds,varargin{:});
         end
 
-        function  [u,v,normvec] = get_uv_from_normvec(normvec,normvec_in_rlu,bmat)
+        function  [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec(normvec,normvec_in_rlu,bmat)
             %SET_UV_FROM_NORMVEC Given normvec to a plane, and assuming that
             % main part (the longest component) of this vector is parallel
             % to z-axis of some coordinate system, identify this coordinate
@@ -175,7 +175,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %                    if "normvec_in_rlu" is true, this vector
             %                    is converted to rlu.
 
-            [u,v,normvec] = get_uv_from_normvec_(normvec,normvec_in_rlu,bmat);
+            [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec_(normvec,normvec_in_rlu,bmat);
         end
 
     end

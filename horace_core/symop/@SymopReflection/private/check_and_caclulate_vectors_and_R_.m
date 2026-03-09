@@ -10,10 +10,11 @@ if ~use_bmat
 end
 
 if obj.set_from_normvec_
-    [obj.u_,obj.v_,obj.normvec_] = ...
+    [obj.u_,obj.v_,obj.normvec_,input_nrmv_in_rlu] = ...
         Symop.get_uv_from_normvec(obj.normvec_,obj.input_nrmv_in_rlu_,Bmat);
-    if use_bmat % b-mat was defined so we can now rely on u,v plane
+    if use_bmat % b-mat was defined so we can now rely on u,v plane for further operations
         obj.set_from_normvec_ = false;
+        obj.input_nrmv_in_rlu_ = input_nrmv_in_rlu;
     end
 else
     if use_bmat % if set from uv and bmat available, normvec is always cc

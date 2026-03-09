@@ -1,4 +1,4 @@
-function [u,v,normvec] = get_uv_from_normvec_(normvec,normvec_in_rlu,bmat)
+function [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec_(normvec,normvec_in_rlu,bmat)
 %SET_UV_FROM_NORMVEC Given normvec to a plane, and assuming that
 % main part (the longest component) of this vector is parallel
 % to z-axis of some coordinate system, identify this coordinate
