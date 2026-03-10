@@ -836,17 +836,14 @@ of ``Symop`` objects (see: `Groups of symmetry operators`_).
 
     >> sym = SymopReflection([1 0 0], [0 1 0])
 
-    sym =
-
+    sym = 
     Reflection operator:
-     In-plane u (rlu): [1;0;0]
-     In-plane v (rlu): [0;1;0]
-         offset (rlu): [0;0;0]
-
+    In-plane u(rlu): [1;0;0]; In-plane v(rlu): [0;1;0]
+        offset(rlu): [0;0;0];   normvec (rlu): [0;0;1]
+        
     >> sym.transform_vec([3; 6; 1])
 
     ans =
-
          3
          6
         -1
