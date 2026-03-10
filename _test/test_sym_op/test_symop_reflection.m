@@ -19,7 +19,7 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [ -0.3831; 0.8722;-0.0811],'tol',1.e-4)
             assertEqualToTol(out.v, [ 0.0004;0.3275;1.4364],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.input_nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -87,7 +87,7 @@ classdef test_symop_reflection < TestCase
             assertEqualToTol(out.u, [-0.3020;0.9533;0.4014],'tol',1.e-4)
             assertEqualToTol(out.v, [-0.3761;-0.1470;-0.6445],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.input_nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -127,7 +127,7 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [-0.0816;-0.0816;0.9184],'tol',1.e-4)
             assertEqualToTol(out.v, [ 0.1429;-0.5714;0],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.input_nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -297,13 +297,13 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.v,[0;0;1])
             bm = bmatrix([1,2,3],[90,90,90]);
             out.b_matrix = bm;
-            assertEqual(out.input_nrmv_in_rlu,true);
+            assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.normvec,[1;0;0]);
             assertEqualToTol(out.u,[0;1;0],1.e-14)
             assertEqualToTol(out.v,[0;0;1.5],1.e-14)
 
-            out.input_nrmv_in_rlu = false; % now its ignores it
-            assertEqual(out.input_nrmv_in_rlu,true);
+            out.input_nrmv_in_rlu = true; % now its ignores it
+            assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.normvec,[1;0;0]);
             assertEqualToTol(out.u,[0;1;0],1.e-14)
             assertEqualToTol(out.v,[0;0;1.5],1.e-14)
@@ -338,13 +338,13 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.v,[0;0;1])
             bm = bmatrix([1,2,3],[70,120,80]);
             out.b_matrix = bm;
-            assertEqual(out.input_nrmv_in_rlu,true);
+            assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.normvec,[1;0;0]);
             assertEqualToTol(out.u,[-0.1604; 0.2194;0.96240],1.e-4)
             assertEqualToTol(out.v,[-0.1177;-0.6029; 0],1.e-4)
 
-            out.input_nrmv_in_rlu = false; % now its ignores it
-            assertEqual(out.input_nrmv_in_rlu,true);
+            out.input_nrmv_in_rlu = true; % now its ignores it
+            assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.normvec,[1;0;0]);
             assertEqualToTol(out.u,[-0.1604; 0.2194;0.96240],1.e-4)
             assertEqualToTol(out.v,[-0.1177;-0.6029; 0],1.e-4)

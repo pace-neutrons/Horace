@@ -117,11 +117,14 @@ classdef SymopSetPlaneInterface < Symop
             if isempty(def_at)
                 argi = varargin;
             else
-                argi = varargin(~is_coord_def);
                 input_nrmv_in_rlu = strcmp(varargin{def_at},'rlu');
+                if def_at-1>0 && strncmp(varargin{def_at-1},'input',5)
+                    is_coord_def(def_at-1) = true;
+                end
+                argi = varargin(~is_coord_def);
             end
         end
-        
+
         function  [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec(normvec,normvec_in_rlu,bmat)
             %SET_UV_FROM_NORMVEC Given normvec to a plane, and assuming that
             % main part (the longest component) of this vector is parallel
@@ -166,8 +169,8 @@ classdef SymopSetPlaneInterface < Symop
             obj = obj.check_offset_b_matrix_consistency();
         end
     end
-    
-    methods(Access = protected)        
+
+    methods(Access = protected)
         function obj = set_input_nrmv_in_rlu(obj,val)
             % main part of the nrmv_in_rlu setter used by reflection and
             % rotation.

@@ -50,6 +50,7 @@ classdef SymopRotation < SymopSetPlaneInterface
             if ischar(argi{1}) % all defined by key-value pairs
                 defined_by_normvec = false;
                 flds = ['normvec';flds(:)];
+                obj.input_nrmv_in_rlu_ = input_nrmv_in_rlu; % if absent from input parameters, it will be empty                
             else
                 defined_by_normvec = numel(argi)>1 && isscalar(argi{2});
             end

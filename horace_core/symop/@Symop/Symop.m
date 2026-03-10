@@ -412,7 +412,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %             constructor
             %
             % EXAMPLES:
-            %   Rotation of 120 degress about [1,1,1]:
+            %   Rotation of 120 degrees about [1,1,1]:
             %       obj = Symop.create ('Rot',[1,1,1], 120)
             %
             %   Reflection through a plane going through the [2,0,0] reciprocal lattice point:
