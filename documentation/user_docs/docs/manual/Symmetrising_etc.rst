@@ -11,10 +11,10 @@ Symmetry operators or "sym op"s define the transformation between sets of
 symmetry related sets. In Horace these are implemented as the ``Symop`` class,
 which is subclassed to represent the three basic forms of symmetry operations:
 
-* ``SymopReflection``
-  A reflection across a plane
 * ``SymopRotation``
   A rotation about an axis
+* ``SymopReflection``
+  A reflection across a plane  
 * ``SymopGeneral``
   A general matrix transform which may be the product of a
   series of reflections and rotations
@@ -25,46 +25,90 @@ which is subclassed to represent the three basic forms of symmetry operations:
    such must have a determinant of ``1`` (Rotation) or ``-1`` (Reflection).
 
 
-Reflections
------------
-
-Reflections are implemented as the ``SymopReflection`` class and are defined in
-Horace by three 3-vectors; two vectors which define the plane of reflection, and
-a vector which defines a point on the plane (the offset). The constructor for a
-``SymopReflection`` is as follows:
-
-.. code-block:: matlab
-
-   SymopReflection(v1, v2, offset)
-   >> sym = SymopReflection([1 0 0], [0 1 0], [0 0 0]); % Reflection across the Z axis
-
-.. note::
-
-   For any ``Symop`` constructor the offset can be omitted and it will default
-   to ``[0 0 0]``.
-
-`Cutting`_ with ``SymopReflection`` and `Symmetrising`_ (see below) use this transformation for reflecting 
-data from the half of the space separated by reflection plane into another half of the space. The target half-space 
-is the area where the vector, built on the vectors, defining reflection plane according to right-hand rule is positive.
-
 Rotations
 ---------
 
 Rotations are implemented as the ``SymopRotation`` class and are defined by two
 3-vectors and a scalar; these are the axis of rotation, the angle (in degrees)
-of rotation and a point on the axis (the offset). The constructor for a
-``SymopRotation`` is as follows:
+of rotation and the centre of the transformation (the offset). Alternatively, instead of rotation axis, you may define 
+rotation plane by two 3-vectors belonging to the rotation plane.
+In addition, fully operational ``SymopRotation`` class
+needs Busing-Levy ``B-matrix``, used to transform momentum transfer coordinates from ``rlu`` to Crystal Cartesian 
+system of coordinates. Users do not need to set up this matrix in constructor as it will be transferred from an
+input ``sqw`` object by every algorithm which uses symmetry operation, but if you want to test
+rotation separately, you need to specify it to convert all values expressed in ``rlu`` into Crystal Cartesian. This is necessary 
+as the pixels available within ``sqw`` object and subjected to symmetry transformation are always expressed in Crystal Cartesian.
+
+Horace have simple utility :math:`bm = bmatrix([a,b,c],[\alpha,\beta,\gamma])` which builds
+``B-matrix`` for Horace coordinate system using known lattice parameters,
+namely :math:`[a,b,c]` -- lengths of cell edges and :math:`[\alpha, \beta,\gamma]`
+-- angles between them.
+
+The constructors for a ``SymopRotation`` has the following forms:
 
 .. code-block:: matlab
 
-   SymopRotation(axis, angle, offset)
-   >> sym = SymopRotation([0 0 1], 60, [0 0 0]); % Rotation of 60 degrees about th Z axis
+   >> sym = SymopRotation([0 0 1], 60, [0 0 0]); % Rotation of 60 degrees about the Z axis
+   >> sym = SymopRotation([1 0 0],[0 1 0] 60, [0 0 0]); % the same but providing two vectors in rotation plane.
+   >> sym = SymopRotation(__,[b_matrix],["cc"|"rlu"]); % full constructor for rotation above.
+
+As ``SymopRotation`` is a fully serializable object, you may construct it using key-value pairs, defining ``SymopRotation`` properties. 
+The names of its properties are: 
+
++----------------------+-----------+------------------------------------------------------------------+
+| property             | value     | meaning                                                          |
++======================+===========+==================================================================+
+| ``normvec``          | 3x1 vector| rotation axis aka. normal to the rotation plane. Input may be    |
+|                      | in ``cc`` | ``cc`` or ``rlu``; output is always ``cc`` when b-matrix is      |
+|                      |           | present                                                          |
++----------------------+-----------+------------------------------------------------------------------+
+| ``u``                | 3x1-vector| first vector in the plane. Always ``rlu``                        |
++----------------------+-----------+------------------------------------------------------------------+
+| ``v``                | 3x1-vector| second vector in the plane. Always ``rlu``                       |
++----------------------+-----------+------------------------------------------------------------------+
+| ``theta_deg``        | value     | rotation angle (degrees)                                         |
++----------------------+-----------+------------------------------------------------------------------+
+| ``offset``           | 3x1-vector| location of the transformation origin. Always ``rlu``            |
++----------------------+-----------+------------------------------------------------------------------+
+| ``b_matrix``         | 3x3       | Busing–Levy matrix defining transformation from ``rlu``          |
+|                      | matrix    | to ``CC`` coordinate systems :math:`A^{-1}`                      |
++----------------------+-----------+------------------------------------------------------------------+
+| ``input_nrmv_in_rlu``| `true` or | defines input units of ``normvec`` when the coordinate  system   |
+|                      | `false`   | is non-orthogonal. Also accepts "rlu" or "cc" converting it to   |
+|                      |           | to `true`|`false`                                                |
++----------------------+-----------+------------------------------------------------------------------+
+
+The key-value form of constructor would have the form:
+
+.. code-block:: matlab
+
+   >> sym = SymopRotation('normvec',[0 0 1],'theta_deg',60,'offset',[1 0 0]...); 
+   >> sym = SymopRotation('u',[0 0 1],'v',[1 0 0],'theta_deg',60,...);
+
+where you can provide key-value pairs in random order and should not mix up definition of rotation plane using normal to it
+with definition which uses two in-plane vectors. (one random description will be chosen at the end).
+
+One may notice additional parameter "cc" or "rlu" provided to the constructor and setting up the internal property ``input_nrmv_in_rlu``
+to true or false.
+It is necessary and have to be provided if the lattice is non-orthogonal and you define rotation plane using normal vector to it. 
+Directions of axis in Crystal Cartesian and ``rlu`` (``hkl``) coordinate systems coincide in orthogonal coordinate system but different 
+in non-orthogonal. For example, the picture below shows non-orthogonal reciprocal coordinate system. If we want to do rotations in plane
+:math:`\{[1,0,0](a^*);[0,1,0](b^*)\}` we need to define normal to it with blue vector :math:`[1,0,0]cc`. If you define rotation vector in
+``rlu``, it will coincide with :math:`[0,0,1](c^*)` and actually defines different rotation plane.
+
+.. figure:: ../images/NonorthoCoordinatesSystem.png
+   :align: center
+   :width: 500
+
+Due to difficulties in defining desired ``normvec`` in non-orthogonal coordinate system, recommended method of defining rotation axis
+in non-orthogonal system would be using ``u,v`` pairs in-plane vectors.
 
 ``SymopRotation`` also provides a convenience method for generating the
 appropriate set of symmetry operations for cutting/reducing an n-Fold
-rotationally symmetric dataset about an axis. This takes a scalar integer and
-two 3-vectors; the number of reductions (for an angle of ``360/nFold`` each
-time) and the axis and offset of the rotation as above.
+rotationally symmetric dataset about an axis. This takes a scalar integer,
+two 3-vectors defining the number of reductions (for an angle of ``360/nFold`` each
+time) and the axis and offset of the rotation as above. If you lattice is non-orthogonal, you should
+provide the coordinate system ("cc" or "rlu") the rotation vector is expressed in.
 
 .. code-block:: matlab
 
@@ -82,33 +126,67 @@ time) and the axis and offset of the rotation as above.
 
    >> celldisp(sym)
 
-   sym{1} =
+    celldisp(sym)
+ 
+    sym{1} =
+    Identity operator (no symmetrisation)
 
-   Identity operator (no symmetrisation)
+    sym{2} =
+    Rotation operator:
+          axis (cc): [0;0;1];     offset(rlu): [0;0;0]; angle(deg): 90.00;
+    In-plane u(rlu): [1;0;0]; In-plane v(rlu): [0;1;0];
+ 
+    sym{3} = 
+    Rotation operator:
+          axis (cc): [0;0;1];     offset(rlu): [0;0;0]; angle(deg): 180.00;
+    In-plane u(rlu): [1;0;0]; In-plane v(rlu): [0;1;0];
+ 
+    sym{4} = 
+    Rotation operator:
+          axis (cc): [0;0;1];     offset(rlu): [0;0;0]; angle(deg): 270.00;
+    In-plane u(rlu): [1;0;0]; In-plane v(rlu): [0;1;0];
+
+Reflections
+-----------
+
+Reflections are implemented as the ``SymopReflection`` class. As in the rotation, the 
+reflection plane can be defined using two vectors in this plane or the normal vector to the plane.
+You also need a vector which defines a point the plane passes through (the offset). Similarly to *Rotation*, you may add
+``B-matrix`` to the list of arguments but this will be done by ``symop`` algorithms anyway. 
+
+The constructor for ``SymopReflection`` for two vectors in plane is as follows:
+
+.. code-block:: matlab
+
+   >> sym = SymopReflection([1 0 0], [0 1 0]); % Reflection across the XY axis with 0 offset
+   >> sym = SymopReflection([1 0 0], [0 1 0], [1 0 0]); % Reflection across the XY axis with offset
+   >> sym = SymopReflection(__,b_matrix); 
+   >> sym = SymopReflection('u',[1 0 0],'v',[0 1 0],'offset',[0 0 0]); % Reflection across the XY axis   
+
+The form of the constructor above is historical and was used in Horace-3 as well. If you want to define
+reflection plane using normal vector to it, you have to use key-value pairs:
+
+.. code-block:: matlab
+
+   >> sym = SymopReflection('normvec',[0,0,1],'offset',[0 1 0],["rlu"|"CC"]); % Reflection across the XY axis
+   >> sym = SymopReflection(__,'b_matrix',b_matrix_value); %
 
 
-   sym{2} =
+The list of properties, available to ``SymopReflection`` is the same as for ``SymopRotation`` except ``theta_deg``
+is naturally not available. 
 
-   Rotation operator:
-          axis (rlu): [0;0;1]
-         angle (deg): 90
-        offset (rlu): [0;0;0]
+.. note::
 
+   For any ``Symop`` constructor the offset can be omitted and it will default
+   to ``[0 0 0]``. In this case, ``B-matrix``, if necessary, should be provided as key-value pair:
+   `b_matrix`,value
 
-   sym{3} =
+As with ``SymopRotation`` `u-v` vectors constructor is recommended for usage when your lattice is non-orthogonal.
 
-   Rotation operator:
-          axis (rlu): [0;0;1]
-         angle (deg): 180
-        offset (rlu): [0;0;0]
+`Cutting`_ with ``SymopReflection`` and `Symmetrising`_ (see below) use this transformation for reflecting 
+data from the half of the space separated by reflection plane into another half of the space. The target half-space 
+is the area where the vector, built on the vectors, defining reflection plane according to right-hand rule is positive.
 
-
-   sym{4} =
-
-   Rotation operator:
-          axis (rlu): [0;0;1]
-         angle (deg): 270
-        offset (rlu): [0;0;0]
 
 
 General Transformations
@@ -551,14 +629,16 @@ according to the symmetry operations as though the |SQW| had been symmetrised.
 
 .. Note::
 
-    By design, you may apply only single symmetry transformation to pixels within a cut. Its done intentionally, to avoid double counting and wrong statistics in cases like the image below, where you cut with ``SymopRotation`` by 90deg with a command like: ``w2 = cut(an_sqw,line_proj([-1,1,0],[-1,-1,0]),[-2,0.01,2],[-0.2.0.01,0.2],[],[],SymopRotation([0,0,1],90)`` and do not want to count pixels contributed into red-crossed area twice. 
+    By design, you may apply only single symmetry transformation to pixels within a cut. Its done intentionally, to avoid double counting and wrong statistics in cases like the image below, where you cut with ``SymopRotation`` by 90deg with a command like: ``w2 = cut(an_sqw,line_proj([-1,1,0],[-1,-1,0]),[-2,0.01,2],[-0.2.0.01,0.2],[],[],SymopRotation([0,0,1],90)`` and do not want to count pixels contributed into red-crossed area twice.
 
 .. figure:: ../images/Symops_cut_overlap.png
    :align: center
    :width: 400
 
-The consequence of that is that you can not make cut which will do two transformations on the same pixels. If you need this, you have to perform two cuts or
+The consequence of this feature is that you can not make cut which will do two transformations on the same pixels. E.g. 
+If you need this, you have to perform two cuts or
 build your own generic transformation with symmetry, as described in :ref:`Generic Transformations. <sqw-op-bin-pixels-algorithm>`
+   
 
 Combining
 =========
@@ -717,8 +797,12 @@ Limitations
   information. The functions will work for any dimensionality of object,
   however.
   
-* As described above, ``cut`` with symmetry operations can apply only one symmetry transformations to pixels within a symmetry-related area. 
-  Pixels from  
+* As described :ref:`above <single-transform-note>`, ``cut`` with symmetry operations can apply
+  only one symmetry transformations to pixels within a symmetry-related area. 
+  Pixels from overlapping parts of symmetry related areas are transformed only once. Secondary 
+  symmetry transformations over the same pixels have to be performed by another ``cut`` with 
+  symmetries, or by writing a :ref:`generic transformation. <sqw-op-bin-pixels-algorithm>`
+
 
 ..
   Removed due to #1447
@@ -780,6 +864,16 @@ of ``Symop`` objects (see: `Groups of symmetry operators`_).
         -1    -3    -5    -1    -3
          2     2     4     6     1
          6     3     1     3     6
+         
+.. Note:
+
+   If ``Symop`` has offset, its value is converted in Crystal Cartesian coordinate system and extracted
+   before performing transformation. The offset value then added back to the symmetry-transformed values.
+   To perform conversion properly, ``Symop``-s ``b_matrix`` property should be set-up. The algorithms extract
+   this matrix from appropriate projection and set it up on used ``Symop``,
+   but if you want to use ``transform_vec`` independently, the matrix have to be set-up
+   manually. 
+
 
 ``transform_pix``
 -----------------

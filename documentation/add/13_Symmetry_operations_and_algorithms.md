@@ -146,4 +146,4 @@ By design, you may apply only single symmetry transformation to pixels within a 
   </em></figcaption>
 </figure>
 
-The consequence of that is that you can not build cut which will do two transformations on the same pixels. If you need this, you have to perform two cuts.
+The consequence of that is that you can not make a cut which does two transformations on the same pixels. If you need this, you have to perform two cuts.
