@@ -37,7 +37,7 @@ needs Busing-Levy ``B-matrix``, used to transform momentum transfer coordinates 
 system of coordinates. Users do not need to set up this matrix in constructor as it will be transferred from an
 input ``sqw`` object by every algorithm which uses symmetry operation, but if you want to test
 rotation separately, you need to specify it to convert all values expressed in ``rlu`` into Crystal Cartesian. This is necessary 
-as the pixels available within ``sqw`` object and subjected to symmetry transformation are always expressed in Crystal Cartesian.
+as the pixels available within ``sqw`` object and are subject of a symmetry transformation are always expressed in Crystal Cartesian.
 
 Horace have simple utility :math:`bm = bmatrix([a,b,c],[\alpha,\beta,\gamma])` which builds
 ``B-matrix`` for Horace coordinate system using known lattice parameters,
@@ -52,15 +52,17 @@ The constructors for a ``SymopRotation`` has the following forms:
    >> sym = SymopRotation([1 0 0],[0 1 0] 60, [0 0 0]); % the same but providing two vectors in rotation plane.
    >> sym = SymopRotation(__,[b_matrix],["cc"|"rlu"]); % full constructor for rotation above.
 
-As ``SymopRotation`` is a fully serializable object, you may construct it using key-value pairs, defining ``SymopRotation`` properties. 
+Zero offset value can be omitted.
+As ``SymopRotation`` is a fully serializable object, you may construct it using key-value pairs, defining ``SymopRotation`` properties 
+or add them in random order after some positional parameters described above have been defined.
 The names of its properties are: 
 
 +----------------------+-----------+------------------------------------------------------------------+
 | property             | value     | meaning                                                          |
 +======================+===========+==================================================================+
-| ``normvec``          | 3x1 vector| rotation axis aka. normal to the rotation plane. Input may be    |
-|                      | in ``cc`` | ``cc`` or ``rlu``; output is always ``cc`` when b-matrix is      |
-|                      |           | present                                                          |
+| ``normvec``          | 3x1 vector| rotation axis aka. normal to the rotation plane. Input units may |
+|                      | in ``cc`` | be ``cc`` or ``rlu``; output is always ``cc`` when b-matrix is   |
+|                      |           | present.                                                         |
 +----------------------+-----------+------------------------------------------------------------------+
 | ``u``                | 3x1-vector| first vector in the plane. Always ``rlu``                        |
 +----------------------+-----------+------------------------------------------------------------------+
@@ -71,7 +73,7 @@ The names of its properties are:
 | ``offset``           | 3x1-vector| location of the transformation origin. Always ``rlu``            |
 +----------------------+-----------+------------------------------------------------------------------+
 | ``b_matrix``         | 3x3       | Busing–Levy matrix defining transformation from ``rlu``          |
-|                      | matrix    | to ``CC`` coordinate systems :math:`A^{-1}`                      |
+|                      | matrix    | to ``cc`` coordinate systems :math:`A^{-1}`                      |
 +----------------------+-----------+------------------------------------------------------------------+
 | ``input_nrmv_in_rlu``| `true` or | defines input units of ``normvec`` when the coordinate  system   |
 |                      | `false`   | is non-orthogonal. Also accepts "rlu" or "cc" converting it to   |
@@ -86,7 +88,7 @@ The key-value form of constructor would have the form:
    >> sym = SymopRotation('u',[0 0 1],'v',[1 0 0],'theta_deg',60,...);
 
 where you can provide key-value pairs in random order and should not mix up definition of rotation plane using normal to it
-with definition which uses two in-plane vectors. (one random description will be chosen at the end).
+with the definition which uses two in-plane vectors. (one random description will be chosen at the end).
 
 One may notice additional parameter "cc" or "rlu" provided to the constructor and setting up the internal property ``input_nrmv_in_rlu``
 to true or false.
@@ -163,14 +165,15 @@ The constructor for ``SymopReflection`` for two vectors in plane is as follows:
    >> sym = SymopReflection(__,b_matrix); 
    >> sym = SymopReflection('u',[1 0 0],'v',[0 1 0],'offset',[0 0 0]); % Reflection across the XY axis   
 
-The form of the constructor above is historical and was used in Horace-3 as well. If you want to define
-reflection plane using normal vector to it, you have to use key-value pairs:
+The form of the constructor above is historical and was used in Horace-3 as well. Unfortunately it is impossible to distinguish 
+between ``SymopReflection`` without ``offset`` provided and ``SymopReflection`` with ``offset`` and rotation plane defined by 
+normal vector to it. Because of that, if you want to define
+reflection plane using normal vector to it, you have to use key-value pairs constructor:
 
 .. code-block:: matlab
 
    >> sym = SymopReflection('normvec',[0,0,1],'offset',[0 1 0],["rlu"|"CC"]); % Reflection across the XY axis
    >> sym = SymopReflection(__,'b_matrix',b_matrix_value); %
-
 
 The list of properties, available to ``SymopReflection`` is the same as for ``SymopRotation`` except ``theta_deg``
 is naturally not available. 
@@ -181,7 +184,7 @@ is naturally not available.
    to ``[0 0 0]``. In this case, ``B-matrix``, if necessary, should be provided as key-value pair:
    `b_matrix`,value
 
-As with ``SymopRotation`` `u-v` vectors constructor is recommended for usage when your lattice is non-orthogonal.
+As with ``SymopRotation`` `u-v` vectors based constructor is recommended for usage when your lattice is non-orthogonal.
 
 `Cutting`_ with ``SymopReflection`` and `Symmetrising`_ (see below) use this transformation for reflecting 
 data from the half of the space separated by reflection plane into another half of the space. The target half-space 
