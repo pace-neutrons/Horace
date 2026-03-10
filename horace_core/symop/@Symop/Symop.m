@@ -462,7 +462,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             %             constructor
             %
             % EXAMPLES:
-            %   Rotation of 120 degress about [1,1,1]:
+            %   Rotation of 120 degrees about [1,1,1]:
             %       obj = Symop.create ('Rot',[1,1,1], 120)
             %
             %   Reflection through a plane going through the [2,0,0] reciprocal lattice point:
@@ -512,7 +512,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % main part of the nrmv_in_rlu setter used by reflection and
             % rotation.
             %
-            % If you set up operation using normvector, changning this
+            % If you set up operation using normvector, changing this
             % parameter also changes normvector units between rlu and cc
             %
             if istext(val)
