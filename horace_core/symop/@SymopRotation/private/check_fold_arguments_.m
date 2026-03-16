@@ -6,9 +6,9 @@ function [offset,coord_system,normal_defined] = check_fold_arguments_(nfold, axi
 %
 validateattributes(nfold, {'numeric'}, {'integer'})
 
+coord_system = 'cc';
 if nargin < 3
     offset = [0; 0; 0];
-    coord_system = 'cc';
 else % nargin>=3
     if isnumeric(varargin{1}) && numel(varargin{1})==3
         offset = varargin{1};
