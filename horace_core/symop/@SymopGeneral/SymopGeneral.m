@@ -1,11 +1,7 @@
 classdef SymopGeneral < Symop
 
-    properties(Dependent)
-        W;
-    end
-
-    properties(Access=protected)
-        W_ = eye(3);
+    properties(Dependent,Hidden)
+        W; % redundant interface. Use R for modern
     end
 
     methods
@@ -26,23 +22,18 @@ classdef SymopGeneral < Symop
                     'Received: %s'], disp2str(W));
             end
 
-            obj.W = W;
+            obj.R = W;
             obj.offset = offset;
             if nargin>2
                 obj.b_matrix = varargin{1};
             end
         end
-
+        % Redundant properties used for compatibility only
         function obj = set.W(obj, val)
-            if  ~obj.is_3x3matrix(val) || abs(det(val)) - 1 > 1e-4
-                error('HORACE:symop:invalid_argument', ...
-                    'Motion matrix W must be a 3x3 matrix with determinant 1, det: %d', det(val));
-            end
-            obj.W_ = reshape(val, [3 3]); % Just requires 9 elements & numeric
+            obj = set_R(obj,val);
         end
-
         function W = get.W(obj)
-            W = obj.W_;
+            W = obj.R_;
         end
 
         function selected = in_irreducible(~, ~, ~)
@@ -78,26 +69,38 @@ classdef SymopGeneral < Symop
             % -------
             %   R       Transformation matrix to be applied to the components of a
             %          vector given in the orthonormal frame for which Minv is defined
-            R = obj.W_;
+            R = obj.R_;
         end
 
         function local_disp(obj)
             fprintf('Sym op: \n')
             if any(obj.offset)
-                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.W(1, :), obj.offset(1));
-                fprintf(' % 6.4f % 6.4f % 6.4f + % 6.4f\n', obj.W(2, :), obj.offset(2));
-                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.W(3, :), obj.offset(3));
+                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.R(1, :), obj.offset(1));
+                fprintf(' % 6.4f % 6.4f % 6.4f + % 6.4f\n', obj.R(2, :), obj.offset(2));
+                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.R(3, :), obj.offset(3));
             else
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(1, :));
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(2, :));
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(3, :));
+                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.R(1, :));
+                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.R(2, :));
+                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.R(3, :));
             end
         end
 
     end
-
     % Serializable interface
     methods
+        function obj = check_combo_arg(obj)
+            obj = obj.check_offset_b_matrix_consistency();
+        end
+    end
+    methods(Access = protected)
+        function   obj = set_R(obj,val)
+            if  ~obj.is_3x3matrix(val) || abs(det(val)) - 1 > 1e-4
+                error('HORACE:symop:invalid_argument', ...
+                    'Motion matrix R must be a 3x3 matrix with determinant |1|, det: %d', det(val));
+            end
+            obj.R_ = reshape(val, [3 3]); % Just requires 9 elements & numeric
+        end
+
         function flds = local_saveableFields(~)
             flds = {'W', 'offset'};
         end

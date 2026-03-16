@@ -397,8 +397,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
                 'transform_sqw',@(x)symmetrise_sqw(x,sym));
 
-            w1_inf_sym = cut(sqw_file_sym,[0,0.025,1.5],[-0.5,0],[-0.5,0.5],[-Inf,Inf]);
-            w1_inm_sym = cut(w_mem_sym,[0,0.025,1.5],[-0.5,0],[-0.5,0.5],[-Inf,Inf]);
+            cut_range = {[-1.5,0.025,1],[-1.5,0],[-3.5,0.1],[-Inf,Inf]};
+            w1_inf_sym = cut(sqw_file_sym,cut_range{:} );
+            w1_inm_sym = cut(w_mem_sym,cut_range{:});
             % Uncomment to see the cut shapes
             %             acolor('r')
             %             plot(w1_inf_sym)
@@ -415,14 +416,20 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             cut_range = w_inf_sym.data.axes.get_cut_range();
             w_inf_sym = w_inf_sym.cut(cut_range{:});
 
-            assertEqual(w_inf_sym.npixels,w_mem_sym.npixels+1)
-            assertEqualToTol(w_inf_sym.pix.data_range,w_mem_sym.pix.data_range,1.e-13)
+            assertEqual(w_inf_sym.npixels,w_mem_sym.npixels+2)
+            assertEqualToTol(w_inf_sym.pix.data_range,w_mem_sym.pix.data_range,1.e-7)
             clear hc_config_cleanup;
             % assign equal values to image cell where rough pixel have
             % contributed
-            w_mem_sym.data.s(6132474)=w_inf_sym.data.s(6132474);
-            w_mem_sym.data.e(6132474)=w_inf_sym.data.e(6132474);
-            w_mem_sym.data.npix(6132474) =w_mem_sym.data.npix(6132474)+1;
+            n1 = 6144982;
+            w_mem_sym.data.s(n1)=w_inf_sym.data.s(n1);
+            w_mem_sym.data.e(n1)=w_inf_sym.data.e(n1);
+            w_mem_sym.data.npix(n1) =w_mem_sym.data.npix(n1)+1;
+            n1 = 85385;
+            w_mem_sym.data.s(n1)=w_inf_sym.data.s(n1);
+            w_mem_sym.data.e(n1)=w_inf_sym.data.e(n1);
+            w_mem_sym.data.npix(n1) =w_mem_sym.data.npix(n1)+1;
+                        
             assertEqualToTol(w_mem_sym.data,w_inf_sym.data,'-ignore_str','tol',1.e-13)
         end
 

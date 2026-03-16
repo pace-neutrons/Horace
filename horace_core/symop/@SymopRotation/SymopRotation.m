@@ -77,7 +77,7 @@ classdef SymopRotation < Symop
             % The planes defined by UN, VN encapsulate the reduced region
             % And thus any coordinate `q` from `Q` where
             % q*(normvec x u) > 0 && q*(v x normvec) > 0
-            % belong to the irreducible set in the upper right quadrant. 
+            % belong to the irreducible set in the upper right quadrant.
             % In expression above `x` means cross and `*` -- scalar
             % products.
             %
@@ -146,7 +146,8 @@ classdef SymopRotation < Symop
     end
     methods(Access = protected)
         function obj = set_normvector(obj,val)
-            if  ~obj.is_3vector(val) || all(val==0)
+            [is,val] = obj.check_and_brush_3vector(val);
+            if  ~is || all(val==0)
                 error('HORACE:symop:invalid_argument', ...
                     'Rotation vector n must be a three vector with at last one non-zero element');
             end
@@ -157,8 +158,8 @@ classdef SymopRotation < Symop
     methods(Static)
         function is = check_args(argin)
             is = (numel(argin) == 2 || ...
-                numel(argin) == 3 && Symop.is_3vector(argin{3})) && ...
-                Symop.is_3vector(argin{1}) && ...
+                numel(argin) == 3 && Symop.check_and_brush_3vector(argin{3})) && ...
+                Symop.check_and_brush_3vector(argin{1}) && ...
                 isscalar(argin{2});
         end
 
@@ -184,6 +185,23 @@ classdef SymopRotation < Symop
 
     % Serializable interface
     methods
+        function obj = check_combo_arg(obj)
+            if isempty(obj.b_matrix_)
+                obj.R_ = obj.calculate_transform(eye(3));
+            else
+                obj.R_ = obj.calculate_transform(obj.b_matrix_);
+            end
+            obj = obj.check_offset_b_matrix_consistency();
+        end
+
+    end
+    methods(Access = protected)
+        function   obj = set_R(obj,varargin)
+            error('HORACE:symop:invalid_argument',[ ...
+                'You can not set up rotation matrix directly.\n' ...
+                'Use SymopGeneral or input properties of SymopRotation class'])
+        end
+
         function flds = local_saveableFields(~)
             flds = {'normvec', 'theta_deg', 'offset','b_matrix'};
         end

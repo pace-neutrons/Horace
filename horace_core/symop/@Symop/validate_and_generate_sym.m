@@ -104,7 +104,11 @@ b_mat = proj.bmatrix(3);
 is_cell = iscell(sym);
 for i  =1:numel(sym)
     if is_cell
-        sym{i}.b_matrix = b_mat;
+        symic = sym{i};
+        for j=1:numel(symic)
+            symic(j).b_matrix = b_mat;
+        end
+        sym{i} = symic;
     else
         sym(i).b_matrix = b_mat;
     end
