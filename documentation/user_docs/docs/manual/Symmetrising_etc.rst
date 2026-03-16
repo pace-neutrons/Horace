@@ -234,6 +234,13 @@ offsets.
         0.0000         0    1.0000
              0    1.0000         0
        -1.0000         0    0.0000
+       
+All Crystal lattice related symmetry transformations may be described by specially 
+constructed 3x3 transformation matrices, available on the web. Horace accesses
+these transformations by accessing Python library available at https://github.com/spglib/spglib
+using `get_syms` utility which interfaces this library (has to be installed for MATLAB's Python
+separately) and returns set of general transformations, provided by the library for given lattice given
+symmetry type of this lattice. 
 
 Groups of symmetry operators
 ----------------------------
