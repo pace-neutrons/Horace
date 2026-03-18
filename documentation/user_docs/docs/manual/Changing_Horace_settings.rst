@@ -287,7 +287,7 @@ The values have the form:
 
     >>gp = genieplot.instance()
     >>gp = 
-                    default_fig_name: []        % default name for plot. Empty assumes Horace
+                    default_fig_name: []        % default name for plot. Empty assumes "Figure N, Horace ...."
                               XScale: 'linear'  % x-axis scaling: 'linear' or 'log'
                               YScale: 'linear'  % y-axis scaling: 'linear' or 'log'
                               ZScale: 'linear'  % z-axis scaling: 'linear' or 'log'
