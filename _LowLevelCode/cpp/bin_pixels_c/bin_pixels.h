@@ -51,10 +51,13 @@ bool inline out_of_ranges(SRC const* const coord_ptr, long i, size_t COORD_STRID
 *              where n is the number of pixel coordinate to bin.
 * bin_cell_idx_range
 *           -- number of bins in each binned direction.
-* stride    -- 1-to-4 element's vector which describes 1-D allocation of multidimensional array
-*              i.e. if one have 1D array, stride has 1 element and contains 1.
+* stride    -- 1-to-4 element's vector which describes 1-D allocation of multidimensional array,
+*              i.e. change of linear index per change of 1-4 dimensional index by 1 in each direction.
+*             E.g.:
+*              if one have 1D array, stride has 1 element and contains 1.
+*              For 2-dimensional array of size 9x10, stride == [1,9]
 *              For 3-dimensional array of size 9x10x11, stride == [1,9,9*10]
-*              For 4-dimensional array of size 9x10x11*12, stride == [1,9,9*10,9*10*11]
+*              For 4-dimensional array of size 9x10x11x12, stride == [1,9,9*10,9*10*11]
 * Returns:
 * index of pixel in input multidimensional array.
 */
