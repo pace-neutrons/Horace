@@ -19,7 +19,7 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [ -0.3831; 0.8722;-0.0811],'tol',1.e-4)
             assertEqualToTol(out.v, [ 0.0004;0.3275;1.4364],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.input_nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -87,7 +87,7 @@ classdef test_symop_reflection < TestCase
             assertEqualToTol(out.u, [-0.3020;0.9533;0.4014],'tol',1.e-4)
             assertEqualToTol(out.v, [-0.3761;-0.1470;-0.6445],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.input_nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -116,7 +116,7 @@ classdef test_symop_reflection < TestCase
         function test_symop_reflection_with_genBM_fails_without_descr(~)
             bm = bmatrix([1,2,3],[70,80,120]);
             assertExceptionThrown(@()SymopReflection('normvec',[0 0 1],'b_matrix',bm), ...
-                'HORACE:symop:invalid_argument');
+                'HORACE:SymopSetPlaneInterface:invalid_argument');
         end
         %==================================================================
         function test_symop_reflection_with_orthoBM_and_normal111_inRlu(~)
@@ -127,7 +127,7 @@ classdef test_symop_reflection < TestCase
             assertEqual(out.u, [-0.0816;-0.0816;0.9184],'tol',1.e-4)
             assertEqualToTol(out.v, [ 0.1429;-0.5714;0],'tol',1.e-4)
             assertEqual(out.offset, [0; 0; 0])
-            assertTrue(out.input_nrmv_in_rlu)
+            assertFalse(out.input_nrmv_in_rlu)
 
             % check if normvec is orthogonal to uv plane
             c1 = cross(bm*out.u,bm*out.v);
@@ -290,20 +290,20 @@ classdef test_symop_reflection < TestCase
         end
 
         function test_set_coord_in_orth_using_normvec_rlu(~)
-            out = SymopReflection('nor',[1 0 0],'offset',[3 3 3],'rlu');
+            out = SymopReflection('norm',[1 0 0],'offset',[3 3 3],'rlu');
             assertEqual(out.normvec,[1;0;0]);
             assertEqual(out.input_nrmv_in_rlu,true);
             assertEqual(out.u,[0;1;0])
             assertEqual(out.v,[0;0;1])
             bm = bmatrix([1,2,3],[90,90,90]);
             out.b_matrix = bm;
-            assertEqual(out.input_nrmv_in_rlu,true);
+            assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.normvec,[1;0;0]);
             assertEqualToTol(out.u,[0;1;0],1.e-14)
             assertEqualToTol(out.v,[0;0;1.5],1.e-14)
 
-            out.input_nrmv_in_rlu = false; % now its ignores it
-            assertEqual(out.input_nrmv_in_rlu,true);
+            out.input_nrmv_in_rlu = true; % now its ignores it
+            assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.normvec,[1;0;0]);
             assertEqualToTol(out.u,[0;1;0],1.e-14)
             assertEqualToTol(out.v,[0;0;1.5],1.e-14)
@@ -311,7 +311,7 @@ classdef test_symop_reflection < TestCase
         
 
         function test_set_coord_in_nonorth_using_normvec_cc(~)
-            out = SymopReflection('nor',[1 0 0],'offset',[3 3 3],'cc');
+            out = SymopReflection('norm',[1 0 0],'offset',[3 3 3],'cc');
             assertEqual(out.normvec,[1;0;0]);
             assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.u,[0;1;0])
@@ -331,20 +331,20 @@ classdef test_symop_reflection < TestCase
         end
 
         function test_set_coord_in_nonorth_using_normvec_rlu(~)
-            out = SymopReflection('nor',[1 0 0],'offset',[3 3 3],'rlu');
+            out = SymopReflection('norm',[1 0 0],'offset',[3 3 3],'rlu');
             assertEqual(out.normvec,[1;0;0]);
             assertEqual(out.input_nrmv_in_rlu,true);
             assertEqual(out.u,[0;1;0])
             assertEqual(out.v,[0;0;1])
             bm = bmatrix([1,2,3],[70,120,80]);
             out.b_matrix = bm;
-            assertEqual(out.input_nrmv_in_rlu,true);
+            assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.normvec,[1;0;0]);
             assertEqualToTol(out.u,[-0.1604; 0.2194;0.96240],1.e-4)
             assertEqualToTol(out.v,[-0.1177;-0.6029; 0],1.e-4)
 
-            out.input_nrmv_in_rlu = false; % now its ignores it
-            assertEqual(out.input_nrmv_in_rlu,true);
+            out.input_nrmv_in_rlu = true; % now its ignores it
+            assertEqual(out.input_nrmv_in_rlu,false);
             assertEqual(out.normvec,[1;0;0]);
             assertEqualToTol(out.u,[-0.1604; 0.2194;0.96240],1.e-4)
             assertEqualToTol(out.v,[-0.1177;-0.6029; 0],1.e-4)
@@ -361,12 +361,12 @@ classdef test_symop_reflection < TestCase
         end
 
         function test_reflection_construct_normal_fails_on_nonort_without_coord(~)
-            out = SymopReflection('nor',[1 1 0],'offset',[3 3 3]);
+            out = SymopReflection('norm',[1 1 0],'offset',[3 3 3]);
             bm = bmatrix([1,2,3],[70,90,90]);
             function thrower()
                 out.b_matrix = bm;
             end
-            assertExceptionThrown(@thrower,'HORACE:Symop:invalid_argument');
+            assertExceptionThrown(@thrower,'HORACE:SymopSetPlaneInterface:invalid_argument');
             out.input_nrmv_in_rlu = false;
 
             out.b_matrix = bm;
@@ -374,14 +374,14 @@ classdef test_symop_reflection < TestCase
         end
 
         function test_reflection_constructor_fail(~)
-            assertExceptionThrown(@() SymopReflection(1), 'HORACE:SymopReflection:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(1), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
             assertExceptionThrown(@() SymopReflection([0 1 0]), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection([1 0 0], 90), 'HORACE:SymopReflection:invalid_argument');
-            assertExceptionThrown(@() SymopReflection(eye(3)), 'HORACE:SymopReflection:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(1, 90), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
+            assertExceptionThrown(@() SymopReflection([1 0 0], 90), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
+            assertExceptionThrown(@() SymopReflection(eye(3)), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
             assertExceptionThrown(@() SymopReflection([0  1 0
                 -1 0 0
-                0  0 1], 90), 'HORACE:SymopReflection:invalid_argument');
+                0  0 1], 90), 'HORACE:SymopSetPlaneIntrerface:invalid_argument');
 
             % Test collinear vectors
             assertExceptionThrown(@() SymopReflection([1 0 0], [1 0 0]), 'HORACE:SymopReflection:invalid_argument');

@@ -30,15 +30,18 @@ function [u,v,normvec,normvec_in_rlu] = get_uv_from_normvec_(normvec,normvec_in_
 %                    rlu
 
 if isempty(normvec_in_rlu)
+    empty_normvec_in_rlu = true;
     if is_diagonal_matr(bmat)
         normvec_in_rlu = false;
     else
-        error('HORACE:Symop:invalid_argument',[ ...
+        error('HORACE:SymopSetPlaneInterface:invalid_argument',[ ...
             'When symmetry plane is defined from normvector in non-orthogonal system,\n' ...
             'one have to provide the description of this sytem, namely providing key ("rlu" or "cc")\n' ...
             'to constructor or setting hidden property "input_nrmv_in_rlu" to true or false\n' ...
             'This description have not been provided']);
     end
+else
+   empty_normvec_in_rlu = false;
 end
 
 if normvec_in_rlu
@@ -70,5 +73,8 @@ u = u - (normvec'*(normvec(:)'*u))'; % extract projection to the normvec
 
 [~,v] = Symop.check_and_brush_3vector(bmat\cross(normvec,u)); % get normal vector to uv and convert to it rlu
 [~,u] = Symop.check_and_brush_3vector(bmat\u);% convert to rlu
+if empty_normvec_in_rlu 
+    normvec_in_rlu = [];
+end
 
 end
