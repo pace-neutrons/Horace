@@ -591,8 +591,14 @@ e.g. following a spin wave dispersion ring/cone as a function of energy.
 
 
 Miscellaneous functions
------------------------
+=======================
 
 ``meta(fig)`` allows you to copy the figure into a metafile. On Windows, this
 function puts the file in the clipboard so that it can be pasted directly into
 Word, Powerpoint etc.
+
+``genieplot``  is a singleton, which describes common settings (configuration) used in Horace plots.
+
+``genieplot.instance()`` gives one access to the settings, similar to one, used for changing properties of MATLAB ``figure`` classes.
+
+See :ref:`geneplot_settings` to get more details about Horace graphics configurations. 

@@ -266,3 +266,78 @@ Developers and service information present in configuration(s)
   if false, values remain in memory and will be lost after MATLAB session is closed.
 - ``return_defaults`` : by default, its false. Setting this property to true would allow one to retrieve default configuration values.
 - ``config_folder`` : the place where the configuration data are stored to be able to restore it in the next MATLAB session.
+
+
+.. _geneplot_settings:
+
+Global settings for Horace graphics: ``genieplot``
+==================================================
+
+This class describes configuration used by Horace graphics. Unlike other configuration classes, 
+which use wrappers (e.g. ``hor_config`` or ``hpc_config``) around global configuration singleton, 
+``config_store.instance()``, which contains all global saveable Horace configurations, 
+``genieplot`` singleton provides direct access to the global graphics configuration. 
+
+``genieplot.get()`` returns structure with current values of properties, describing the graphics settings
+and ``genieplot.instance()`` returns instance of the singleton, which allows changing its values.
+
+The values have the form:
+
+::
+
+    >>gp = genieplot.instance()
+    >>gp = 
+                    default_fig_name: []        % default name for plot. Empty assumes Horace
+                              XScale: 'linear'  % x-axis scaling: 'linear' or 'log'
+                              YScale: 'linear'  % y-axis scaling: 'linear' or 'log'
+                              ZScale: 'linear'  % z-axis scaling: 'linear' or 'log'
+
+            % One-dimensional graph properties:
+                          maxspec_1D: 1000      % Maximum number of 1D datasets in a plottable array
+                              colors: {'k'}     % Row cell array of default colors
+                         color_cycle: 'with'    % 'fast' or 'with': colours cycle faster or with
+                                                % line styles & widths and marker types & sizes
+                         line_styles: {'-'}     % Row cell array of default line styles
+                         line_widths: 0.5000    % Row vector of default line widths
+                        marker_types: {'o'}     % Row cell array of default marker types
+                        marker_sizes: 6         % Row vector of default marker sizes
+                        
+            % Two-dimensional graph properties
+                          maxspec_2D: 1000
+
+            % matlab 2025 introduced new colour scheme, which, if windows
+            % scheme is dark makes Horace graphics unusable. If this option is
+            % true, Horace reverts to the colour scheme used by Matlab 2024b
+            % and before
+       use_original_horace_plot_colours: 1
+
+
+To set a property one can do:
+
+::
+
+    >> gp.<property_name> = <value>;
+    %
+    %   EXAMPLE: >> gp.colors = {'b','r','g'};
+    %
+    
+To retrieve a property:
+
+::
+
+    >> <value> = gp.<property_name>;
+    %
+    %   EXAMPLE: >> val = gp.marker_sizes
+    %            val =
+    %                 6
+
+
+To reset all properties to the defaults:
+
+::
+
+    >> gp.reset()
+
+
+Unlike other configuration classes, ``genieplot`` does not save its state to a file, so every new Horace 
+session starts graphics from its default values above.
