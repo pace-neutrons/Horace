@@ -302,7 +302,7 @@ The values have the form:
                         marker_types: {'o'}     % Row cell array of default marker types
                         marker_sizes: 6         % Row vector of default marker sizes
                         
-            % Two-dimensional graph properties
+            % Two-dimensional graph properties:
                           maxspec_2D: 1000
 
             % matlab 2025 introduced new colour scheme, which, if windows
