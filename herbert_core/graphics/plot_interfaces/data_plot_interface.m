@@ -26,7 +26,7 @@ classdef (Abstract=true) data_plot_interface
 
     properties(Access=protected)
         obj_holder_ = []; % internal property which stores top level object
-        % to plot;
+        % to attach to the plotted figure
     end
 
     methods(Abstract)
