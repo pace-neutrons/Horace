@@ -374,6 +374,36 @@ classdef test_save < TestCase
 
         end
         %
+        function test_save_tmp_to_permanent_moves_to_new_same_folder(obj)
+            source_to_move = fullfile(tmp_dir,'test_save_tmp_2move.tmp');
+            targ_file      = 'save_filebacked_permanent.sqw';
+            clOb = onCleanup(@()del_memmapfile_files(targ_file));
+
+            % create temporary test object
+            test_obj = obj.sqw_obj.save(source_to_move,'-make_tmp');
+            assertTrue(test_obj.is_filebacked)
+            assertTrue(test_obj.is_tmp_obj)
+
+
+            new_obj = test_obj.save(targ_file);
+            assertFalse(isfile(source_to_move));
+
+            new_file = new_obj.full_filename;
+            [fp,fn,fe] = fileparts(new_file);
+            src_path = fileparts(source_to_move);
+            assertEqual(fp,src_path);
+            assertEqual([fn,fe],targ_file);
+
+            ldr = sqw_formats_factory.instance().get_loader(new_file);
+            rec = ldr.get_sqw();
+            ldr.delete();
+            assertEqualToTol(rec,obj.sqw_obj,'-ignore_str','tol',[4*eps('single'),4*eps('single')]);
+
+            ref_obj = obj.sqw_obj;
+            ref_obj.full_filename = new_file;
+            assertEqualToTol(rec,ref_obj,'-ignore_date','tol',[4*eps('single'),4*eps('single')]);
+        end
+        
         function test_save_tmp_moves_to_new_file_upgrades_all_bar_pix(obj)
             source_to_move = fullfile(tmp_dir,'test_save_tmp_moves.tmp');
             targ_file      = fullfile(tmp_dir,'save_filebacked_different_file.sqw');
