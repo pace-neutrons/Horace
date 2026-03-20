@@ -123,12 +123,11 @@ function wout = save_one(w,filename,assume_updated,return_result,clear_source,ma
 % save single sqw object
 %
 wout = []; % Target sqw object
-targ_filepath = []; %filepath of the target sqw object
+[targ_filepath,~,fe] = fileparts(filename); %filepath of the target sqw object
 if return_result
     if make_tmp
         target_is_tmp  = true;
     else
-        [targ_filepath,~,fe] = fileparts(filename);
         target_is_tmp = strncmp(fe,'.tmp',4);
     end
 else
