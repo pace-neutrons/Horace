@@ -34,4 +34,5 @@ for i=1:numel(w)
         wout(i) = IX_dataset_2d (title_squeeze(title_main), signal, err,...
             s_axis, w(i).p{1}, axis_1, true, w(i).p{2}, axis_2, true);
     end
+    wout(i).obj_holder_ = w(i).obj_holder_l;
 end

@@ -32,6 +32,9 @@ classdef hor_config < config_base
     %   use_mex           - Use mex files for time-consuming operation, if available
     %   delete_tmp        - Automatically delete temporary files after generating sqw files
     %   working_directory - The folder to write tmp files.
+    %   store_src_in_plots
+    %                     - if True, each figure stores in fig.UserData
+    %                       field list of objects, the figure displays.
     %   --
     %   hpc_config        - helper/compatibility property to access high
     %                       performance computing settings. Use "hpc_config"
@@ -96,6 +99,9 @@ classdef hor_config < config_base
         % directory)
         working_directory;
 
+        % if true, plotted figures contain in their fig.UserData field list
+        % of object the figure displays
+        store_src_in_plots;
         % testing and debugging option -- fail if mex can not be used
         % By default if mex file fails, program tries to use Matlab, but
         % if this option is set to true, the whole operation may fail.
@@ -154,6 +160,7 @@ classdef hor_config < config_base
 
         force_mex_if_use_mex_ = false;
         log_level_ = 1;
+        store_src_in_plots_ = true;
         init_tests_ = false;
         spe_file_en_transf_field_width_ = 10;
     end
@@ -168,6 +175,7 @@ classdef hor_config < config_base
             'ignore_inf', ...
             'use_mex',...
             'delete_tmp', ...
+            'store_src_in_plots',...
             'force_mex_if_use_mex', ...
             'log_level', ...
             'init_tests'}
@@ -214,6 +222,10 @@ classdef hor_config < config_base
             use = get_or_restore_field(obj,'use_mex');
         end
 
+        function do = get.store_src_in_plots(obj)
+            do = get_or_restore_field(obj,'store_src_in_plots');
+        end
+
         function force = get.force_mex_if_use_mex(obj)
             force = get_or_restore_field(obj,'force_mex_if_use_mex');
         end
@@ -251,7 +263,7 @@ classdef hor_config < config_base
         function parcc = get.parallel_config(~)
             parcc = parallel_config();
         end
-        
+
 
         %-----------------------------------------------------------------
         % overloaded setters
@@ -324,7 +336,7 @@ classdef hor_config < config_base
                     config_store.instance().store_config('hpc_config','combine_sqw_using','matlab');
                 end
                 if ~can_use_custom_mpi
-                    pc = parallel_config;
+                    pc = parallel_config();
                     if ismember(pc.parallel_cluster,{'mpiexec_mpi','slurm_mpi'})
                         pc.parallel_cluster = 'herbert';
                     end
@@ -332,7 +344,6 @@ classdef hor_config < config_base
 
             end
             config_store.instance().store_config(obj,'use_mex',use);
-
         end
 
         function obj=set.init_tests(obj,val)
@@ -352,9 +363,14 @@ classdef hor_config < config_base
             del = val>0;
             config_store.instance().store_config(obj,'delete_tmp',del);
         end
+        function obj = set.store_src_in_plots(obj,val)
+            do = val>0;
+            config_store.instance().store_config(obj,'store_src_in_plots',do);
+        end
+
 
         function obj = set.working_directory(obj,val)
-            hc = parallel_config;
+            hc = parallel_config();
             hc.working_directory = val;
         end
 

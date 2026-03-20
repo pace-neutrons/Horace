@@ -23,16 +23,18 @@ classdef (Abstract=true) data_plot_interface
     % inherits a similar plot interface class, sqw_plot_interface, which also
     % inherits data_plot_interface and defines particular implementations of the
     % plot methods as defined for d1d, d2d and d3d objects.
-    
-    properties
+
+    properties(Access=protected)
+        obj_holder_ = []; % internal property which stores top level object
+        % to plot;
     end
-    
+
     methods(Abstract)
         % This method is needed to enable the generic plot and plot_over methods
         % to work
         nd = dimensions();
     end
-    
+
     %---------------------------------------------------------------------------
     % Plotting methods
     %---------------------------------------------------------------------------
@@ -67,7 +69,7 @@ classdef (Abstract=true) data_plot_interface
             % objects.
             varargout = throw_unavailable_(w, 'dp', varargin{:});
         end
-        
+
         %-----------------------------------------------------------------------
         % OVERPLOT
         function varargout = pd(w, varargin)
@@ -136,8 +138,8 @@ classdef (Abstract=true) data_plot_interface
             % Fails if dataset to overplot is missing.
             varargout = throw_unavailable_(w, 'ppoc', varargin{:});
         end
-        
-        
+
+
         %-----------------------------------------------------------------------
         % 2D plotting functions
         %-----------------------------------------------------------------------
@@ -156,7 +158,7 @@ classdef (Abstract=true) data_plot_interface
             % plot or plots colour scale.
             varargout = throw_unavailable_(w, 'ds2', varargin{:});
         end
-        
+
         %-----------------------------------------------------------------------
         % OVERPLOT
         function varargout = pa(w, varargin)
@@ -192,8 +194,8 @@ classdef (Abstract=true) data_plot_interface
             % Fails if dataset to overplot is missing.
             varargout = throw_unavailable_(w, 'ps2oc', varargin{:});
         end
-        
-        
+
+
         %-----------------------------------------------------------------------
         % 3D plotting functions
         %-----------------------------------------------------------------------
@@ -201,14 +203,14 @@ classdef (Abstract=true) data_plot_interface
             % Plots 3D object using sliceomatic.
             varargout = throw_unavailable_(w, 'sliceomatic', varargin{:});
         end
-        
+
         function varargout = sliceomatic_overview(w, varargin)
             % Plots 3D object using sliceomatic with the view straight down one
             % of the axes.
             varargout = throw_unavailable_(w,'sliceomatic_overview', varargin{:});
         end
-        
-        
+
+
         %-----------------------------------------------------------------------
         % Generic plotting interfaces for N-D objects
         %-----------------------------------------------------------------------
@@ -239,9 +241,9 @@ classdef (Abstract=true) data_plot_interface
             %
             %   >> sliceomatic(w)       % 3D dataset
             %   >> sliceomatic(w, ...)
-            
+
             nd = w(1).dimensions();
-            
+
             varargout = cell(1, nargout);   % output only if requested
             switch nd
                 case 1
@@ -256,7 +258,7 @@ classdef (Abstract=true) data_plot_interface
                         '%d-dimensional objects'], nd)
             end
         end
-        
+
         function varargout = plotover(w,varargin)
             % Overplot a 1D, 2D or 3D object or array of objects on an existing plot
             %
@@ -276,9 +278,9 @@ classdef (Abstract=true) data_plot_interface
             %
             %   >> pa(w)                % 2D dataset
             %   >> pa(w,...)
-            
+
             nd = w(1).dimensions();
-            
+
             varargout = cell(1, nargout);   % output only if requested
             switch nd
                 case 1

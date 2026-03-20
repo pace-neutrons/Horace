@@ -114,7 +114,9 @@ plot_data = sliceomatic(ux, uy, uz, signal, xcaption, ycaption, zcaption, ...
 % Return the figure to being a genie_figure.
 % Sliceomatic resets the figure window which removes the 'keep' / 'make current'
 % menu items and resets all the figure properties.
-genie_figure_create(gcf, fig_name)
+fh = gcf;
+genie_figure_create(fh, fig_name)
+fh.UserData = w.obj_holder_;
 
 % Resize the box containing the data
 set(gca, 'Position', [0.2, 0.2, 0.6, 0.6]); 

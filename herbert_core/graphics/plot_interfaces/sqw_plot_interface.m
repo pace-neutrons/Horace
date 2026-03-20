@@ -34,7 +34,6 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
             %
             % Return figure, axes and plot handles:
             %   >> [fig_handle, axes_handle, plot_handle] = dd(w,...)
-            
             data = sqw_plot_interface.convert_to_dnd(w);
             varargout = cell(1, nargout);   % output only if requested
             [varargout{:}] = dd(data, varargin{:});
@@ -621,6 +620,9 @@ classdef (Abstract=true) sqw_plot_interface < data_plot_interface
                 error('HORACE:graphics:invalid_argument', ...
                     ['Cannot plot an array of sqw objects with different ', ...
                     'images dimensionality'])
+            end
+            for i=1:numel(w)
+                data(i).obj_holder_ = w(i);
             end
         end
     end

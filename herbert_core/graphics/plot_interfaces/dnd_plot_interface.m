@@ -48,7 +48,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dd')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'dd');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -72,7 +72,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'de')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'de');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -96,7 +96,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dh')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'dh');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -119,7 +119,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dl')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'dl');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -143,7 +143,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dm')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'dm');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -168,7 +168,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'dp')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'dp');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -195,7 +195,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pd')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'pd');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -215,7 +215,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pdoc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'pdoc');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -239,7 +239,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pe')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'pe');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -259,7 +259,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'peoc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'peoc');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -283,7 +283,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ph')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'ph');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -303,7 +303,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'phoc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'phoc');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -326,7 +326,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pl')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'pl');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -345,7 +345,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ploc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'ploc');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -368,7 +368,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pm')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'pm');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -387,7 +387,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pmoc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'pmoc');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -411,7 +411,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pp')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'pp');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -431,7 +431,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 1;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ppoc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'ppoc');
 
             genieplot.set('default_fig_name', 'Horace 1D plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -463,7 +463,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'da')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'da');
 
             genieplot.set('default_fig_name', 'Horace area plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -496,7 +496,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ds')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'ds');
 
             genieplot.set('default_fig_name', 'Horace surface plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -544,7 +544,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ds2')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'ds2');
 
             genieplot.set('default_fig_name', 'Horace surface plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -574,7 +574,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'pa')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'pa');
 
             genieplot.set('default_fig_name', 'Horace area plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -594,7 +594,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'poc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'poc');
 
             genieplot.set('default_fig_name', 'Horace area plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -617,7 +617,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps');
 
             genieplot.set('default_fig_name', 'Horace surface plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -637,7 +637,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'psoc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'psoc');
 
             genieplot.set('default_fig_name', 'Horace surface plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -662,7 +662,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps2')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps2');
 
             genieplot.set('default_fig_name', 'Horace surface plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -697,7 +697,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 2;
             scalar_only = false;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps2oc')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'ps2oc');
 
             genieplot.set('default_fig_name', 'Horace surface plot');
             cleanup = onCleanup(@()genieplot.set('default_fig_name', []));
@@ -741,7 +741,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 3;
             scalar_only = true;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'sliceomatic')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'sliceomatic');
 
             [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});
             
@@ -794,7 +794,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
             
             ndim = 3;
             scalar_only = true;
-            dnd_plot_interface.check_data (w, ndim, scalar_only, 'sliceomatic')
+            w = dnd_plot_interface.check_data (w, ndim, scalar_only, 'sliceomatic');
             
             [args, adjust_aspect] = dnd_plot_interface.strip_aspect_option(varargin{:});
             
@@ -826,7 +826,7 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
         % being called, with all the possible hard to track errors that may
         % occur.
         %-----------------------------------------------------------------------
-        function check_data (w, ndim, scalar_only, func_name)
+        function w = check_data (w, ndim, scalar_only, func_name)
             % Check that the incoming data has the correct dimensionality, and
             % print an error message if not.
             %
@@ -851,6 +851,9 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
                 end
                 error('HORACE:graphics:invalid_argument', ...
                     ['Plot method ''', func_name, ''' only works for ', string], ndim)
+            end
+            if isempty(w.obj_holder_)
+                w.obj_holder_ = w;
             end
             
         end

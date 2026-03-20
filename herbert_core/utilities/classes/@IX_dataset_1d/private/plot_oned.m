@@ -235,3 +235,18 @@ end
 
 % Get figure, axes and plot handles
 [fig_h, axes_h, plot_h] = genie_figure_all_handles;
+
+if config_store.instance().get_value('hor_config','store_src_in_plots')
+    parent_obj = w.obj_holder_;
+    if isempty(parent_obj)
+        parent_obj = w;
+    end
+    if isempty(fig_h.UserData)
+        fig_h.UserData = parent_obj;
+    elseif iscell(fig_h.UserData)
+        fig_h.UserData{end+1} = parent_obj;
+    else
+        fig_h.UserData = {fig_h.UserData,[]};
+        fig_h.UserData{2} = parent_obj;
+    end
+end
