@@ -123,11 +123,12 @@ function wout = save_one(w,filename,assume_updated,return_result,clear_source,ma
 % save single sqw object
 %
 wout = []; % Target sqw object
+targ_filepath = []; %filepath of the target sqw object
 if return_result
     if make_tmp
         target_is_tmp  = true;
     else
-        [~,~,fe] = fileparts(filename);
+        [targ_filepath,~,fe] = fileparts(filename);
         target_is_tmp = strncmp(fe,'.tmp',4);
     end
 else
@@ -170,6 +171,10 @@ if w.is_filebacked && (assume_updated || ...
     end
     w = w.deactivate();
     del_memmapfile_files(filename);
+    if isempty(targ_filepath)
+        source_filepath = fileparts(w.pix.full_filename);
+        filename = fullfile(source_filepath,filename);
+    end
     movefile(w.pix.full_filename,filename,'f');
     ldw = ldw.init(filename);
     if target_is_tmp
