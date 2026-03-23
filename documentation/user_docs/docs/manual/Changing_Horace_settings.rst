@@ -37,6 +37,9 @@ All configurations have the following settings:
 - ``config_folder``: Folder where configurations are stored for reloading for
   new Matlab sessions.
 
+
+.. _hor_config_settings:
+
 Horace Config
 =============
 
@@ -58,6 +61,7 @@ functionality and ``parallel_config`` to control the parameters of parallel jobs
                   use_mex: 1
                delete_tmp: 1
         working_directory: '/temp/Horace_4.0.0.f2f508726'
+       store_src_in_plots: 1
      force_mex_if_use_mex: 0
                hpc_config: [1×1 hpc_config]
           parallel_config: [1×1 parallel_config]
@@ -95,6 +99,9 @@ functionality and ``parallel_config`` to control the parameters of parallel jobs
 - ``delete_tmp`` : Whether to automatically delete temporary files after
   generating SQW files.
 - ``working_directory`` : The directory to which temporary files are written
+- ``store_src_in_plots`` : if true (default) all Horace objects are attached to the figures displaying these objects. 
+  ``src`` command then may be applied to an image to provide this object back to user. If you set this property to false,
+  objects become not available any more. (Advanced) : Reference to the plotted object is stored in MATLAB's  ``fig.UserData`` property.
 - ``hpc_config`` : Reference to the HPC configuration (:ref:`see below <HPC config>`:)
 - ``parallel_config`` : Reference to the settings to run parallel jobs (:ref:`see below <Parallel Config>`:)
 
