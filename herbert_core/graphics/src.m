@@ -31,6 +31,6 @@ if iscell(obj)
     class_name = class(obj{1});
     all_same_class = all(cellfun(@(x)isa(x,class_name),obj));
     if all_same_class
-        obj = cell2arr(obj,true);
+        obj = [obj{:}];
     end
 end

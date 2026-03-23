@@ -852,10 +852,11 @@ classdef (Abstract=true) dnd_plot_interface < data_plot_interface
                 error('HORACE:graphics:invalid_argument', ...
                     ['Plot method ''', func_name, ''' only works for ', string], ndim)
             end
-            if isempty(w.obj_holder_)
-                w.obj_holder_ = w;
-            end
-            
+            for i=1:numel(w)
+                if isempty(w(i).obj_holder_)
+                    w(i).obj_holder_ = w(i);
+                end
+            end           
         end
         
         %-----------------------------------------------------------------------

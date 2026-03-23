@@ -167,17 +167,16 @@ classdef test_plot_sqw < TestCase
                 [fig_h, axes_h, plot_h] = meth(obj.data2D);
                 assertEqual(numel(fig_h.UserData),numel(plot_h));
                 if isscalar(plot_h)
-                  assertEqualToTol(fig_h.UserData,obj.data2D);                    
+                    assertEqualToTol(fig_h.UserData,obj.data2D);
                 else
-                  assertEqualToTol(fig_h.UserData{end},obj.data2D);
+                    assertEqualToTol(fig_h.UserData{end},obj.data2D);
+                    assertEqual(numel(fig_h.UserData),numel(plot_h));
                 end
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h, 'matlab.graphics.primitive.Data'));
             end
         end
-
-
 
         %------------------------------------------------------------------
         function test_sqw2D_other_plot_methods_throw(obj)
@@ -217,13 +216,14 @@ classdef test_plot_sqw < TestCase
                 meth = methods{i};
                 [fig_h, axes_h, plot_h] = meth(data2D_arr);
                 all_fig_h = findobj(groot,'Type','Figure');
-                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isscalar(all_fig_h),'Did not overplot only')
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
                 assertEqual(numel(fig_h),1);
                 assertEqual(numel(axes_h),1);
                 assertEqual(numel(plot_h),2);
+                assertEqualToTol([fig_h.UserData{:}],data2D_arr);
             end
         end
 
@@ -252,6 +252,11 @@ classdef test_plot_sqw < TestCase
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                if numel(plot_h) > 1
+                    assertEqualToTol(fig_h.UserData{end},obj.data1D);
+                else
+                    assertEqualToTol(fig_h.UserData,obj.data1D);
+                end
             end
         end
 
@@ -300,9 +305,26 @@ classdef test_plot_sqw < TestCase
                 assertEqual(numel(fig_h),1);
                 assertEqual(numel(axes_h),1);
                 assertEqual(numel(plot_h),2);
+                assertEqualToTol([fig_h.UserData{:}],data1D_arr);
             end
         end
 
+        %------------------------------------------------------------------
+        function test_src_two_obj(obj)
+            clear_figures();
+            cleanupObj = onCleanup(@clear_figures);
+            plot(obj.data1D);
+            plotover(2*obj.data1D);
+            res = src(1);
+            assertEqual(res,[obj.data1D,2*obj.data1D]);
+        end
+        function test_src_one_obj(obj)
+            clear_figures();
+            cleanupObj = onCleanup(@clear_figures);
+            plot(obj.data1D);
+            res = src(1);
+            assertEqual(res,obj.data1D);
+        end
         %------------------------------------------------------------------
     end
 end

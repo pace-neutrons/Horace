@@ -112,7 +112,7 @@ elseif is_string(fig) || (iscell(fig) && all(cellfun(@is_string, fig(:))))
         fig = {fig};    % for convenience of code simplicity
     end
     fig = strtrim(fig); % strim leading and trailing whitespace
-    if numel(fig)==1 && numel(fig{1})>2 && strncmpi(fig{1}, '-all', numel(fig{1}))
+    if isscalar(fig) && numel(fig{1})>2 && strncmpi(fig{1}, '-all', numel(fig{1}))
         % Return handles for all figures
         fig_handle = findobj(0, 'Type', 'figure');
     else

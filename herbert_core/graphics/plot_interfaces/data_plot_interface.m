@@ -293,6 +293,50 @@ classdef (Abstract=true) data_plot_interface
                         '%d-dimensional objects'], nd)
             end
         end
+
+        function fig_h = add_source_data_to_fig_handle(obj,fig_h,new_axes)
+            % Add source data present in obj.obj_holder_ property to
+            % the input figure.
+            % Inputs:
+            % obj   -- an instance of object inheriting from data_plot_iterface
+            % fig_h -- MATLAB graphics handle
+            % new_axes
+            %       -- true:  plot new data, so previous source
+            %                 should be ignorted
+            %          false: Overplot on existing axes on the target figure,
+            %                 if they are available, so previous source is
+            %                 kept
+            %
+            % Result:
+            % fig_h -- input graphic handle with fig_h.UserData property
+            %          modified to contain information, stored in
+            %          obj.obj_holder_ property.
+            %
+            if config_store.instance().get_value('hor_config','store_src_in_plots')
+                if isa(obj,'IX_dataset')
+                    if numel(obj)>1
+                        src = num2cell(obj);
+                    else
+                        src = obj;
+                    end                    
+                else
+                    if numel(obj)>1
+                        src = arrayfun(@(x)(x.obj_holder_),obj,'UniformOutput',false);
+                    else
+                        src = obj.obj_holder_;
+                    end
+                end                
+                if isempty(fig_h.UserData)
+                    fig_h.UserData = src;
+                else
+                    if new_axes
+                        fig_h.UserData = src;
+                    else
+                        fig_h.UserData = concat_cells_(fig_h.UserData,src);
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -300,9 +344,18 @@ end
 %---------------------------------------------------------------------------
 % Utility functions
 %---------------------------------------------------------------------------
+function data = concat_cells_(data,src)
+% input data is always cell
+if ~iscell(src)
+    src = {src};
+end
+if ~iscell(data)
+    data = {data};
+end
+data = [data(:);src(:)]';
+end
 function varargout = throw_unavailable_(obj, method, varargin)
 % Throw method unavailable
-varargout = cell(1, nargout);   % output only if requested
 error(['HORACE:',class(obj),':invalid_argument'],...
     'Method ''%s'' is not available for objects of class ''%s''', ...
     method, class(obj))

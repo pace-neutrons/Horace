@@ -165,11 +165,11 @@ function equal_to_tol_private(a,b,opt,present)
 [a,b] = convertStringsToChars(a,b);
 [is,mess] = eq_to_tol_type_equal(a,b,opt.name_a,opt.name_b);
 if ~is
-     error('HERBERT:equal_to_tol:inputs_mismatch',mess);
+    error('HERBERT:equal_to_tol:inputs_mismatch',mess);
 end
 [is,mess] = eq_to_tol_shape_equal(a,b,opt.name_a,opt.name_b,opt.ignore_str);
 if ~is
-     error('HERBERT:equal_to_tol:inputs_mismatch',mess);
+    error('HERBERT:equal_to_tol:inputs_mismatch',mess);
 end
 if opt.ignore_str && (iscellstr(a)||ischar(a)) && (iscellstr(b)||ischar(b))
     % Case of strings and cell array of strings if they are to be ignored
@@ -488,11 +488,24 @@ elseif abs_tol == 0
 
 else
     diff = abs(a-b);
+    rldf = rel_diff(a,b,diff);
     [max_delta_abs, ind_abs] = max(diff);
-    [max_delta_rel, ind_rel] = max(diff./max(abs(a),abs(b)));
+    [max_delta_rel, ind_rel] = max(rldf);
 
     if max_delta_abs > abs_tol && max_delta_rel > rel_tol
         % Absolute or relative tolerance must be satisfied
+        if ind_abs ~= ind_rel
+            accepted = (rldf < rel_tol | diff < abs_tol);
+            if ~all(accepted(:))
+                error('HERBERT:equal_to_tol:inputs_mismatch',[...
+                    '%s and %s: Relative and absolute tolerance failure:\n' ...
+                    ' max. error = %s (absolute) at element %s\n' ...
+                    ' max. error = %s (relative) at element %s'],...
+                    name_a,name_b, ...
+                    num2str(max_delta_abs),['(',arraystr(sz,ind_abs),')'], ...
+                    num2str(max_delta_rel),['(',arraystr(sz,ind_rel),')']);
+            end
+        end
         if max_delta_rel/rel_tol > max_delta_abs/abs_tol
             error('HERBERT:equal_to_tol:inputs_mismatch',...
                 '%s and %s: Relative and absolute tolerance failure; max. error = %s (relative) at element %s',...
@@ -523,8 +536,12 @@ end
 
 end
 
-function rel = rel_diff(a, b)
+function rel = rel_diff(a, b,diff)
 
-rel = abs(a-b)./max(abs(a),abs(b));
+if nargin == 2
+    rel = abs(a-b)./max(abs(a),abs(b));
+else
+    rel = diff./max(abs(a),abs(b));
+end
 
 end

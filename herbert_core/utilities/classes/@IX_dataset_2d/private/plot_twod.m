@@ -293,21 +293,4 @@ end
 % Get figure, axes and plot handles
 [fig_h, axes_h, plot_h] = genie_figure_all_handles;
 
-if config_store.instance().get_value('hor_config','store_src_in_plots')
-    if isempty(fig_h.UserData)
-        fig_h.UserData = w.obj_holder_;
-    elseif iscell(fig_h.UserData)
-        if new_axes
-            fig_h.UserData = w.obj_holder_;
-        else
-            fig_h.UserData{end+1} = w.obj_holder_;
-        end
-    else
-        if new_axes
-            fig_h.UserData = w.obj_holder_;
-        else
-            fig_h.UserData = {fig_h.UserData,[]};
-            fig_h.UserData{2} = w.obj_holder_;
-        end
-    end
-end
+fig_h = w.add_source_data_to_fig_handle(fig_h,new_axes);
