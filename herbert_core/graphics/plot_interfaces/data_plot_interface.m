@@ -312,30 +312,37 @@ classdef (Abstract=true) data_plot_interface
             %          modified to contain information, stored in
             %          obj.obj_holder_ property.
             %
-            if config_store.instance().get_value('hor_config','store_src_in_plots')
-                if isa(obj,'IX_dataset')
-                    if numel(obj)>1
-                        src = num2cell(obj);
+            if ~config_store.instance().get_value('hor_config','store_src_in_plots')
+                return
+            end
+            % if source was not set on top level, it is set at
+            % IX_dataset level
+            if numel(obj)>1
+                src = cell(1,numel(obj));
+                for i=1:numel(obj)
+                    if isempty(obj(i).obj_holder_)
+                        src{i} = obj(i);
                     else
-                        src = obj;
-                    end                    
-                else
-                    if numel(obj)>1
-                        src = arrayfun(@(x)(x.obj_holder_),obj,'UniformOutput',false);
-                    else
-                        src = obj.obj_holder_;
-                    end
-                end                
-                if isempty(fig_h.UserData)
-                    fig_h.UserData = src;
-                else
-                    if new_axes
-                        fig_h.UserData = src;
-                    else
-                        fig_h.UserData = concat_cells_(fig_h.UserData,src);
+                        src{i} = obj(i).obj_holder_;
                     end
                 end
+            else
+                src = obj.obj_holder_;
+                if isempty(src)
+                    src = obj;
+                end
             end
+            % store source data in figure field
+            if isempty(fig_h.UserData)
+                fig_h.UserData = src;
+            else
+                if new_axes
+                    fig_h.UserData = src;
+                else
+                    fig_h.UserData = concat_cells_(fig_h.UserData,src);
+                end
+            end
+
         end
     end
 end

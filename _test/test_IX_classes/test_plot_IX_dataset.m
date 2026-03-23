@@ -794,7 +794,7 @@ classdef test_plot_IX_dataset < TestCase
                 assertEqual(numel(fig_h),1);
                 assertEqual(numel(axes_h),1);
                 assertEqual(numel(plot_h),3);   % original and two overplotted
-                assertEqualToTol([fig_h.UserData{:}],data2D_arr);
+                assertEqualToTol([fig_h.UserData{:}],[0.5*obj.data1D,data1D_arr]);
             end
         end
 
