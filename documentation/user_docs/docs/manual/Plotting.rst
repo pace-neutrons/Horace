@@ -591,8 +591,30 @@ e.g. following a spin wave dispersion ring/cone as a function of energy.
 
 
 Miscellaneous functions
------------------------
+=======================
 
-``meta(fig)`` allows you to copy the figure into a metafile. On Windows, this
-function puts the file in the clipboard so that it can be pasted directly into
-Word, Powerpoint etc.
+-- ``meta(fig)`` allows you to copy the figure into a metafile.
+   On Windows, this function puts the file in the clipboard so that it can be pasted directly into
+   Word, Powerpoint etc.
+
+-- ``genieplot``  is a singleton, which describes common settings (configuration) used in Horace plots.
+
+-- ``genieplot.instance()`` gives one access to the settings common to all Horace figures.
+   The result behaves similarly to the properties of MATLAB ``figure`` classes, but is applied for all
+   figures plotted after the change.
+
+    See :ref:`geneplot_settings` to get more details about Horace graphics configurations. 
+
+-- ``src(fig)``. If you plotted an object and want to return the object, used as the source of the figure,
+   you may use ``src`` command:
+
+:: 
+
+    >>source = src(fig);
+    or
+    >>source = src(figure_number);
+    
+This command returns you the Horace object (``sqw``, ``dnd`` or ``IX_dataset_nD``) used as the source of the plot. The possibility to store references to objects in figures
+is configured by :ref:`Horace Configuration Settings <hor_config_settings>` property 
+``store_src_in_plots``.  If your machine has very limited memory, you may want set this property to ``false`` so this option becomes unavailable and you may delete your resulting
+objects immediately after they were plotted. 
