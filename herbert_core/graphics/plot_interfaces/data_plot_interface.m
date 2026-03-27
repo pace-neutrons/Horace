@@ -23,16 +23,18 @@ classdef (Abstract=true) data_plot_interface
     % inherits a similar plot interface class, sqw_plot_interface, which also
     % inherits data_plot_interface and defines particular implementations of the
     % plot methods as defined for d1d, d2d and d3d objects.
-    
-    properties
+
+    properties(Access=protected)
+        obj_holder_ = []; % internal property which stores top level object
+        % to attach to the plotted figure
     end
-    
+
     methods(Abstract)
         % This method is needed to enable the generic plot and plot_over methods
         % to work
         nd = dimensions();
     end
-    
+
     %---------------------------------------------------------------------------
     % Plotting methods
     %---------------------------------------------------------------------------
@@ -67,7 +69,7 @@ classdef (Abstract=true) data_plot_interface
             % objects.
             varargout = throw_unavailable_(w, 'dp', varargin{:});
         end
-        
+
         %-----------------------------------------------------------------------
         % OVERPLOT
         function varargout = pd(w, varargin)
@@ -136,8 +138,8 @@ classdef (Abstract=true) data_plot_interface
             % Fails if dataset to overplot is missing.
             varargout = throw_unavailable_(w, 'ppoc', varargin{:});
         end
-        
-        
+
+
         %-----------------------------------------------------------------------
         % 2D plotting functions
         %-----------------------------------------------------------------------
@@ -156,7 +158,7 @@ classdef (Abstract=true) data_plot_interface
             % plot or plots colour scale.
             varargout = throw_unavailable_(w, 'ds2', varargin{:});
         end
-        
+
         %-----------------------------------------------------------------------
         % OVERPLOT
         function varargout = pa(w, varargin)
@@ -192,8 +194,8 @@ classdef (Abstract=true) data_plot_interface
             % Fails if dataset to overplot is missing.
             varargout = throw_unavailable_(w, 'ps2oc', varargin{:});
         end
-        
-        
+
+
         %-----------------------------------------------------------------------
         % 3D plotting functions
         %-----------------------------------------------------------------------
@@ -201,14 +203,14 @@ classdef (Abstract=true) data_plot_interface
             % Plots 3D object using sliceomatic.
             varargout = throw_unavailable_(w, 'sliceomatic', varargin{:});
         end
-        
+
         function varargout = sliceomatic_overview(w, varargin)
             % Plots 3D object using sliceomatic with the view straight down one
             % of the axes.
             varargout = throw_unavailable_(w,'sliceomatic_overview', varargin{:});
         end
-        
-        
+
+
         %-----------------------------------------------------------------------
         % Generic plotting interfaces for N-D objects
         %-----------------------------------------------------------------------
@@ -239,9 +241,9 @@ classdef (Abstract=true) data_plot_interface
             %
             %   >> sliceomatic(w)       % 3D dataset
             %   >> sliceomatic(w, ...)
-            
+
             nd = w(1).dimensions();
-            
+
             varargout = cell(1, nargout);   % output only if requested
             switch nd
                 case 1
@@ -256,7 +258,7 @@ classdef (Abstract=true) data_plot_interface
                         '%d-dimensional objects'], nd)
             end
         end
-        
+
         function varargout = plotover(w,varargin)
             % Overplot a 1D, 2D or 3D object or array of objects on an existing plot
             %
@@ -276,9 +278,9 @@ classdef (Abstract=true) data_plot_interface
             %
             %   >> pa(w)                % 2D dataset
             %   >> pa(w,...)
-            
+
             nd = w(1).dimensions();
-            
+
             varargout = cell(1, nargout);   % output only if requested
             switch nd
                 case 1
@@ -291,6 +293,57 @@ classdef (Abstract=true) data_plot_interface
                         '%d-dimensional objects'], nd)
             end
         end
+
+        function fig_h = add_source_data_to_fig_handle(obj,fig_h,new_axes)
+            % Add source data present in obj.obj_holder_ property to
+            % the input figure.
+            % Inputs:
+            % obj   -- an instance of object inheriting from data_plot_iterface
+            % fig_h -- MATLAB graphics handle
+            % new_axes
+            %       -- true:  plot new data, so previous source
+            %                 should be ignorted
+            %          false: Overplot on existing axes on the target figure,
+            %                 if they are available, so previous source is
+            %                 kept
+            %
+            % Result:
+            % fig_h -- input graphic handle with fig_h.UserData property
+            %          modified to contain information, stored in
+            %          obj.obj_holder_ property.
+            %
+            if ~config_store.instance().get_value('hor_config','store_src_in_plots')
+                return
+            end
+            % if source was not set on top level, it is set at
+            % IX_dataset level
+            if numel(obj)>1
+                src = cell(1,numel(obj));
+                for i=1:numel(obj)
+                    if isempty(obj(i).obj_holder_)
+                        src{i} = obj(i);
+                    else
+                        src{i} = obj(i).obj_holder_;
+                    end
+                end
+            else
+                src = obj.obj_holder_;
+                if isempty(src)
+                    src = obj;
+                end
+            end
+            % store source data in figure field
+            if isempty(fig_h.UserData)
+                fig_h.UserData = src;
+            else
+                if new_axes
+                    fig_h.UserData = src;
+                else
+                    fig_h.UserData = concat_cells_(fig_h.UserData,src);
+                end
+            end
+
+        end
     end
 end
 
@@ -298,9 +351,18 @@ end
 %---------------------------------------------------------------------------
 % Utility functions
 %---------------------------------------------------------------------------
+function data = concat_cells_(data,src)
+% input data is always cell
+if ~iscell(src)
+    src = {src};
+end
+if ~iscell(data)
+    data = {data};
+end
+data = [data(:);src(:)]';
+end
 function varargout = throw_unavailable_(obj, method, varargin)
 % Throw method unavailable
-varargout = cell(1, nargout);   % output only if requested
 error(['HORACE:',class(obj),':invalid_argument'],...
     'Method ''%s'' is not available for objects of class ''%s''', ...
     method, class(obj))

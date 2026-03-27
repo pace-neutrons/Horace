@@ -42,5 +42,6 @@ for i=1:numel(w)
     wout(i) = IX_dataset_3d (title_squeeze(title_main), signal, err, s_axis,...
         p{1}, axis_1, true, p{2}, axis_2, true, p{3}, axis_3, true);
 
+    wout(i).obj_holder_ = w(i).obj_holder_;
 end
 wout=reshape(wout,size(w));

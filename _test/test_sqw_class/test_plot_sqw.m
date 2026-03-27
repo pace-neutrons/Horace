@@ -11,7 +11,7 @@ classdef test_plot_sqw < TestCase
     methods
         function obj = test_plot_sqw(varargin)
             obj = obj@TestCase('test_plot_sqw');
-            
+
             % Load example 1D, 2D, 3D, 4D sqw objects
             hp = horace_paths().test_common;    % common data location
 
@@ -19,7 +19,7 @@ classdef test_plot_sqw < TestCase
             sqw_2d_file = fullfile(hp, 'sqw_2d_1.sqw');
             sqw_3d_file = fullfile(hp, 'w3d_sqw.sqw');
             sqw_4d_file = fullfile(hp, 'sqw_4d.sqw');
-            
+
             obj.data1D = read_sqw(sqw_1d_file);
             obj.data2D = read_sqw(sqw_2d_file);
             obj.data3D = read_sqw(sqw_3d_file);
@@ -51,10 +51,10 @@ classdef test_plot_sqw < TestCase
                     'HORACE:graphics:invalid_argument', ...
                     sprintf('error for method number %d: %s',i, ...
                     func2str(all_methods{i})));
-                end
-                end
+            end
+        end
 
-        
+
         %------------------------------------------------------------------
         % Three-dimensional data
         %------------------------------------------------------------------
@@ -73,6 +73,7 @@ classdef test_plot_sqw < TestCase
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isstruct(plot_h));
+                assertTrue(isa(fig_h.UserData,'sqw'))
                 if i>1  % Must have cleared existing figure window and reused it
                     assertTrue(fig_h==fig_h_ref);
                 else
@@ -121,8 +122,8 @@ classdef test_plot_sqw < TestCase
                     'HORACE:graphics:invalid_argument', ...
                     sprintf('error for method number %d: %s',i, ...
                     func2str(methods{i})));
-                end
             end
+        end
 
 
         %------------------------------------------------------------------
@@ -135,19 +136,47 @@ classdef test_plot_sqw < TestCase
 
             T = obj.interface_tester;
             methods = [...
-                T.methodsND_plot(:); T.methods2D_plot(:); ...
-                T.methodsND_plotOver(:); T.methods2D_plotOver(:); ...
-                T.methods2D_plotOverCurr(:)];
+                T.methodsND_plot(:); T.methods2D_plot(:)];
 
             clear_figures()
             for i=1:numel(methods)
                 meth = methods{i};
                 [fig_h, axes_h, plot_h] = meth(obj.data2D);
+                assertEqualToTol(fig_h.UserData,obj.data2D);
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h, 'matlab.graphics.primitive.Data'));
-                end
             end
+        end
+
+        function test_sqw2D_overplot2D_methods_work(obj)
+            % Test all 2D plot methods produce a figure
+            genieplot.reset
+            cleanupObj = onCleanup(@clear_figures);
+
+            T = obj.interface_tester;
+            methods = [
+                T.methodsND_plotOver(:); T.methods2D_plotOver(:); ...
+                T.methods2D_plotOverCurr(:)];
+
+            clear_figures()
+            meth = T.methods2D_plot{1};
+            meth(obj.data2D);
+            for i=1:numel(methods)
+                meth = methods{i};
+                [fig_h, axes_h, plot_h] = meth(obj.data2D);
+                assertEqual(numel(fig_h.UserData),numel(plot_h));
+                if isscalar(plot_h)
+                    assertEqualToTol(fig_h.UserData,obj.data2D);
+                else
+                    assertEqualToTol(fig_h.UserData{end},obj.data2D);
+                    assertEqual(numel(fig_h.UserData),numel(plot_h));
+                end
+                assertTrue(isa(fig_h, 'matlab.ui.Figure'));
+                assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
+                assertTrue(isa(plot_h, 'matlab.graphics.primitive.Data'));
+            end
+        end
 
         %------------------------------------------------------------------
         function test_sqw2D_other_plot_methods_throw(obj)
@@ -187,13 +216,14 @@ classdef test_plot_sqw < TestCase
                 meth = methods{i};
                 [fig_h, axes_h, plot_h] = meth(data2D_arr);
                 all_fig_h = findobj(groot,'Type','Figure');
-                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isscalar(all_fig_h),'Did not overplot only')
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
                 assertEqual(numel(fig_h),1);
                 assertEqual(numel(axes_h),1);
                 assertEqual(numel(plot_h),2);
+                assertEqualToTol([fig_h.UserData{:}],data2D_arr);
             end
         end
 
@@ -222,9 +252,14 @@ classdef test_plot_sqw < TestCase
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                if numel(plot_h) > 1
+                    assertEqualToTol(fig_h.UserData{end},obj.data1D);
+                else
+                    assertEqualToTol(fig_h.UserData,obj.data1D);
                 end
             end
-        
+        end
+
         %------------------------------------------------------------------
         function test_sqw1D_other_plot_methods_throw(obj)
             % Test all plot methods for 2D and 3D throw an error with 1D data
@@ -236,7 +271,7 @@ classdef test_plot_sqw < TestCase
                 T.methods2D_plot(:); T.methods2D_plotOver(:); ...
                 T.methods2D_plotOverCurr(:); ...
                 T.methods3D_plot(:)];
-            
+
             clear_figures()
             for i=1:numel(other_methods)
                 assertExceptionThrown(...
@@ -244,8 +279,8 @@ classdef test_plot_sqw < TestCase
                     'HORACE:graphics:invalid_argument', ...
                     sprintf('error for method number %d: %s',i, ...
                     func2str(other_methods{i})));
-                end
-                end
+            end
+        end
 
         %------------------------------------------------------------------
         function test_sqw1D_plot1D_methods_work_with_array(obj)
@@ -263,19 +298,36 @@ classdef test_plot_sqw < TestCase
                 meth = methods{i};
                 [fig_h, axes_h, plot_h] = meth(data1D_arr);
                 all_fig_h = findobj(groot,'Type','Figure');
-                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isscalar(all_fig_h),'Did not overplot only')
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
                 assertEqual(numel(fig_h),1);
                 assertEqual(numel(axes_h),1);
                 assertEqual(numel(plot_h),2);
-                end
-            end
-
-        %------------------------------------------------------------------
+                assertEqualToTol([fig_h.UserData{:}],data1D_arr);
             end
         end
+
+        %------------------------------------------------------------------
+        function test_src_two_obj(obj)
+            clear_figures();
+            cleanupObj = onCleanup(@clear_figures);
+            plot(obj.data1D);
+            plotover(2*obj.data1D);
+            res = src(1);
+            assertEqual(res,[obj.data1D,2*obj.data1D]);
+        end
+        function test_src_one_obj(obj)
+            clear_figures();
+            cleanupObj = onCleanup(@clear_figures);
+            plot(obj.data1D);
+            res = src(1);
+            assertEqual(res,obj.data1D);
+        end
+        %------------------------------------------------------------------
+    end
+end
 
 
 %--------------------------------------------------------------------------
@@ -286,8 +338,8 @@ function clear_figures
 fig_handles = findobj(0, 'Type', 'figure');
 if ~isempty(fig_handles)
     delete(fig_handles)
-                end
-            end
+end
+end
 
 %--------------------------------------------------------------------------
 function function_caller(function_handle, varargin)
@@ -295,4 +347,4 @@ function function_caller(function_handle, varargin)
 % Wraps the method or function handle so that the call can be run as an argument
 % in e.g. assertErrorThrown within a loop that loops over function handles
 function_handle(varargin{:});
-            end
+end

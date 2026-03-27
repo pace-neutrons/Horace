@@ -43,6 +43,7 @@ classdef IX_dataset_1d < IX_data_1d & data_plot_interface
         %------------------------------------------------------------------
         function obj= IX_dataset_1d(varargin)
             obj = obj@IX_data_1d(varargin{:});
+           
         end
         %------------------------------------------------------------------
         % Actual plotting interface:

@@ -24,6 +24,5 @@ for i=1:numel(wout)
     err(nopix)=0;
 
     wout(i) = IX_dataset_1d (title_squeeze(title_main), signal, err, s_axis, w(i).p{1}, x_axis, true);
+    wout(i).obj_holder_ = w(i).obj_holder_;
 end
-
-

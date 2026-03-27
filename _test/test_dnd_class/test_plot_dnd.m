@@ -11,7 +11,7 @@ classdef test_plot_dnd < TestCase
     methods
         function obj = test_plot_dnd(varargin)
             obj = obj@TestCase('test_plot_sqw');
-            
+
             % Load example 1D, 2D, 3D, 4D sqw objects
             hp = horace_paths().test_common;    % common data location
 
@@ -19,14 +19,14 @@ classdef test_plot_dnd < TestCase
             sqw_2d_file = fullfile(hp, 'sqw_2d_1.sqw');
             sqw_3d_file = fullfile(hp, 'w3d_sqw.sqw');
             sqw_4d_file = fullfile(hp, 'sqw_4d.sqw');
-            
+
             obj.data1D = read_dnd(sqw_1d_file);
             obj.data2D = read_dnd(sqw_2d_file);
-            obj.data3D = read_dnd(sqw_3d_file);   
-            obj.data4D = read_dnd(sqw_4d_file);           
+            obj.data3D = read_dnd(sqw_3d_file);
+            obj.data4D = read_dnd(sqw_4d_file);
         end
 
-        
+
         %------------------------------------------------------------------
         % Spaghetti_plot tests
         %------------------------------------------------------------------
@@ -50,7 +50,7 @@ classdef test_plot_dnd < TestCase
             close(fig_h);
         end
 
-        
+
         %------------------------------------------------------------------
         % Four-dimensional data
         %------------------------------------------------------------------
@@ -58,7 +58,7 @@ classdef test_plot_dnd < TestCase
             % Test all 1D, 2D, 3D plot methods throw an error
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             other_methods = [ ...
                 T.methodsND_plot(:); ...
@@ -77,8 +77,8 @@ classdef test_plot_dnd < TestCase
                     func2str(other_methods{i})));
             end
         end
-        
-        
+
+
         %------------------------------------------------------------------
         % Three-dimensional data
         %------------------------------------------------------------------
@@ -86,10 +86,10 @@ classdef test_plot_dnd < TestCase
             % Test all 3D plot methods produce a figure
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             methods = [T.methodsND_plot(:); T.methods3D_plot(:)];
-            
+
             clear_figures()
             for i=1:numel(methods)
                 meth = methods{i};
@@ -99,7 +99,7 @@ classdef test_plot_dnd < TestCase
                 assertTrue(isstruct(plot_h));
                 if i>1  % Must have cleared existing figure window and reused it
                     assertTrue(fig_h==fig_h_ref);
-                else    
+                else
                     fig_h_ref = fig_h;  % store fig handle first time through loop
                 end
             end
@@ -110,7 +110,7 @@ classdef test_plot_dnd < TestCase
             % Test all plot methods for 1D and 2D throw an error with 3D data
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             other_methods = [ ...
                 T.methods1D_plot(:); T.methods1D_plotOver(:); ...
@@ -127,7 +127,7 @@ classdef test_plot_dnd < TestCase
                     func2str(other_methods{i})));
             end
         end
-        
+
         %------------------------------------------------------------------
         function test_d3d_plot3D_methods_do_not_work_with_array(obj)
             % Test that all 3D 'plot' methods do not plot arrays of data
@@ -147,8 +147,8 @@ classdef test_plot_dnd < TestCase
                     func2str(methods{i})));
             end
         end
-        
-        
+
+
         %------------------------------------------------------------------
         % Two-dimensional data
         %------------------------------------------------------------------
@@ -156,13 +156,13 @@ classdef test_plot_dnd < TestCase
             % Test all 2D plot methods produce a figure
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             methods = [...
                 T.methodsND_plot(:); T.methods2D_plot(:); ...
                 T.methodsND_plotOver(:); T.methods2D_plotOver(:); ...
                 T.methods2D_plotOverCurr(:)];
-            
+
             clear_figures()
             for i=1:numel(methods)
                 meth = methods{i};
@@ -170,6 +170,12 @@ classdef test_plot_dnd < TestCase
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h, 'matlab.graphics.primitive.Data'));
+                if isscalar(plot_h)
+                    assertEqualToTol(fig_h.UserData,obj.data2D);
+                else
+                    assertEqualToTol(fig_h.UserData{end},obj.data2D);
+                    assertEqual(numel(fig_h.UserData),numel(plot_h));
+                end
             end
         end
 
@@ -178,7 +184,7 @@ classdef test_plot_dnd < TestCase
             % Test all plot methods for 1D and 3D throw an error with 2D data
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             other_methods = [ ...
                 T.methods1D_plot(:); T.methods1D_plotOver(:); ...
@@ -194,7 +200,7 @@ classdef test_plot_dnd < TestCase
                     func2str(other_methods{i})));
             end
         end
-        
+
         %------------------------------------------------------------------
         function test_d2d_plot2D_methods_work_with_array(obj)
             % Test that all 2D 'plot' methods plot arrays of data
@@ -211,17 +217,18 @@ classdef test_plot_dnd < TestCase
                 meth = methods{i};
                 [fig_h, axes_h, plot_h] = meth(data2D_arr);
                 all_fig_h = findobj(groot,'Type','Figure');
-                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isscalar(all_fig_h),'Did not overplot only')
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
                 assertEqual(numel(fig_h),1);
                 assertEqual(numel(axes_h),1);
                 assertEqual(numel(plot_h),2);
+                assertEqualToTol([fig_h.UserData{:}],data2D_arr);
             end
         end
-        
-        
+
+
         %------------------------------------------------------------------
         % One-dimensional plot methods
         %------------------------------------------------------------------
@@ -246,21 +253,26 @@ classdef test_plot_dnd < TestCase
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
+                if numel(plot_h) > 1
+                    assertEqualToTol(fig_h.UserData{end},obj.data1D);
+                else
+                    assertEqualToTol(fig_h.UserData,obj.data1D);
+                end
             end
         end
-        
+
         %------------------------------------------------------------------
         function test_d1d_other_plot_methods_throw(obj)
             % Test all plot methods for 2D and 3D throw an error with 1D data
             genieplot.reset
             cleanupObj = onCleanup(@clear_figures);
-            
+
             T = obj.interface_tester;
             other_methods = [ ...
                 T.methods2D_plot(:); T.methods2D_plotOver(:); ...
                 T.methods2D_plotOverCurr(:); ...
                 T.methods3D_plot(:)];
-            
+
             clear_figures()
             for i=1:numel(other_methods)
                 assertExceptionThrown(...
@@ -270,7 +282,7 @@ classdef test_plot_dnd < TestCase
                     func2str(other_methods{i})));
             end
         end
-        
+
         %------------------------------------------------------------------
         function test_d1d_plot1D_methods_work_with_array(obj)
             % Test that all 1D 'plot' methods plot arrays of data
@@ -287,16 +299,33 @@ classdef test_plot_dnd < TestCase
                 meth = methods{i};
                 [fig_h, axes_h, plot_h] = meth(data1D_arr);
                 all_fig_h = findobj(groot,'Type','Figure');
-                assertTrue(numel(all_fig_h)==1,'Did not overplot only')
+                assertTrue(isscalar(all_fig_h),'Did not overplot only')
                 assertTrue(isa(fig_h, 'matlab.ui.Figure'));
                 assertTrue(isa(axes_h, 'matlab.graphics.axis.Axes'));
                 assertTrue(isa(plot_h,'matlab.graphics.primitive.Data'));
                 assertEqual(numel(fig_h),1);
                 assertEqual(numel(axes_h),1);
                 assertEqual(numel(plot_h),2);
+                assertEqualToTol([fig_h.UserData{:}],data1D_arr);
             end
         end
-        
+
+        function test_src_two_obj(obj)
+            clear_figures();
+            cleanupObj = onCleanup(@clear_figures);
+            plot(obj.data1D);
+            plotover(2*obj.data1D);
+            res = src(1);
+            assertEqual(res,[obj.data1D,2*obj.data1D]);
+        end
+        function test_src_one_obj(obj)
+            clear_figures();
+            cleanupObj = onCleanup(@clear_figures);
+            plot(obj.data1D);
+            res = src(1);
+            assertEqual(res,obj.data1D);
+        end
+
         %------------------------------------------------------------------
     end
 end
