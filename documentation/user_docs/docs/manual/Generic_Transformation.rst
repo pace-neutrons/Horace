@@ -210,6 +210,9 @@ Modified image clearly shows substantial decrease in parasitic signal around ela
  
 Better background model is possible to remove more parasitic signal, though this task is fully in the hands of user.
 
+
+.. _sqw-op-bin-pixels-algorithm:
+
 ``sqw_op_bin_pixels`` algorithm
 ===============================
 
