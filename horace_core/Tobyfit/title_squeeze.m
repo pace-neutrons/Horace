@@ -10,4 +10,9 @@ if iscellstr(tin)
         end
     end
     tout=tin(ind);
+elseif iscell(tin)
+    tin = cellfun(@(x)char(x),tin,'UniformOutput',false);
+    tout = title_squeeze(tin);
+else
+    tout = {''};
 end
