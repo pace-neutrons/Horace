@@ -1,8 +1,9 @@
 function varargout = spaghetti_plot(varargin)
 % Plots the data in an sqw file or object along a path in reciprocal space
 %
-%   >> spaghetti_plot(rlp,data_source)
-%   >> spaghetti_plot(wdisp)
+%   >> spaghetti_plot(rlp,data_source)   -- 1) made spaghetti plot
+%   >> spaghetti_plot(wdisp)             -- 2) plot existing spaghetti plot
+%                                              data
 %
 %   >> spaghetti_plot(...,'labels',{'G','X',...})            % customised labels
 %   >> spaghetti_plot(...,'smooth',1)                        % smooth data with this width
@@ -27,11 +28,16 @@ function varargout = spaghetti_plot(varargin)
 %                                    line plot displayed by spaghetti plot
 % Input:
 % ------
+% 1)
 %   rlp             Array of r.l.p. e.g. [0,0,0; 0,0,1; 1,0,1; 1,0,0];
 %
-%   data_source     Data source: sqw object or filename of a file with sqw-type data
-%                     (character string or cellarray with one character string)
-%
+%   data_source     1a) Data source: sqw object or filename of a file with sqw-type data
+%                   (character string or cellarray with one character string)
+%                   1b) alternatively, array of d2d objects representing
+%                   spaghetti plot panels. In this case, rlp points are 
+%                   optional and can be fully replaced by labels. The
+%                   program works like case 2).
+% 2)
 %   wdisp           Array of d2d or IX_dataset_2d objects containing the
 %                   cuts - e.g. previous generated spaghetti plot.
 %
@@ -142,7 +148,7 @@ flags = {'noplot', 'logscale', 'withpix'};
 return_plots = nargout > 0;
 return_cuts = nargout > 1;
 
-if numel(args) == 1 && (isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d'))
+if isscalar(args) && (isa(args{1}(1), 'd2d') || isa(args{1}(1), 'IX_dataset_2d'))
     varargout = plot_dispersion(args{1}, opt,nargout);
     return
 elseif numel(args) > 1 && isa(args{2}(1), 'd2d')
@@ -452,7 +458,7 @@ for i=1:length(wdisp_in)
     elseif is_ix_dataset
         wdisp(i).x = qinc + (bin_centers-bin_centers(1));
     else
-        ulen = wdisp_in(i).ulen;
+        ulen = wdisp_in(i).axes.img_scales;
         % Converts the x-axis from r.l.u. along the segment q-direction to incremental |q| in 1/Ang
         wdisp(i).x = qinc + (bin_centers-bin_centers(1))*ulen(1);
     end
