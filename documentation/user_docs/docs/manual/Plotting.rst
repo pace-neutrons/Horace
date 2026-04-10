@@ -599,7 +599,7 @@ Miscellaneous functions
 
 -- ``genieplot``  is a singleton, which describes common settings (configuration) used in Horace plots.
 
--- ``genieplot.instance()`` gives one access to the settings common to all Horace figures.
+-- ``genieplot.instance()`` gives access to the settings common to all Horace figures.
    The result behaves similarly to the properties of MATLAB ``figure`` classes, but is applied for all
    figures plotted after the change.
 
