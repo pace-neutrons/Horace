@@ -614,7 +614,7 @@ Miscellaneous functions
     or
     >>source = src(figure_number);
     
-This command returns you the Horace object (``sqw``, ``dnd`` or ``IX_dataset_nD``) used as the source of the plot. The possibility to store references to objects in figures
-is configured by :ref:`Horace Configuration Settings <hor_config_settings>` property 
+This command returns you the Horace object (``sqw``, ``dnd`` or ``IX_dataset_nD``) used as the source of the plot. The option to store references to plotted objects in figure
+handles is configured by :ref:`Horace Configuration Settings <hor_config_settings>` property 
 ``store_src_in_plots``.  If your machine has very limited memory, you may want set this property to ``false`` so this option becomes unavailable and you may delete your resulting
-objects immediately after they were plotted. 
+objects immediately after they were plotted. By default, reference to plotted Horace object is stored in figure handle's ``UserData`` property, so the source object exist until its figure exists. ``src`` command finds appropriate figure handle and returns contents of ``UserData`` property.
