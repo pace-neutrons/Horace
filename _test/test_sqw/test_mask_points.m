@@ -17,8 +17,6 @@ classdef test_mask_points < TestCase
             obj.sqw_2d_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
             % 2D case setup
             obj.sqw_2d = sqw(obj.sqw_2d_file_path, 'file_backed', false);
-            % are signal and error in the sample object incorrect?
-            obj.sqw_2d = obj.sqw_2d.recompute_bin_data();
         end
         function test_mask_top_corner_points(obj)
             tobj = obj.sqw_2d.data;

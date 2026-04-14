@@ -19,7 +19,12 @@ function [msk,varargout] = draw_mask(fig_info,varargin)
 %                       and second column y coordinates of the hull
 %                       surrounding masked points. The coordinates of these
 %                       points have to be expressed in image coordinates.
-%                       This key
+%  IMPORTANT:
+%                       This key disables image drawing capability and is
+%                       mandatory if image processing toolbox is not
+%                       present. In this case, one needs to scan and
+%                       provide mask points manualy.
+%
 % '-freehand_draw'   -- use MATLAB "drawfreehand" routine to draw mask on
 %                       the image provided. If this key is not provided,
 %                       routine uses MATLAB's "drawpolygon" routine to draw
@@ -42,13 +47,25 @@ function [msk,varargout] = draw_mask(fig_info,varargin)
 %              drawpolygon or drawfreehand function containing polygon
 %              vertices if input is graphical object.
 
+persistent img_processing_toolbox_present;
+if isempty(img_processing_toolbox_present)
+    img_processing_toolbox_present = license('test','image_toolbox');
+end
+
 options = {'points_provided','-freehand_draw','-keep_area','-test_fig_info'};
 [ok,mess,points_provided,draw_using_free,keep_area,test_fig_info,argi] = parse_char_options(varargin,options);
 if ~ok
     error('HORACE:draw_mask:invalid_argument',mess);
 end
+if ~img_processing_toolbox_present && ~points_provided
+    error('HORACE:draw_mask:invalid_argument', ...
+        ['Image processing toolbox is necessary to draw mask manually.\n' ...
+        ' If it is not present, provide array of mask points']);
+end
+
 % check input and return image axis or information about image axis.
 [h_axis,sz] = check_fig_info(fig_info,points_provided);
+
 
 if test_fig_info
     msk = h_axis;
@@ -93,10 +110,13 @@ end
 iy = floor((sz(1)-1)*(points(:,1)-x_range(1))/(x_range(2)-x_range(1)))+1;
 ix = floor((sz(2)-1)*(points(:,2)-y_range(1))/(y_range(2)-y_range(1)))+1;
 
-if keep_area
-    msk = poly2mask_equiv(ix,iy,sz(1),sz(2));
+if img_processing_toolbox_present
+    msk = poly2mask(ix,iy,sz(1),sz(2));
 else
-    msk = ~poly2mask_equiv(ix,iy,sz(1),sz(2));
+    msk = poly2mask_equiv(ix,iy,sz(1),sz(2));
+end
+if ~keep_area
+    msk = ~msk;
 end
 end
 
@@ -175,19 +195,19 @@ function mask = poly2mask_equiv(x, y, m, n)
 %   x, y - polygon vertices in image/axes coordinates
 %   m, n - mask size (rows, cols)
 
-    % Ensure column vectors
-    x = x(:);
-    y = y(:);
+% Ensure column vectors
+x = x(:);
+y = y(:);
 
-    % Close polygon if needed
-    if x(1) ~= x(end) || y(1) ~= y(end)
-        x(end+1) = x(1);
-        y(end+1) = y(1);
-    end
+% Close polygon if needed
+if x(1) ~= x(end) || y(1) ~= y(end)
+    x(end+1) = x(1);
+    y(end+1) = y(1);
+end
 
-    % Pixel grid (pixel centers)
-    [X, Y] = meshgrid(1:n, 1:m);
+% Pixel grid (pixel centers)
+[X, Y] = meshgrid(1:n, 1:m);
 
-    % Point-in-polygon test
-    [mask,on] = inpolygon(X, Y, x, y);
+% Point-in-polygon test
+[mask,on] = inpolygon(X, Y, x, y);
 end
