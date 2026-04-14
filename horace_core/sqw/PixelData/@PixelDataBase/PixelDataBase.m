@@ -128,7 +128,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % If true, do not convert data loaded from disk into double at
         % loading
         keep_precision_  = false;
-        % TODO:         
+        % TODO:
         % Two variables below describe cache to keep chunks used for paging
         % pixels.
         % This is for future work related to pixel prefetching from
@@ -136,7 +136,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         % they are incomplete and not tested properly to provide reliable
         % paging in any situation. (used in couple of PageOp algorithms and
         % unit tests for that)
-        pix_page_chunks_ = []; 
+        pix_page_chunks_ = [];
         % initial positions of the pixels in vaiable pages
         pix_page_idx_start_ = [];
     end
@@ -831,6 +831,15 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
     %======================================================================
     % Overloadable protected getters/setters for properties
     methods(Access=protected)        %
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object dimensions
+            nd= 2;
+        end
+        function sz = get_img_size(obj)
+            % size of pixels image equal to size of pixels array dataset
+            sz = [obj.DEFAULT_NUM_PIX_FIELDS,obj.num_pixels];
+        end
+
         % check equivalence between two pixel objects
         [ok, mess] = equal_to_tol_single(obj, other_pix, opt,varargin);
         function val = check_set_prop(obj,fld,val)

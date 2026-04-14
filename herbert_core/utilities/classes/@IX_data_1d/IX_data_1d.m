@@ -47,6 +47,13 @@ classdef IX_data_1d < IX_dataset
             nd = 1;
         end
     end
+    methods(Access=protected)
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object dimensions
+            nd =1;
+        end
+    end
+
     %======================================================================
     methods
         function obj=IX_data_1d(varargin)
@@ -160,6 +167,4 @@ classdef IX_data_1d < IX_dataset
             obj = loadobj@serializable(S,obj);
         end
     end
-
 end
-

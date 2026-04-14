@@ -3,9 +3,6 @@ classdef (Abstract) SQWDnDBase <  data_op_interface & serializable
     %
     %   Abstract class defining common API and attributes of the SQW and
     %   DnD objects
-    properties(Abstract,Dependent,Hidden=true)
-        NUM_DIMS
-    end
     properties
         % return state of the object, if it is fully in memory or
         % backed by file

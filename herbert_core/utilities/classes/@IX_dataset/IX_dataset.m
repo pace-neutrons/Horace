@@ -183,7 +183,11 @@ classdef IX_dataset < data_op_interface & serializable
         % Rebin an IX_dataset object or array of IX_dataset objects along
         % along the axes, defined by direction
         wout = rebin_xyz(win, array_is_descriptor,dir,varargin)
-
+        %
+        function sz = get_img_size(obj)
+            % get size of dataset's image
+            sz = size(obj.signal_); % Define it as size of signal array
+        end
     end
     %======================================================================
     methods(Static,Access=protected)

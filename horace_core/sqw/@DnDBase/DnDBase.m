@@ -1,7 +1,6 @@
 classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
-
     % The dependent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
     properties(Dependent)
@@ -63,8 +62,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
         %------------------------------------------------------------------
         full_filename % convenience property as fullfile(filepath, filename)
         % are often used
-
-        NUM_DIMS;         % Number of DnD object dimensions.
     end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == line_axes.dims_as_ssize)
@@ -77,10 +74,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
         % The date when the object has been stored on hdd first time
         creation_date_;
         creation_date_defined_ = false;
-    end
-    methods(Abstract,Access=protected)
-        % return number of object dimensions
-        nd = get_NUM_DIMS(obj)
     end
     %======================================================================
     % OTHER DND METHODS
@@ -353,10 +346,6 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
             val = obj.proj.transform_hkl_to_img(offset_(1:3)');
             val = [val;offset_(4)]';
         end
-        function nd = get.NUM_DIMS(obj)
-            nd = get_NUM_DIMS(obj);
-        end
-
     end
     %======================================================================
     % MODERN dnd interface + constructor
@@ -585,6 +574,11 @@ classdef (Abstract) DnDBase < SQWDnDBase & dnd_plot_interface & horace3_dnd_inte
     end
 
     methods(Access = protected)
+        function sz = get_img_size(obj)
+            % get size of dataset's image
+            sz = size(obj.npix_); % Define it as size of npix array
+        end
+        
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
 
