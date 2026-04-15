@@ -49,7 +49,7 @@ classdef IX_data_1d < IX_dataset
     end
     methods(Access=protected)
         function  nd = get_NUM_DIMS(~)
-            % NUM_DIMS getter. Return number of object dimensions
+            % NUM_DIMS getter. Return number of object's image dimensions
             nd =1;
         end
     end
