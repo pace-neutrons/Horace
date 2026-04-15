@@ -59,8 +59,8 @@
 <li class="toctree-l2"><a class="reference internal" href="Reshaping_etc.html">9. Other shape functions</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">10. Symmetry Operations</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#symmetry-operators">10.1. Symmetry Operators</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#reflections">10.1.1. Reflections</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#rotations">10.1.2. Rotations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rotations">10.1.1. Rotations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reflections">10.1.2. Reflections</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#general-transformations">10.1.3. General Transformations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#groups-of-symmetry-operators">10.1.4. Groups of symmetry operators</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#irreducible-region">10.1.5. Irreducible region</a></li>
@@ -140,10 +140,10 @@
 symmetry related sets. In Horace these are implemented as the <code class="docutils literal notranslate"><span class="pre">Symop</span></code> class,
 which is subclassed to represent the three basic forms of symmetry operations:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code>
-A reflection across a plane</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code>
 A rotation about an axis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code>
+A reflection across a plane</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SymopGeneral</span></code>
 A general matrix transform which may be the product of a
 series of reflections and rotations</p></li>
@@ -153,37 +153,103 @@ series of reflections and rotations</p></li>
 <p>Symmetry operators are, by definition, non-scaling transformations and as
 such must have a determinant of <code class="docutils literal notranslate"><span class="pre">1</span></code> (Rotation) or <code class="docutils literal notranslate"><span class="pre">-1</span></code> (Reflection).</p>
 </div>
-<section id="reflections">
-<h3><span class="section-number">10.1.1. </span>Reflections<a class="headerlink" href="#reflections" title="Permalink to this heading"></a></h3>
-<p>Reflections are implemented as the <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> class and are defined in
-Horace by three 3-vectors; two vectors which define the plane of reflection, and
-a vector which defines a point on the plane (the offset). The constructor for a
-<code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> is as follows:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">SymopReflection</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="w"> </span><span class="n">v2</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Reflection across the Z axis</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For any <code class="docutils literal notranslate"><span class="pre">Symop</span></code> constructor the offset can be omitted and it will default
-to <code class="docutils literal notranslate"><span class="pre">[0</span> <span class="pre">0</span> <span class="pre">0]</span></code>.</p>
-</div>
-</section>
 <section id="rotations">
-<h3><span class="section-number">10.1.2. </span>Rotations<a class="headerlink" href="#rotations" title="Permalink to this heading"></a></h3>
+<h3><span class="section-number">10.1.1. </span>Rotations<a class="headerlink" href="#rotations" title="Permalink to this heading"></a></h3>
 <p>Rotations are implemented as the <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> class and are defined by two
 3-vectors and a scalar; these are the axis of rotation, the angle (in degrees)
-of rotation and a point on the axis (the offset). The constructor for a
-<code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> is as follows:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">SymopRotation</span><span class="p">(</span><span class="nb">axis</span><span class="p">,</span><span class="w"> </span><span class="nb">angle</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Rotation of 60 degrees about th Z axis</span>
+of rotation and the centre of the transformation (the offset). Alternatively, instead of rotation axis, you may define
+rotation plane by two 3-vectors belonging to the rotation plane.
+In addition, fully operational <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> class
+needs Busing-Levy <code class="docutils literal notranslate"><span class="pre">B-matrix</span></code>, used to transform momentum transfer coordinates from <code class="docutils literal notranslate"><span class="pre">rlu</span></code> to Crystal Cartesian
+system of coordinates. Users do not need to set up this matrix in constructor as it will be transferred from an
+input <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object by every algorithm which uses symmetry operation, but if you want to test
+rotation separately, you need to specify it to convert all values expressed in <code class="docutils literal notranslate"><span class="pre">rlu</span></code> into Crystal Cartesian. This is necessary
+as the pixels available within <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object and are subject of a symmetry transformation are always expressed in Crystal Cartesian.</p>
+<p>Horace have simple utility <span class="math notranslate nohighlight">\(bm = bmatrix([a,b,c],[\alpha,\beta,\gamma])\)</span> which builds
+<code class="docutils literal notranslate"><span class="pre">B-matrix</span></code> for Horace coordinate system using known lattice parameters,
+namely <span class="math notranslate nohighlight">\([a,b,c]\)</span> – lengths of cell edges and <span class="math notranslate nohighlight">\([\alpha, \beta,\gamma]\)</span>
+– angles between them.</p>
+<p>The constructors for a <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> has the following forms:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Rotation of 60 degrees about the Z axis</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% the same but providing two vectors in rotation plane.</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">(</span><span class="n">__</span><span class="p">,[</span><span class="n">b_matrix</span><span class="p">],[</span><span class="s">&quot;cc&quot;</span><span class="o">|</span><span class="s">&quot;rlu&quot;</span><span class="p">]);</span><span class="w"> </span><span class="c">% full constructor for rotation above.</span>
 </pre></div>
 </div>
+<p>Zero offset value can be omitted.
+As <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> is a fully serializable object, you may construct it using key-value pairs, defining <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> properties
+or add them in random order after some positional parameters described above have been defined.
+The names of its properties are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>property</p></th>
+<th class="head"><p>value</p></th>
+<th class="head"><p>meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">normvec</span></code></p></td>
+<td><p>3x1 vector
+in <code class="docutils literal notranslate"><span class="pre">cc</span></code></p></td>
+<td><p>rotation axis aka. normal to the rotation plane. Input units may
+be <code class="docutils literal notranslate"><span class="pre">cc</span></code> or <code class="docutils literal notranslate"><span class="pre">rlu</span></code>; output is always <code class="docutils literal notranslate"><span class="pre">cc</span></code> when b-matrix is
+present.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">u</span></code></p></td>
+<td><p>3x1-vector</p></td>
+<td><p>first vector in the plane. Always <code class="docutils literal notranslate"><span class="pre">rlu</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">v</span></code></p></td>
+<td><p>3x1-vector</p></td>
+<td><p>second vector in the plane. Always <code class="docutils literal notranslate"><span class="pre">rlu</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">theta_deg</span></code></p></td>
+<td><p>value</p></td>
+<td><p>rotation angle (degrees)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">offset</span></code></p></td>
+<td><p>3x1-vector</p></td>
+<td><p>location of the transformation origin. Always <code class="docutils literal notranslate"><span class="pre">rlu</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">b_matrix</span></code></p></td>
+<td><p>3x3
+matrix</p></td>
+<td><p>Busing–Levy matrix defining transformation from <code class="docutils literal notranslate"><span class="pre">rlu</span></code>
+to <code class="docutils literal notranslate"><span class="pre">cc</span></code> coordinate systems <span class="math notranslate nohighlight">\(A^{-1}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">input_nrmv_in_rlu</span></code></p></td>
+<td><p><cite>true</cite> or
+<cite>false</cite></p></td>
+<td><p>defines input units of <code class="docutils literal notranslate"><span class="pre">normvec</span></code> when the coordinate  system
+is non-orthogonal. Also accepts “rlu” or “cc” converting it to
+to <cite>true`|`false</cite></p></td>
+</tr>
+</tbody>
+</table>
+<p>The key-value form of constructor would have the form:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">(</span><span class="s">&#39;normvec&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;theta_deg&#39;</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="s">&#39;offset&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="k">...</span><span class="c">);</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">(</span><span class="s">&#39;u&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;v&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;theta_deg&#39;</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="k">...</span><span class="c">);</span>
+</pre></div>
+</div>
+<p>where you can provide key-value pairs in random order and should not mix up definition of rotation plane using normal to it
+with the definition which uses two in-plane vectors. (one random description will be chosen at the end).</p>
+<p>One may notice additional parameter “cc” or “rlu” provided to the constructor and setting up the internal property <code class="docutils literal notranslate"><span class="pre">input_nrmv_in_rlu</span></code>
+to true or false.
+It is necessary and have to be provided if the lattice is non-orthogonal and you define rotation plane using normal vector to it.
+Directions of axis in Crystal Cartesian and <code class="docutils literal notranslate"><span class="pre">rlu</span></code> (<code class="docutils literal notranslate"><span class="pre">hkl</span></code>) coordinate systems coincide in orthogonal coordinate system but different
+in non-orthogonal. For example, the picture below shows non-orthogonal reciprocal coordinate system. If we want to do rotations in plane
+<span class="math notranslate nohighlight">\(\{[1,0,0](a^*);[0,1,0](b^*)\}\)</span> we need to define normal to it with blue vector <span class="math notranslate nohighlight">\([1,0,0]cc\)</span>. If you define rotation vector in
+<code class="docutils literal notranslate"><span class="pre">rlu</span></code>, it will coincide with <span class="math notranslate nohighlight">\([0,0,1](c^*)\)</span> and actually defines different rotation plane.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/NonorthoCoordinatesSystem.png"><img alt="../_images/NonorthoCoordinatesSystem.png" src="../_images/NonorthoCoordinatesSystem.png" style="width: 500px;" /></a>
+</figure>
+<p>Due to difficulties in defining desired <code class="docutils literal notranslate"><span class="pre">normvec</span></code> in non-orthogonal coordinate system, recommended method of defining rotation axis
+in non-orthogonal system would be using <code class="docutils literal notranslate"><span class="pre">u,v</span></code> pairs in-plane vectors.</p>
 <p><code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> also provides a convenience method for generating the
 appropriate set of symmetry operations for cutting/reducing an n-Fold
-rotationally symmetric dataset about an axis. This takes a scalar integer and
-two 3-vectors; the number of reductions (for an angle of <code class="docutils literal notranslate"><span class="pre">360/nFold</span></code> each
-time) and the axis and offset of the rotation as above.</p>
+rotationally symmetric dataset about an axis. This takes a scalar integer,
+two 3-vectors defining the number of reductions (for an angle of <code class="docutils literal notranslate"><span class="pre">360/nFold</span></code> each
+time) and the axis and offset of the rotation as above. If you lattice is non-orthogonal, you should
+provide the coordinate system (“cc” or “rlu”) the rotation vector is expressed in.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">SymopRotation</span><span class="p">.</span><span class="n">fold</span><span class="p">(</span><span class="n">nFold</span><span class="p">,</span><span class="w"> </span><span class="nb">axis</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
 <span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">.</span><span class="n">fold</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span><span class="w">   </span><span class="c">% Ready to cut from a 4-fold rotationally symmetric dataset about Z</span>
 
@@ -198,35 +264,61 @@ time) and the axis and offset of the rotation as above.</p>
 
 <span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">celldisp</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
 
-<span class="n">sym</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
+<span class="w"> </span><span class="nb">celldisp</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span>
 
-<span class="n">Identity</span><span class="w"> </span><span class="s">operator</span><span class="w"> </span><span class="s">(no</span><span class="w"> </span><span class="s">symmetrisation)</span>
+<span class="w"> </span><span class="n">sym</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
+<span class="w"> </span><span class="n">Identity</span><span class="w"> </span><span class="n">operator</span><span class="w"> </span><span class="p">(</span><span class="n">no</span><span class="w"> </span><span class="n">symmetrisation</span><span class="p">)</span>
 
+<span class="w"> </span><span class="n">sym</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
+<span class="w"> </span><span class="n">Rotation</span><span class="w"> </span><span class="n">operator</span><span class="p">:</span>
+<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">cc</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">];</span><span class="w">     </span><span class="n">offset</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="nb">angle</span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mf">90.00</span><span class="p">;</span>
+<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">v</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span>
 
-<span class="n">sym</span><span class="p">{</span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
+<span class="w"> </span><span class="n">sym</span><span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
+<span class="w"> </span><span class="n">Rotation</span><span class="w"> </span><span class="n">operator</span><span class="p">:</span>
+<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">cc</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">];</span><span class="w">     </span><span class="n">offset</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="nb">angle</span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mf">180.00</span><span class="p">;</span>
+<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">v</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span>
 
-<span class="n">Rotation</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">]</span>
-<span class="w">      </span><span class="nb">angle</span><span class="w"> </span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mi">90</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-
-
-<span class="n">sym</span><span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
-
-<span class="n">Rotation</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">]</span>
-<span class="w">      </span><span class="nb">angle</span><span class="w"> </span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mi">180</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-
-
-<span class="n">sym</span><span class="p">{</span><span class="mi">4</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
-
-<span class="n">Rotation</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">]</span>
-<span class="w">      </span><span class="nb">angle</span><span class="w"> </span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mi">270</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
+<span class="w"> </span><span class="n">sym</span><span class="p">{</span><span class="mi">4</span><span class="p">}</span><span class="w"> </span><span class="p">=</span>
+<span class="w"> </span><span class="n">Rotation</span><span class="w"> </span><span class="n">operator</span><span class="p">:</span>
+<span class="w">       </span><span class="nb">axis</span><span class="w"> </span><span class="p">(</span><span class="n">cc</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">];</span><span class="w">     </span><span class="n">offset</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="nb">angle</span><span class="p">(</span><span class="n">deg</span><span class="p">):</span><span class="w"> </span><span class="mf">270.00</span><span class="p">;</span>
+<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">v</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span>
 </pre></div>
 </div>
+</section>
+<section id="reflections">
+<h3><span class="section-number">10.1.2. </span>Reflections<a class="headerlink" href="#reflections" title="Permalink to this heading"></a></h3>
+<p>Reflections are implemented as the <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> class. As in the rotation, the
+reflection plane can be defined using two vectors in this plane or the normal vector to the plane.
+You also need a vector which defines a point the plane passes through (the offset). Similarly to <em>Rotation</em>, you may add
+<code class="docutils literal notranslate"><span class="pre">B-matrix</span></code> to the list of arguments but this will be done by <code class="docutils literal notranslate"><span class="pre">symop</span></code> algorithms anyway.</p>
+<p>The constructor for <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> for two vectors in plane is as follows:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Reflection across the XY axis with 0 offset</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Reflection across the XY axis with offset</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">(</span><span class="n">__</span><span class="p">,</span><span class="n">b_matrix</span><span class="p">);</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">(</span><span class="s">&#39;u&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;v&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;offset&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="c">% Reflection across the XY axis</span>
+</pre></div>
+</div>
+<p>The form of the constructor above is historical and was used in Horace-3 as well. Unfortunately it is impossible to distinguish
+between <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> without <code class="docutils literal notranslate"><span class="pre">offset</span></code> provided and <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> with <code class="docutils literal notranslate"><span class="pre">offset</span></code> and rotation plane defined by
+normal vector to it. Because of that, if you want to define
+reflection plane using normal vector to it, you have to use key-value pairs constructor:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">(</span><span class="s">&#39;normvec&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="s">&#39;offset&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],[</span><span class="s">&quot;rlu&quot;</span><span class="o">|</span><span class="s">&quot;CC&quot;</span><span class="p">]);</span><span class="w"> </span><span class="c">% Reflection across the XY axis</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">(</span><span class="n">__</span><span class="p">,</span><span class="s">&#39;b_matrix&#39;</span><span class="p">,</span><span class="n">b_matrix_value</span><span class="p">);</span><span class="w"> </span><span class="c">%</span>
+</pre></div>
+</div>
+<p>The list of properties, available to <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> is the same as for <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> except <code class="docutils literal notranslate"><span class="pre">theta_deg</span></code>
+is naturally not available.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For any <code class="docutils literal notranslate"><span class="pre">Symop</span></code> constructor the offset can be omitted and it will default
+to <code class="docutils literal notranslate"><span class="pre">[0</span> <span class="pre">0</span> <span class="pre">0]</span></code>. In this case, <code class="docutils literal notranslate"><span class="pre">B-matrix</span></code>, if necessary, should be provided as key-value pair:
+<cite>b_matrix</cite>,value</p>
+</div>
+<p>As with <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> <cite>u-v</cite> vectors based constructor is recommended for usage when your lattice is non-orthogonal.</p>
+<p><a class="reference internal" href="#cutting">Cutting</a> with <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> and <a class="reference internal" href="#symmetrising">Symmetrising</a> (see below) use this transformation for reflecting
+data from the half of the space separated by reflection plane into another half of the space. The target half-space
+is the area where the vector, built on the vectors, defining reflection plane according to right-hand rule is positive.</p>
 </section>
 <section id="general-transformations">
 <h3><span class="section-number">10.1.3. </span>General Transformations<a class="headerlink" href="#general-transformations" title="Permalink to this heading"></a></h3>
@@ -266,16 +358,29 @@ offsets.</p>
 <span class="w">    </span><span class="o">-</span><span class="mf">1.0000</span><span class="w">         </span><span class="mi">0</span><span class="w">    </span><span class="mf">0.0000</span>
 </pre></div>
 </div>
+<p>All Crystal lattice related symmetry transformations may be described by specially
+constructed 3x3 transformation matrices, available on the web. Horace accesses
+these transformations by accessing Python library available at <a class="reference external" href="https://github.com/spglib/spglib">https://github.com/spglib/spglib</a>
+using <cite>get_syms</cite> utility which interfaces this library (has to be installed for MATLAB’s Python
+separately) and returns set of general transformations, provided by the library for given lattice given
+symmetry type of this lattice.</p>
 </section>
 <section id="groups-of-symmetry-operators">
 <h3><span class="section-number">10.1.4. </span>Groups of symmetry operators<a class="headerlink" href="#groups-of-symmetry-operators" title="Permalink to this heading"></a></h3>
 <p>For a more complex transformation involving a series of rotations and
-reflections it is possible to construct an array of transformations to be
-applied in sequence (as a series of pre-multiplications, i.e. applied in the
-reverse order of the list).</p>
+reflections applied to single area of space, it is possible to construct an array
+of transformations to be applied in sequence (as a series of pre-multiplications,
+i.e. applied in the reverse order of the list).</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Rotate 90 deg about X, Reflect across X, Rotate back 90 deg about X</span>
 <span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">90</span><span class="p">),</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">-</span><span class="mi">90</span><span class="p">)];</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The group of symmetry operations can have only one offset. You may provide it with only one symmetry in the group,
+but code will propagate it to all group’s transformations. For example, the expression: <code class="docutils literal notranslate"><span class="pre">[SymopRotation([1</span> <span class="pre">0</span> <span class="pre">0],</span> <span class="pre">90,[1,0,0]),</span> <span class="pre">SymopReflection([0</span> <span class="pre">1</span> <span class="pre">0],</span> <span class="pre">[0</span> <span class="pre">0</span> <span class="pre">1])]</span></code> is equivalent to: <code class="docutils literal notranslate"><span class="pre">[SymopRotation([1</span> <span class="pre">0</span> <span class="pre">0],</span> <span class="pre">90,[1,0,0]),</span> <span class="pre">SymopReflection([0</span> <span class="pre">1</span> <span class="pre">0],</span> <span class="pre">[0</span> <span class="pre">0</span> <span class="pre">1],[1,0,0])]</span></code>, Attempt to give different offsets to different operations,
+e.g. <code class="docutils literal notranslate"><span class="pre">[SymopRotation([1</span> <span class="pre">0</span> <span class="pre">0],</span> <span class="pre">90,[1,0,0]),</span> <span class="pre">SymopReflection([0</span> <span class="pre">1</span> <span class="pre">0],</span> <span class="pre">[0</span> <span class="pre">0</span> <span class="pre">1],[0,1,0])]</span></code>; will fail.
+Use cellarray of symmetry transformations to allow different offsets and apply symmetries to different areas of the object.</p>
 </div>
 </section>
 <section id="irreducible-region">
@@ -320,6 +425,10 @@ the axis of rotation, <span class="math notranslate nohighlight">\(\vec{u}\)</sp
 <p>For an angle &gt; 90 degrees or folds &lt; 4, this will cover the positive quadrant
 and some of a negative domain.</p>
 </div>
+<p>Examples of irreducible zones for <code class="docutils literal notranslate"><span class="pre">SymopReflection</span></code> and <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> are presented on the picture below:</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/Symops_irreducible.png"><img alt="../_images/Symops_irreducible.png" src="../_images/Symops_irreducible.png" style="width: 500px;" /></a>
+</figure>
 </section>
 </section>
 <section id="commands-for-cuts-and-slices">
@@ -559,6 +668,16 @@ axes and accumulated into the cut.</span><a class="headerlink" href="#id2" title
 <figure class="align-center">
 <a class="reference internal image-reference" href="../_images/cut_sym_4.png"><img alt="../_images/cut_sym_4.png" src="../_images/cut_sym_4.png" style="width: 500px;" /></a>
 </figure>
+<div class="admonition note" id="single-transform-note">
+<p class="admonition-title">Note</p>
+<p>By design, you may apply only single symmetry transformation to pixels within a cut. Its done intentionally, to avoid double counting and wrong statistics in cases like the image below, where you cut with <code class="docutils literal notranslate"><span class="pre">SymopRotation</span></code> by 90deg with a command like: <code class="docutils literal notranslate"><span class="pre">w2</span> <span class="pre">=</span> <span class="pre">cut(an_sqw,line_proj([-1,1,0],[-1,-1,0]),[-2,0.01,2],[-0.2.0.01,0.2],[],[],SymopRotation([0,0,1],90)</span></code> and do not want to count pixels contributed into red-crossed area twice.</p>
+</div>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/Symops_cut_overlap.png"><img alt="../_images/Symops_cut_overlap.png" src="../_images/Symops_cut_overlap.png" style="width: 400px;" /></a>
+</figure>
+<p>The consequence of this feature is that you can not make cut which will do two transformations on the same pixels. E.g.
+If you need this, you have to perform two cuts or
+build your own generic transformation with symmetry, as described in <a class="reference internal" href="Generic_Transformation.html#sqw-op-bin-pixels-algorithm"><span class="std std-ref">Generic Transformations.</span></a></p>
 </section>
 <section id="combining">
 <h2><span class="section-number">10.5. </span>Combining<a class="headerlink" href="#combining" title="Permalink to this heading"></a></h2>
@@ -655,6 +774,11 @@ dataset (thereby increasing the counts four-fold).</p>
 for sqw objects, since they require access to individual detector pixel
 information. The functions will work for any dimensionality of object,
 however.</p></li>
+<li><p>As described <a class="reference internal" href="#single-transform-note"><span class="std std-ref">above</span></a>, <code class="docutils literal notranslate"><span class="pre">cut</span></code> with symmetry operations can apply
+only one symmetry transformations to pixels within a symmetry-related area.
+Pixels from overlapping parts of symmetry related areas are transformed only once. Secondary
+symmetry transformations over the same pixels have to be performed by another <code class="docutils literal notranslate"><span class="pre">cut</span></code> with
+symmetries, or by writing a <a class="reference internal" href="Generic_Transformation.html#sqw-op-bin-pixels-algorithm"><span class="std std-ref">generic transformation.</span></a></p></li>
 </ul>
 </section>
 <section id="symop-methods-advanced">
@@ -676,16 +800,13 @@ of <code class="docutils literal notranslate"><span class="pre">Symop</span></co
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span>
 
 <span class="n">sym</span><span class="w"> </span><span class="p">=</span>
-
 <span class="n">Reflection</span><span class="w"> </span><span class="s">operator:</span>
-<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-<span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
-<span class="w">     </span><span class="n">offset</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">In</span><span class="o">-</span><span class="n">plane</span><span class="w"> </span><span class="n">v</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">;</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">    </span><span class="n">offset</span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">];</span><span class="w">   </span><span class="n">normvec</span><span class="w"> </span><span class="p">(</span><span class="n">rlu</span><span class="p">):</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="mi">0</span><span class="p">;</span><span class="mi">1</span><span class="p">]</span>
 
 <span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="p">.</span><span class="n">transform_vec</span><span class="p">([</span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span>
 
 <span class="nb">ans</span><span class="w"> </span><span class="p">=</span>
-
 <span class="w">     </span><span class="mi">3</span>
 <span class="w">     </span><span class="mi">6</span>
 <span class="w">    </span><span class="o">-</span><span class="mi">1</span>
@@ -754,8 +875,10 @@ the irreducible region.</p>
 </section>
 <section id="transform-proj">
 <h3><span class="section-number">10.9.3. </span><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code><a class="headerlink" href="#transform-proj" title="Permalink to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code> is used to transform subclasses of the <code class="docutils literal notranslate"><span class="pre">aProjection</span></code>
-type. It is an internal function which creates a new projection with the
+<p><code class="docutils literal notranslate"><span class="pre">transform_proj</span></code> is used to transform subclasses of the <code class="docutils literal notranslate"><span class="pre">LineProjBase</span></code>
+type and check and modify input symmetry operations into the form, corresponding to this projection,
+including setting up <code class="docutils literal notranslate"><span class="pre">B-matrix</span></code> used for correct <code class="docutils literal notranslate"><span class="pre">offset</span></code>-s interpretation.
+It is an internal function which creates a new <code class="docutils literal notranslate"><span class="pre">line_proj</span></code> with the
 symmetries applied and is not normally needed by users, but is recorded here for
 completeness.</p>
 </section>
@@ -774,7 +897,7 @@ completeness.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 5, 2026, 7:16:01 PM.
+      <span class="lastupdated">Last updated on Apr 15, 2026, 4:39:49 PM.
       </span></p>
   </div>
 

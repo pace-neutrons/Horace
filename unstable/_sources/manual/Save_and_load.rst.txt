@@ -99,10 +99,15 @@ The command for this is:
 
 .. code-block:: matlab
 
-   save(sqw_object, filename);
+   sqw_object = save(sqw_object, filename);
    
 This method saves single object into Horace binary file with extension ``.sqw``, so if you have filebacked ``sqw`` object, the method would correctly
 write this object. It will be possible to restore the object later by accessing appropriate ``.sqw`` file. If your filebacked object is backed by temporary file, the object will not be physically saved (long operation) as the major part of this object is already located in file. The file contents will be synchronized with the data in memory and temporary file will be renamed to the name, you have provided as the second input for the ``save`` command.
+
+.. note::
+   Do not forget to return saved `sqw_object` in left hand side of ``save`` command. The command have changed the name 
+   of the file, so the object you have in memory should use updated name. You need to reinitialize your object
+   from saved file otherwise.
 
 You, of course, can also use Horace ``save`` command to create Horace binary ``.sqw`` files from ``sqw/dnd`` objects in memory.
 
@@ -129,6 +134,6 @@ Note, that this command invoked without `-filebacked` is equivalent to ``sqw('fi
 
     mb_obj = read_sqw('filename','-force_pix_location');
 
-will try to load ``sqw`` object in memory regardless of its size on disk, so will fail if the object is to big to fit the memory.
+will try to load ``sqw`` object in memory regardless of its size on disk, so will fail if the object is too big to fit the memory.
 
 The filebacked objects created this way, unlike filebacked objects created as the result of the operations with filebacked objects or large ``cut`` operations, are backed by permanent files which would not be deleted if the object in memory gets deleted.

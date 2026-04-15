@@ -287,16 +287,16 @@ perform multiple unary or binary operations simultaneously while transforming la
 <p>Better background model is possible to remove more parasitic signal, though this task is fully in the hands of user.</p>
 </section>
 <section id="sqw-op-bin-pixels-algorithm">
-<h2><span class="section-number">15.3. </span><code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm<a class="headerlink" href="#sqw-op-bin-pixels-algorithm" title="Permalink to this heading"></a></h2>
+<span id="id2"></span><h2><span class="section-number">15.3. </span><code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm<a class="headerlink" href="#sqw-op-bin-pixels-algorithm" title="Permalink to this heading"></a></h2>
 <p>Let’s assume you are interested in magnetic signal which is present at relatively low <span class="math notranslate nohighlight">\(\|Q\|\)</span> due to magnetic form factor and signal covers multiple Brillouin zones at low <span class="math notranslate nohighlight">\(\|Q\|\)</span>. You want to accumulate magnetic signal in first Brillouin zone to increase statistics and consider everything which is beyond some specific <span class="math notranslate nohighlight">\(\|Q\|\)</span> - value to be background to remove as signal there is negligibly small due to magnetic form factor, so you also want to move this signal to first Brillouin zone and extract background from the magnetic signal. Figure below give example of such situation:</p>
-<figure class="align-center" id="id2">
+<figure class="align-center" id="id3">
 <a class="reference internal image-reference" href="../_images/Fe_BZ_signal.png"><img alt="Sample differential cross-section measured on MAPS" src="../_images/Fe_BZ_signal.png" style="width: 400px;" /></a>
 <figcaption>
 <p><span class="caption-text">Sample differential cross-section measured on MAPS and showing
 magnetic signal within red-cycle surrounded area and background signal (phonons)
 inside and outside of this area. Yellow box represents double-size Brillouin zone where
 data moved using shift operation and its top right quadrant – the area where data should
-be finally moved using folding and reflection.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+be finally moved using folding and reflection.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p><code class="docutils literal notranslate"><span class="pre">sqw_op</span></code> algorithms would not allow you to do this, as you can not change pixels coordinates alongside with everything else.
@@ -422,11 +422,11 @@ and foreground – inside of cut-off radius. This causes visible magnetic foregr
 full control and responsibility for writing his own background/foreground function and interpreting results, obtained using this function.</p>
 <p>Figure below shows sample background calculated using <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm and background-calculating function <code class="docutils literal notranslate"><span class="pre">sqw_op_build_bz_bckgrnd.mat</span></code> provided above. The background extraction is also performed using <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm as it combines moving foreground signal into first Brillouin zone,
 background extraction, Magnetic form-factor corrections and parasitic signal removal. As this is relatively complex user function based on elements, provided above, we do not provide script to obtain this result in the document but placed the script which does these operations (<code class="docutils literal notranslate"><span class="pre">sqw_op_move_to_bz0_and_remove_bckgrnd.mat</span></code>) into <code class="docutils literal notranslate"><span class="pre">Horace/example/</span></code> folder.</p>
-<figure class="align-center" id="id3">
+<figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="../_images/BackgroundVSForegroundFe_400meV.png"><img alt="Background vs Foreground in first Brillouin zone." src="../_images/BackgroundVSForegroundFe_400meV.png" style="width: 1200px;" /></a>
 <figcaption>
 <p><span class="caption-text">Background and Foreground signals for data demonstrated at the beginning of this chapter.
-Note the difference in intensity scale between background and foreground signals.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+Note the difference in intensity scale between background and foreground signals.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>Round holes in the corners, centre and middle-edges of the foreground scattering function are related to
@@ -593,11 +593,11 @@ internal structure.</p></li>
 <p>The original of this function is located in <code class="docutils literal notranslate"><span class="pre">Horace/example/</span></code> folder. The details of the implementation are provided
 in the comments to the function. The main idea of the operation is that you select one main cut and combine all additional images forcefully “overlapping” images one over another transforming pixels coordinates accordingly.</p>
 <p>Image below shows the way to overlapping two cuts together and the result of such overlapping.</p>
-<figure class="align-center" id="id4">
+<figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../_images/SQW_op_Combine2Cuts.png"><img alt="../_images/SQW_op_Combine2Cuts.png" src="../_images/SQW_op_Combine2Cuts.png" style="width: 800px;" /></a>
 <figcaption>
 <p><span class="caption-text">Overlap two cuts demonstrated on the left image, display them (central image) and combine together using
-<code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm with combine function above.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+<code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm with combine function above.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>Simple script which allows to produce result presented on the right side of picture above (image (c) ) from the data on the left side of the image above using <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> and <a class="reference internal" href="#move-all-to-proj-label"><span class="std std-ref">combine function above</span></a> looks as follows:</p>
@@ -629,7 +629,7 @@ in the comments to the function. The main idea of the operation is that you sele
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 5, 2026, 7:16:01 PM.
+      <span class="lastupdated">Last updated on Apr 15, 2026, 4:39:49 PM.
       </span></p>
   </div>
 

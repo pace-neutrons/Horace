@@ -106,10 +106,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#sliceomatic">13.34. sliceomatic</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#sliceomatic-overview">13.35. sliceomatic_overview</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#miscellaneous-functions">13.35.1. Miscellaneous functions</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#sliceomatic-overview">13.35. sliceomatic_overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#miscellaneous-functions">13.36. Miscellaneous functions</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Simulation.html">14. Simulation</a></li>
@@ -595,12 +593,15 @@ e.g. following a spin wave dispersion ring/cone as a function of energy.</p>
 <span class="n">sliceomatic_overview</span><span class="p">(</span><span class="n">w_3d</span><span class="p">,</span><span class="w"> </span><span class="n">axis_number</span><span class="p">);</span><span class="w">  </span><span class="c">% view down the given axis number (axis_number = 1,2 or 3)</span>
 </pre></div>
 </div>
+</section>
 <section id="miscellaneous-functions">
-<h3><span class="section-number">13.35.1. </span>Miscellaneous functions<a class="headerlink" href="#miscellaneous-functions" title="Permalink to this heading"></a></h3>
+<h2><span class="section-number">13.36. </span>Miscellaneous functions<a class="headerlink" href="#miscellaneous-functions" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">meta(fig)</span></code> allows you to copy the figure into a metafile. On Windows, this
 function puts the file in the clipboard so that it can be pasted directly into
 Word, Powerpoint etc.</p>
-</section>
+<p><code class="docutils literal notranslate"><span class="pre">genieplot</span></code>  is a singleton, which describes common settings (configuration) used in Horace plots.</p>
+<p><code class="docutils literal notranslate"><span class="pre">genieplot.instance()</span></code> gives one access to the settings, similar to one, used for changing properties of MATLAB <code class="docutils literal notranslate"><span class="pre">figure</span></code> classes.</p>
+<p>See <a class="reference internal" href="Changing_Horace_settings.html#geneplot-settings"><span class="std std-ref">Global settings for Horace graphics: genieplot</span></a> to get more details about Horace graphics configurations.</p>
 </section>
 </section>
 
@@ -616,7 +617,7 @@ Word, Powerpoint etc.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 5, 2026, 7:16:01 PM.
+      <span class="lastupdated">Last updated on Apr 15, 2026, 4:39:49 PM.
       </span></p>
   </div>
 

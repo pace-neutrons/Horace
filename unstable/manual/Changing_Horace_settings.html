@@ -72,6 +72,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#developers-and-service-information-present-in-configuration-s">19.3.1. Developers and service information present in configuration(s)</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#global-settings-for-horace-graphics-genieplot">19.4. Global settings for Horace graphics: <code class="docutils literal notranslate"><span class="pre">genieplot</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
@@ -353,6 +354,64 @@ if false, values remain in memory and will be lost after MATLAB session is close
 </ul>
 </section>
 </section>
+<section id="global-settings-for-horace-graphics-genieplot">
+<span id="geneplot-settings"></span><h2><span class="section-number">19.4. </span>Global settings for Horace graphics: <code class="docutils literal notranslate"><span class="pre">genieplot</span></code><a class="headerlink" href="#global-settings-for-horace-graphics-genieplot" title="Permalink to this heading"></a></h2>
+<p>This class describes configuration used by Horace graphics. Unlike other configuration classes,
+which use wrappers (e.g. <code class="docutils literal notranslate"><span class="pre">hor_config</span></code> or <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code>) around global configuration singleton,
+<code class="docutils literal notranslate"><span class="pre">config_store.instance()</span></code>, which contains all global saveable Horace configurations,
+<code class="docutils literal notranslate"><span class="pre">genieplot</span></code> singleton provides direct access to the global graphics configuration.</p>
+<p><code class="docutils literal notranslate"><span class="pre">genieplot.get()</span></code> returns structure with current values of properties, describing the graphics settings
+and <code class="docutils literal notranslate"><span class="pre">genieplot.instance()</span></code> returns instance of the singleton, which allows changing its values.</p>
+<p>The values have the form:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="n">gp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">genieplot</span><span class="p">.</span><span class="n">instance</span><span class="p">()</span>
+<span class="o">&gt;&gt;</span><span class="n">gp</span><span class="w"> </span><span class="p">=</span>
+<span class="w">                </span><span class="n">default_fig_name</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">        </span><span class="c">% default name for plot. Empty assumes &quot;Figure N, Horace ....&quot;</span>
+<span class="w">                          </span><span class="n">XScale</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;linear&#39;</span><span class="w">  </span><span class="c">% x-axis scaling: &#39;linear&#39; or &#39;log&#39;</span>
+<span class="w">                          </span><span class="n">YScale</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;linear&#39;</span><span class="w">  </span><span class="c">% y-axis scaling: &#39;linear&#39; or &#39;log&#39;</span>
+<span class="w">                          </span><span class="n">ZScale</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;linear&#39;</span><span class="w">  </span><span class="c">% z-axis scaling: &#39;linear&#39; or &#39;log&#39;</span>
+
+<span class="w">        </span><span class="c">% One-dimensional graph properties:</span>
+<span class="w">                      </span><span class="n">maxspec_1D</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="w">      </span><span class="c">% Maximum number of 1D datasets in a plottable array</span>
+<span class="w">                          </span><span class="n">colors</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;k&#39;</span><span class="p">}</span><span class="w">     </span><span class="c">% Row cell array of default colors</span>
+<span class="w">                     </span><span class="n">color_cycle</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;with&#39;</span><span class="w">    </span><span class="c">% &#39;fast&#39; or &#39;with&#39;: colours cycle faster or with</span>
+<span class="w">                                            </span><span class="c">% line styles &amp; widths and marker types &amp; sizes</span>
+<span class="w">                     </span><span class="n">line_styles</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;-&#39;</span><span class="p">}</span><span class="w">     </span><span class="c">% Row cell array of default line styles</span>
+<span class="w">                     </span><span class="n">line_widths</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5000</span><span class="w">    </span><span class="c">% Row vector of default line widths</span>
+<span class="w">                    </span><span class="n">marker_types</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;o&#39;</span><span class="p">}</span><span class="w">     </span><span class="c">% Row cell array of default marker types</span>
+<span class="w">                    </span><span class="n">marker_sizes</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="w">         </span><span class="c">% Row vector of default marker sizes</span>
+
+<span class="w">        </span><span class="c">% Two-dimensional graph properties:</span>
+<span class="w">                      </span><span class="n">maxspec_2D</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span>
+
+<span class="w">        </span><span class="c">% matlab 2025 introduced new colour scheme, which, if windows</span>
+<span class="w">        </span><span class="c">% scheme is dark makes Horace graphics unusable. If this option is</span>
+<span class="w">        </span><span class="c">% true, Horace reverts to the colour scheme used by Matlab 2024b</span>
+<span class="w">        </span><span class="c">% and before</span>
+<span class="w">   </span><span class="n">use_original_horace_plot_colours</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>To set a property one can do:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">gp</span><span class="p">.</span><span class="o">&lt;</span><span class="n">property_name</span><span class="o">&gt;</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="c">%</span>
+<span class="c">%   EXAMPLE: &gt;&gt; gp.colors = {&#39;b&#39;,&#39;r&#39;,&#39;g&#39;};</span>
+<span class="c">%</span>
+</pre></div>
+</div>
+<p>To retrieve a property:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gp</span><span class="p">.</span><span class="o">&lt;</span><span class="n">property_name</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="c">%</span>
+<span class="c">%   EXAMPLE: &gt;&gt; val = gp.marker_sizes</span>
+<span class="c">%            val =</span>
+<span class="c">%                 6</span>
+</pre></div>
+</div>
+<p>To reset all properties to the defaults:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">gp</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Unlike other configuration classes, <code class="docutils literal notranslate"><span class="pre">genieplot</span></code> does not save its state to a file, so every new Horace
+session starts graphics from its default values above.</p>
+</section>
 </section>
 
 
@@ -367,7 +426,7 @@ if false, values remain in memory and will be lost after MATLAB session is close
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 5, 2026, 7:16:01 PM.
+      <span class="lastupdated">Last updated on Apr 15, 2026, 4:39:49 PM.
       </span></p>
   </div>
 

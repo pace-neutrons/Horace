@@ -185,11 +185,17 @@ file backing the object gets deleted, <code class="docutils literal notranslate"
 </div>
 <p>The only reliable way of saving filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object is to use Horace <code class="docutils literal notranslate"><span class="pre">save</span></code> command, which stores <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in binary Horace <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file format.
 The command for this is:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="n">sqw_object</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sqw_object</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">save</span><span class="p">(</span><span class="n">sqw_object</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This method saves single object into Horace binary file with extension <code class="docutils literal notranslate"><span class="pre">.sqw</span></code>, so if you have filebacked <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object, the method would correctly
 write this object. It will be possible to restore the object later by accessing appropriate <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> file. If your filebacked object is backed by temporary file, the object will not be physically saved (long operation) as the major part of this object is already located in file. The file contents will be synchronized with the data in memory and temporary file will be renamed to the name, you have provided as the second input for the <code class="docutils literal notranslate"><span class="pre">save</span></code> command.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Do not forget to return saved <cite>sqw_object</cite> in left hand side of <code class="docutils literal notranslate"><span class="pre">save</span></code> command. The command have changed the name
+of the file, so the object you have in memory should use updated name. You need to reinitialize your object
+from saved file otherwise.</p>
+</div>
 <p>You, of course, can also use Horace <code class="docutils literal notranslate"><span class="pre">save</span></code> command to create Horace binary <code class="docutils literal notranslate"><span class="pre">.sqw</span></code> files from <code class="docutils literal notranslate"><span class="pre">sqw/dnd</span></code> objects in memory.</p>
 <p>See <a class="reference internal" href="Cutting_data_of_interest_from_SQW_files_and_objects.html#file-and-memory-backed-cuts"><span class="std std-ref">File- and memory-backed cuts</span></a> to read a bit more about filebacked and memory based cuts and <a class="reference internal" href="Changing_Horace_settings.html#horace-config"><span class="std std-ref">Horace Config</span></a> for the information on how to set up the size of memory based object.</p>
 </section>
@@ -207,7 +213,7 @@ write this object. It will be possible to restore the object later by accessing 
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">mb_obj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_sqw</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span><span class="s">&#39;-force_pix_location&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>will try to load <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in memory regardless of its size on disk, so will fail if the object is to big to fit the memory.</p>
+<p>will try to load <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in memory regardless of its size on disk, so will fail if the object is too big to fit the memory.</p>
 <p>The filebacked objects created this way, unlike filebacked objects created as the result of the operations with filebacked objects or large <code class="docutils literal notranslate"><span class="pre">cut</span></code> operations, are backed by permanent files which would not be deleted if the object in memory gets deleted.</p>
 </section>
 </section>
@@ -224,7 +230,7 @@ write this object. It will be possible to restore the object later by accessing 
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 5, 2026, 7:16:01 PM.
+      <span class="lastupdated">Last updated on Apr 15, 2026, 4:39:49 PM.
       </span></p>
   </div>
 
