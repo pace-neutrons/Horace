@@ -1,4 +1,4 @@
-classdef test_mask_points < TestCase
+classdef test_mask_points_draw_mask < TestCase
 
     properties
         sqw_2d_file_path;
@@ -8,9 +8,9 @@ classdef test_mask_points < TestCase
 
     methods
 
-        function obj = test_mask_points(name)
+        function obj = test_mask_points_draw_mask(name)
             if ~exist('name','var')
-                name = 'test_mask_points';
+                name = 'test_mask_points_draw_mask';
             end
             obj = obj@TestCase(name);
 
@@ -20,22 +20,22 @@ classdef test_mask_points < TestCase
             obj.sqw_2d = sqw(obj.sqw_2d_file_path, 'file_backed', false);
             try
                 h =  poly2mask(1,2,4,4);
-                obj.skip_ipt_tests = false;                
+                obj.skip_ipt_tests = false;
             catch
                 obj.skip_ipt_tests = true;
             end
         end
-
+        %==================================================================
         function test_mask_top_corner_points_no_ipt(obj)
             sample = true(16,11);
             sample(11:16,6:11) = false;
-            
+
             tobj = obj.sqw_2d.data;
             img_range = tobj.img_range(:,1:2);
             dr = [0.1,0.1];
 
             r3 = img_range(2,:)';
-            r1 = r3 - dr';  
+            r1 = r3 - dr';
             r2 = r1;
             r2(2) = r2(2)+dr(2);
             r4 = r1;
@@ -43,7 +43,7 @@ classdef test_mask_points < TestCase
 
             ma = draw_mask(tobj,'mask_vertices',[r1,r2,r3,r4],'-disable_ipt');
             assertEqual(sample,ma);
-        end               
+        end
         function test_mask_top_corner_points(obj)
             if obj.skip_ipt_tests
                 skipTest('Thest works correctly only if image processing toolbox is available')
@@ -53,7 +53,7 @@ classdef test_mask_points < TestCase
             dr = [0.1,0.1];
 
             r3 = img_range(2,:)';
-            r1 = r3 - dr';  
+            r1 = r3 - dr';
             r2 = r1;
             r2(2) = r2(2)+dr(2);
             r4 = r1;
@@ -62,7 +62,7 @@ classdef test_mask_points < TestCase
             msk = mask_points(tobj,'remove',[r1(1),r3(1),r1(2),r3(2)]);
             ma = draw_mask(tobj,'mask_vertices',[r1,r2,r3,r4]);
             assertEqual(msk,ma);
-        end       
+        end
 
         function test_mask_selected_points_no_ipt(obj)
             sample = true(16,11);
@@ -72,12 +72,12 @@ classdef test_mask_points < TestCase
                 -0.53,-0.49,-0.49,-0.53; ...
                 -0.48,-0.48,-0.52,-0.52],'-disable_ipt');
             assertEqual(sample,ma);
-        end        
+        end
         function test_mask_selected_points(obj)
             if obj.skip_ipt_tests
                 skipTest('Thest works correctly only if image processing toolbox is available')
             end
-            
+
             tobj = obj.sqw_2d;
             msk = mask_points(tobj,'remove',[-0.53,-0.49,-0.52,-0.48]);
             ma = draw_mask(tobj,'mask_vertices',[...
@@ -90,24 +90,24 @@ classdef test_mask_points < TestCase
             ds = obj.sqw_2d.data;
             assertExceptionThrown(@()draw_mask(ds,'mask_vertices',[1,2,3;-0.6,-0.59,-0.58]), ...
                 'HORACE:draw_mask:invalid_argument');
-        end                
+        end
         function test_dm_check_fig_info_works_with_IXdata_and_points(obj)
             ds = obj.sqw_2d.data;
             xyData = IX_dataset_2d(ds);
             [ma,sz] = draw_mask(xyData,'mask_vertices',[1,2,3,4],'-test_fig_info');
-            
+
             assertEqual(struct('XLim',ds.img_range(:,1)','YLim',ds.img_range(:,2)'),ma);
             assertEqual(sz,[16,11]);
-        end        
+        end
         function test_dm_check_fig_info_works_with_obj_and_points(obj)
             ds = obj.sqw_2d.data;
             [ma,sz] = draw_mask(obj.sqw_2d,'mask_vertices',[1,2,3,4],'-test_fig_info');
-            
+
             assertEqual(struct('XLim',ds.img_range(:,1)','YLim',ds.img_range(:,2)'),ma);
             assertEqual(sz,[16,11]);
         end
         function test_dm_check_fig_info_works_with_obj_input(obj)
-            close all;            
+            close all;
             [ma,sz] = draw_mask(obj.sqw_2d,'-test_fig_info');
             fh = gcf;
             clOb = onCleanup(@()close(fh));
@@ -133,6 +133,20 @@ classdef test_mask_points < TestCase
             [ma,sz] = draw_mask(fh,'-test_fig_info');
             assertEqual(ax,ma);
             assertEqual(sz,[1,1])
+        end
+        %==================================================================
+        function test_mask_points_only(obj)
+            sample = true(16,11);
+            sample(12:16,7:11) = false;
+            tobj = obj.sqw_2d.data;
+            img_range = tobj.img_range(:,1:2);
+            dr = [0.1,0.1];
+
+            r3 = img_range(2,:)';
+            r1 = r3 - dr';
+
+            msk = mask_points(tobj,'remove',[r1(1),r3(1),r1(2),r3(2)]);
+            assertEqual(sample,msk);
         end
 
         function test_dm_check_fig_info_wrong_input_dim_d3d(~)
