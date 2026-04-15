@@ -1,5 +1,8 @@
 classdef test_cut_sym_cube < TestCase
 
+    properties
+        ref_samp
+    end
     properties(Constant)
         nil = [0 0 0];
 
@@ -22,6 +25,70 @@ classdef test_cut_sym_cube < TestCase
                 name = 'test_cut_sym_cube';
             end
             obj@TestCase(name)
+            proj = line_proj([1,0,0],[0,1,0],'alatt',2*pi,'angdeg',90);
+            ab   = line_axes('img_range',[-1,-1,-1,0;1,1,1,10],'nbins_all_dims',[100,100,1,100]);
+            function weight = build_img(h,k,~,e,varargin)
+                % function describes 4-symmetry-equivalent regions
+                weight = zeros(size(h));
+                left = h<0;
+                h(left) = -h(left);
+                left = k<0;
+                k(left) = -k(left);
+                r = (h-0.5).^2+(k-0.5).^2;
+                width = 0.5-(0.5/10)*(10-e);
+                is_right = h>0.5;
+                is_signal = r<width & r>=width-0.1;
+                weight(is_signal&is_right)=2;
+                weight(is_signal&(~is_right))=1;
+            end
+            obj.ref_samp = sqw.generate_cube_sqw(ab,proj,@build_img);
+        end
+
+        function test_cut_2flip_transf_with_offset(obj)
+            proj = line_proj([1,0,0],[0,1,0],'offset',[0.5,0.5,0]);
+            sym1 = SymopReflection([0,1,0],[0,0,1]);
+            sym2 = SymopReflection([1,0,0],[0,0,-1]);
+            sym3 = [SymopReflection([0,1,0],[0,0,1]),SymopReflection([1,0,0],[0,0,-1])];            
+
+            cut2D = cut(obj.ref_samp,proj,[-0.4,0.04,0.4],[-0.4,0.04,0.4],[-1,1],[2,3], ...
+                {sym1,sym2,sym3});
+            assertEqualToTol(cut2D.data.img_range, [...
+                -0.4200, -0.4200, -1.0000,   2.0000;
+                0.4200    0.4200    1.0000   3.0000],'tol',1.e-4); % cut ranges around offset
+            assertEqualToTol(cut2D.pix.pix_range, [...
+                0.0900    0.0900         0    2.0500;
+                0.9100    0.9100         0    2.9500],'tol',1.e-4); %pix ranges cover contributing symmetrized range
+            ref_cut = cut(obj.ref_samp,[0.1,0.04,0.9],[0.1,0.04,0.9],[2,3]);            
+            ref_npix_val = 40;
+            is_base = ref_cut.data.npix == ref_npix_val;
+            assertTrue(all(is_base(:)));            
+            assertEqual(max(cut2D.data.s(:)),2);
+            is_increased = cut2D.data.npix == 4*ref_npix_val;
+            
+            assertTrue(all(is_increased(:)));
+            assertEqual(cut2D.pix.num_pixels,4*ref_cut.pix.num_pixels);
+        end
+        
+
+        function test_cut_sym_rot_with_offset(obj)
+            proj = line_proj([1,0,0],[0,1,0],'offset',[0.5,0.5,0]);
+            sym1 = SymopRotation([0,0,1],180,[0.5,0.5,0]);
+
+            cut2D = cut(obj.ref_samp,proj,[0,0.04,0.4],[-0.4,0.04,0.4],[-1,1],[2,3],sym1);
+            assertEqualToTol(cut2D.data.img_range, [...
+                -0.0200, -0.4200, -1.0000,   2.0000;
+                0.4200    0.4200    1.0000   3.0000],'tol',1.e-4); % cut ranges around offset
+            assertEqualToTol(cut2D.pix.pix_range, [...
+                0.4900    0.0900         0    2.0500;
+                0.9100    0.9100         0    2.9500],'tol',1.e-4); %pix ranges cover contributing symmetrized range
+            ref_cut = cut(obj.ref_samp,[0.1,0.04,0.9],[0.1,0.04,0.9],[2,3]);            
+            is_base = ref_cut.data.npix == 40;
+            assertTrue(all(is_base(:)));            
+            assertEqual(max(cut2D.data.s(:)),1.5);
+            is_doubled = cut2D.data.npix(2:end,2:end)==80;
+
+            assertTrue(all(is_doubled(:)));
+            assertEqual(cut2D.pix.num_pixels,ref_cut.pix.num_pixels);
         end
 
         function test_cut_sym_identity_stripped(~)
@@ -91,21 +158,18 @@ classdef test_cut_sym_cube < TestCase
 
             tsqw = sqw.generate_cube_sqw(10);
             tsqw.data.angdeg = [90, 90, 120];
-            % define rotation axis as the one, orthogonal to
-            % [1,0,0],[0,1,0] plane
-            % TODO: Re #1908; #1668. Regularize input according to these
-            % tickets.
+            %
             uv_cc = tsqw.data.proj.transform_hkl_to_pix([[1,0,0]',[0,1,0]']);
             ort = cross(uv_cc(:,1),uv_cc(:,2));
             rot_axis = tsqw.data.proj.transform_pix_to_hkl(ort);
 
-            wtmp = symmetrise_sqw(tsqw, SymopRotation.fold(2, rot_axis));
+            wtmp = symmetrise_sqw(tsqw, SymopRotation.fold(2, rot_axis,'cc'));
             res_sqw = cut(wtmp, line_proj([1 0 0], [0 1 0]), ...
                 [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5]);
 
             res_sqw2 = cut(tsqw, line_proj([1 0 0], [0 1 0]), ...
                 [-5 5], [0.5 1 1.5], [-1.5 1 1.5], [-5 5], ...
-                SymopRotation.fold(2, [0,0,1]));
+                SymopRotation.fold(2, [0,0,1],'cc'));
 
             assertEqual(res_sqw.data, res_sqw2.data)
 
@@ -170,11 +234,11 @@ classdef test_cut_sym_cube < TestCase
         end
 
         function test_cut_sym_reflect_multi(obj)
-            data = sqw.generate_cube_sqw(10);
+            data = obj.ref_samp;
 
             proj = line_proj([1 0 0], [0 1 0]);
-            ubin_half = [0.5 1 4.5];
-            all_data = {[-5 5] [-5 5] [-5 5]};
+            ubin_half = [0+0.01 0.02 1-0.01];
+            all_data = {[-1 1] [-1 1] [0 10]};
 
             clOb = set_temporary_warning('off','HORACE:symmetrise_sqw:deprecated');
             wtmp = symmetrise_sqw(data, obj.ref_x{:}, obj.nil);
@@ -186,8 +250,7 @@ classdef test_cut_sym_cube < TestCase
             op = {obj.ref_x_op, obj.ref_y_op, [obj.ref_x_op, obj.ref_y_op]};
             w_sym2 = cut(data, proj, ubin_half, ubin_half,all_data{2:end},op);
 
-            assertEqualToTol(w_sym1, w_sym2,'-ignore_date');
-
+            assertEqualToTol(w_sym1, w_sym2,'-ignore_date','tol',[1.e-14,1.e-14]);
         end
 
         function test_cut_sym_general(~)

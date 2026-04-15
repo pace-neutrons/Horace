@@ -204,7 +204,7 @@ if ispc
     cxx_flags =['COMPFLAGS= $COMPFLAGS',' -I',common_include,' /openmp /std:c++20'];
     ld_flags = 'LDFLAGS= --no-undefined';
 else
-    cxx_flags = ['CXXFLAGS= $CFLAGS',' -I',common_include,' -fopenmp -std=c++20'];
+    cxx_flags = ['CXXFLAGS= $CFLAGS',' -I',common_include,' -fopenmp -std=c++2a'];
     ld_flags  = 'LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp';
 end
 

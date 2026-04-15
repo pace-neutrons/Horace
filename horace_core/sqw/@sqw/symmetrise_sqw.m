@@ -83,7 +83,7 @@ win = sqw(win);
 wout = copy(win);
 proj = win.data.proj;
 
-[sym, fold] = validate_and_generate_sym(sym, proj);
+[sym, fold] = Symop.validate_and_generate_sym(sym, proj);
 if iscell(sym)
     transforms = cellfun(@(x)@(varargin)x.transform_pix(varargin{:}), sym, 'UniformOutput', false);
 else

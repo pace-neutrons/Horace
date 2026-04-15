@@ -1,48 +1,40 @@
 classdef SymopGeneral < Symop
 
-    properties(Dependent)
-        W;
-    end
-
-    properties(Access=protected)
-        W_ = eye(3);
+    properties(Dependent,Hidden)
+        W; % redundant interface. Use R for modern
     end
 
     methods
 
-        function obj = SymopGeneral(W, offset,varargin)
+        function obj = SymopGeneral(varargin)
+            % General transformation class constructor
+            %>>op = SymopRotation(R,offset)
+            %>>op = SymopRotation(R,offset,b_matrix)
+            %Inputs:
+            % R --  3x3 matrix defining generic symmetry transformation
+            % Optional:
+            % offset -- center of transformation
+            % 
+
             if nargin == 0
                 return
             end
-
-            if ~exist('offset', 'var')
-                offset = obj.offset;
-            end
-
-            if ~Symop.check_args({W, offset})
-                error('HORACE:symop:invalid_argument', ...
-                    ['Constructor arguments should be:\n', ...
-                    '- General:  Symop(3x3matrix, [3vector])\n', ...
-                    'Received: %s'], disp2str(W));
-            end
-
-            obj.W = W;
-            obj.offset = offset;
-            if nargin>2
-                obj.b_matrix = varargin{1};
+            flds = obj.saveableFields();
+            [obj,remains] = ...
+                set_positional_and_key_val_arguments(obj,...
+                flds,false,varargin{:});
+            if ~isempty(remains)
+                error('HORACE:SymopRotation:invalid_argument', ...
+                    'Additional arguments %s have not been recognized', ...
+                    disp2str(remains));
             end
         end
-
+        % Redundant properties used for compatibility only
         function obj = set.W(obj, val)
-            if  ~obj.is_3x3matrix(val) || abs(det(val)) - 1 > 1e-4
-                error('HORACE:symop:invalid_argument', ...
-                    'Motion matrix W must be a 3x3 matrix with determinant 1, det: %d', det(val));
-            end
-            obj.W_ = reshape(val, [3 3]); % Just requires 9 elements & numeric
+            obj = set_R(obj,val);
         end
-
         function W = get.W(obj)
-            W = obj.W_;
+            W = obj.R_;
         end
 
         function selected = in_irreducible(~, ~, ~)
@@ -78,28 +70,40 @@ classdef SymopGeneral < Symop
             % -------
             %   R       Transformation matrix to be applied to the components of a
             %          vector given in the orthonormal frame for which Minv is defined
-            R = obj.W_;
+            R = obj.R_;
         end
 
         function local_disp(obj)
             fprintf('Sym op: \n')
             if any(obj.offset)
-                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.W(1, :), obj.offset(1));
-                fprintf(' % 6.4f % 6.4f % 6.4f + % 6.4f\n', obj.W(2, :), obj.offset(2));
-                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.W(3, :), obj.offset(3));
+                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.R(1, :), obj.offset(1));
+                fprintf(' % 6.4f % 6.4f % 6.4f + % 6.4f\n', obj.R(2, :), obj.offset(2));
+                fprintf(' % 6.4f % 6.4f % 6.4f   % 6.4f\n', obj.R(3, :), obj.offset(3));
             else
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(1, :));
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(2, :));
-                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.W(3, :));
+                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.R(1, :));
+                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.R(2, :));
+                fprintf(' % 6.4f % 6.4f % 6.4f\n', obj.R(3, :));
             end
         end
 
     end
-
     % Serializable interface
     methods
+        function obj = check_combo_arg(obj)
+            obj = obj.check_offset_b_matrix_consistency();
+        end
+    end
+    methods(Access = protected)
+        function   obj = set_R(obj,val)
+            if  ~obj.is_3x3matrix(val) || abs(det(val)) - 1 > 1e-4
+                error('HORACE:symop:invalid_argument', ...
+                    'Motion matrix R must be a 3x3 matrix with determinant |1|, det: %d', det(val));
+            end
+            obj.R_ = reshape(val, [3 3]); % Just requires 9 elements & numeric
+        end
+
         function flds = local_saveableFields(~)
-            flds = {'W', 'offset'};
+            flds = {'R', 'offset','b_matrix'};
         end
     end
 

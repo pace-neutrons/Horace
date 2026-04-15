@@ -97,7 +97,7 @@ size_t inline add_pix_to_accumulators(const SRC* pix_coord_ptr, size_t pix_in_pi
     const std::vector<double>& qi, const std::vector<size_t>& pax,
     const std::vector<double>& cut_range, const std::vector<double>& bin_step,
     const std::vector<size_t>& bin_cell_idx_range, const std::vector<size_t>& stride,
-    std::span<double>& npix, std::span<double>& s, std::span<double>& e)
+    span<double>& npix, span<double>& s, span<double>& e)
 {
     // calculate location of pixel within the image grid
     auto il = pix_position(qi, pax, cut_range, bin_step, bin_cell_idx_range, stride);
@@ -122,7 +122,7 @@ void inline copy_resiults_to_final_arrays(BinningArg* const bin_par_ptr, const S
     // allocated memory for pixel indices
     mxInt64* pix_img_idx_ptr(nullptr);
     bin_par_ptr->pix_img_idx_ptr = allocate_pix_memory<mxInt64>(nPixel_retained, 1, pix_img_idx_ptr);
-    std::span<mxInt64> pix_img_idx(pix_img_idx_ptr, nPixel_retained);
+    span<mxInt64> pix_img_idx(pix_img_idx_ptr, nPixel_retained);
 
     bool align_result = bin_par_ptr->alignment_matrix.size() == 9;
 
@@ -164,7 +164,7 @@ void inline copy_resiults_to_final_arrays(BinningArg* const bin_par_ptr, const S
  *                and output values calculated in some binning modes.
  */
 template <class SRC, class TRG>
-size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<double>& e, BinningArg* const bin_par_ptr)
+size_t bin_pixels(span<double>& npix, span<double>& s, span<double>& e, BinningArg* const bin_par_ptr)
 {
     // numbers of bins in the grid
     auto distribution_size = bin_par_ptr->n_grid_points();
@@ -191,10 +191,10 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
     std::vector<size_t> bin_cell_idx_range = bin_par_ptr->bin_cell_idx_range;
 
     // initialize space for calculating pixel data ranges if necessary
-    std::span<double> pix_ranges;
+    span<double> pix_ranges;
     auto pix_range_ids = (bin_par_ptr->pix_data_range_ptr == nullptr) ? 0 : 2 * pix_flds::PIX_WIDTH;
     if (bin_par_ptr->binMode > opModes::sigerr_cell && pix_range_ids > 0 && bin_par_ptr->binMode < opModes::siger_selected) { // higher modes process pixel ranges except
-        pix_ranges = std::span<double>(mxGetPr(bin_par_ptr->pix_data_range_ptr), pix_range_ids);
+        pix_ranges = span<double>(mxGetPr(bin_par_ptr->pix_data_range_ptr), pix_range_ids);
         init_min_max_range_calc(pix_ranges, pix_flds::PIX_WIDTH);
     }
     bool check_pix_selection = bin_par_ptr->check_pix_selection && (pix_coord_ptr != nullptr);
@@ -372,7 +372,7 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
         // allocated memory for pixel indices
         mxInt64 * pix_img_idx_ptr(nullptr);
         bin_par_ptr->pix_img_idx_ptr = allocate_pix_memory<mxInt64>(nPixel_retained, 1, pix_img_idx_ptr);
-        std::span<mxInt64> pix_img_idx(pix_img_idx_ptr, nPixel_retained);
+        span<mxInt64> pix_img_idx(pix_img_idx_ptr, nPixel_retained);
         copy_resiults_to_final_arrays<SRC, TRG>(bin_par_ptr, pix_coord_ptr,
             data_size, nPixel_retained, pix_ok_bin_idx);
         // swap memory of working arrays back to binning_arguments to retain it for the next call
@@ -389,9 +389,9 @@ size_t bin_pixels(std::span<double>& npix, std::span<double>& s, std::span<doubl
 
         // Allocate memory for logical array of selected pixels
         mxLogical* is_pix_selected_ptr(nullptr);
-        std::span<mxLogical> is_pix_selected;
+        span<mxLogical> is_pix_selected;
         bin_par_ptr->is_pix_selected_ptr = allocate_pix_memory<mxLogical>(1, data_size, is_pix_selected_ptr);
-        is_pix_selected = std::span<mxLogical>(is_pix_selected_ptr, data_size);
+        is_pix_selected = span<mxLogical>(is_pix_selected_ptr, data_size);
 
         for (long i = 0; i < data_size; i++) {
             // drop out coordinates outside of the binning range

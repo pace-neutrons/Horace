@@ -235,3 +235,5 @@ end
 
 % Get figure, axes and plot handles
 [fig_h, axes_h, plot_h] = genie_figure_all_handles;
+
+fig_h = w.add_source_data_to_fig_handle(fig_h,new_axes);

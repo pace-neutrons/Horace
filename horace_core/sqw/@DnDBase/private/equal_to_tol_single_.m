@@ -33,11 +33,7 @@ for i=1:numel(flds)
     if ignore_str && istext(tmp1) && istext(tmp2)
         continue;
     end
-    if ismember(flds{i},{'s','e'}) % compare signal and error as single values
-        % regardless of their actual accuracy. this is what actually matter
-        tmp1 = single(tmp1);
-        tmp2 = single(tmp2);
-    end
+
     [iseq,mess] = equal_to_tol (tmp1 , tmp2, lopt,varargin{:});
     if ~iseq
         return;

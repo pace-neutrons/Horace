@@ -61,6 +61,12 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         % if they are not modified properly (e.g. if you set up offset in rlu,
         % but  try to use u_offset_ in CC without setting up b-matrix
         b_matrix_ = []; % holder for b-matrix value.
+        R_   = []
+    end
+    properties(Constant,Access=private)
+        tol = 1.e-12 % vector or matrix elements smaller that this value
+        % considered to be 0. Introduced to not keep out small elements
+        % appearing as the results of matrix operations.
     end
 
     methods
@@ -68,9 +74,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             offset = obj.offset_;
         end
         function obj = set.offset(obj, val)
-            if ~obj.is_3vector(val)
+            [is,val] = obj.check_and_brush_3vector(val);
+            if ~is
                 error('HORACE:symop:invalid_argument', ...
-                    'Offset must be a numeric 3-vector')
+                    'Offset must be a numeric 3-vector. It is %s',...
+                    disp2str(val));
             end
             obj.offset_ = val(:);
             obj.offset_specified_uoffset_not_  = true;
@@ -96,40 +104,33 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
 
         function R = get.R(obj)
-            % Compute general transformation matrix for operator
-            % Computing so as to generate it for Symop subclasses
-            R = obj.calculate_transform(eye(3));
+            % Return general transformation matrix for operator
+            R = obj.R_;
+        end
+        function obj = set.R(obj,val)
+            obj = set_R(obj,val);
         end
 
     end
-
+    %----------------------------------------------------------------------
     methods(Abstract)
         R = calculate_transform(obj, B_mat)
         local_disp(obj)
         selected = in_irreducible(obj, coords,varargin)
+        obj = check_combo_arg(obj,varargin);
+    end
+    methods(Abstract,Access=protected)
+        flds = local_saveableFields(obj);
+        obj = set_R(obj,val);
     end
 
+    methods(Static)
+        % Check sym is a valid symmetry reduction for symmetrise_sqw and
+        % modify it according to symmetry rules  used in symmetrise_sqw.
+        [sym, fold] = validate_and_generate_sym(sym,varargin)
+    end
     methods(Sealed)
-        function obj = check_combo_arg(obj)
-            % check interdependent class variables and
-            % put them into consistent state
-            %
-            % Here we synchronize u_offset and offset if B-matrix is
-            % defined. If not, they remain unsynchronized
-            zero_offset =  all(obj.offset_ == 0);
-            if zero_offset
-                obj.u_offset_ = zeros(3,1);
-                obj.offset_specified_uoffset_not_  = false;
-            else
-                if isempty(obj.b_matrix_)
-                    obj.offset_specified_uoffset_not_  = true;
-                else
-                    obj.u_offset_ = obj.b_matrix_*obj.offset_;
-                    obj.offset_specified_uoffset_not_  = false;
-                end
-            end
 
-        end
         function [iseq,mess] = equal_to_tol(obj1,obj2,varargin)
             % overload equal_to_tol as this method requested to be called
             % on serializable interface
@@ -329,14 +330,11 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             end
             bm = proj.bmatrix(3);
             for i=numel(obj):-1:1
-                obj(i).do_check_combo_arg = false;
                 obj(i).b_matrix = bm;
                 if ~isa(obj(i),'SymopIdentity')
                     sym_transf_mat = obj(i).R*sym_transf_mat;
                     obj(i).offset = sym_offset;
                 end
-                obj(i).do_check_combo_arg = true;
-                obj(i) = obj(i).check_combo_arg();
             end
             if numel(obj)>1
                 out_obj = SymopGeneral(sym_transf_mat,sym_offset);
@@ -401,89 +399,51 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
     end
 
     methods(Static)
-        function obj = create(varargin)
+        function obj = create(op_name,varargin)
             % Create a symmetry operator object.
             %
-            % Valid operators are:
-            %   Rotation:
-            %       >> obj = Symop.create (axis, angle)
-            %       >> obj = Symop.create (axis, angle, offset)
+            % Input:
+            % ------
+            % op_name -- Name of operation to create
             %
-            %       Input:
-            %       ------
-            %       axis    Vector defining the rotation axis                                 [3-vector]
-            %               (in reciprocal lattice units: (h,k,l))
-            %       angle   Angle of rotation in degrees                                      [scalar]
-            %       offset  [Optional] Vector defining a point in reciprocal lattice units
-            %               through which the rotation axis passes
-            %               Default: [0,0,0] i.e. the rotation axis goes through the origin
-            %
-            %   Reflection:
-            %       >> obj = Symop.create (u, v)
-            %       >> obj = Symop.create (u, v, offset)
-            %
-            %       Input:
-            %       ------
-            %       u, v    Vectors giving two directions that lie in a mirror plane          [3-vector]
-            %               (in reciprocal lattice units: (h,k,l))
-            %       offset  [Optional] Vector connecting the mirror plane to the origin
-            %               i.e. is an offset vector (in reciprocal lattice units: (h,k,l))
-            %               Default: [0,0,0] i.e. the mirror plane goes through the origin
-            %
-            %   Symmetry Motion operator:
-            %       >> obj = Symop.create(W, offset)
-            %
-            %       Input:
-            %       ------
-            %       W       A transformation operation in matrix form.                        [3x3 matrix]
-            %               W can represent the identity element {eye(3)},
-            %               the inversion element {-eye(3)}, any rotation
-            %               or any roto-inversion. The elements of W are
-            %               almost certainly integers.
-            %       offset  [Optional] The origin at which the transformation
-            %               is performed, expressed in r.l.u.
-            %               Default: [0,0,0]
+            %       Valid operators names are:
+            %       Re[flection], Ro[tation],I[dentity],G[eneral]
+            % varargin -- The arguments of correspondent symmetry
+            %             constructor
             %
             % EXAMPLES:
-            %   Rotation of 120 degress about [1,1,1]:
-            %       obj = Symop.create ([1,1,1], 120)
+            %   Rotation of 120 degrees about [1,1,1]:
+            %       obj = Symop.create ('Rot',[1,1,1], 120)
             %
             %   Reflection through a plane going through the [2,0,0] reciprocal lattice point:
-            %       obj = Symop.create ([1,1,0], [0,0,1], [2,0,0])
+            %       obj = Symop.create ('Refl',[1,1,0], [0,0,1], [2,0,0])
+            %
 
-            if numel(varargin)>0
-
-                if SymopIdentity.check_args(varargin)
-
-                    obj = SymopIdentity(varargin{:});
-                elseif SymopReflection.check_args(varargin)
-
+            sh_name = short_name_(op_name);
+            switch sh_name
+                case('RE')
                     obj = SymopReflection(varargin{:});
-                elseif SymopRotation.check_args(varargin)
-
+                case('RO')
                     obj = SymopRotation(varargin{:});
-                elseif Symop.check_args(varargin)
-
+                case('I')
+                    obj = SymopIdentity(varargin{:});
+                case('G')
                     obj = SymopGeneral(varargin{:});
-                else
-                    error('HORACE:symop:invalid_argument', ...
-                        ['Constructor arguments should be one of:\n', ...
-                        '- Rotation:   symop(3vector, scalar, [3vector])\n', ...
-                        '- Reflection: symop(3vector, 3vector, [3vector])\n', ...
-                        '- General:    symop(3x3matrix, [3vector])\n', ...
-                        'Received: %s'], disp2str(varargin));
-                end
+                otherwise
+                    error('HORACE:Symop:invalid_argument',[ ...
+                        'Short name of input operation: %s ' ...
+                        'does not belong to allowed operations: RE,RO,I,G'], ...
+                        sh_name);
             end
         end
 
-        function is = check_args(argin)
-            is = (isscalar(argin) || ...
-                numel(argin) == 2 && Symop.is_3vector(argin{2})) && ...
-                Symop.is_3x3matrix(argin{1});
-        end
-
-        function is = is_3vector(elem)
+        function [is,elem] = check_and_brush_3vector(elem)
             is = isnumeric(elem) && numel(elem) == 3;
+            if ~is
+                return;
+            end
+            small = abs(elem)< Symop.tol;
+            elem(small) = 0;
         end
 
         function is = is_3x3matrix(elem)
@@ -491,11 +451,10 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         end
     end
 
-
     methods(Sealed,Access=protected)
         function [sym_offset,symmetries] = extract_common_group_offset(symmetries)
-            % check if offset is the same within the group of symmetry
-            % transformations, extract common offset if some symmetry
+            % check if offset is the same within the array
+            % of symmetry transformations, extract common offset if some symmetry
             % objects in the group does not have offset and throw if
             % non-zero offsets in the group are different.
             %
@@ -503,35 +462,13 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
             % elements of the group had zero offset.
             %
             % Inputs:
-            %
             % symmetries -- array of symop-s. (Should not contain identity)
-            zer = zeros(3,1);
-            sym_offset = zer;
-            n_sym_offsets = 0;
-            for obj=symmetries
-                if any(abs(obj.offset-zer)>4*eps('double'))
-                    n_sym_offsets = n_sym_offsets + 1;
-                    if n_sym_offsets>1
-                        if any(abs(obj.offset-sym_offset)>4*eps('double'))
-                            error('HORACE:Symop:not_implemented',[ ...
-                                'Multiple offsets for group of transformations are not implemented.\n',...
-                                'All transformations in a transformation group array must have the same offset\n',...
-                                'used by all transformations in the group\n',...
-                                'or the same offset for each element of the group']);
-                        end
-                    else
-                        sym_offset  = obj.offset;
-                    end
-                end
-            end
-            if n_sym_offsets> 0 && n_sym_offsets ~= numel(obj)
-                % there are offsets set on one or multiple symmetries but
-                % some symmetries have zero offsets. This is not allowed as
-                % assumed that they all must have the same offset.
-                for obj=symmetries
-                    obj.offset = sym_offset;
-                end
-            end
+            %
+            % Returns:
+            % sym_offset -- offset common for all symmetries provided as input
+            % symmetries -- Input array of symmetry transformations modified so that
+            %               each member of this array have common offset set-up.            %
+            [sym_offset,symmetries] = extract_common_group_offset_(symmetries);
         end
         % Serializable interface
         function  [S,obj] = convert_old_struct (obj, S, varargin)
@@ -539,7 +476,29 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                 S.normvec = S.n;
             end
         end
+
+        function obj = check_offset_b_matrix_consistency(obj)
+            % check consistency between offset and b-matrix.
+            % If offset is defined then b-matrix is necessary for symmetry
+            % to work. Set internal flags which would prevent
+            % further calculations in case of offset is defined and
+            % b-matrix is not.
+            %
+            zero_offset =  all(obj.offset_ == 0);
+            if zero_offset
+                obj.u_offset_ = zeros(3,1);
+                obj.offset_specified_uoffset_not_  = false;
+            else
+                if isempty(obj.b_matrix_)
+                    obj.offset_specified_uoffset_not_  = true;
+                else
+                    obj.u_offset_ = obj.b_matrix_*obj.offset_;
+                    obj.offset_specified_uoffset_not_  = false;
+                end
+            end
+        end
     end
+
     methods(Sealed)
         % Serializable interface
         function ser = serialize(obj, varargin)
@@ -559,6 +518,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
                     'data', {cellfun(@(x) obj(i).(x), obj(i).saveableFields, 'UniformOutput', false)});
             end
         end
+
         function out = from_bare_struct(~, array_dat)
             out = arrayfun(@(x) feval(x.class, x.data{:}), array_dat, 'UniformOutput', false);
             out = [out{:}];
@@ -567,6 +527,7 @@ classdef(Abstract) Symop < matlab.mixin.Heterogeneous & serializable
         function ver = classVersion(~)
             ver = 2;
         end
+
         function flds = saveableFields(obj)
             flds = obj.local_saveableFields();
         end

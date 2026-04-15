@@ -15,7 +15,7 @@ function [idx_lng,minmax_idx] = long_idx(idx_short,minmax_idx)
 % minmax_idx -- [ND x 2] array of min-max values for input indices.
 %               where minmax_idx(:,1) represent minimal and minmax_idx(:,2)
 %               maximal values of input index array.
-%               If not provided, this value is calulated from input indices
+%               If not provided, this value is calculated from input indices
 %               using minmax function.
 %Returns:
 %  idx_lng  -- linear indices of the n-dimensional box build on input
