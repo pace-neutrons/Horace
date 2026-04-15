@@ -18,7 +18,12 @@ classdef test_mask_points < TestCase
             obj.sqw_2d_file_path = fullfile(pths.test_common, 'sqw_2d_1.sqw');
             % 2D case setup
             obj.sqw_2d = sqw(obj.sqw_2d_file_path, 'file_backed', false);
-            obj.skip_ipt_tests = ~license('test','image_toolbox');
+            try
+                h =  poly2mask(1,2,4,4);
+                obj.skip_ipt_tests = false;                
+            catch
+                obj.skip_ipt_tests = true;
+            end
         end
 
         function test_mask_top_corner_points_no_ipt(obj)
