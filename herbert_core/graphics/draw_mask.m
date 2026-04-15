@@ -5,14 +5,18 @@ function [msk,varargout] = draw_mask(fig_info,varargin)
 % of sqw, d2d or IX_dataset_2D objects
 %
 %Inputs:
-% fig_info  -- number which represents existing image, graphical axis
-%              handle (e.g. obtained by calling gca for current image) or
+% fig_info  -- either:
+%              number which represents existing image,
+%        or
+%              graphical axis handle (e.g. obtained by calling gca for current image)
+%        or
 %              plottable Horace object (sqw, dnd or IX_dataset_2D) to draw
-%              mask on it. If Horace object is provided, the object gets
-%              plotted
+%              mask on it. If Horace object is provided, "mask_vertices"
+%              option is not used and image processing toolbox is available
+%              the object gets plotted to allow interactive mask drawing.
 %
-% Optional:             (all keys may be abbreviated to 3 symbols)
-% 'points_provided'  -- if this option is provided, one have to supply
+% Optional:            (all keys may be abbreviated to 3 symbols)
+% 'mask_vertices'   -- if this option is provided, one have to supply
 %                       array of points which define mask, namely surrounds
 %                       the points to be masked. The points have to be
 %                       provided as 2xNP array where first colum define x
@@ -22,7 +26,7 @@ function [msk,varargout] = draw_mask(fig_info,varargin)
 %  IMPORTANT:
 %                       This key disables image drawing capability and is
 %                       mandatory if image processing toolbox is not
-%                       present. In this case, one needs to scan and
+%                       present. In this case, one needs to measure and
 %                       provide mask points manualy.
 %
 % '-freehand_draw'   -- use MATLAB "drawfreehand" routine to draw mask on
@@ -33,16 +37,19 @@ function [msk,varargout] = draw_mask(fig_info,varargin)
 % '-keep_area'      -- If option provided, area surrounded by input points
 %                      is kept and external area is masked. By default,
 %                      mask excludes selected part of the image.
-%  points           -- if string 'points_provided' is present, 2xNP array
-%                      in figure axis coordinates, containing points, which
-%                      define mask.
+% '-disable_ipt'    -- disable image processing toolbox capabilities even
+%                      if they are present. Usually for testing
+%  mask_vertices    -- if string 'mask_vertices' is present, 2xNP array
+%                      in figure axis coordinates, containing mask vertices,
+%                      which define mask.
 %
 % Returns:
 % msk       -- logical mask to be used with mask algorithm to
 % Optional
 % ax        -- handle to axis where mask is drawn or structure with
 %              XLim,YLim fields containing image ranges.
-% points    -- array of points used for masking. Same as input points if
+% mask_vertices
+%           -- array of points used for masking. Same as input points if
 %              mask is build on Horace object rather than image. Result of
 %              drawpolygon or drawfreehand function containing polygon
 %              vertices if input is graphical object.
@@ -52,19 +59,21 @@ if isempty(img_processing_toolbox_present)
     img_processing_toolbox_present = license('test','image_toolbox');
 end
 
-options = {'points_provided','-freehand_draw','-keep_area','-test_fig_info'};
-[ok,mess,points_provided,draw_using_free,keep_area,test_fig_info,argi] = parse_char_options(varargin,options);
+options = {'mask_vertices','-freehand_draw','-keep_area','-test_fig_info','-disable_ipt'};
+[ok,mess,mask_vertices_provided,draw_using_free,keep_area,test_fig_info,disable_ipt,argi] =...
+    parse_char_options(varargin,options);
 if ~ok
     error('HORACE:draw_mask:invalid_argument',mess);
 end
-if ~img_processing_toolbox_present && ~points_provided
+use_ipt = img_processing_toolbox_present&&~disable_ipt;
+if ~use_ipt && ~mask_vertices_provided
     error('HORACE:draw_mask:invalid_argument', ...
         ['Image processing toolbox is necessary to draw mask manually.\n' ...
         ' If it is not present, provide array of mask points']);
 end
 
 % check input and return image axis or information about image axis.
-[h_axis,sz] = check_fig_info(fig_info,points_provided);
+[h_axis,sz] = check_fig_info(fig_info,mask_vertices_provided);
 
 
 if test_fig_info
@@ -78,7 +87,7 @@ end
 x_range = h_axis.XLim;
 y_range = h_axis.YLim;
 
-if points_provided
+if mask_vertices_provided
     points = argi{1};
     if size(points,1)~=2
         error('HORACE:draw_mask:invalid_argument',[...
@@ -110,7 +119,7 @@ end
 iy = floor((sz(1)-1)*(points(:,1)-x_range(1))/(x_range(2)-x_range(1)))+1;
 ix = floor((sz(2)-1)*(points(:,2)-y_range(1))/(y_range(2)-y_range(1)))+1;
 
-if img_processing_toolbox_present
+if use_ipt
     msk = poly2mask(ix,iy,sz(1),sz(2));
 else
     msk = poly2mask_equiv(ix,iy,sz(1),sz(2));
@@ -209,5 +218,6 @@ end
 [X, Y] = meshgrid(1:n, 1:m);
 
 % Point-in-polygon test
-[mask,on] = inpolygon(X, Y, x, y);
+%[mask,on] = inpolygon(X, Y, x, y);
+mask = inpolygon(X, Y, x, y);
 end
