@@ -253,7 +253,7 @@ i.e. applied in the reverse order of the list).
 .. code-block:: matlab
 
    % Rotate 90 deg about X, Reflect across X, Rotate back 90 deg about X
-   >> big_sym = [SymopRotation([1 0 0], 90), SymopReflection([0 1 0], [0 0 1]), SymopRotation([1 0 0], -90)];
+   big_sym = [SymopRotation([1 0 0], 90), SymopReflection([0 1 0], [0 0 1]), SymopRotation([1 0 0], -90)];
    
 .. note::
 

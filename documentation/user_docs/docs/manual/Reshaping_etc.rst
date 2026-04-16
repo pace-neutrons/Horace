@@ -234,6 +234,8 @@ are convoluted.
 ``function`` may be either either ``'hat'`` or ``'gaussian'`` to apply the
 respective windowing function.
 
+.. _mask_algorithm:
+
 ``mask``
 ========
 
@@ -385,3 +387,61 @@ The inputs are:
 The output is:
 
 - ``wout``, the output sqw object with mask applied
+
+.. _draw_mask_algorithm:
+
+``draw_mask``
+=============
+
+Take 2-dimensional image or 2-dimensional Horace object and construct mask for this object for future use with 
+``mask`` algorithm :ref:`above <mask_algorithm>`. 
+Mask may be drawn on a Matlab image or defined by 2-dimensional array of image points. Drawing mask requests image processing toolbox being 
+installed but option to provide mask vertices in array works for any MATLAB version. 
+
+.. code-block:: matlab
+
+    msk  = draw_mask(win);
+    msk  = draw_mask(fig_num);
+    msk = draw_mask(fig_ax_handle);
+    
+    msk = draw_mask(__,'mask_vertices',[x1,x2,x3...;y1,y2,y3]);
+    [msk,ax,mask_vertices] = draw_mask(__);
+    
+    
+The possible inputs are:
+
+* ``win`` -- ``sqw`` object to be masked  **or**
+* ``fig_num`` -- number of existing figure to draw mask on **or**
+* ``fig_ax_handle`` -- handle to the image(``gcf`` for current) or the axis (``gca`` for current) to draw mask on.
+
+Optional:
+
+* ``'mask_vertices'`` -- key followed by 2-dimensional array of coordinates, defining points surrounding area to mask.
+  **Mandatory** if you do not have image processing toolbox installed.
+* ``'-keep_area'``   -- If option provided, area surrounded by input points is kept and external area is masked. By default,
+  mask excludes selected part of the image.   
+* ``'-freehand_draw'``   -- use MATLAB "drawfreehand" routine to draw mask on the image provided. If this key is not provided,
+  routine uses MATLAB's "drawpolygon" routine to draw the mask. Option is ignored if ``fig_info`` is Horace
+  dataset and ``mask_vertices`` are provided. Drawing options are available only if image processing toolbox is installed. 
+
+The figure below shows the result of executing the following code:
+
+.. code-block:: matlab
+
+   msk  = draw_mask(6);
+   wout = mask(src(6),msk);
+   plot(wout); lz 0 0.5;
+   
+where image number 6 was present in Matlab workspace. If image processing toolbox is available, one can draw the points
+highlighted by red arrow on the left part of the image using mouse, but if toolbox is not available one needs to
+read the coordinates of these points from the image and provide them as 2x6 array of image coordinates values 
+for 'mask_vertices' key.
+
+.. figure:: ../images/Draw_mask_and_apply_it_to_object.png
+   :align: center
+   :width: 800
+
+Function returns logical ``msk`` array with dimensions of masked image i.e. (``size(win.data.npix)==win.data.img_size``) for input ``sqw`` object.
+
+Additional returns are the axes handle for the image to mask and drawn mask vertices. Output ``mask_vertices`` coincide with input mask vertices
+if you provided them, or are the coordinates of the drawn points if the points were drawn on the image (needs image processing toolbox).
