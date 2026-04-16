@@ -424,6 +424,18 @@ Optional:
   routine uses MATLAB's "drawpolygon" routine to draw the mask. Option is ignored if ``fig_info`` is Horace
   dataset and ``mask_vertices`` are provided. Drawing options are available only if image processing toolbox is installed. 
 
+Returns:
+
+* ``msk`` logical array with dimensions of masked image i.e. ``size(win.data.npix)`` or ``win.data.img_size`` if input ``win`` object
+  is an ``sqw`` object. Object contains ``true`` for cells to keep and ``false`` for masked areas. 
+
+Additional returns:
+
+* ``ax``  -- the axes handle for the image to mask.
+* ``mask_vertices`` -- the vertices which define mask. Output ``mask_vertices`` coincide with input mask vertices
+  if you provided them, or are the coordinates of the points drawn on the image in image coordinate system if they were drawn. (needs image processing toolbox).
+
+
 The figure below shows the result of executing the following code:
 
 .. code-block:: matlab
@@ -440,8 +452,3 @@ for 'mask_vertices' key.
 .. figure:: ../images/Draw_mask_and_apply_it_to_object.png
    :align: center
    :width: 800
-
-Function returns logical ``msk`` array with dimensions of masked image i.e. (``size(win.data.npix)==win.data.img_size``) for input ``sqw`` object.
-
-Additional returns are the axes handle for the image to mask and drawn mask vertices. Output ``mask_vertices`` coincide with input mask vertices
-if you provided them, or are the coordinates of the drawn points if the points were drawn on the image (needs image processing toolbox).
