@@ -7,6 +7,12 @@ The documentation requires the following to be installed:
 * Python (3.5+)
 * Sphinx
 * Sphinx RTD theme
+* sphinxcontrib-matlabdomain 
+
+The software may be installed by calling the following `conda` commands:
+>> conda create -n horace_doc
+>> conda activate horace_doc
+>> python -m pip install Sphinx sphinx-rtd-theme sphinxcontrib.matlab
 
 On Linux (Optional):
 * Make

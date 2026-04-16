@@ -559,7 +559,21 @@ Plots data in ``sqw`` HKL directions.
 
 ::
 
-   wsp = spaghetti_plot([0 0 0; 0.5 0.5 0.5; 0.5 0.5 0],sqw_file,'labels',{'\\Gamma','R','M'})
+   >>wsp = spaghetti_plot([0 0 0; 0.5 0.5 0.5; 0.5 0.5 0],sqw_file,'labels',{'\\Gamma','R','M'}); % made spaghetti plot
+   >>wsp = spaghetti_plot(plot_data); % plot existing spaghetti plot data
+   
+where:
+``rlp`` -- Array of reciprocal lattice points e.g. [0,0,0; 0,0,1; 1,0,1; 1,0,0],
+``data_source`` -- either `sqw` object or filename of a file with sqw-type data 
+(character string or cellarray with one character string) or, array of d2d objects representing
+spaghetti plot panels. In this case, ``rlp`` points are optional and can be fully replaced by labels.
+The program works as if ``rlp`` option is missing.
+
+``wdisp``  -- Array of ``d2d`` or ``IX_dataset_2d`` objects containing the  cuts - 
+e.g. previous generated spaghetti plot.
+
+call ``help spaghetti_plot`` for extensive set of optional keyword options (can be abbreviated to single letter),
+
 
 
 Three dimensional plots
