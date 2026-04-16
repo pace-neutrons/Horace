@@ -17,12 +17,12 @@ function [msk,varargout] = draw_mask(fig_info,varargin)
 %
 % Optional:            (all keys may be abbreviated to 3 symbols)
 % 'mask_vertices'   -- if this option is provided, one have to supply
-%                       array of points which define mask, namely surrounds
-%                       the points to be masked. The points have to be
-%                       provided as 2xNP array where first colum define x
-%                       and second column y coordinates of the hull
-%                       surrounding masked points. The coordinates of these
-%                       points have to be expressed in image coordinates.
+%                      array of points which define mask, namely surrounds
+%                      the points to be masked. The points have to be
+%                      provided as 2xNP array where first colum define x
+%                      and second column y coordinates of the hull
+%                      surrounding masked points. The coordinates of these
+%                      points have to be expressed in image coordinates.
 %  IMPORTANT:
 %                       This key disables image drawing capability and is
 %                       mandatory if image processing toolbox is not
@@ -33,15 +33,13 @@ function [msk,varargout] = draw_mask(fig_info,varargin)
 %                       the image provided. If this key is not provided,
 %                       routine uses MATLAB's "drawpolygon" routine to draw
 %                       the mask. Option is ignored if fig_info is Horace
-%                       dataset and points are provided.
+%                       dataset and points are provided. Its available only
+%                       if image processing toolbox is installed.
 % '-keep_area'      -- If option provided, area surrounded by input points
 %                      is kept and external area is masked. By default,
 %                      mask excludes selected part of the image.
 % '-disable_ipt'    -- disable image processing toolbox capabilities even
 %                      if they are present. Usually for testing
-%  mask_vertices    -- if string 'mask_vertices' is present, 2xNP array
-%                      in figure axis coordinates, containing mask vertices,
-%                      which define mask.
 %
 % Returns:
 % msk       -- logical mask to be used with mask algorithm to
