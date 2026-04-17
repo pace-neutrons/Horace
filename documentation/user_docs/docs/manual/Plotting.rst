@@ -572,7 +572,15 @@ The program works as if ``rlp`` option is missing.
 ``wdisp``  -- Array of ``d2d`` or ``IX_dataset_2d`` objects containing the  cuts - 
 e.g. previous generated spaghetti plot.
 
-call ``help spaghetti_plot`` for extensive set of optional keyword options (can be abbreviated to single letter),
+call ``help spaghetti_plot`` for extensive set of optional keyword options (can be abbreviated to single letter).
+An example of the plot, produced py ``shaghetti_plot`` routine is presented on the following picture:
+
+.. figure:: ../images/Spaghetti_example.png
+   :align: center
+   :width: 600px
+   :alt: iron spaghetti plot
+
+   Spaghetti plot example
 
 
 

@@ -53,6 +53,12 @@ classdef IX_data_2d < IX_dataset
             nd = 2;
         end
     end
+    methods(Access=protected)
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object dimensions
+            nd =2;
+        end
+    end    
     %======================================================================
     methods
         function obj = IX_data_2d(varargin)

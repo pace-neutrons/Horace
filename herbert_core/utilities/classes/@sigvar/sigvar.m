@@ -208,6 +208,24 @@ classdef sigvar < data_op_interface & serializable
         end
         wout = binary_op_manager_single(w1, w2, binary_op,varargin);
     end
+    methods(Access=protected)
+        function  nd = get_NUM_DIMS(~)
+            % NUM_DIMS getter. Return number of object's image dimensions
+            sz = size(obj.signal_); % Define it as number of non-unit dimensions in signal array
+            not_one = sz ~= 1;
+            sz  = sz(not_one);
+            if isempty(sz)
+                nd = 1;
+            else
+                nd = numel(sz);
+            end
+        end
+        
+        function sz = get_img_size(obj)
+            % get size of dataset's image
+            sz = size(obj.signal_); % Define it as size of signal array
+        end        
+    end
 
 
     %======================================================================

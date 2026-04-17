@@ -283,7 +283,7 @@ classdef test_mask_sqw < TestCase
         end
 
         function test_mask_random_fraction_equal_to_slim(obj)
-            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
+            sqw_obj =  obj.sqw_2d;
 
             frac_to_keep = 1/5;
             new_sqw = mask_random_fraction_pixels(sqw_obj, frac_to_keep);
@@ -294,7 +294,7 @@ classdef test_mask_sqw < TestCase
         end
 
         function test_mask_random_fraction_removes_perc_of_pix_in_mem(obj)
-            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
+            sqw_obj =  obj.sqw_2d;
 
             frac_to_keep = 0.8;
             new_sqw = mask_random_fraction_pixels(sqw_obj, frac_to_keep);
@@ -307,7 +307,7 @@ classdef test_mask_sqw < TestCase
         end
 
         function test_mask_random_retains_correct_number_of_pix_on_file(obj)
-            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',true);
+            sqw_obj =  obj.sqw_2d;
             new_pg_size = floor(obj.sqw_2d_num_pixels/6);
             clOb  = set_temporary_config_options(hor_config(), 'mem_chunk_size',new_pg_size);
 
@@ -320,7 +320,7 @@ classdef test_mask_sqw < TestCase
         end
 
         function test_mask_random_retains_correct_number_of_pix_in_mem(obj)
-            sqw_obj = sqw(obj.sqw_2d_file_path,'file_backed',false);
+            sqw_obj = obj.sqw_2d;
 
             num_pix_to_keep = 5000;
             new_sqw = mask_random_pixels(sqw_obj, num_pix_to_keep);

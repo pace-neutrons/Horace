@@ -4,6 +4,10 @@ classdef(Abstract) data_op_interface
     %
     % The operations are implemented using unary and binary operation
     % managers.
+    properties(Dependent,Hidden=true)
+        NUM_DIMS % number of object dimensions
+        img_size % size of ND image stored in object or image object itself
+    end
     properties(Constant,Access = private)
         % list of classes which have binary operations redefined.
         base_classes   = {'sqw','PixelDataBase','DnDBase','IX_dataset','sigvar','numeric'};
@@ -59,6 +63,13 @@ classdef(Abstract) data_op_interface
         %------------------------------------------------------------------
         w = binary_op_manager(w1,w2,op_function_handle,varargin);
         w = binary_op_manager_single(w1, w2, op_function_handle,varargin);
+        %------------------------------------------------------------------
+        function nd = get.NUM_DIMS(obj)
+            nd = get_NUM_DIMS(obj);
+        end
+        function sz = get.img_size(obj)
+            sz = get_img_size(obj);
+        end
     end
     methods(Static)
         function [priority,sv_size,has_pix,has_img] = get_priority(obj)
@@ -119,8 +130,15 @@ classdef(Abstract) data_op_interface
             [flip,page_op_kind] = is_superior_(obj1,obj2,op_name);
         end
     end
+    %
+    methods(Abstract,Access=protected)
+        % return number of object dimensions
+        nd = get_NUM_DIMS(obj)
+        % return size of the nd image object represents or object itself
+        sz = get_img_size(obj);
+    end
+
     methods(Access=protected)
         w = unary_op_manager (w1, op_function_handle);
     end
-
 end

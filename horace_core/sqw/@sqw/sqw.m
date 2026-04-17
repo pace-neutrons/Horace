@@ -9,8 +9,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     %
     properties(Dependent)
-        %exposes number of dimensions in the underlying image
-        NUM_DIMS;
         % common with loaders interface to pix.num_pixels property
         % describing number of pixels (neutron events) stored
         % in sqw object
@@ -369,15 +367,6 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         end
         %
         %------------------------------------------------------------------
-        % Read_only accessors and hidden properties
-        function nd = get.NUM_DIMS(obj)
-            if isempty(obj.data_)
-                nd = [];
-            else
-                nd = obj.data_.NUM_DIMS;
-            end
-        end
-        %
         function fn = get.full_filename(obj)
             % hiddent
             fn = get_full_filename_(obj);
@@ -486,6 +475,23 @@ classdef (InferiorClasses = {?DnDBase,?PixelDataBase,?IX_dataset,?sigvar}) sqw <
         end
         function is = get_is_filebacked(obj)
             is = obj.has_pixels && obj.pix.is_filebacked;
+        end
+
+        function  nd = get_NUM_DIMS(obj)
+            % NUM_DIMS getter. Return number of object dimensions
+            if isempty(obj.data_)
+                nd =[];
+            else
+                nd= obj.data_.get_NUM_DIMS();
+            end
+        end
+        function sz = get_img_size(obj)
+            % get size of dataset's image
+            if isempty(obj.data_)
+                sz =zeros(1,0);
+            else
+                sz = obj.data_.img_size; % size of underlying dnd object
+            end
         end
     end
     methods(Static,Access=protected)
