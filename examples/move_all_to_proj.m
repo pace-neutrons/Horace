@@ -42,7 +42,9 @@ for i=1:numel(proj_array)
     proj_array(i).alatt = targ_proj.alatt;
     proj_array(i).angdeg = targ_proj.angdeg;
     % transform momentum transfer values from current page of data into
-    % image associated with proj_array(i) projection.
+    % image associated with proj_array(i) projection. x-axis (data.p{1})
+    % of image, produced by this projection have to coincide for all
+    % combined images.
     coord_tr = proj_array(i).transform_pix_to_img(q_coord);
     % Assume these coordinates are in the target coordinate system instead
     % of the actual coordinate system defined initially by proj_array(i).
