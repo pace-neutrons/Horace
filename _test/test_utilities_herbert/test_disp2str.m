@@ -12,13 +12,13 @@ classdef test_disp2str< TestCase
             ss = disp2str(1:100,60,'constrained');
             ss = splitlines(ss);
             assertEqual(ss{2},...
-                '1     2     3     4     5     6     7  constrained')
+                '1     2     3     4     5     6     7   constrained')
         end
         function test_truncate_returns_default(~)
             ss = disp2str(1:100,60);
             ss = splitlines(ss);
             assertEqual(ss{2}, ...
-                '1     2     3     4     5     6     7  ...truncated.')
+                '1     2     3     4     5     6     7   ...truncated.')
         end
         function test_cell(~)
             pat = {1,2,3};
