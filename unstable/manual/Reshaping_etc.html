@@ -65,6 +65,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#mask">9.7. <code class="docutils literal notranslate"><span class="pre">mask</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mask-points">9.8. <code class="docutils literal notranslate"><span class="pre">mask_points</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mask-runs">9.9. <code class="docutils literal notranslate"><span class="pre">mask_runs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#draw-mask">9.10. <code class="docutils literal notranslate"><span class="pre">draw_mask</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">10. Symmetry Operations</a></li>
@@ -302,7 +303,7 @@ are convoluted.</p>
 respective windowing function.</p>
 </section>
 <section id="mask">
-<h2><span class="section-number">9.7. </span><code class="docutils literal notranslate"><span class="pre">mask</span></code><a class="headerlink" href="#mask" title="Permalink to this heading"></a></h2>
+<span id="mask-algorithm"></span><h2><span class="section-number">9.7. </span><code class="docutils literal notranslate"><span class="pre">mask</span></code><a class="headerlink" href="#mask" title="Permalink to this heading"></a></h2>
 <p>Apply a mask to points in an n-dimensional dataset <code class="docutils literal notranslate"><span class="pre">win</span></code>.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">mask_array</span><span class="p">)</span>
 </pre></div>
@@ -433,6 +434,61 @@ value can be determined by inspecting <code class="docutils literal notranslate"
 <li><p><code class="docutils literal notranslate"><span class="pre">wout</span></code>, the output sqw object with mask applied</p></li>
 </ul>
 </section>
+<section id="draw-mask">
+<span id="draw-mask-algorithm"></span><h2><span class="section-number">9.10. </span><code class="docutils literal notranslate"><span class="pre">draw_mask</span></code><a class="headerlink" href="#draw-mask" title="Permalink to this heading"></a></h2>
+<p>Take 2-dimensional image or 2-dimensional Horace object and construct mask for this object for future use with
+<code class="docutils literal notranslate"><span class="pre">mask</span></code> algorithm <a class="reference internal" href="#mask-algorithm"><span class="std std-ref">above</span></a>.
+Mask may be drawn on a Matlab image or defined by 2-dimensional array of image points. Drawing mask requests image processing toolbox being
+installed but option to provide mask vertices in array works for any MATLAB version.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">msk</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">draw_mask</span><span class="p">(</span><span class="n">win</span><span class="p">);</span>
+<span class="n">msk</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">draw_mask</span><span class="p">(</span><span class="n">fig_num</span><span class="p">);</span>
+<span class="n">msk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">draw_mask</span><span class="p">(</span><span class="n">fig_ax_handle</span><span class="p">);</span>
+
+<span class="n">msk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">draw_mask</span><span class="p">(</span><span class="n">__</span><span class="p">,</span><span class="s">&#39;mask_vertices&#39;</span><span class="p">,[</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">x3</span><span class="k">...</span><span class="c">;y1,y2,y3]);</span>
+<span class="p">[</span><span class="n">msk</span><span class="p">,</span><span class="n">ax</span><span class="p">,</span><span class="n">mask_vertices</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">draw_mask</span><span class="p">(</span><span class="n">__</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The possible inputs are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">win</span></code> – <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object to be masked  <strong>or</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fig_num</span></code> – number of existing figure to draw mask on <strong>or</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fig_ax_handle</span></code> – handle to the image(<code class="docutils literal notranslate"><span class="pre">gcf</span></code> for current) or the axis (<code class="docutils literal notranslate"><span class="pre">gca</span></code> for current) to draw mask on.</p></li>
+</ul>
+<p>Optional:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'mask_vertices'</span></code> – key followed by 2-dimensional array of coordinates, defining points surrounding area to mask.
+<strong>Mandatory</strong> if you do not have image processing toolbox installed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'-keep_area'</span></code>   – If option provided, area surrounded by input points is kept and external area is masked. By default,
+mask excludes selected part of the image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'-freehand_draw'</span></code>   – use MATLAB “drawfreehand” routine to draw mask on the image provided. If this key is not provided,
+routine uses MATLAB’s “drawpolygon” routine to draw the mask. Option is ignored if <code class="docutils literal notranslate"><span class="pre">fig_info</span></code> is Horace
+dataset and <code class="docutils literal notranslate"><span class="pre">mask_vertices</span></code> are provided. Drawing options are available only if image processing toolbox is installed.</p></li>
+</ul>
+<p>Returns:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">msk</span></code> logical array with dimensions of masked image i.e. <code class="docutils literal notranslate"><span class="pre">size(win.data.npix)</span></code> or <code class="docutils literal notranslate"><span class="pre">win.data.img_size</span></code> if input <code class="docutils literal notranslate"><span class="pre">win</span></code> object
+is an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. Object contains <code class="docutils literal notranslate"><span class="pre">true</span></code> for cells to keep and <code class="docutils literal notranslate"><span class="pre">false</span></code> for masked areas.</p></li>
+</ul>
+<p>Additional returns:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ax</span></code>  – the axes handle for the image to mask.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mask_vertices</span></code> – the vertices which define mask. Output <code class="docutils literal notranslate"><span class="pre">mask_vertices</span></code> coincide with input mask vertices
+if you provided them, or are the coordinates of the points drawn on the image in image coordinate system if they were drawn. (needs image processing toolbox).</p></li>
+</ul>
+<p>The figure below shows the result of executing the following code:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">msk</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">draw_mask</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">src</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="n">msk</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">wout</span><span class="p">);</span><span class="w"> </span><span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.5</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>where image number 6 was present in Matlab workspace. If image processing toolbox is available, one can draw the points
+highlighted by red arrow on the left part of the image using mouse, but if toolbox is not available one needs to
+read the coordinates of these points from the image and provide them as 2x6 array of image coordinates values
+for ‘mask_vertices’ key.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/Draw_mask_and_apply_it_to_object.png"><img alt="../_images/Draw_mask_and_apply_it_to_object.png" src="../_images/Draw_mask_and_apply_it_to_object.png" style="width: 800px;" /></a>
+</figure>
+</section>
 </section>
 
 
@@ -447,7 +503,7 @@ value can be determined by inspecting <code class="docutils literal notranslate"
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 17, 2026, 10:08:15 AM.
+      <span class="lastupdated">Last updated on Apr 17, 2026, 10:35:20 AM.
       </span></p>
   </div>
 

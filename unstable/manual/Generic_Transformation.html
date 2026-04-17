@@ -561,7 +561,9 @@ internal structure.</p></li>
 <span class="w">    </span><span class="n">proj_array</span><span class="p">(</span><span class="nb">i</span><span class="p">).</span><span class="n">alatt</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">targ_proj</span><span class="p">.</span><span class="n">alatt</span><span class="p">;</span>
 <span class="w">    </span><span class="n">proj_array</span><span class="p">(</span><span class="nb">i</span><span class="p">).</span><span class="n">angdeg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">targ_proj</span><span class="p">.</span><span class="n">angdeg</span><span class="p">;</span>
 <span class="w">    </span><span class="c">% transform momentum transfer values from current page of data into</span>
-<span class="w">    </span><span class="c">% image associated with proj_array(i) projection</span>
+<span class="w">    </span><span class="c">% image associated with proj_array(i) projection. x-axis (data.p{1})</span>
+<span class="w">    </span><span class="c">% of image, produced by this projection have to coincide for all</span>
+<span class="w">    </span><span class="c">% combined images.</span>
 <span class="w">    </span><span class="n">coord_tr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">proj_array</span><span class="p">(</span><span class="nb">i</span><span class="p">).</span><span class="n">transform_pix_to_img</span><span class="p">(</span><span class="n">q_coord</span><span class="p">);</span>
 <span class="w">    </span><span class="c">% find the data falling outside of the target image range</span>
 <span class="w">    </span><span class="c">% forcing target image and the image produced by current projection to</span>
@@ -629,7 +631,7 @@ in the comments to the function. The main idea of the operation is that you sele
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 17, 2026, 10:08:15 AM.
+      <span class="lastupdated">Last updated on Apr 17, 2026, 10:35:20 AM.
       </span></p>
   </div>
 

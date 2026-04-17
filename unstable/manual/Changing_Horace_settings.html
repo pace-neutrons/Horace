@@ -144,7 +144,7 @@ configurations and settings.</p></li>
 new Matlab sessions.</p></li>
 </ul>
 <section id="horace-config">
-<h2><span class="section-number">19.1. </span>Horace Config<a class="headerlink" href="#horace-config" title="Permalink to this heading"></a></h2>
+<span id="hor-config-settings"></span><h2><span class="section-number">19.1. </span>Horace Config<a class="headerlink" href="#horace-config" title="Permalink to this heading"></a></h2>
 <p>The Horace config (<code class="docutils literal notranslate"><span class="pre">hor_config</span></code>) manages configuration features of the Horace
 library functions, such as how functions handle <code class="docutils literal notranslate"><span class="pre">NaN</span></code> and <code class="docutils literal notranslate"><span class="pre">inf</span></code>, the
 verbosity of the code and whether to use compiled C++ accelerator codes. It also
@@ -160,6 +160,7 @@ functionality and <code class="docutils literal notranslate"><span class="pre">p
 <span class="w">               </span><span class="n">use_mex</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">            </span><span class="n">delete_tmp</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">     </span><span class="n">working_directory</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/temp/Horace_4.0.0.f2f508726&#39;</span>
+<span class="w">    </span><span class="n">store_src_in_plots</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">  </span><span class="n">force_mex_if_use_mex</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">            </span><span class="n">hpc_config</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span>×<span class="mi">1</span><span class="w"> </span><span class="n">hpc_config</span><span class="p">]</span>
 <span class="w">       </span><span class="n">parallel_config</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span>×<span class="mi">1</span><span class="w"> </span><span class="n">parallel_config</span><span class="p">]</span>
@@ -198,6 +199,9 @@ the calculation instead of falling back to MATLAB code.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">delete_tmp</span></code> : Whether to automatically delete temporary files after
 generating SQW files.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">working_directory</span></code> : The directory to which temporary files are written</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">store_src_in_plots</span></code> : if true (default) all Horace objects are attached to the figures displaying these objects.
+<code class="docutils literal notranslate"><span class="pre">src</span></code> command then may be applied to an image to provide this object back to user. If you set this property to false,
+objects become not available any more. (Advanced) : Reference to the plotted object is stored in MATLAB’s  <code class="docutils literal notranslate"><span class="pre">fig.UserData</span></code> property.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> : Reference to the HPC configuration (<a class="reference internal" href="#hpc-config"><span class="std std-ref">see below</span></a>:)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">parallel_config</span></code> : Reference to the settings to run parallel jobs (<a class="reference internal" href="#parallel-config"><span class="std std-ref">see below</span></a>:)</p></li>
 </ul>
@@ -426,7 +430,7 @@ session starts graphics from its default values above.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 17, 2026, 10:08:15 AM.
+      <span class="lastupdated">Last updated on Apr 17, 2026, 10:35:20 AM.
       </span></p>
   </div>
 

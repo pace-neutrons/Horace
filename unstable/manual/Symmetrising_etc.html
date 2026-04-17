@@ -372,7 +372,7 @@ reflections applied to single area of space, it is possible to construct an arra
 of transformations to be applied in sequence (as a series of pre-multiplications,
 i.e. applied in the reverse order of the list).</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Rotate 90 deg about X, Reflect across X, Rotate back 90 deg about X</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">big_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">90</span><span class="p">),</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">-</span><span class="mi">90</span><span class="p">)];</span>
+<span class="n">big_sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">90</span><span class="p">),</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">-</span><span class="mi">90</span><span class="p">)];</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -897,7 +897,7 @@ completeness.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Apr 17, 2026, 10:08:15 AM.
+      <span class="lastupdated">Last updated on Apr 17, 2026, 10:35:20 AM.
       </span></p>
   </div>
 
