@@ -134,5 +134,4 @@ classdef test_tobyfit_refine_moderator < TestCaseWithSave
 
         end
     end
-
 end
