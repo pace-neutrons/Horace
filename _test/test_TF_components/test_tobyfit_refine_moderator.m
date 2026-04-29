@@ -90,7 +90,7 @@ classdef test_tobyfit_refine_moderator < TestCaseWithSave
             kk = kk.set_mc_points (obj.mc);
             kk = kk.set_options('listing', obj.nlist);
 
-            [~, fp, ok, mess, pmodel, ppfit, psigfit] = kk.fit;
+            [fm, fp, ok, mess, pmodel, ppfit, psigfit] = kk.fit;
 
             assertTestWithSave (obj, fp, @is_same_fit, obj.tolerance)
             assertEqual ([ppfit, psigfit],[fp.p(4:6), fp.sig(4:6)])
