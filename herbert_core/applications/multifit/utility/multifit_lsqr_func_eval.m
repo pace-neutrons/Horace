@@ -5,7 +5,7 @@ function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,
 %   >> [ycalc,varcalc,S]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,bplist,...
 %                   f_pass_caller_info,bf_pass_caller_info,pf,p_info,store_calc,Sin,listing)
 %
-%   >> multifit_lsqr_func_eval     % cleanup stored arguments
+%   >> multifit_lsqr_func_eval     % clean-up stored arguments
 %
 % Input:
 % ------
@@ -34,10 +34,10 @@ function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,
 %   bplist      Array of valid parameter lists, one list per background function.
 %
 %   f_pass_caller_info  Keep internal state of foreground function evaluation e.g. seed of random
-%               number generator. Dictates the format of the fit fuction argument list.
+%               number generator. Dictates the format of the fit function argument list.
 %
 %   bf_pass_caller_info Keep internal state of background function evaluation e.g. seed of random
-%               number generator. Dictates the format of the fit fuction argument list.
+%               number generator. Dictates the format of the fit function argument list.
 %
 %   pf          Free parameter values (that is, the independently
 %              varying parameters)
@@ -67,12 +67,12 @@ function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,
 %   varcalc     Estimated variance on the calculated values
 %               A column vector of all the points.
 %
-%   S           Structure containing stored values and internal states of functions.
-%               If store_calc is true, this will have been updated from Sin by calls
+%   S          Structure containing stored values and internal states of functions.
+%              If store_calc is true, this will have been updated from S in by calls
 %              to the fitting function.
-%               In the case when store_calc is false, the structure will be
-%              created with the correct fields, but they will be initalised
-%              only as cell arrays with empty elemeents.
+%              In the case when store_calc is false, the structure will be
+%              created with the correct fields, but they will be initialised
+%              only as cell arrays with empty elements.
 %
 %   Store       Updated stored values of e.g. expensively evaluated lookup tables that
 %              have been accumulated to during evaluation of the fit functions
@@ -88,9 +88,9 @@ function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,
 %                                           @fun, plist, c1, c2, ...)
 %
 % where:
-%   caller      Stucture that contains information from the caller routine. Fields
+%   caller      Structure that contains information from the caller routine. Fields
 %                   reset_state     Logical scalar
-%                   ind             Indicies of data sets in the full set of data
+%                   ind             Indices of data sets in the full set of data
 %   state_in    Cell array containing previously saved internal states for each
 %              element of win
 %   store_in    Stored values of e.g. expensively evaluated lookup tables
@@ -110,213 +110,36 @@ function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,
 % Original author: T.G.Perring
 
 % Initialise store if required
-S=Sin;
-if isempty(S)
-    S.store_filled=false;
-    S.pstore=cell(size(plist)); S.bpstore=cell(size(bplist));
-    S.fcalc_store=cell(size(w)); S.fvar_store=cell(size(w));
-    S.bcalc_store=cell(size(w)); S.bvar_store=cell(size(w));
-    S.fstate_store=cell(size(w)); S.bfstate_store=cell(size(w));
-end
+
 Store=Store_in;
 if isempty(Store)
     Store.fore=[];
     Store.back=[];
 end
 
-fcalc=cell(size(w)); fvar=cell(size(w)); bcalc=cell(size(w)); bvar=cell(size(w));
-
 [p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
 
-caller.reset_state=~store_calc;
-caller.ind=[];
-
-nw=numel(w);
-% Get foreground function calculated values for non-empty functions, and store if required
-if numel(func)==1
-    if ~isempty(func{1})
-        fcalc_filled=true(nw,1);
-        if S.store_filled && all(p{1}==S.pstore{1})
-            fcalc=S.fcalc_store;
-            fvar=S.fvar_store;
-            fcalculated=false(nw,1);
-        else
-            pars=plist_update(plist(1),p{1});
-            for iw=1:nw
-                caller.ind=iw;
-                if xye(iw)
-                    if ~f_pass_caller_info
-                        fcalc{iw}=func{1}(w{iw}.x{:},pars{:});
-                    else
-                        [fcalc{iw},fstate,Store.fore]=func{1}(w{iw}.x{:},caller,...
-                            S.fstate_store(iw),Store.fore,pars{:});
-                    end
-                    fvar{iw}=zeros(size(fcalc{iw}));
-                else
-                    if ~f_pass_caller_info
-                        wcalc=func{1}(w{iw},pars{:});
-                    else
-                        [wcalc,fstate,Store.fore]=func{1}(w{iw},caller,...
-                            S.fstate_store(iw),Store.fore,pars{:});
-                    end
-                    [fcalc{iw},fvar{iw},msk]=sigvar_get(wcalc);
-                    fcalc{iw}=fcalc{iw}(msk);         % remove the points that we are told to ignore
-                    fvar{iw}=fvar{iw}(msk);
-                end
-                fcalc{iw}=fcalc{iw}(:); % make column vector
-                fvar{iw}=fvar{iw}(:);
-                if store_calc
-                    S.fcalc_store{iw}=fcalc{iw};
-                    S.fvar_store{iw}=fvar{iw};
-                    if f_pass_caller_info, S.fstate_store(iw)=fstate; end
-                end
-            end
-            fcalculated=true(nw,1);
-        end
-    else
-        fcalc_filled=false(nw,1);
-        fcalculated=false(nw,1);
-    end
-else
-    fcalc_filled=false(nw,1);
-    fcalculated=false(nw,1);
-    for iw=1:nw
-        caller.ind=iw;
-        if ~isempty(func{iw})
-            fcalc_filled(iw)=true;
-            if S.store_filled && all(p{iw}==S.pstore{iw})
-                fcalc{iw}=S.fcalc_store{iw};
-                fvar{iw}=S.fvar_store{iw};
-            else
-                pars=plist_update(plist(iw),p{iw});
-                if xye(iw)
-                    if ~f_pass_caller_info
-                        fcalc{iw}=func{iw}(w{iw}.x{:},pars{:});
-                    else
-                        [fcalc{iw},fstate,Store.fore]=func{iw}(w{iw}.x{:},caller,...
-                            S.fstate_store(iw),Store.fore,pars{:});
-                    end
-                    fvar{iw}=zeros(size(fcalc{iw}));
-                else
-                    if ~f_pass_caller_info
-                        wcalc=func{iw}(w{iw},pars{:});
-                    else
-                        [wcalc,fstate,Store.fore]=func{iw}(w{iw},caller,...
-                            S.fstate_store(iw),Store.fore,pars{:});
-                    end
-                    [fcalc{iw},fvar{iw},msk]=sigvar_get(wcalc);
-                    fcalc{iw}=fcalc{iw}(msk);       % remove the points that we are told to ignore
-                    fvar{iw}=fvar{iw}(msk);
-                end
-                fcalc{iw}=fcalc{iw}(:); % make column vector
-                fvar{iw}=fvar{iw}(:);
-                if store_calc
-                    S.fcalc_store{iw}=fcalc{iw};
-                    S.fvar_store{iw}=fvar{iw};
-                    if f_pass_caller_info, S.fstate_store(iw)=fstate; end
-                end
-                fcalculated(iw)=true;
-            end
-        end
-    end
+S=Sin;
+if isempty(S)
+    base_names = {'par_store','calc_store','var_store','state_store'};    
+    S.fg = init_sub_struct(base_names,p,size(w));
+    S.bg = init_sub_struct(base_names,bp,size(w));
 end
 
+[fcalc,fvar,fcalc_filled,fcalculated,Store.fore,S.fg] = calculate_fun_on_ds( ...
+    w,xye,func,p,plist, ...
+    store_calc,f_pass_caller_info,Store.fore,S.fg);
 
-% Update background function calculated values for non-empty functions, and store if required
-if numel(bfunc)==1
-    if ~isempty(bfunc{1})
-        bcalc_filled=true(nw,1);
-        if S.store_filled && all(bp{1}==S.bpstore{1})
-            bcalc=S.bcalc_store;
-            bvar=S.bvar_store;
-            bcalculated=false(nw,1);
-        else
-            pars=plist_update(bplist(1),bp{1});
-            for iw=1:nw
-                caller.ind=iw;
-                if xye(iw)
-                    if ~bf_pass_caller_info
-                        bcalc{iw}=bfunc{1}(w{iw}.x{:},pars{:});
-                    else
-                        [bcalc{iw},bfstate,Store.back]=bfunc{1}(w{iw}.x{:},caller,...
-                            S.bfstate_store(iw),Store.back,pars{:});
-                    end
-                    bvar{iw}=zeros(size(bcalc{iw}));
-                else
-                    if ~bf_pass_caller_info
-                        wcalc=bfunc{1}(w{iw},pars{:});
-                    else
-                        [wcalc,bfstate,Store.back]=bfunc{1}(w{iw},caller,...
-                            S.bfstate_store(iw),Store.back,pars{:});
-                    end
-                    [bcalc{iw},bvar{iw},msk]=sigvar_get(wcalc);
-                    bcalc{iw}=bcalc{iw}(msk);           % remove the points that we are told to ignore
-                    bvar{iw}=bvar{iw}(msk);
-                end
-                bcalc{iw}=bcalc{iw}(:); % make column vector
-                bvar{iw}=bvar{iw}(:);
-                if store_calc
-                    S.bcalc_store{iw}=bcalc{iw};
-                    S.bvar_store{iw}=bvar{iw};
-                    if bf_pass_caller_info, S.bfstate_store(iw)=bfstate; end
-                end
-            end
-            bcalculated=true(nw,1);
-        end
-    else
-        bcalc_filled=false(nw,1);
-        bcalculated=false(nw,1);
-    end
-else
-    bcalc_filled=false(nw,1);
-    bcalculated=false(nw,1);
-    for iw=1:nw
-        caller.ind=iw;
-        if ~isempty(bfunc{iw})
-            bcalc_filled(iw)=true;
-            if S.store_filled && all(bp{iw}==S.bpstore{iw})
-                bcalc{iw}=S.bcalc_store{iw};
-                bvar{iw}=S.bvar_store{iw};
-            else
-                pars=plist_update(bplist(iw),bp{iw});
-                if xye(iw)
-                    if ~bf_pass_caller_info
-                        bcalc{iw}=bfunc{iw}(w{iw}.x{:},pars{:});
-                    else
-                        [bcalc{iw},bfstate,Store.back]=bfunc{iw}(w{iw}.x{:},caller,...
-                            S.bfstate_store(iw),Store.back,pars{:});
-                    end
-                    bvar{iw}=zeros(size(bcalc{iw}));
-                else
-                    if ~bf_pass_caller_info
-                        wcalc=bfunc{iw}(w{iw},pars{:});
-                    else
-                        [wcalc,bfstate,Store.back]=bfunc{iw}(w{iw},caller,...
-                            S.bfstate_store(iw),Store.back,pars{:});
-                    end
-                    [bcalc{iw},bvar{iw},msk]=sigvar_get(wcalc);
-                    bcalc{iw}=bcalc{iw}(msk);       % remove the points that we are told to ignore
-                    bvar{iw}=bvar{iw}(msk);
-                end
-                bcalc{iw}=bcalc{iw}(:); % make column vector
-                bvar{iw}=bvar{iw}(:);
-                if store_calc
-                    S.bcalc_store{iw}=bcalc{iw};
-                    S.bvar_store{iw}=bvar{iw};
-                    if bf_pass_caller_info, S.bfstate_store(iw)=bfstate; end
-                end
-                bcalculated(iw)=true;
-            end
-        end
-    end
-end
-
+[bcalc,bvar,bcalc_filled,bcalculated,Store.back,S.bg] = calculate_fun_on_ds( ...
+    w,xye,bfunc,bp,bplist, ...
+    store_calc,bf_pass_caller_info,Store.back,S.bg);
 
 % Update parameters in store
 if store_calc
-    S.store_filled=true;
-    S.pstore=p;
-    S.bpstore=bp;
+    S.fg.store_filled=true;
+    S.bg.store_filled=true;
+    S.fg.par_store=p;
+    S.bg.par_store=bp;
 end
 
 % Create zeros for calculated function values for empty functions
@@ -334,14 +157,88 @@ fvar(~fcalc_filled) = {0}; %zeros(size(bvar(~fcalc_filled)));
 bcalc(~bcalc_filled) = {0}; %zeros(size(fcalc(~bcalc_filled)));
 bvar(~bcalc_filled) = {0}; %zeros(size(fvar(~bcalc_filled)));
 
-ycalc = cellfun(@plus, fcalc, bcalc, 'UniformOutput', false);
-varcalc = cellfun(@plus, fvar, bvar, 'UniformOutput', false);
-
+% the loop with pre-allocation is faster then cellfun on all recent MATLAB-s
+ycalc = cell(1,numel(w));
+varcalc = cell(1,numel(w));
+for i=1:numel(w)
+    ycalc{i}   = fcalc{i}+bcalc{i};
+    varcalc{i} = fvar{i}+bvar{i};
+end
 % Write diagnostics to screen, if requested
 if listing>2
     list_calculated_funcs(fcalculated,bcalculated)
 end
+end
+%------------------------------------------------------------------------------
+function [fcalc,fvar,calc_filled,calculated,state,S] = calculate_fun_on_ds( ...
+    w,xye,func,p,plist, ...
+    store_calc,pass_caller_info,state,S)
+% Calculate function or set of provided functions (each per dataset) on the
+% cellarray of input objects
+%
+caller.reset_state=~store_calc;
+caller.ind=[];
 
+nw=numel(w);
+fcalc=cell(size(w)); fvar=cell(size(w));
+% Get function calculated values for non-empty functions, and store if required
+if isscalar(func)
+    fnums = ones(1,nw); % all datasets use one function
+else
+    fnums = 1:nw;       % each dataset has its own function
+end
+
+calc_filled=false(nw,1);
+calculated =false(nw,1);
+for iw=1:nw
+    caller.ind=iw;
+    num_f = fnums(iw);
+    if ~isempty(func{num_f})
+        calc_filled(iw)=true;
+        if S.store_filled && all(p{num_f}==S.par_store{num_f})
+            fcalc{iw}=S.calc_store{iw};
+            fvar{iw}=S.var_store{iw};
+        else
+            pars=plist_update(plist(num_f),p{num_f});
+            if xye(iw)
+                if ~pass_caller_info
+                    fcalc{iw}=func{num_f}(w{iw}.x{:},pars{:});
+                else
+                    [fcalc{iw},fstate,state]=func{num_f}(w{iw}.x{:},caller,...
+                        S.state_store(iw),state,pars{:});
+                end
+                fvar{iw}=zeros(size(fcalc{iw}));
+            else
+                if ~pass_caller_info
+                    wcalc=func{num_f}(w{iw},pars{:});
+                else
+                    [wcalc,fstate,Store.fore]=func{num_f}(w{iw},caller,...
+                        S.state_store(iw),state,pars{:});
+                end
+                [fcalc{iw},fvar{iw},msk]=sigvar_get(wcalc);
+                fcalc{iw}=fcalc{iw}(msk);       % remove the points that we are told to ignore
+                fvar{iw}=fvar{iw}(msk);
+            end
+            fcalc{iw}=fcalc{iw}(:); % make column vector
+            fvar{iw}=fvar{iw}(:);
+            if store_calc
+                S.calc_store{iw}=fcalc{iw};
+                S.var_store{iw}=fvar{iw};
+                if pass_caller_info; S.state_store(iw)=fstate; end
+            end
+            calculated(iw)=true;
+        end
+    end
+end
+end
+%------------------------------------------------------------------------------
+function S = init_sub_struct(field_names,plist,ds_size)
+% Initialize substructure used as storage for function values
+%
+field_val = {cell(size(plist)),cell(ds_size),cell(ds_size),cell(ds_size)};
+S = cell2struct(field_val,field_names,2);
+S.store_filled = false;
+end
 %------------------------------------------------------------------------------
 function plist_cell = plist_update (plist, pnew)
 % Take mfclass_plist object and replacement numerical parameter list with same number
@@ -353,7 +250,7 @@ if iscell(tmp.plist)
 else
     plist_cell={tmp.plist};         % catch case of p or c1<0> (see mfclass_plist)
 end
-
+end
 %------------------------------------------------------------------------------
 function list_calculated_funcs(f,b)
 % List the indicies of datasets that were computed
@@ -376,3 +273,4 @@ else
     disp('    Calculated background datasets:  n/a')
 end
 disp(' ')
+end
