@@ -122,9 +122,8 @@ end
 S=Sin;
 if isempty(S)
     base_names = {'par_store','calc_store','var_store','state_store'};    
-    S.fg = init_sub_struct(base_names,size(plist),size(w));
-    S.fg.store_filled = store_calc;  % S not empty any more
-    S.bg = S.fg;
+    S.fg = init_sub_struct(base_names,p,size(w));
+    S.bg = init_sub_struct(base_names,bp,size(w));
 end
 
 [fcalc,fvar,fcalc_filled,fcalculated,Store.fore,S.fg] = calculate_fun_on_ds( ...
@@ -233,10 +232,10 @@ for iw=1:nw
 end
 end
 %------------------------------------------------------------------------------
-function S = init_sub_struct(field_names,plist_size,ds_size)
+function S = init_sub_struct(field_names,plist,ds_size)
 % Initialize substructure used as storage for function values
 %
-field_val = {cell(plist_size),cell(ds_size),cell(ds_size),cell(ds_size)};
+field_val = {cell(size(plist)),cell(ds_size),cell(ds_size),cell(ds_size)};
 S = cell2struct(field_val,field_names,2);
 S.store_filled = false;
 end
