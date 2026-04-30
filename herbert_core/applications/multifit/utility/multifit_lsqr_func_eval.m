@@ -120,39 +120,27 @@ end
 [p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
 
 S=Sin;
-base_names = {'par_store','calc_store','var_store','state_store'};
 if isempty(S)
-    Sl = init_sub_struct(base_names,size(plist),size(w));
-    S.store_filled=store_calc;  % S not empty any more
-    init = true;
-else
-    init = false;
-    Sl= copy_sub_struct(S,[],base_names,'f');
+    base_names = {'par_store','calc_store','var_store','state_store'};    
+    S.fg = init_sub_struct(base_names,size(plist),size(w));
+    S.fg.store_filled = store_calc;  % S not empty any more
+    S.bg = S.fg;
 end
 
-[fcalc,fvar,fcalc_filled,fcalculated,Store.fore,Sl] = calculate_fun_on_ds( ...
+[fcalc,fvar,fcalc_filled,fcalculated,Store.fore,S.fg] = calculate_fun_on_ds( ...
     w,xye,func,p,plist, ...
-    store_calc,f_pass_caller_info,Store.fore,Sl);
+    store_calc,f_pass_caller_info,Store.fore,S.fg);
 
-S = copy_sub_struct(Sl,S,base_names,'f');
-
-if init
-    Sl = init_sub_struct(base_names,size(bplist),size(w));
-else
-    Sl= copy_sub_struct(S,[],base_names,'b');
-end
-[bcalc,bvar,bcalc_filled,bcalculated,Store.back,Sl] = calculate_fun_on_ds( ...
+[bcalc,bvar,bcalc_filled,bcalculated,Store.back,S.bg] = calculate_fun_on_ds( ...
     w,xye,bfunc,bp,bplist, ...
-    store_calc,bf_pass_caller_info,Store.back,Sl);
-
-S = copy_sub_struct(Sl,S,base_names,'b');
-
+    store_calc,bf_pass_caller_info,Store.back,S.bg);
 
 % Update parameters in store
 if store_calc
-    S.store_filled=true;
-    S.fpar_store=p;
-    S.bpar_store=bp;
+    S.fg.store_filled=true;
+    S.bg.store_filled=true;
+    S.fg.par_store=p;
+    S.bg.par_store=bp;
 end
 
 % Create zeros for calculated function values for empty functions
@@ -181,9 +169,8 @@ end
 if listing>2
     list_calculated_funcs(fcalculated,bcalculated)
 end
-%------------------------------------------------------------------------------
 end
-
+%------------------------------------------------------------------------------
 function [fcalc,fvar,calc_filled,calculated,state,S] = calculate_fun_on_ds( ...
     w,xye,func,p,plist, ...
     store_calc,pass_caller_info,state,S)
@@ -244,23 +231,6 @@ for iw=1:nw
         end
     end
 end
-end
-%------------------------------------------------------------------------------
-function S = copy_sub_struct(Ssrc,S,base_names,prefix)
-% Copy some fields from a sub-structure provided as input into another
-% structutre with (possibly) different names
-if isempty(S) % init
-    S = struct();
-    for i=1:numel(base_names)
-        S.(base_names{i})=Ssrc.([prefix,base_names{i}]);
-    end
-else % copy
-    for i=1:numel(base_names)
-        S.([prefix,base_names{i}])=Ssrc.(base_names{i});
-    end
-end
-S.store_filled = Ssrc.store_filled;
-
 end
 %------------------------------------------------------------------------------
 function S = init_sub_struct(field_names,plist_size,ds_size)
