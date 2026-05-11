@@ -144,4 +144,3 @@ struct processWithNoSortSelWithOMP {
             ctx.data_size, ctx.nPixel_retained, pix_ok_bin_idx);
     }
 };
-

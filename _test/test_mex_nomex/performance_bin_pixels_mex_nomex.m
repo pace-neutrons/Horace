@@ -18,6 +18,7 @@ classdef performance_bin_pixels_mex_nomex
             [~,n_errors] = check_horace_mex();
             obj.no_mex = n_errors > 0;
             test_names = {...
+                'mode8d (proj pixels + selected)', ...                       8(dnd)                
                 'mode8p (proj pixels + unique runid + return idx + selected)',... 8
                 'mode7p (proj pixels + unique runid + return idx)',...            7
                 'mode5p (proj and sort pixels + unique runid)',...                5
@@ -36,7 +37,8 @@ classdef performance_bin_pixels_mex_nomex
                 'mode0 (bin coord, calc npix)'...
                 };
             test_func = {...
-                @()performance_proj_mex_nomex_mode8_nosort_idx_sel(obj),... 8
+                @()performance_proj_mex_nomex_mode8_nosort_sel(obj),      ... 8d                
+                @()performance_proj_mex_nomex_mode8_nosort_id_idx_sel(obj),... 8
                 @()performance_proj_mex_nomex_mode7_nosort_id_idx(obj),...  7
                 @()performance_proj_mex_nomex_mode5_sort_and_uid(obj),...   5
                 @()performance_proj_mex_nomex_mode4_and_align(obj),...      4a
@@ -80,7 +82,7 @@ classdef performance_bin_pixels_mex_nomex
         end
         %==================================================================
         %==================================================================
-        function [t_nomex,t_mex,t_omp] = performance_proj_mex_nomex_mode8_nosort_idx_sel(obj)
+        function [t_nomex,t_mex,t_omp] = performance_proj_mex_nomex_mode8_nosort_sel(obj)
             if obj.no_mex
                 skipTest('Can not test mex code to check binning against mex');
             end
@@ -101,7 +103,7 @@ classdef performance_bin_pixels_mex_nomex
             t_nomex = zeros(1,n_repeats);
             t_mex  = zeros(1,n_repeats);
             t_omp  = zeros(1,n_repeats);
-            disp("*** Proj performance mode8 (bin pixels + unique runid + return idx + selected):")
+            disp("*** Proj performance mode8 (bin pixels + unique runid + selected):")
             for i= 1:n_repeats
                 fprintf('.')
 
@@ -138,9 +140,74 @@ classdef performance_bin_pixels_mex_nomex
 
             end
             obj.disp_perf_results(t_nomex,t_mex,t_omp);
+        end
+
+        function [t_nomex,t_mex,t_omp] = performance_proj_mex_nomex_mode8_nosort_id_idx_sel(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            % this will recover existing configuration after test have been
+            % finished and temporary mex/nomex values will be set within
+            % the loop.
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false,'log_level',-1);
+            clObPar = set_temporary_config_options(parallel_config, 'threads', 1);
+            %
+            [lp,AB,pix,n_points] = obj.prepare_lp_bin_data();
+            pix.run_idx  =  500+floor(100*rand(1,n_points));
+
+            n_repeats = 5;
+            npix_nomex = []; s_nomex = [];e_nomex=[];uniqId_nom = [];
+            npix_mex   = []; s_mex = [];  e_mex=[];uniqId_mex = [];
+            npix_omp   = []; s_omp = [];  e_omp=[];uniqId_omp = [];
+
+            t_nomex = zeros(1,n_repeats);
+            t_mex  = zeros(1,n_repeats);
+            t_omp  = zeros(1,n_repeats);
+            disp("*** Proj mex/nomex performance mode8 (bin pixels nosort + unique runid + idx + selected):")
+            for i= 1:n_repeats
+                fprintf('.')
+
+                config_store.instance.set_value('hor_config','use_mex',false);
+                t1 = tic();
+                [npix_nomex,s_nomex,e_nomex,pix_ok_nom,uniqId_nom,pix_idx_nom,sel_nom] =...
+                    lp.bin_pixels(AB,pix,npix_nomex,s_nomex,e_nomex,uniqId_nom);
+                t_nomex(i) = toc(t1);
+                fprintf('.')
+
+                config_store.instance.set_value('hor_config','use_mex',true);
+                config_store.instance.set_value('parallel_config','threads',1);
+
+                t1 = tic();
+                [npix_mex,s_mex,e_mex,pix_ok_mex,uniqId_mex,pix_idx_mex,sel_mex] = ...
+                    lp.bin_pixels(AB,pix,npix_mex,s_mex,e_mex,uniqId_mex);
+                t_mex(i) = toc(t1);
+
+                config_store.instance.set_value('parallel_config','threads',obj.n_threads);
+                t1 = tic();
+                [npix_omp,s_omp,e_omp,pix_ok_omp,uniqId_omp,pix_idx_omp,sel_omp] = ...
+                    lp.bin_pixels(AB,pix,npix_omp,s_omp,e_omp,uniqId_omp);
+                t_omp(i) = toc(t1);
+
+                assertEqual(uint32(uniqId_nom),uniqId_mex);
+                assertEqual(uint32(uniqId_nom),uniqId_omp);
+                assertEqual(int64(pix_idx_nom),pix_idx_mex);
+                assertEqual(int64(pix_idx_nom),pix_idx_omp);
+                assertEqual(sel_nom,sel_mex);
+                assertEqual(sel_nom,sel_omp);
+
+                assertEqual(npix_nomex,npix_mex)
+                assertEqualToTol(s_nomex,s_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(e_nomex,e_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-12,1.e-12])
+                assertEqualToTol(pix_ok_nom,pix_ok_omp,'tol',[1.e-12,1.e-12])
+
+                pix.coordinates = rand(4,n_points);
+                pix.run_idx  =  500+floor(100*rand(1,n_points));
+            end
+            obj.disp_perf_results(t_nomex,t_mex,t_omp);
             % REFERENCE DATA: ndw2671
-            %*** time of first step,    nomex:  2.1(sec)  mex:  1.1(sec); Acceleration :    2
-            %*** Average time per step, nomex:  2.1(sec)  mex:    1(sec); Acceleration :    2
+            %*** time of first step,    nomex:  1.9(sec)  mex:  1.1(sec); Acceleration :  1.8
+            %*** Average time per step, nomex:  1.9(sec)  mex:  1.1(sec); Acceleration :  1.8
         end
 
         function [t_nomex,t_mex,t_omp] = performance_mex_nomex_mode8_nosort_idx_sel(obj)
@@ -156,14 +223,14 @@ classdef performance_bin_pixels_mex_nomex
             [AB,n_points]=obj.prepare_clean_bin_data([50,1,50,20]);
 
             n_repeats = 5;
-            npix_nomex = []; s_nomex = [];e_nomex=[];uniqId_nom = [];
-            npix_mex   = []; s_mex = [];  e_mex=[];uniqId_mex = [];
-            npix_omp   = []; s_omp = [];  e_omp=[];uniqId_omp = [];
+            npix_nomex = []; s_nomex = [];e_nomex=[];
+            npix_mex   = []; s_mex = [];  e_mex=[];
+            npix_omp   = []; s_omp = [];  e_omp=[];
 
             t_nomex = zeros(1,n_repeats);
             t_mex  = zeros(1,n_repeats);
             t_omp  = zeros(1,n_repeats);
-            disp("*** Mex/nomex performance mode7 (bin pixels + unique runid + return idx + selected):")
+            disp("*** Mex/nomex performance mode8 (bin pixels + unique runid + return idx + selected):")
             for i= 1:n_repeats
                 fprintf('.')
                 pix_data = rand(9,n_points);
