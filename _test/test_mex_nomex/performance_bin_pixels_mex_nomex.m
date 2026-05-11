@@ -1068,7 +1068,76 @@ classdef performance_bin_pixels_mex_nomex
             %*** first step:    nomex: 0.52(sec)  mex: 0.22(sec);  omp: 0.049(sec); Acc :  2.4/  10
             %*** Avrg per step, nomex: 0.54(sec)  mex: 0.067(sec);  omp: 0.05(sec); Acc :  8.1/  11
         end
+        function [t_nomex,t_mex,t_omp] = profile_proj_mex_nomex_mode8_nosort_id_idx_sel(obj)
+            if obj.no_mex
+                skipTest('Can not test mex code to check binning against mex');
+            end
+            % this will recover existing configuration after test have been
+            % finished and temporary mex/nomex values will be set within
+            % the loop.
+            clObHor = set_temporary_config_options(hor_config, 'use_mex', false,'log_level',-1);
+            clObPar = set_temporary_config_options(parallel_config, 'threads', 1);
+            %
+            rng(10);
+            [lp,AB,pix,n_points] = obj.prepare_lp_bin_data();
+            pix.run_idx  =  500+floor(100*rand(1,n_points));
+
+            n_repeats = 5;
+            npix_nomex = []; s_nomex = [];e_nomex=[];uniqId_nom = [];
+            npix_mex   = []; s_mex = [];  e_mex=[];uniqId_mex = [];
+            npix_omp   = []; s_omp = [];  e_omp=[];uniqId_omp = [];
+
+            t_nomex = zeros(1,n_repeats);
+            t_mex  = zeros(1,n_repeats);
+            t_omp  = zeros(1,n_repeats);
+            disp("*** Proj mex/nomex performance mode8 (bin pixels nosort + unique runid + id+idx+selected):")
+            for i= 1:n_repeats
+                fprintf('.')
+
+                config_store.instance.set_value('hor_config','use_mex',false);
+                t1 = tic();
+                [npix_nomex,s_nomex,e_nomex,pix_ok_nom,uniqId_nom,pix_idx_nom,selected_nom] =...
+                    lp.bin_pixels(AB,pix,npix_nomex,s_nomex,e_nomex,uniqId_nom);
+                t_nomex(i) = toc(t1);
+                fprintf('.')
+
+                config_store.instance.set_value('hor_config','use_mex',true);
+                config_store.instance.set_value('parallel_config','threads',1);
+
+                t1 = tic();
+                [npix_mex,s_mex,e_mex,pix_ok_mex,uniqId_mex,pix_idx_mex,selected_mex] = ...
+                    lp.bin_pixels(AB,pix,npix_mex,s_mex,e_mex,uniqId_mex);
+                t_mex(i) = toc(t1);
+                fprintf('.')                
+
+                config_store.instance.set_value('parallel_config','threads',obj.n_threads);
+                t1 = tic();
+                [npix_omp,s_omp,e_omp,pix_ok_omp,uniqId_omp,pix_idx_omp,selected_omp] = ...
+                    lp.bin_pixels(AB,pix,npix_omp,s_omp,e_omp,uniqId_omp);
+                t_omp(i) = toc(t1);
+                fprintf('.')                
+
+                assertEqual(selected_nom,selected_mex);
+                assertEqual(selected_nom,selected_omp);
+                assertEqual(int64(pix_idx_nom),pix_idx_omp);                
+            end
+            obj.disp_perf_results(t_nomex,t_mex,t_omp);
+
+            assertEqual(uint32(uniqId_nom),uniqId_mex);
+            assertEqual(uint32(uniqId_nom),uniqId_omp);
+            assertEqual(int64(pix_idx_nom),pix_idx_mex);
+            assertEqual(int64(pix_idx_nom),pix_idx_omp);
+            assertEqual(selected_nom,selected_mex);
+            assertEqual(selected_nom,selected_omp);
+
+            assertEqual(npix_nomex,npix_mex)
+            assertEqualToTol(s_nomex,s_mex,'tol',[1.e-12,1.e-12])
+            assertEqualToTol(e_nomex,e_mex,'tol',[1.e-12,1.e-12])
+            assertEqualToTol(pix_ok_nom,pix_ok_mex,'tol',[1.e-12,1.e-12])
+            assertEqualToTol(pix_ok_nom,pix_ok_omp,'tol',[1.e-12,1.e-12])
+        end        
     end
+    
     methods(Static)
         function [AB,n_points]=prepare_clean_bin_data(nbins_all_dims)
             if nargin == 0
