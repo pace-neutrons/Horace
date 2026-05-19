@@ -194,6 +194,7 @@ cluster is set up along with threading.
       parallel_workers_number: 2
           is_auto_par_threads: 0
                       threads: 8
+         min_npix_for_omp_cut: 100000
                   par_threads: 4
                known_clusters: {1x5 cell}
           known_clust_configs: {'local'}
@@ -237,7 +238,10 @@ cluster is set up along with threading.
 - ``parallel_workers_number`` : Number of parallel jobs to spawn for workers.
 - ``is_auto_par_threads`` : Used in internal functions to determine whether
   ``par_threads`` has been manually set.
-- ``threads`` : Number of threads to run C++ threaded jobs with.
+- ``threads`` : Number of OMP threads to run C++ threaded jobs with.
+- `` min_npix_for_omp_cut``: Running OMP on cuts with very small number of pixels is
+  inefficient. If number of pixels in source object is smaller then
+  specified, mex code reverts to single threaded execution.
 - ``par_threads`` : Number of threads to run spawned parallel jobs with.
 - ``known_clusters`` : List of available options for ``parallel_cluster``
 - ``known_clust_configs`` : List of available options for ``cluster_config``

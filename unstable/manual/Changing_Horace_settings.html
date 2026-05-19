@@ -280,6 +280,7 @@ cluster is set up along with threading.</p>
 <span class="w">  </span><span class="n">parallel_workers_number</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
 <span class="w">      </span><span class="n">is_auto_par_threads</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">                  </span><span class="n">threads</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span>
+<span class="w">     </span><span class="n">min_npix_for_omp_cut</span><span class="p">:</span><span class="w"> </span><span class="mi">100000</span>
 <span class="w">              </span><span class="n">par_threads</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span>
 <span class="w">           </span><span class="n">known_clusters</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>1<span class="n">x5</span><span class="w"> </span><span class="nb">cell</span><span class="p">}</span>
 <span class="w">      </span><span class="n">known_clust_configs</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;local&#39;</span><span class="p">}</span>
@@ -322,7 +323,10 @@ defined for each cluster (see <a class="reference internal" href="Parallel.html#
 <li><p><code class="docutils literal notranslate"><span class="pre">parallel_workers_number</span></code> : Number of parallel jobs to spawn for workers.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">is_auto_par_threads</span></code> : Used in internal functions to determine whether
 <code class="docutils literal notranslate"><span class="pre">par_threads</span></code> has been manually set.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">threads</span></code> : Number of threads to run C++ threaded jobs with.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">threads</span></code> : Number of OMP threads to run C++ threaded jobs with.</p></li>
+<li><p>`` min_npix_for_omp_cut``: Running OMP on cuts with very small number of pixels is
+inefficient. If number of pixels in source object is smaller then
+specified, mex code reverts to single threaded execution.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">par_threads</span></code> : Number of threads to run spawned parallel jobs with.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">known_clusters</span></code> : List of available options for <code class="docutils literal notranslate"><span class="pre">parallel_cluster</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">known_clust_configs</span></code> : List of available options for <code class="docutils literal notranslate"><span class="pre">cluster_config</span></code></p></li>
@@ -430,7 +434,7 @@ session starts graphics from its default values above.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on May 8, 2026, 1:12:25 PM.
+      <span class="lastupdated">Last updated on May 19, 2026, 12:54:50 PM.
       </span></p>
   </div>
 
