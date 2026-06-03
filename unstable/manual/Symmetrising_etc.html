@@ -588,16 +588,20 @@ the symmetrisation function is in the same folder as the generation script.</p>
 <span class="k">end</span>
 </pre></div>
 </div>
-<p>Alternatively with an array of <code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects this could be done in one step
-as:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-<span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
-<span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-<span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])];</span>
-<span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="c">  u, v, psi, omega, dpsi, gl,</span>
-<span class="w">         </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">@(</span><span class="n">x</span><span class="p">)(</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">sym</span><span class="p">)))</span>
+<p>Defining a cellarray of <code class="docutils literal notranslate"><span class="pre">Symop</span></code> objects would allow one to perform
+symmetry operation above in one step as:</p>
+<blockquote>
+<div><div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span><span class="k">...</span><span class="c">  %fold about line (1,1,0) in HK plane</span>
+<span class="w">        </span><span class="n">SymopReflection</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span><span class="k">...</span><span class="c">  %fold about line (-1,1,0) in HK plane</span>
+<span class="w">        </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]),</span><span class="k">...</span><span class="c">  %fold about line (1,0,1) in HL plane</span>
+<span class="w">        </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])};</span><span class="w">    </span><span class="c">%fold about line (1,0,-1) in HL plane</span>
+<span class="n">gen_sqw</span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span>
+<span class="w">        </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">@(</span><span class="n">x</span><span class="p">)(</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">sym</span><span class="p">)))</span>
 </pre></div>
 </div>
+</div></blockquote>
+<p>Due to saving on binning at forming intermediate <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects,
+this code will work 50% faster.</p>
 </section>
 </section>
 <section id="cutting">
@@ -614,20 +618,37 @@ according to the symmetry operations as though the S(<strong>Q</strong>, <span c
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
 
 <span class="c">% Take 2D cut from w1</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span>
-<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">ortho_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span><span class="p">[</span><span class="mf">0.2</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="mf">0.8</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">32</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">70</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="n">sym</span><span class="p">)</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopReflection</span><span class="p">(</span><span class="s">&quot;normvec&quot;</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span><span class="p">[</span><span class="mf">0.2</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="mf">0.8</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">32</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">70</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">inf</span><span class="w"> </span><span class="n">inf</span><span class="p">],</span><span class="w"> </span><span class="n">sym</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center" id="id2">
 <a class="reference internal image-reference" href="../_images/cut_sym_orig_highlight3.png"><img alt="../_images/cut_sym_orig_highlight3.png" src="../_images/cut_sym_orig_highlight3.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Representation of <code class="docutils literal notranslate"><span class="pre">w3</span></code>’s cut.  The primary axes are within the
+<p><span class="caption-text">Representation of <code class="docutils literal notranslate"><span class="pre">w2</span></code>’s cut.  The primary axes are within the
 rectangle specified by the two corners (0.2,32) and (0.8, 70). The reflection
 about the Y-axis captures the data in the region between (-0.2, 32) and
 (-0.8, 70) which are transformed by the symmetry operation into the primary
 axes and accumulated into the cut.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Note that the cut presented on the figure above is taken in <code class="docutils literal notranslate"><span class="pre">Q</span></code>-ranges <code class="docutils literal notranslate"><span class="pre">[-1...1]</span></code>. When you do
+cut with symmetry, you choose region <code class="docutils literal notranslate"><span class="pre">[0.2...0.8]</span></code> and define reflection (using reflection plane)
+to this region. The symmetry will select the symmetry related region, and cut with
+symmetry will identify appropriate symmetry related region and reflect it to the
+selected region. If you, e.g. select cut region in the ranges <code class="docutils literal notranslate"><span class="pre">[-0.8...0.8]</span></code> reflection
+operation would reflect it into itself, so resulting cut will look exactly like
+the initial cut, despite pixels contributing to this cut are reflected inside
+the object (left side to the right and right side to the left).  Multiple users have been caught not realizing that.</p>
+<p>Mental model for operating <code class="docutils literal notranslate"><span class="pre">cut</span></code> with symmetries is opposite to <code class="docutils literal notranslate"><span class="pre">symmeterise_sqw</span></code>.
+For the later, you define a transformation over the object and the transformation defines irreducible
+zone to place data in.
+For a <code class="docutils literal notranslate"><span class="pre">cut</span></code>, you define “Irreducible zone” by selecting cut ranges
+and the transformation identify symmetry-related ranges, to pick-up data and
+place them into the range of your choice.</p>
+</div>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="k">...</span><span class="c">)</span>
 </pre></div>
 </div>
@@ -897,7 +918,7 @@ completeness.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on May 19, 2026, 12:54:50 PM.
+      <span class="lastupdated">Last updated on Jun 3, 2026, 8:15:12 AM.
       </span></p>
   </div>
 

@@ -540,18 +540,20 @@ regions are folded onto each other:
    end
 
 
-Alternatively with an array of ``Symop`` objects this could be done in one step
-as:
+Defining a cellarray of ``Symop`` objects would allow one to perform
+symmetry operation above in one step as:
 
-.. code-block:: matlab
+  .. code-block:: matlab 
+  
+     sym = {SymopReflection([1,1,0], [0,0,1]),...  %fold about line (1,1,0) in HK plane
+            SymopReflection([-1,1,0],[0,0,1]),...  %fold about line (-1,1,0) in HK plane
+            SymopReflection([1,0,1], [0,1,0]),...  %fold about line (1,0,1) in HL plane
+            SymopReflection([1,0,-1],[0,1,0])};    %fold about line (1,0,-1) in HL plane 
+    gen_sqw(spefile, par_file, sym_sqw_file, efix, emode, alatt, angdeg,...
+            u, v, psi, omega, dpsi, gl, gs, 'transform_sqw', @(x)(symmetrise_sqw(x,sym)))
 
-   sym = [SymopReflection([1,1,0], [0,0,1])
-          SymopReflection([-1,1,0],[0,0,1])
-          SymopReflection([1,0,1], [0,1,0])
-          SymopReflection([1,0,-1],[0,1,0])];
-   gen_sqw (spefile, par_file, sym_sqw_file, efix, emode, alatt, angdeg,...  u, v, psi, omega, dpsi, gl,
-            gs, 'transform_sqw', @(x)(symmetrise_sqw(x,sym)))
-
+Due to saving on binning at forming intermediate ``sqw`` objects,
+this code will work 50% faster.
 
 Cutting
 =======
@@ -571,18 +573,36 @@ according to the symmetry operations as though the |SQW| had been symmetrised.
    >> w1 = sqw(data);
 
    % Take 2D cut from w1
-   >> sym = SymopReflection([0 1 0], [0 0 1]);
-   >> w3 = cut(w1, ortho_proj([1 0 0], [0 1 0]), [0.2 0.1 0.8], [32 2 70], [-inf inf], [-inf inf], sym)
+   >> sym = SymopReflection("normvec",[1,1,0]);
+   >> w2 = cut(w1, line_proj([1 0 0], [0 1 0]), [0.2 0.1 0.8], [32 2 70], [-inf inf], [-inf inf], sym)
 
 .. figure:: ../images/cut_sym_orig_highlight3.png
    :align: center
    :width: 500
 
-   Representation of ``w3``'s cut.  The primary axes are within the
+   Representation of ``w2``'s cut.  The primary axes are within the
    rectangle specified by the two corners (0.2,32) and (0.8, 70). The reflection
    about the Y-axis captures the data in the region between (-0.2, 32) and
    (-0.8, 70) which are transformed by the symmetry operation into the primary
    axes and accumulated into the cut.
+
+.. Important::
+
+  Note that the cut presented on the figure above is taken in ``Q``-ranges ``[-1...1]``. When you do 
+  cut with symmetry, you choose region ``[0.2...0.8]`` and define reflection (using reflection plane) 
+  to this region. The symmetry will select the symmetry related region, and cut with
+  symmetry will identify appropriate symmetry related region and reflect it to the
+  selected region. If you, e.g. select cut region in the ranges ``[-0.8...0.8]`` reflection
+  operation would reflect it into itself, so resulting cut will look exactly like 
+  the initial cut, despite pixels contributing to this cut are reflected inside
+  the object (left side to the right and right side to the left).  Multiple users have been caught not realizing that. 
+  
+  Mental model for operating ``cut`` with symmetries is opposite to ``symmeterise_sqw``. 
+  For the later, you define a transformation over the object and the transformation defines irreducible
+  zone to place data in. 
+  For a ``cut``, you define "Irreducible zone" by selecting cut ranges 
+  and the transformation identify symmetry-related ranges, to pick-up data and
+  place them into the range of your choice.
 
 .. code-block:: matlab
 
