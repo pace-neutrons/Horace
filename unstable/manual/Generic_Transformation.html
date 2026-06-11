@@ -292,7 +292,7 @@ perform multiple unary or binary operations simultaneously while transforming la
 <figure class="align-center" id="id3">
 <a class="reference internal image-reference" href="../_images/Fe_BZ_signal.png"><img alt="Sample differential cross-section measured on MAPS" src="../_images/Fe_BZ_signal.png" style="width: 400px;" /></a>
 <figcaption>
-<p><span class="caption-text">Sample differential cross-section measured on MAPS and showing
+<p><span class="caption-number">Fig. 15.1 </span><span class="caption-text">Sample differential cross-section measured on MAPS and showing
 magnetic signal within red-cycle surrounded area and background signal (phonons)
 inside and outside of this area. Yellow box represents double-size Brillouin zone where
 data moved using shift operation and its top right quadrant – the area where data should
@@ -425,7 +425,7 @@ background extraction, Magnetic form-factor corrections and parasitic signal rem
 <figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="../_images/BackgroundVSForegroundFe_400meV.png"><img alt="Background vs Foreground in first Brillouin zone." src="../_images/BackgroundVSForegroundFe_400meV.png" style="width: 1200px;" /></a>
 <figcaption>
-<p><span class="caption-text">Background and Foreground signals for data demonstrated at the beginning of this chapter.
+<p><span class="caption-number">Fig. 15.2 </span><span class="caption-text">Background and Foreground signals for data demonstrated at the beginning of this chapter.
 Note the difference in intensity scale between background and foreground signals.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
@@ -598,7 +598,7 @@ in the comments to the function. The main idea of the operation is that you sele
 <figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../_images/SQW_op_Combine2Cuts.png"><img alt="../_images/SQW_op_Combine2Cuts.png" src="../_images/SQW_op_Combine2Cuts.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">Overlap two cuts demonstrated on the left image, display them (central image) and combine together using
+<p><span class="caption-number">Fig. 15.3 </span><span class="caption-text">Overlap two cuts demonstrated on the left image, display them (central image) and combine together using
 <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> algorithm with combine function above.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
@@ -612,10 +612,61 @@ in the comments to the function. The main idea of the operation is that you sele
 <span class="n">cut1</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="n">proj1</span><span class="p">,</span><span class="n">cut_ranges</span><span class="p">{:});</span><span class="w">  </span><span class="c">% cut sqw object presented on image b1)</span>
 <span class="n">cut2</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="n">proj2</span><span class="p">,</span><span class="n">cut_ranges</span><span class="p">{:});</span><span class="w">  </span><span class="c">% cut sqw object presented on image b2)</span>
 <span class="c">% combine cut1 and cut2 together producing final result.</span>
-<span class="n">wout</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op_bin_pixels</span><span class="p">({</span><span class="n">cut1</span><span class="p">,</span><span class="n">cut2</span><span class="p">},{[</span><span class="n">proj1</span><span class="p">,</span><span class="n">proj2</span><span class="p">]},</span><span class="n">proj1</span><span class="p">,</span><span class="n">cut_ranges</span><span class="p">{:},</span><span class="s">&#39;-combine&#39;</span><span class="p">);</span>
+<span class="n">wout</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op_bin_pixels</span><span class="p">({</span><span class="n">cut1</span><span class="p">,</span><span class="n">cut2</span><span class="p">},@</span><span class="n">move_all_to_proj</span><span class="p">,{[</span><span class="n">proj1</span><span class="p">,</span><span class="n">proj2</span><span class="p">]},</span><span class="n">proj1</span><span class="p">,</span><span class="n">cut_ranges</span><span class="p">{:},</span><span class="s">&#39;-combine&#39;</span><span class="p">);</span>
 <span class="nb">plot</span><span class="p">(</span><span class="n">wout</span><span class="p">);</span><span class="w"> </span><span class="c">% plot image c)</span>
 </pre></div>
 </div>
+<p>You would prefer to combine cuts using <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> with <cite>-combine</cite> option instead of symmetry operation if you have to edit one or both
+contributing datasets. For example, you analysing 4-dimensional dataset, with two dimensional cuts presented on fig <a class="reference internal" href="#fig-cut-with-symop-rot"><span class="std std-numref">Fig. 15.4</span></a> below (subplot 1)
+and want to combine the cuts in direction 1) <code class="docutils literal notranslate"><span class="pre">[0,1,0]</span></code> and 2) <code class="docutils literal notranslate"><span class="pre">[1,0,0]</span></code> to improve statistics and resolution.</p>
+<figure class="align-center" id="id6">
+<span id="fig-cut-with-symop-rot"></span><a class="reference internal image-reference" href="../_images/DatasetWith2CutsToCombine.png"><img alt="../_images/DatasetWith2CutsToCombine.png" src="../_images/DatasetWith2CutsToCombine.png" style="width: 1200px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 15.4 </span><span class="caption-text">Two cuts with spurion to combine using SymopRotation or <code class="docutils literal notranslate"><span class="pre">sqw_ob_bin_pixels</span></code>.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>As <code class="docutils literal notranslate"><span class="pre">[1,0,0]</span></code> and <code class="docutils literal notranslate"><span class="pre">[0,1,0]</span></code> are symmetry related directions, you would normally combine them using cut with rotation around
+axis <code class="docutils literal notranslate"><span class="pre">[0,0,1]</span></code> passing through <code class="docutils literal notranslate"><span class="pre">[1,1,0]</span></code> point:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">other_ranges</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">180</span><span class="p">]};</span>
+<span class="n">rotOp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">SymopRotation</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="mi">90</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">CutProj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">line_proj</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;offset&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">w2_200sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">src200sym</span><span class="p">,</span><span class="n">CutProj</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span><span class="n">other_ranges</span><span class="p">{:},</span><span class="n">rotOp</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Result of such operation is present on fig <a class="reference internal" href="#fig-combine-cuts"><span class="std std-numref">Fig. 15.5</span></a>, lef subplot.</p>
+<p>Unfortunately cut in direction  <code class="docutils literal notranslate"><span class="pre">[1,0,0]</span></code> contains spurion (subplot 3 on the fig <a class="reference internal" href="#fig-cut-with-symop-rot"><span class="std std-numref">Fig. 15.4</span></a>, spurion is marked by blue points),
+which is not very obvious but spoils the image and affects subsequent fits for this cut. In this situation you would make two separate cuts,
+mask spurion using <code class="docutils literal notranslate"><span class="pre">draw_mask</span></code> and <code class="docutils literal notranslate"><span class="pre">mask</span></code> operations and combine resulting cuts using <code class="docutils literal notranslate"><span class="pre">sqw_op_bin_pixels</span></code> with <cite>-combine</cite> option.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w2Ei200_010</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">src200sym</span><span class="p">,</span><span class="n">line_proj</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;offset&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]),</span><span class="mf">0.02</span><span class="p">,</span><span class="n">other_ranges</span><span class="p">{:});</span><span class="w"> </span><span class="c">%</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2Ei200_010</span><span class="p">);</span><span class="n">liny</span><span class="p">;</span><span class="w"> </span><span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.5</span><span class="p">;</span><span class="n">keep_figure</span><span class="p">;</span><span class="w"> </span><span class="c">% spurion [1.5,100]-&gt;[2.2,60]</span>
+<span class="n">w2Ei200_100</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">src200sym</span><span class="p">,</span><span class="n">line_proj</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;offset&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]),</span><span class="mf">0.02</span><span class="p">,</span><span class="n">other_ranges</span><span class="p">{:});</span><span class="w"> </span><span class="c">% Cut with spurion [-0.7,20]-&gt;[0.9,121]</span>
+<span class="n">fgh</span><span class="w"> </span><span class="p">=</span><span class="nb">plot</span><span class="p">(</span><span class="n">w2Ei200_100</span><span class="p">);</span><span class="w"> </span><span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.5</span><span class="p">;</span><span class="w">  </span><span class="c">%</span>
+<span class="k">if</span><span class="w"> </span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="s">&#39;msk200avrts&#39;</span><span class="p">,</span><span class="s">&#39;var&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">[</span><span class="n">msk1</span><span class="p">,</span><span class="o">~</span><span class="p">,</span><span class="n">msk200avrts</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">draw_mask</span><span class="p">(</span><span class="n">fgh</span><span class="p">)</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="p">[</span><span class="n">msk1</span><span class="p">,</span><span class="o">~</span><span class="p">,</span><span class="n">msk200avrts</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">draw_mask</span><span class="p">(</span><span class="n">fgh</span><span class="p">,</span><span class="s">&#39;mask_vertices&#39;</span><span class="p">,</span><span class="n">msk200avrts</span><span class="o">&#39;</span><span class="p">);</span>
+<span class="k">end</span>
+<span class="n">w2Ei200_100</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">w2Ei200_100</span><span class="p">,</span><span class="n">msk1</span><span class="p">);</span><span class="w"> </span><span class="c">% mask to remove spurious area</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2Ei200_100</span><span class="p">);</span><span class="w"> </span><span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.5</span><span class="p">;</span><span class="n">keep_figure</span><span class="p">;</span><span class="w">   </span><span class="c">%</span>
+
+<span class="n">w2Ei200sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_op_bin_pixels</span><span class="p">({</span><span class="n">w2Ei200_010</span><span class="p">,</span><span class="n">w2Ei200_100</span><span class="p">},</span><span class="w"> </span><span class="k">...</span>
+<span class="p">@</span><span class="n">move_all_to_proj</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="p">{[</span><span class="n">w2Ei200_010</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">proj</span><span class="p">,</span><span class="n">w2Ei200_100</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">proj</span><span class="p">]},</span><span class="w"> </span><span class="k">...</span>
+<span class="n">w2Ei200_010</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">proj</span><span class="p">,[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.04</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="n">other_ranges</span><span class="p">{:},</span><span class="s">&#39;-combine&#39;</span><span class="p">);</span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">w2Ei200sym</span><span class="p">);</span><span class="n">liny</span><span class="p">;</span><span class="w"> </span><span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">keep_figure</span><span class="p">;</span><span class="w"> </span><span class="c">%</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id7">
+<span id="fig-combine-cuts"></span><a class="reference internal image-reference" href="../_images/CombineCutsWithSymopOrBinPixels.png"><img alt="../_images/CombineCutsWithSymopOrBinPixels.png" src="../_images/CombineCutsWithSymopOrBinPixels.png" style="width: 1200px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 15.5 </span><span class="caption-text">Datasets obtained using SymopRotation or using <code class="docutils literal notranslate"><span class="pre">sqw_ob_bin_pixels</span></code> with <code class="docutils literal notranslate"><span class="pre">-combine</span></code> option.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The result is visually equivalent to the one obtained from symmetry operation, but does not contain spurious signal.
+To avoid doube-counting of pixels contributing into the cut-overlapping area on fig <a class="reference internal" href="#fig-cut-with-symop-rot"><span class="std std-numref">Fig. 15.4</span></a> (left image, intersection between
+areas 1 and 2),
+the area marked by red rectangular on the fig <a class="reference internal" href="#fig-combine-cuts"><span class="std std-numref">Fig. 15.5</span></a>, top central image, or equivalent area on the bottom central
+image should be masked too.</p>
 </section>
 </section>
 
@@ -631,7 +682,7 @@ in the comments to the function. The main idea of the operation is that you sele
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Jun 11, 2026, 12:32:51 PM.
+      <span class="lastupdated">Last updated on Jun 11, 2026, 3:41:05 PM.
       </span></p>
   </div>
 

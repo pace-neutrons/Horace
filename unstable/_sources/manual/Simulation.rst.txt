@@ -323,8 +323,8 @@ disp2sqw_plot
 =============
 
 Generate an **Q**-E intensity plot for a dispersion relation along a path in
-reciprocal space. The function is very closely related to `dispersion_plot
-<dispersion_plot_>`_, and most of the input arguments and options are the same
+reciprocal space. The function is very closely related to `dispersion_plot`_,
+and most of the input arguments and options are the same
 for the two functions.
 
 .. code-block:: matlab

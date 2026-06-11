@@ -35,7 +35,7 @@ data, a user works with smaller objects, extracted from the full dataset using
 .. note::
 
     The "pixels" can be mapped from their 4-D spatial coordinates into the "image"
-    by a transformation determined by the :ref:`projection (below) <manual/Cutting_data_of_interest_from_SQW_files_and_objects:Projection (proj)>`. 
+    by a transformation determined by the :ref:`projection (below) <projection-label>`. 
     ``cut`` computes the bin to which "pixel" contributes, 
     removing those pixels which do not contribute from the resulting ``sqw``. 
     
@@ -49,7 +49,7 @@ cut
 
 ``cut`` takes a (or multiple) section(s) of data from an ``sqw`` or ``dnd``
 object or file, discards the pixels which lie outside of the binning regions
-(described `below <#binning-arguments>`_), extracts contributing pixels and accumulates
+(described in `Binning arguments`_ chapter below.), extracts contributing pixels and accumulates
 their signal and variance into a histogram (the "image" or ``dnd``, 
 which may be independent if requested
 or be part of the target ``sqw``). It can return an object or file depending on
@@ -121,7 +121,7 @@ object stored in memory from which the pixels will be taken.
    stored to disc. It is advisable to name the file appropriately to distinguish
    the types stored inside, e.g. ``MnO2_sqw.sqw``, ``MnO2_d2d.sqw``.
    
-.. _projection-label
+.. _projection-label:
 
 Projection (proj)
 -----------------
@@ -182,7 +182,7 @@ Each can independently have one of four different forms below.
   .. note::
   
      The auto-binning algorithm is described in more detail 
-     :ref:`below <bin_ranges_calculations>`.
+     in chapter `Auto-binning algorithm`_ below.
      
 
 - ``[step]`` Automatic binning calculations with binning step size.
@@ -958,12 +958,12 @@ where:
   polar-axis of the cylindrical coordinate system along which
   :math:`\vec{Q}_{\|}` is measured.
 
-  See the :ref:`diagram below <fig_cylinder_coodinates>` for details.
+  See the :ref:`diagram <fig_cylinder_coodinates>` for details.
 
 - ``v``  The vector :math:`\vec{v}` is the reciprocal space vector which defines the second
   component of the :math:`u`-:math:`v` plane from which :math:`\phi` is measured.
 
-  See the :ref:`diagram below <fig_cylinder_coodinates>` for details.
+  See the :ref:`diagram <fig_cylinder_coodinates>` for details.
 
 .. note::
 

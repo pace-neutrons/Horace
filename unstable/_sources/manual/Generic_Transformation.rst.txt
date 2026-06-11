@@ -549,7 +549,69 @@ Simple script which allows to produce result presented on the right side of pict
     cut1  = cut(source,proj1,cut_ranges{:});  % cut sqw object presented on image b1)
     cut2  = cut(source,proj2,cut_ranges{:});  % cut sqw object presented on image b2)  
     % combine cut1 and cut2 together producing final result.
-    wout  = sqw_op_bin_pixels({cut1,cut2},{[proj1,proj2]},proj1,cut_ranges{:},'-combine');
+    wout  = sqw_op_bin_pixels({cut1,cut2},@move_all_to_proj,{[proj1,proj2]},proj1,cut_ranges{:},'-combine');
     plot(wout); % plot image c)
     
-    
+ 
+You would prefer to combine cuts using ``sqw_op_bin_pixels`` with `-combine` option instead of symmetry operation if you have to edit one or both 
+contributing datasets. For example, you analysing 4-dimensional dataset, with two dimensional cuts presented on fig :numref:`fig-cut_with_symop_rot` below (subplot 1) 
+and want to combine the cuts in direction 1) ``[0,1,0]`` and 2) ``[1,0,0]`` to improve statistics and resolution.
+
+.. _fig-cut_with_symop_rot:
+
+.. figure:: ../images/DatasetWith2CutsToCombine.png
+   :align: center
+   :width: 1200px
+   
+   Two cuts with spurion to combine using SymopRotation or ``sqw_ob_bin_pixels``.
+
+As ``[1,0,0]`` and ``[0,1,0]`` are symmetry related directions, you would normally combine them using cut with rotation around
+axis ``[0,0,1]`` passing through ``[1,1,0]`` point:
+
+.. code-block:: matlab
+   
+   other_ranges = {[-0.1,0.1],[-0.1,0.1],[0,2,180]};
+   rotOp = SymopRotation([0,0,1],90,[1,1,0]);
+   CutProj = line_proj([0,1,0],[-1,0,0],'offset',[1,1,0]);
+   w2_200sym = cut(src200sym,CutProj,0.02,other_ranges{:},rotOp);
+   
+Result of such operation is present on fig :numref:`fig-combine_cuts`, lef subplot.
+
+Unfortunately cut in direction  ``[1,0,0]`` contains spurion (subplot 3 on the fig :numref:`fig-cut_with_symop_rot`, spurion is marked by blue points),
+which is not very obvious but spoils the image and affects subsequent fits for this cut. In this situation you would make two separate cuts,
+mask spurion using ``draw_mask`` and ``mask`` operations and combine resulting cuts using ``sqw_op_bin_pixels`` with `-combine` option.
+
+.. code-block:: matlab
+
+    w2Ei200_010 = cut(src200sym,line_proj([0,1,0],[-1,0,0],'offset',[1,1,0]),0.02,other_ranges{:}); % 
+    plot(w2Ei200_010);liny; lz 0 0.5;keep_figure; % spurion [1.5,100]->[2.2,60]
+    w2Ei200_100 = cut(src200sym,line_proj([1,0,0],[0,1,0],'offset',[1,1,0]),0.02,other_ranges{:}); % Cut with spurion [-0.7,20]->[0.9,121]
+    fgh =plot(w2Ei200_100); lz 0 0.5;  %
+    if ~exist('msk200avrts','var')
+        [msk1,~,msk200avrts] = draw_mask(fgh)
+    else
+        [msk1,~,msk200avrts] = draw_mask(fgh,'mask_vertices',msk200avrts');
+    end
+    w2Ei200_100 = mask(w2Ei200_100,msk1); % mask to remove spurious area
+    plot(w2Ei200_100); lz 0 0.5;keep_figure;   % 
+
+    w2Ei200sym = sqw_op_bin_pixels({w2Ei200_010,w2Ei200_100}, ...
+    @move_all_to_proj, ...
+    {[w2Ei200_010.data.proj,w2Ei200_100.data.proj]}, ...
+    w2Ei200_010.data.proj,[-2,0.04,2],other_ranges{:},'-combine');
+    plot(w2Ei200sym);liny; lz 0 1; keep_figure; %
+
+.. _fig-combine_cuts:
+
+.. figure:: ../images/CombineCutsWithSymopOrBinPixels.png
+   :align: center
+   :width: 1200px
+   
+   Datasets obtained using SymopRotation or using ``sqw_ob_bin_pixels`` with ``-combine`` option.
+
+The result is visually equivalent to the one obtained from symmetry operation, but does not contain spurious signal.
+To avoid doube-counting of pixels contributing into the cut-overlapping area on fig :numref:`fig-cut_with_symop_rot` (left image, intersection between
+areas 1 and 2), 
+the area marked by red rectangular on the fig :numref:`fig-combine_cuts`, top central image, or equivalent area on the bottom central 
+image should be masked too.
+

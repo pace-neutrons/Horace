@@ -360,6 +360,8 @@ In Horace it is possible to symmetrise by 3 methods:
 Symmetrising
 ============
 
+.. _symmeterise_sqw:
+
 ``symmetrise_sqw``
 ------------------
 
@@ -604,9 +606,11 @@ according to the symmetry operations as though the |SQW| had been symmetrised.
   and the transformation identify symmetry-related ranges, to pick-up data and
   place them into the range of your choice.
 
+Let's symmetrize the same dataset as :ref:`before <symmeterise_sqw>` with ``symmeterize_sqw`` but now using ``cut`` with symop:
+
 .. code-block:: matlab
 
-   w = sqw(...)
+   w = sqw(...); plot(w); % Original dataset:
 
 .. figure:: ../images/unsym.png
    :align: center
@@ -614,7 +618,7 @@ according to the symmetry operations as though the |SQW| had been symmetrised.
 
 .. code-block:: matlab
 
-   wout = cut(w, ...);
+   wout = cut(w, [0.1,0.01,0.9],[0.1,0.01,0.9]); % cut the marked area below.
 
 .. figure:: ../images/cut_sym_1.png
    :align: center
@@ -622,9 +626,9 @@ according to the symmetry operations as though the |SQW| had been symmetrised.
 
 .. code-block:: matlab
 
-   % 2 cuts (identity always included), 2 quadrants
+   % Define 2 areas to cut (identity always included), 2 quadrants
    sym = {SymopReflection([1 1 0], [0 0 1])}
-   wout = cut(w, ...);
+   wout = cut(w, [0.1,0.01,0.9],[0.1,0.01,0.9],sym);
 
 .. figure:: ../images/cut_sym_2.png
    :align: center
@@ -632,10 +636,10 @@ according to the symmetry operations as though the |SQW| had been symmetrised.
 
 .. code-block:: matlab
 
-   % 3 cuts, 3 quadrants
+   % 3 areas, 3 quadrants
    sym = {SymopReflection([1 1 0], [0 0 1]), ...
           SymopReflection([-1 1 0], [0 0 1])}
-   w_out = cut(w, ..., sym)
+   w_out = cut(w, [0.1,0.01,0.9],[0.1,0.01,0.9], sym)
 
 .. figure:: ../images/cut_sym_3.png
    :align: center
@@ -643,12 +647,13 @@ according to the symmetry operations as though the |SQW| had been symmetrised.
 
 .. code-block:: matlab
 
-   % Cut all 4 quadrants and combine
+   % Cut all 4 quadrants and combine. 
+   % 4-th quadrant is defined by the combination of two transformations.
    sym = {SymopReflection([1 1 0], [0 0 1]), ...
           SymopReflection([-1 1 0], [0 0 1]), ...
           [SymopReflection([1 1 0], [0 0 1]), ...
            SymopReflection([-1 1 0], [0 0 1])]}
-   w_out = cut(w, ..., sym)
+   w_out = cut(w, [0.1,0.01,0.9],[0.1,0.01,0.9],sym)
 
 .. figure:: ../images/cut_sym_4.png
    :align: center
@@ -675,11 +680,13 @@ Combining
 
 .. code-block:: matlab
 
-   wout=combine_sqw(win)
+   wout=combine_sqw(win);
+   out=combine_sqw(w1,w2,w3,...,wN);
 
 
-Combine two ``sqw`` objects (``w1`` and ``w2``) of the same dimensionality into
-a single ``sqw`` object in order to improve statistics.
+Combine two or more ``sqw`` objects (``w1`` and ``w2``) of the same dimensionality into
+a single ``sqw`` object in order to improve statistics and (optionally) expand dataset
+range combining input dataset ranges.
 
 .. note::
 
@@ -691,6 +698,10 @@ a single ``sqw`` object in order to improve statistics.
 
    Two objects which use different projection axes can be combined. The output
    object will have the projection axes of ``w1``.
+   The cut ranges and integration ranges will be expanded to cover
+   the range of all ``sqw`` objects to combine but the binning steps of the result
+   are equal to the binning steps of the first combined ``sqw`` object.
+   
 
 Rebinning
 =========

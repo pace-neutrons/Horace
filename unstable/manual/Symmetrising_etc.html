@@ -460,7 +460,7 @@ site rather than their original location.</p>
 <section id="symmetrising">
 <h2><span class="section-number">10.3. </span>Symmetrising<a class="headerlink" href="#symmetrising" title="Permalink to this heading"></a></h2>
 <section id="symmetrise-sqw">
-<h3><span class="section-number">10.3.1. </span><code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code><a class="headerlink" href="#symmetrise-sqw" title="Permalink to this heading"></a></h3>
+<span id="symmeterise-sqw"></span><h3><span class="section-number">10.3.1. </span><code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code><a class="headerlink" href="#symmetrise-sqw" title="Permalink to this heading"></a></h3>
 <p>It is possible to reduce an entire dataset at once by symmetry, transforming all
 pixels according to the symmetry operations and accumulating the transformed
 pixels into the bins appropriately. This is done through the <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>
@@ -625,7 +625,7 @@ according to the symmetry operations as though the S(<strong>Q</strong>, <span c
 <figure class="align-center" id="id2">
 <a class="reference internal image-reference" href="../_images/cut_sym_orig_highlight3.png"><img alt="../_images/cut_sym_orig_highlight3.png" src="../_images/cut_sym_orig_highlight3.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Representation of <code class="docutils literal notranslate"><span class="pre">w2</span></code>’s cut.  The primary axes are within the
+<p><span class="caption-number">Fig. 10.1 </span><span class="caption-text">Representation of <code class="docutils literal notranslate"><span class="pre">w2</span></code>’s cut.  The primary axes are within the
 rectangle specified by the two corners (0.2,32) and (0.8, 70). The reflection
 about the Y-axis captures the data in the region between (-0.2, 32) and
 (-0.8, 70) which are transformed by the symmetry operation into the primary
@@ -649,41 +649,43 @@ For a <code class="docutils literal notranslate"><span class="pre">cut</span></c
 and the transformation identify symmetry-related ranges, to pick-up data and
 place them into the range of your choice.</p>
 </div>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="k">...</span><span class="c">)</span>
+<p>Let’s symmetrize the same dataset as <a class="reference internal" href="#symmeterise-sqw"><span class="std std-ref">before</span></a> with <code class="docutils literal notranslate"><span class="pre">symmeterize_sqw</span></code> but now using <code class="docutils literal notranslate"><span class="pre">cut</span></code> with symop:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw</span><span class="p">(</span><span class="k">...</span><span class="c">); plot(w); % Original dataset:</span>
 </pre></div>
 </div>
 <figure class="align-center">
 <a class="reference internal image-reference" href="../_images/unsym.png"><img alt="../_images/unsym.png" src="../_images/unsym.png" style="width: 500px;" /></a>
 </figure>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.9</span><span class="p">],[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.9</span><span class="p">]);</span><span class="w"> </span><span class="c">% cut the marked area below.</span>
 </pre></div>
 </div>
 <figure class="align-center">
 <a class="reference internal image-reference" href="../_images/cut_sym_1.png"><img alt="../_images/cut_sym_1.png" src="../_images/cut_sym_1.png" style="width: 500px;" /></a>
 </figure>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% 2 cuts (identity always included), 2 quadrants</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Define 2 areas to cut (identity always included), 2 quadrants</span>
 <span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">])}</span>
-<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">);</span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.9</span><span class="p">],[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.9</span><span class="p">],</span><span class="n">sym</span><span class="p">);</span>
 </pre></div>
 </div>
 <figure class="align-center">
 <a class="reference internal image-reference" href="../_images/cut_sym_2.png"><img alt="../_images/cut_sym_2.png" src="../_images/cut_sym_2.png" style="width: 500px;" /></a>
 </figure>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% 3 cuts, 3 quadrants</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% 3 areas, 3 quadrants</span>
 <span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="k">...</span>
 <span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">])}</span>
-<span class="n">w_out</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">, sym)</span>
+<span class="n">w_out</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.9</span><span class="p">],[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="n">sym</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center">
 <a class="reference internal image-reference" href="../_images/cut_sym_3.png"><img alt="../_images/cut_sym_3.png" src="../_images/cut_sym_3.png" style="width: 500px;" /></a>
 </figure>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Cut all 4 quadrants and combine</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Cut all 4 quadrants and combine.</span>
+<span class="c">% 4-th quadrant is defined by the combination of two transformations.</span>
 <span class="n">sym</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="k">...</span>
 <span class="w">       </span><span class="n">SymopReflection</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="k">...</span>
 <span class="w">       </span><span class="p">[</span><span class="n">SymopReflection</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="k">...</span>
 <span class="w">        </span><span class="n">SymopReflection</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">])]}</span>
-<span class="n">w_out</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="c">, sym)</span>
+<span class="n">w_out</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.9</span><span class="p">],[</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.9</span><span class="p">],</span><span class="n">sym</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-center">
@@ -702,11 +704,13 @@ build your own generic transformation with symmetry, as described in <a class="r
 </section>
 <section id="combining">
 <h2><span class="section-number">10.5. </span>Combining<a class="headerlink" href="#combining" title="Permalink to this heading"></a></h2>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">)</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">);</span>
+<span class="n">out</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">,</span><span class="n">w3</span><span class="p">,</span><span class="k">...</span><span class="c">,wN);</span>
 </pre></div>
 </div>
-<p>Combine two <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects (<code class="docutils literal notranslate"><span class="pre">w1</span></code> and <code class="docutils literal notranslate"><span class="pre">w2</span></code>) of the same dimensionality into
-a single <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in order to improve statistics.</p>
+<p>Combine two or more <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects (<code class="docutils literal notranslate"><span class="pre">w1</span></code> and <code class="docutils literal notranslate"><span class="pre">w2</span></code>) of the same dimensionality into
+a single <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object in order to improve statistics and (optionally) expand dataset
+range combining input dataset ranges.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The output object will have a combined value for the integration range
@@ -716,7 +720,10 @@ for which the stated value of L is L=1.5.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Two objects which use different projection axes can be combined. The output
-object will have the projection axes of <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p>
+object will have the projection axes of <code class="docutils literal notranslate"><span class="pre">w1</span></code>.
+The cut ranges and integration ranges will be expanded to cover
+the range of all <code class="docutils literal notranslate"><span class="pre">sqw</span></code> objects to combine but the binning steps of the result
+are equal to the binning steps of the first combined <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
 </div>
 </section>
 <section id="rebinning">
@@ -918,7 +925,7 @@ completeness.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Jun 11, 2026, 12:32:51 PM.
+      <span class="lastupdated">Last updated on Jun 11, 2026, 3:41:05 PM.
       </span></p>
   </div>
 

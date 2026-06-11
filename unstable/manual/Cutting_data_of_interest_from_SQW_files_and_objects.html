@@ -166,7 +166,7 @@ slice-o-matic), 2-d and 1-d cuts can be easily represented.</p></li>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The “pixels” can be mapped from their 4-D spatial coordinates into the “image”
-by a transformation determined by the <a class="reference internal" href="#projection-proj"><span class="std std-ref">projection (below)</span></a>.
+by a transformation determined by the <a class="reference internal" href="#projection-label"><span class="std std-ref">projection (below)</span></a>.
 <code class="docutils literal notranslate"><span class="pre">cut</span></code> computes the bin to which “pixel” contributes,
 removing those pixels which do not contribute from the resulting <code class="docutils literal notranslate"><span class="pre">sqw</span></code>.</p>
 <p>It also sorts the pixels according to which bins they are in,
@@ -177,7 +177,7 @@ This improves the speed with which they can be processed.</p>
 <h2><span class="section-number">5.1. </span>cut<a class="headerlink" href="#cut" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">cut</span></code> takes a (or multiple) section(s) of data from an <code class="docutils literal notranslate"><span class="pre">sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>
 object or file, discards the pixels which lie outside of the binning regions
-(described <a class="reference external" href="#binning-arguments">below</a>), extracts contributing pixels and accumulates
+(described in <a class="reference internal" href="#binning-arguments">Binning arguments</a> chapter below.), extracts contributing pixels and accumulates
 their signal and variance into a histogram (the “image” or <code class="docutils literal notranslate"><span class="pre">dnd</span></code>,
 which may be independent if requested
 or be part of the target <code class="docutils literal notranslate"><span class="pre">sqw</span></code>). It can return an object or file depending on
@@ -241,7 +241,7 @@ the types stored inside, e.g. <code class="docutils literal notranslate"><span c
 </div>
 </section>
 <section id="projection-proj">
-<h3><span class="section-number">5.1.2. </span>Projection (proj)<a class="headerlink" href="#projection-proj" title="Permalink to this heading"></a></h3>
+<span id="projection-label"></span><h3><span class="section-number">5.1.2. </span>Projection (proj)<a class="headerlink" href="#projection-proj" title="Permalink to this heading"></a></h3>
 <p>The projection defines the coordinate system and thus the meaning of the
 <a class="reference internal" href="#binning-arguments">Binning arguments</a> and the presentation of the data.</p>
 <p><code class="docutils literal notranslate"><span class="pre">proj</span></code> should be a projection type such as <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code>,
@@ -287,7 +287,7 @@ axis in the source image.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The auto-binning algorithm is described in more detail
-<a class="reference internal" href="#bin-ranges-calculations"><span class="std std-ref">below</span></a>.</p>
+in chapter <a class="reference internal" href="#auto-binning-algorithm">Auto-binning algorithm</a> below.</p>
 </div>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">[step]</span></code> Automatic binning calculations with binning step size.
@@ -344,15 +344,15 @@ in both directions</p></li>
 <code class="docutils literal notranslate"><span class="pre">separation</span></code>-sized steps between <code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code>.</p>
 </li>
 </ul>
-<figure class="align-center" id="id5">
+<figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="../_images/4-element-diag.png"><img alt="../_images/4-element-diag.png" src="../_images/4-element-diag.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Diagram showing the relationship between the 4 binning parameters
+<p><span class="caption-number">Fig. 5.1 </span><span class="caption-text">Diagram showing the relationship between the 4 binning parameters
 and their meaning in the context of a cut, where: <code class="docutils literal notranslate"><span class="pre">lower</span> <span class="pre">=</span> <span class="pre">1</span></code>,
 <code class="docutils literal notranslate"><span class="pre">upper</span> <span class="pre">=</span> <span class="pre">7</span></code>, <code class="docutils literal notranslate"><span class="pre">separation</span> <span class="pre">=</span> <span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">cut_width</span> <span class="pre">=</span> <span class="pre">0.6</span></code>, i.e <code class="docutils literal notranslate"><span class="pre">[1,</span>
 <span class="pre">2,</span> <span class="pre">7,</span> <span class="pre">0.6]</span></code>. <span class="math notranslate nohighlight">\(\zeta\)</span> and <span class="math notranslate nohighlight">\(\xi\)</span> are arbitrary axes
 where <span class="math notranslate nohighlight">\(\zeta\)</span> is the specified axis. This will produce 4 cut
-objects around <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">5</span></code> and <code class="docutils literal notranslate"><span class="pre">7</span></code>.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+objects around <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">3</span></code>, <code class="docutils literal notranslate"><span class="pre">5</span></code> and <code class="docutils literal notranslate"><span class="pre">7</span></code>.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition warning" id="separation-warn">
@@ -570,12 +570,12 @@ later by setting their properties:</p>
 </pre></div>
 </div>
 <p>Below is an example:</p>
-<figure class="align-center" id="id6">
+<figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../_images/orthogonal_vs_nonorthogonal_proj.png"><img alt="Plot of Uranium-Palladium-3 for cases where the projection is orthogonal and non-orthogonal." src="../_images/orthogonal_vs_nonorthogonal_proj.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">Plot to show the difference between <code class="docutils literal notranslate"><span class="pre">nonorthogonal=false</span></code> and
+<p><span class="caption-number">Fig. 5.2 </span><span class="caption-text">Plot to show the difference between <code class="docutils literal notranslate"><span class="pre">nonorthogonal=false</span></code> and
 <code class="docutils literal notranslate"><span class="pre">nonorthogonal=true</span></code> with a hexagonal material (<span class="math notranslate nohighlight">\(\textrm{UPd}_3\)</span>)
-where <code class="docutils literal notranslate"><span class="pre">angdeg=[90,90,120]</span></code>.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+where <code class="docutils literal notranslate"><span class="pre">angdeg=[90,90,120]</span></code>.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>We can see that for the <code class="docutils literal notranslate"><span class="pre">nonorthogonal=false</span></code> case, the image clearly shows
@@ -608,11 +608,11 @@ and <span class="math notranslate nohighlight">\([0,0,1]\)</span> directions:</p
 the lattice parameters from the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object.</p>
 </div>
 <p>The code produces:</p>
-<figure class="align-center" id="id7">
+<figure class="align-center" id="id6">
 <a class="reference internal image-reference" href="../_images/iv_hkl.png"><img alt="2d cut" src="../_images/iv_hkl.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe data; reciprocal space covered by MAPS for an iron sample
-with incident neutron energy of 401meV.</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.3 </span><span class="caption-text">MAPS Fe data; reciprocal space covered by MAPS for an iron sample
+with incident neutron energy of 401meV.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>The cut with the same parameters as above at higher energy transfer</p>
@@ -621,11 +621,11 @@ with incident neutron energy of 401meV.</span><a class="headerlink" href="#id7" 
 </pre></div>
 </div>
 <p>shows clear spin waves:</p>
-<figure class="align-center" id="id8">
+<figure class="align-center" id="id7">
 <a class="reference internal image-reference" href="../_images/iv_hkl_dE.png"><img alt="2d cut instrument view energy transfer." src="../_images/iv_hkl_dE.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe Data; reciprocal space covered by MAPS for an iron sample
-with incident neutron energy of 401meV. Energies integrated between [50, 60].</span><a class="headerlink" href="#id8" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.4 </span><span class="caption-text">MAPS Fe Data; reciprocal space covered by MAPS for an iron sample
+with incident neutron energy of 401meV. Energies integrated between [50, 60].</span><a class="headerlink" href="#id7" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -642,16 +642,16 @@ above.</p>
 </pre></div>
 </div>
 <p>This shows the intensity of the spin wave:</p>
-<figure class="align-center" id="id9">
+<figure class="align-center" id="id8">
 <a class="reference internal image-reference" href="../_images/Fe_cut1D.png"><img alt="1d cut along diagonal." src="../_images/Fe_cut1D.png" style="width: 800px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe Data; 1D cut along the diagonal of the 2D image above.</span><a class="headerlink" href="#id9" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.5 </span><span class="caption-text">MAPS Fe Data; 1D cut along the diagonal of the 2D image above.</span><a class="headerlink" href="#id8" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 </section>
 <section id="spherical-projections">
-<span id="id4"></span><h4><span class="section-number">5.1.5.2. </span>Spherical Projections<a class="headerlink" href="#spherical-projections" title="Permalink to this heading"></a></h4>
+<span id="id3"></span><h4><span class="section-number">5.1.5.2. </span>Spherical Projections<a class="headerlink" href="#spherical-projections" title="Permalink to this heading"></a></h4>
 <p>In order to construct a spherical projection (i.e. a projection in <span class="math notranslate nohighlight">\(|\textbf{Q}|\)</span>,
 <span class="math notranslate nohighlight">\(\theta\)</span> (polar angle), <span class="math notranslate nohighlight">\(\phi\)</span> (azimuthal angle), <span class="math notranslate nohighlight">\(E\)</span>) we
 create a projection in an analogous way to the <code class="docutils literal notranslate"><span class="pre">line_proj</span></code>, but using the
@@ -788,10 +788,10 @@ and the plane <span class="math notranslate nohighlight">\(\vec{u}\)</span>-<spa
 </ul>
 <p>Where the <code class="docutils literal notranslate"><span class="pre">type</span></code> of an angular axis is <code class="docutils literal notranslate"><span class="pre">r</span></code> these values are the equivalent in radians.</p>
 </div>
-<figure class="align-center" id="id10">
+<figure class="align-center" id="id9">
 <span id="fig-sphere-coodinates"></span><a class="reference internal image-reference" href="../_images/sphere_proj_coordinates.png"><img alt="spherical coordinate system." src="../_images/sphere_proj_coordinates.png" style="width: 400px;" /></a>
 <figcaption>
-<p><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code></span><a class="headerlink" href="#id10" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.6 </span><span class="caption-text">Spherical coordinate system used by <code class="docutils literal notranslate"><span class="pre">sphere_proj</span></code></span><a class="headerlink" href="#id9" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>An alternative description of the spherical coordinate system may be found on MATLAB help pages.
@@ -860,11 +860,11 @@ integration, rather than treating it as powder data.</p>
 <p>Binning ranges are specified in the <strong>target</strong> coordinate system.</p>
 </div>
 <p>This script produces the following plot:</p>
-<figure class="align-center" id="id11">
+<figure class="align-center" id="id10">
 <a class="reference internal image-reference" href="../_images/powder_avrg.png"><img alt="|Q|-dE cut." src="../_images/powder_avrg.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
-Note integrated spin-waves at <span class="math notranslate nohighlight">\([1,1,0]\)</span> locations, i.e. <span class="math notranslate nohighlight">\(|Q|=1\ in\ |[1,1,0]*a^{*}|\)</span>, <span class="math notranslate nohighlight">\(a^{*}=2.22Å^{-1}\)</span></span><a class="headerlink" href="#id11" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.7 </span><span class="caption-text">MAPS Fe data; Powder averaged scattering from iron with an incident energy of 401meV.
+Note integrated spin-waves at <span class="math notranslate nohighlight">\([1,1,0]\)</span> locations, i.e. <span class="math notranslate nohighlight">\(|Q|=1\ in\ |[1,1,0]*a^{*}|\)</span>, <span class="math notranslate nohighlight">\(a^{*}=2.22Å^{-1}\)</span></span><a class="headerlink" href="#id10" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition note">
@@ -887,15 +887,15 @@ wave, e.g. around the scattering point <span class="math notranslate nohighlight
 </div>
 <p>The unwrapping of the intensity of the spin-wave located around <span class="math notranslate nohighlight">\([0,-1,1]\)</span>
 Bragg peak shows:</p>
-<figure class="align-center" id="id12">
+<figure class="align-center" id="id11">
 <a class="reference internal image-reference" href="../_images/spin_w_tiny.png"><img alt="Q-phi cut" src="../_images/spin_w_tiny.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe data; Spin-wave scattering intensity the the origin centred
+<p><span class="caption-number">Fig. 5.8 </span><span class="caption-text">MAPS Fe data; Spin-wave scattering intensity the the origin centred
 about the <span class="math notranslate nohighlight">\([0,-1,1]\)</span> Bragg peak. A visible gap caused by
 missing detectors is obvious in the <span class="math notranslate nohighlight">\(\phi\)</span>-axis range
 <span class="math notranslate nohighlight">\([-50^\circ:+50^\circ]\)</span>.
 Inset: Linear projection of the same region; the red lines show the
-approximate mapping from the linear to spherical projections.</span><a class="headerlink" href="#id12" title="Permalink to this image"></a></p>
+approximate mapping from the linear to spherical projections.</span><a class="headerlink" href="#id11" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>Integrating over the whole <span class="math notranslate nohighlight">\(\theta\)</span> range and thus including other
@@ -904,12 +904,12 @@ detectors substantially improves statistics; this is done by setting the
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id13">
+<figure class="align-center" id="id12">
 <a class="reference internal image-reference" href="../_images/spin_w_theta_av.png"><img alt="Q-phi cut theta-averages" src="../_images/spin_w_theta_av.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">MAPS Fe data; Scattering intensity from cut averaged over all <span class="math notranslate nohighlight">\(\theta\)</span>
+<p><span class="caption-number">Fig. 5.9 </span><span class="caption-text">MAPS Fe data; Scattering intensity from cut averaged over all <span class="math notranslate nohighlight">\(\theta\)</span>
 spin-wave with the origin centred at the <span class="math notranslate nohighlight">\([0,-1,1]\)</span> Bragg
-peak.</span><a class="headerlink" href="#id13" title="Permalink to this image"></a></p>
+peak.</span><a class="headerlink" href="#id12" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>The 1D cut below, generated by further integrating over the <span class="math notranslate nohighlight">\(\phi\)</span>-axis,
@@ -918,11 +918,11 @@ the spin-wave centre:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">sp_proj</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span><span class="w"> </span><span class="mi">180</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">]);</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id14">
+<figure class="align-center" id="id13">
 <a class="reference internal image-reference" href="../_images/spin_w_intensity_1D.png"><img alt="intensity vs Q." src="../_images/spin_w_intensity_1D.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Scattering intensity as function of distance from the scattering
-centre at <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</span><a class="headerlink" href="#id14" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.10 </span><span class="caption-text">Scattering intensity as function of distance from the scattering
+centre at <span class="math notranslate nohighlight">\([0,-1,1]\)</span>.</span><a class="headerlink" href="#id13" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -943,11 +943,11 @@ similar way to the <code class="docutils literal notranslate"><span class="pre">
 <li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>  The vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> is the reciprocal space vector defining the
 polar-axis of the cylindrical coordinate system along which
 <span class="math notranslate nohighlight">\(\vec{Q}_{\|}\)</span> is measured.</p>
-<p>See the <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
+<p>See the <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">diagram</span></a> for details.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>  The vector <span class="math notranslate nohighlight">\(\vec{v}\)</span> is the reciprocal space vector which defines the second
 component of the <span class="math notranslate nohighlight">\(u\)</span>-<span class="math notranslate nohighlight">\(v\)</span> plane from which <span class="math notranslate nohighlight">\(\phi\)</span> is measured.</p>
-<p>See the <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">diagram below</span></a> for details.</p>
+<p>See the <a class="reference internal" href="#fig-cylinder-coodinates"><span class="std std-ref">diagram</span></a> for details.</p>
 </li>
 </ul>
 <div class="admonition note">
@@ -1065,10 +1065,10 @@ plane and <span class="math notranslate nohighlight">\(90^{\circ}\)</span> is no
 <p><span class="math notranslate nohighlight">\(\phi\)</span>  lies in the range between <span class="math notranslate nohighlight">\(-180^{\circ}\)</span> and <span class="math notranslate nohighlight">\(180^{\circ}\)</span>.
 When the third component of <code class="docutils literal notranslate"><span class="pre">type</span></code> is <code class="docutils literal notranslate"><span class="pre">r</span></code>, these ranges are the equivalent in radians.</p>
 </div>
-<figure class="align-center" id="id15">
+<figure class="align-center" id="id14">
 <span id="fig-cylinder-coodinates"></span><a class="reference internal image-reference" href="../_images/cylinder_proj_coordinates.png"><img alt="cylindrical coordinate system." src="../_images/cylinder_proj_coordinates.png" style="width: 400px;" /></a>
 <figcaption>
-<p><span class="caption-text">Cylindrical coordinate system used by <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code></span><a class="headerlink" href="#id15" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.11 </span><span class="caption-text">Cylindrical coordinate system used by <code class="docutils literal notranslate"><span class="pre">cylinder_proj</span></code></span><a class="headerlink" href="#id14" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>Similarly to <a class="reference internal" href="#fig-sphere-coodinates"><span class="std std-ref">Spherical coordinate system used by sphere_proj</span></a>, detailed description of the cylindrical coordinate system used by
@@ -1121,10 +1121,10 @@ cylindrical symmetry.</p>
 </pre></div>
 </div>
 <p>one can easily obtain various cuts taken along different coordinate axes.</p>
-<figure class="align-center" id="id16">
+<figure class="align-center" id="id15">
 <span id="img-2d-cylindrical-cuts"></span><a class="reference internal image-reference" href="../_images/cylindrical_cuts_2D.png"><img alt="2D cylindrical cuts." src="../_images/cylindrical_cuts_2D.png" style="width: 1200px;" /></a>
 <figcaption>
-<p><span class="caption-text">Cylindrical cuts along different coordinate axes</span><a class="headerlink" href="#id16" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.12 </span><span class="caption-text">Cylindrical cuts along different coordinate axes</span><a class="headerlink" href="#id15" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>It is also possible to make one dimensional cylindrical cuts. The following code
@@ -1147,10 +1147,10 @@ function of <span class="math notranslate nohighlight">\(Q_{\perp}\)</span> at d
 <span class="nb">legend</span><span class="p">(</span><span class="s">&#39;Q_{\|}=-4&#39;</span><span class="p">,</span><span class="s">&#39;Q_{\|}=-2&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
-<figure class="align-center" id="id17">
+<figure class="align-center" id="id16">
 <a class="reference internal image-reference" href="../_images/cylindrical_cuts_1D.png"><img alt="1D cylindrical cuts." src="../_images/cylindrical_cuts_1D.png" style="width: 500px;" /></a>
 <figcaption>
-<p><span class="caption-text">Cylindrical cuts along <span class="math notranslate nohighlight">\(Q_{\perp}\)</span></span><a class="headerlink" href="#id17" title="Permalink to this image"></a></p>
+<p><span class="caption-number">Fig. 5.13 </span><span class="caption-text">Cylindrical cuts along <span class="math notranslate nohighlight">\(Q_{\perp}\)</span></span><a class="headerlink" href="#id16" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -1198,13 +1198,13 @@ size of the bins in this instance.</p>
 is suitable in the new projection, or you may waste time having to
 re-cut your dataset.</p>
 </div>
-<figure class="align-center" id="id18">
+<figure class="align-center" id="id17">
 <a class="reference internal image-reference" href="../_images/hull.png"><img alt="Example showing a linear projection (target) encapsulating a spherical projection (source)." src="../_images/hull.png" style="width: 400px;" /></a>
 <figcaption>
-<p><span class="caption-text">Example showing a linear projection (target) encapsulating a spherical
+<p><span class="caption-number">Fig. 5.14 </span><span class="caption-text">Example showing a linear projection (target) encapsulating a spherical
 projection (source).
 Here, if we consider a sphere of radius <span class="math notranslate nohighlight">\(r\)</span>, then the encapsulating
-cuboid has sidelength (<span class="math notranslate nohighlight">\(a\)</span>) of size <span class="math notranslate nohighlight">\(2r\)</span>.</span><a class="headerlink" href="#id18" title="Permalink to this image"></a></p>
+cuboid has sidelength (<span class="math notranslate nohighlight">\(a\)</span>) of size <span class="math notranslate nohighlight">\(2r\)</span>.</span><a class="headerlink" href="#id17" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p class="rubric">Example</p>
@@ -1356,7 +1356,7 @@ the range. The resulting image range will be <code class="docutils literal notra
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2026, STFC RAL.
-      <span class="lastupdated">Last updated on Jun 11, 2026, 12:32:51 PM.
+      <span class="lastupdated">Last updated on Jun 11, 2026, 3:41:05 PM.
       </span></p>
   </div>
 
