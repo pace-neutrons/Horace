@@ -1,0 +1,4 @@
+Symmetrisation
+##############
+
+.. literalinclude:: symmetrisation.m
