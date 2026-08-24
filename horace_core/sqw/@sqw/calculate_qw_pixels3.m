@@ -70,6 +70,10 @@ end
 
 % as column vectors
 idx    = win.pix.all_indexes();
+% run_id  = idx(1,:)';
+% det_id  = idx(2,:)';
+% en_id   = idx(3,:)';
+
 run_id  = rrr; %idx(1,:)';
 det_id  = ddd; %idx(2,:)';
 en_id   = eee; %idx(3,:)';
@@ -82,7 +86,7 @@ experiment = win.experiment_info;
 remapper   = experiment.runid_map;
 run_id     = remapper.get_values_for_keys(run_id,true); % retrieve IX_experiment array indices
 %                                                       % which corresponds to pixels run_id;
-idx(1,:)   = run_id;
+idx(1,:) = run_id;
 idx(2,:) = det_id;
 idx(3,:) = en_id;
 
