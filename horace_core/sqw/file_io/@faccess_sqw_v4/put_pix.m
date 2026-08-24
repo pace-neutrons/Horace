@@ -172,6 +172,13 @@ if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
         input_obj.page_num = i;
         pix_data = input_obj.data;
 
+        p5=pix_data(5,:);
+        p6=pix_data(6,:);
+        p7=pix_data(7,:);
+
+        qw = calculate_qw_pixels3(obj.sqw_holder_, ...
+            p5,p6,p7,false,true);
+
         try
             fwrite(obj.file_id_, single(pix_data), 'float32');
             obj.check_write_error(obj.file_id_);
