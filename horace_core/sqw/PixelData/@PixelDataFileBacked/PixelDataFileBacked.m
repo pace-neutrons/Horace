@@ -67,6 +67,9 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
     %
     %   data           - The raw pixel data - usage of this attribute is discouraged, the structure
     %                    of the return value is not guaranteed.
+    %   nonzerosignal_pix
+    %                    indices of pixels with non-zero signal
+    %                    used for de/compression
     %
 
     properties (Access=private)
@@ -93,6 +96,10 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
     end
     properties (Constant)
         is_filebacked = true;
+    end
+    properties
+        n_nonzeropixels = 0
+        nonzerosignal_pix = []
     end
 
     % =====================================================================
@@ -275,13 +282,13 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
             obj = finish_dump_(obj,page_op);
         end
 
-        function format = get_memmap_format(obj, tail,new)
+        function format = get_memmap_format(obj, faccessor, tail,new)
             if isempty(obj.f_accessor_) || ~isa(obj.f_accessor_,'memmapfile') || ...
-                    (nargin==3 && new)
-                if nargin == 1
+                    (nargin==4 && new)
+                if nargin == 2
                     tail = 0;
                 end
-                format = PixelDataBase.get_memmap_format(obj.num_pixels_,tail);
+                format = PixelDataBase.get_memmap_format(obj.num_pixels_,faccessor,tail);
             else
                 format = obj.f_accessor_.Format;
             end
@@ -313,8 +320,32 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
             end
             % Get the index of the final pixel to read given the maximum page size
             pix_idx_end = min(pix_idx_start + pgs - 1, obj.num_pixels);
-
         end
+
+        function [pix_idx2_start, pix_idx2_end] = get_page_idx2_(obj, page_number)
+            if ~exist('page_number', 'var')
+                page_number = obj.page_num_;
+            else
+                obj.page_num = page_number;
+            end
+            pgs = obj.page_size;
+            if isempty(obj.pix_page_chunks_)
+                pix_idx2_start = (page_number -1)*pgs+1;
+            else
+                pix_idx2_start = obj.pix_page_idx_start_(page_number);
+            end
+
+            if obj.num_pixels > 0 && pix_idx_start > obj.num_pixels
+                error('HORACE:PixelDataFileBacked:runtime_error', ...
+                    'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
+                    pix_idx_start, obj.num_pixels);
+            end
+            % Get the index of the final pixel to read given the maximum page size
+            pix_idx2_end = min(pix_idx2_start + pgs - 1, obj.num_pixels);
+        end
+
+
+
         function pix_copy = copy(obj)
             pix_copy = obj;
             if ~isempty(obj.tmp_file_holder_)
@@ -392,7 +423,12 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
             else
                 pix_data = mmf.Data.data(col_pix_idx,row_pix_idx);
             end
-
+            numpossig = -pix_data(9,1);
+            possigval = pix_data(9,2:numpossig+1);
+            posvarval = pix_data(9,numpossig+2:2*numpossig+1);
+            possig = pix_data(8,:);
+            %pixdat8 = zeros();
+            %pix
         end
 
         function data_range = get_data_range(obj,varargin)

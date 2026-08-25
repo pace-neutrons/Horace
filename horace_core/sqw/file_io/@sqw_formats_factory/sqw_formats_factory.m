@@ -36,6 +36,7 @@ classdef sqw_formats_factory < handle
         % Add all new file readers which inherit from sqw_file_interface and horace_binfile_interface
         % to this list in the order of expected frequency of their appearance.
         supported_accessors_ = { ...
+            faccess_sqw_v4_1(),...
             faccess_sqw_v4(),...
             faccess_dnd_v4(),...
             faccess_sqw_v3_3(), ...
@@ -60,7 +61,7 @@ classdef sqw_formats_factory < handle
         % array.
         % number of loader in the list of loaders above to use for saving
         % class, defined by written_types_ string.
-        access_to_type_ind_ = {2,1,1,2,2,2,2,2,2};
+        access_to_type_ind_ = {3,1,1,3,3,3,3,3,3};
         types_map_ ;
     end
     properties(Dependent)

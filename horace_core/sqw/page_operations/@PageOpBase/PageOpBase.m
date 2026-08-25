@@ -121,6 +121,10 @@ classdef PageOpBase
         pix_ = PixelDataMemory();
         % holder for the target image, being modified by the operation(s).
         img_;
+        % holder for the underlying sqw object which supports pix_ and img_
+        % which will be empty if the op was initialised from a
+        % PixelDataBase rather than an sqw object
+        win_ = [];
         % initial pixel range, recalculated according to the operation
         pix_data_range_ = PixelDataBase.EMPTY_RANGE;
         %

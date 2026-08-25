@@ -15,6 +15,7 @@ end
 if isa(in_obj ,'PixelDataBase')
     obj.pix_             = in_obj;
     obj.img_             = [];
+    obj.win_             = [];
     if obj.do_nopix_
         error('HORACE:PageOpBase:invalid_argument', ...        
             '-nopix option provided to pageOp but input contans pixels only. Can not continue.');
@@ -22,6 +23,7 @@ if isa(in_obj ,'PixelDataBase')
 elseif isa(in_obj,'sqw')
     obj.img_             = in_obj.data;
     obj.pix_             = in_obj.pix;
+    obj.win_             = in_obj;
     % linear access to npix, as the controller of pixel location
     obj.npix             = obj.img_.npix(:);
     %

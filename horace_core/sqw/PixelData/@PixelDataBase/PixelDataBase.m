@@ -337,15 +337,26 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
             end
         end
 
-        function format = get_memmap_format(num_pixels, tail)
-            if nargin == 1
+        function fmt = get_memmap_format(num_pixels, faccessor, tail)
+            if nargin == 2
                 tail = 0;
             end
             data_size = double([PixelDataBase.DEFAULT_NUM_PIX_FIELDS, num_pixels]);
-            if tail>0
-                format = {'single',data_size,'data';'uint8',double(tail),'tail'};
+            if isa(faccessor,'faccess_sqw_v4_1')
+                fmt = cell(5,3);
+                fmt{1,1} = 'single'; fmt{1,2} = 1;         fmt{1,3} = 'n_nonzero';
+                fmt{2,1} = 'single'; fmt{2,2} = [9 100337];fmt{2,3} = 'data';
+                fmt{3,1} = 'single'; fmt{3,2} = 1;         fmt{3,3} = 'separator';
+                fmt{4,1} = 'single'; fmt{4,2} = [3 11919]; fmt{4,3} = 'data2';
+                fmt{5,1} = 'single'; fmt{5,2} = 1;         fmt{5,3} = 'endflag'
             else
-                format = {'single',data_size,'data'};
+                fmt = {'single',data_size,'data'};
+            end
+            nrows = size(fmt,1) + 1;
+            if tail>0
+                fmt{nrows,1} = 'uint8'; 
+                fmt{nrows,2} = double(tail); 
+                fmt{nrows,3} = 'tail';
             end
         end
 
