@@ -268,14 +268,15 @@ classdef test_faccess_sqw_v2< TestCase
 
             tob = faccess_sqw_v2(tf);
             tob = tob.upgrade_file_format();
-            assertTrue(isa(tob,'faccess_sqw_v4'));
+            assertTrue(isa(tob,'faccess_sqw_v4_1'));
 
 
             sqw1 = tob.get_sqw();
             tob.delete();
 
+
             to = sqw_formats_factory.instance().get_loader(tf);
-            assertTrue(isa(to,'faccess_sqw_v4'));
+            assertTrue(isa(to,'faccess_sqw_v4_1'));
 
             sqw2 = to.get_sqw();
             to.delete();
@@ -296,13 +297,13 @@ classdef test_faccess_sqw_v2< TestCase
 
             tob = faccess_sqw_v2(tf);
             tob = tob.upgrade_file_format();
-            assertTrue(isa(tob,'faccess_sqw_v4'));
+            assertTrue(isa(tob,'faccess_sqw_v4_1'));
 
             sqw1 = tob.get_sqw();
             tob.delete();
 
             to = sqw_formats_factory.instance().get_loader(tf);
-            assertTrue(isa(to,'faccess_sqw_v4'));
+            assertTrue(isa(to,'faccess_sqw_v4_1'));
 
             sqw2 = to.get_sqw();
             to.delete();
@@ -327,7 +328,7 @@ classdef test_faccess_sqw_v2< TestCase
             tob = tob.put_sqw();
 
             tobV4 = tob.upgrade_file_format();
-            assertTrue(isa(tobV4,'faccess_sqw_v4'));
+            assertTrue(isa(tobV4,'faccess_sqw_v4_1'));
 
             sqw1 = tobV4.get_sqw();
             tobV4.delete();
@@ -339,7 +340,7 @@ classdef test_faccess_sqw_v2< TestCase
 
 
             to = sqw_formats_factory.instance().get_loader(tf);
-            assertTrue(isa(to,'faccess_sqw_v4'));
+            assertTrue(isa(to,'faccess_sqw_v4_1'));
 
             sqw2 = to.get_sqw();
             to.delete();
