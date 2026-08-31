@@ -1,4 +1,24 @@
-function qw=calculate_qw_pixels3(win,irun,idet,ien,coord_in_rlu,return_array)
+function qw=calculate_qw_pixels3(sqt,irun,idet,ien,coord_in_rlu,return_array)
+% interface to calculate_qw_pixels3a to revise the
+% run content in experiment info for the current page
+% before the full ...pixel3a call (below) is made
+%
+% Inputs:
+% obj: file accessor v4.1
+% (irun,idet,ien): run/detector/energy triple
+%sqt = obj.sqw_holder_; % the sqw-like struct
+ruid_contributed = unique(irun);
+exp_info = sqt.experiment_info.get_subobj(ruid_contributed);
+sqt.experiment_info = exp_info;
+sqt.pix = []; % assuming it isn't used % input_obj;
+qw = calculate_qw_pixels3a(sqt, ...            
+    irun,idet,ien,false,true);
+end
+        
+function qw=calculate_qw_pixels3a(win,irun,idet,ien,coord_in_rlu,return_array)
+% clone of calculate_qw_pixels2 for specific (run,det,en) sets.
+% used to decompress filebased pixel data by recalculating
+% (qh,qk,ql) from (run,det,en)
 % Calculate qh, qk, ql, en for the pixels in an sqw dataset from the
 % experiment information
 %
@@ -59,7 +79,9 @@ elseif nargin<3
 end
 
 % as column vectors
-idx    = win.pix.all_indexes();
+%idx    = win.pix.all_indexes();
+
+idx = zeros(3,size(irun,2));
 run_id  = irun; %idx(1,:)';
 det_id  = idet; %idx(2,:)';
 en_id   = ien; %idx(3,:)';

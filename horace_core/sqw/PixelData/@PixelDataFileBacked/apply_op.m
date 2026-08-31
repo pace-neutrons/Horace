@@ -21,6 +21,13 @@ op_name = page_op.op_name;
 [mem_chunk_size,ll,fbs] = config_store.instance().get_value( ...
     'hor_config', 'mem_chunk_size','log_level','fb_scale_factor');
 
+%{
+skel_obj_in = struct();
+skel_obj_in.experiment_info = obj_in.experiment_info;
+skel_obj_in.data = obj_in.data;
+%}
+page_op.sqw_struct = obj_in;
+
 % divide all data into pages to process
 [npix_chunks, npix_idx,page_op] = page_op.split_into_pages(npix, mem_chunk_size);
 

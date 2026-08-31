@@ -253,10 +253,12 @@ if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
 
         % qw = calculate_qw_pixels3(obj.sqw_holder_, ...
         sqt = obj.sqw_holder_;
+        %{
         ruid_contributed = unique(pix_data(5,:));
         exp_info = sqt.experiment_info.get_subobj(ruid_contributed);
         sqt.experiment_info = exp_info;
         sqt.pix = input_obj;
+        %}
         qw = calculate_qw_pixels3(sqt, ...            
             pix_data(5,:),pix_data(6,:),pix_data(7,:),false,true);
 
