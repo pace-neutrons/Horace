@@ -70,6 +70,9 @@ classdef PageOpBase
         % need this, so you can cut into pages with equal number of pixels
         % and handle any bin distribution.
         split_at_bin_edges
+        % remember properties of parent sqw object for (de)compression
+        sqw_struct; % uses sqw_struct_
+
     end
     properties(Dependent,Hidden)
 
@@ -121,6 +124,10 @@ classdef PageOpBase
         pix_ = PixelDataMemory();
         % holder for the target image, being modified by the operation(s).
         img_;
+        % holder for the underlying sqw object which supports pix_ and img_
+        % which will be empty if the op was initialised from a
+        % PixelDataBase rather than an sqw object
+        win_ = [];
         % initial pixel range, recalculated according to the operation
         pix_data_range_ = PixelDataBase.EMPTY_RANGE;
         %
@@ -167,6 +174,8 @@ classdef PageOpBase
         inform_about_target_file_ = true;
         % if true, intiialize filebacked output sqw object
         init_filebacked_output_ = false;
+        % remember properties of parent sqw object for (de)compression
+        sqw_struct_; % get/set via sqw_struct
     end
     methods(Abstract)
         % Specific apply operation method, which need overloading
@@ -202,6 +211,13 @@ classdef PageOpBase
             end
             obj = init_(obj,in_obj);
             obj.pix_idx_start_ = 1;
+        end
+
+        function obj = set.sqw_struct(obj,v)
+            obj.sqw_struct_ = v;
+        end
+        function v = get.sqw_struct(obj)
+            v = obj.sqw_struct_;
         end
         %
         function [npix_chunks, npix_idx,obj] = split_into_pages(obj,npix,chunk_size)
@@ -257,8 +273,9 @@ classdef PageOpBase
                 npix_block    = npix_blocks{idx};
                 npix_in_block = sum(npix_block(:));
                 pix_idx_end   = obj.pix_idx_start_+npix_in_block-1;
+                sqw_struct = obj.sqw_struct;
                 obj.page_data_ = obj.pix_.get_pixels( ...
-                    obj.pix_idx_start_:pix_idx_end,'-raw','-align');
+                    sqw_struct, obj.pix_idx_start_:pix_idx_end,'-raw','-align');
                 obj.pix_idx_start_ = pix_idx_end+1;
             else
                 obj.page_data_    = obj.pix_.data;
