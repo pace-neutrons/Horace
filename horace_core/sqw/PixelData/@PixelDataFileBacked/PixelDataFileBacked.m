@@ -100,6 +100,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
     properties
         n_nonzeropixels = 0
         nonzerosignal_pix = []
+        sqw_obj = []
     end
 
     % =====================================================================
@@ -268,6 +269,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
         end
         %
         function obj = store_page_data(obj,data,wh)
+            wh.page_number = [obj.page_num, obj.num_pages];
             wh.save_data(data);
         end
         function obj =set_as_tmp_obj(obj,filename)
@@ -399,7 +401,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
         end
 
 
-        function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx,sqw_struct)
+        function pix_data = get_raw_pix_data(obj,row_pix_idx,col_pix_idx,num_nzpix, sqw_struct)
             % Overloaded part of get_raw_pix operation.
             %
             % return unmodified pixel data according to the input indexes
@@ -415,25 +417,28 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
             if isempty(mmf)
                 pix_data = obj.EMPTY_PIXELS;
                 return
+            else
+                pix_data = zeros(9,numel(row_pix_idx));
             end
 
             % Return raw pixels
             if isempty(col_pix_idx)
-                pix_data = mmf.Data.data(:,row_pix_idx);
+                data1 = mmf.Data.data(:,row_pix_idx);
             else
-                pix_data = mmf.Data.data(col_pix_idx,row_pix_idx);
+                data1 = mmf.Data.data(col_pix_idx,row_pix_idx);
             end
             if isfield(mmf.Data,'data2')
                 page_number = obj.page_num;
-                pix_idx2_end = sum(obj.nonzerosignal_pix(1:page_number));
-                pix_idx2_start = pix_idx2_end - obj.nonzerosignal_pix(page_number) + 1;
+                pix_idx2_end = sum(num_nzpix(1:page_number));
+                pix_idx2_start = pix_idx2_end - num_nzpix(page_number) + 1;
                 if obj.keep_precision_
                     data2 = obj.f_accessor_.Data.data2(:,pix_idx2_start:pix_idx2_end);
                 else
                     data2 = double(obj.f_accessor_.Data.data2(:,pix_idx2_start:pix_idx2_end));
                 end
-                data(8,data2(1,:)) = data2(2,:);
-                data(9,data2(1,:)) = data2(3,:);
+                data2(1,:) = data2(1,:) - (row_pix_idx(1)-1);
+                pix_data(8,data2(1,:)) = data2(2,:);
+                pix_data(9,data2(1,:)) = data2(3,:);
 
                 %{
                 ruid_contributed = unique(pix_data(5,:));
@@ -441,18 +446,18 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar}) PixelDataFileBacked 
                 sqt.experiment_info = exp_info;
                 sqt.pix = input_obj;
                 %}
-                qw = calculate_qw_pixels3(sqw_struct, ...            
-                    pix_data(5,:),pix_data(6,:),pix_data(7,:),false,true);
 
+                qw = calculate_qw_pixels3(sqw_struct, ...            
+                    data1(1,:),data1(2,:),data1(3,:),false,true);
+                try
+                pix_data(5:7,:) = data1;
+                catch ME
+                    ;
+                end
+                pix_data(1:4,:) = qw;
+            else
+                pix_data = data1;
             end
-            %{
-            numpossig = -pix_data(9,1);
-            possigval = pix_data(9,2:numpossig+1);
-            posvarval = pix_data(9,numpossig+2:2*numpossig+1);
-            possig = pix_data(8,:);
-            %pixdat8 = zeros();
-            %pix
-            %}
         end
 
         function data_range = get_data_range(obj,varargin)

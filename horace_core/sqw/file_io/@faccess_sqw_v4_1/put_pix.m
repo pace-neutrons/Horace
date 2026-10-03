@@ -142,6 +142,9 @@ end
 if nopix && reserve
     % size of buffer to hold pixel information
     block_size= config_store.instance().get_value('hor_config','mem_chunk_size');
+    
+    % leaving the field width at 9 as nopix so should
+    % not need compression
 
     if block_size >= num_pixels
         res_data = single(zeros(9,num_pixels));
@@ -185,18 +188,20 @@ if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
         throw(exc.addCause(ME))
     end
     total_nonzero_signals = 0; % counter initialization
+    N_COMPRESSED_PIXEL_FIELDS = obj.N_COMPRESSED_PIXEL_FIELDS;
 
     % find if the space for the pixels has already been created on file
     % calc size of uncompressed pixel data 
     % (plus space for size of compressed signals etc.)
-    pix_size_A = 4*9*input_obj.num_pixels; % pixels only
+    pix_size_A = 4*N_COMPRESSED_PIXEL_FIELDS*input_obj.num_pixels; % pixels only
     % move to end of file and check position
     fseek(obj.file_id_,0,'eof');
     pix_end_A = ftell(obj.file_id_);
     % write zeros if not enough file exists and return
     if (pix_end_A-pix_start_A)<pix_size_A+4 % add extra record size
         % write enough data to fill required space
-        blank_data = -44*ones([1,9*input_obj.page_size],'single');
+        % -44 is a number written so we can check the data contents
+        blank_data = -44*ones([1,N_COMPRESSED_PIXEL_FIELDS*input_obj.page_size],'single');
         n_data = 0;
         for ii=1:n_pages-1
             % space for all but one pages of pixels
@@ -204,7 +209,7 @@ if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
             n_data = n_data + input_obj.page_size;
         end
         % space for last page of pixels
-        last_page_size = 9*(input_obj.num_pixels-n_data);
+        last_page_size = N_COMPRESSED_PIXEL_FIELDS*(input_obj.num_pixels-n_data);
         fwrite(obj.file_id_, blank_data(1:last_page_size),'float32');
         % mark the end of pixel data by this route
         pix_end_A = ftell(obj.file_id_);
@@ -240,6 +245,8 @@ if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
     num_pix_to_date = 0;
     fseek(obj.file_id_, pix_start_A+4,'bof');
     curpos = ftell(obj.file_id_);
+
+    fullsig = zeros(1,100337);
     for i = 1:n_pages
         % store page number and make it the current page
         input_obj.page_num = i;
@@ -250,6 +257,16 @@ if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
         pix_data = input_obj.data;
         full_page_size = size(pix_data,2);
 
+        pagestart = (i-1)*1000+1;
+        if i<n_pages    
+            try 
+            fullsig(pagestart:pagestart+999) = pix_data(8,:);
+            catch ME
+                ;
+            end
+        else
+            fullsig(pagestart:end) = pix_data(8,:);
+        end
 
         % qw = calculate_qw_pixels3(obj.sqw_holder_, ...
         sqt = obj.sqw_holder_;
@@ -278,9 +295,10 @@ if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
         total_nonzero_signals = total_nonzero_signals + numpossig;
         nonzero_page_sizes(i) = numpossig;
         num_pix_to_date = num_pix_to_date + full_page_size;
-        % write the existing pix data as if not compressed
+
+        % write the existing pix data for fields 5:7 ie irun/idet/en
         try
-            fwrite(obj.file_id_, single(pix_data), 'float32');
+            fwrite(obj.file_id_, single(pix_data(5:7,:)), 'float32');
             obj.check_write_error(obj.file_id_);
         catch ME
             exc = MException('HORACE:put_pix:io_error',...
@@ -356,7 +374,7 @@ else % input_obj is an array of pixel data, not a PixelData object.
 end
     fmt = cell(7,3);
     fmt{1,1} = 'single'; fmt{1,2} = 1;         fmt{1,3} = 'n_nonzero';
-    fmt{2,1} = 'single'; fmt{2,2} = [9 double(obj.npixels)];fmt{2,3} = 'data';
+    fmt{2,1} = 'single'; fmt{2,2} = [N_COMPRESSED_PIXEL_FIELDS double(obj.npixels)];fmt{2,3} = 'data';
     fmt{3,1} = 'single'; fmt{3,2} = 1;         fmt{3,3} = 'separator';
     fmt{4,1} = 'single'; fmt{4,2} = [3 total_nonzero_signals]; fmt{4,3} = 'data2';
     fmt{5,1} = 'single'; fmt{5,2} = 1;         fmt{5,3} = 'nnpixpages';

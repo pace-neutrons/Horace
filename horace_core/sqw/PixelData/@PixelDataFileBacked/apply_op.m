@@ -68,6 +68,36 @@ if ll>0
     lc = log_config();
     lc = lc.init_adaptive_logging();
 end
+% find the new non-zero-signal pixel paging
+% use npix_chunks as convenient paging sizes to do the searching
+npc_start = 1;
+nzpc_start = 1;
+num_nzpix = zeros(1,numel(npix_chunks));
+size_nzpix = size(page_op.pix_.f_accessor_.Data.data2,2);
+for i=1:n_chunks
+    npc = npix_chunks{i};
+    
+    max_page_end = nzpc_start + npc - 1;
+    nzpc_end = min(max_page_end,size_nzpix);
+
+    npc_end = npc_start + npc -1;
+    largest_in_page = npc_end;
+    
+    nzpix_in_scan = page_op.pix_.f_accessor_.Data.data2(1,nzpc_start:nzpc_end);
+    
+    nzpc_end = find(nzpix_in_scan<=largest_in_page);
+    nzpc_end = nzpc_end(end);
+
+    num_nzpix(i) = nzpc_end;
+    if i<n_chunks
+        nzpc_start = nzpc_start + nzpc_end;
+        npc_start = npc_end + 1;
+    end
+end
+page_op.num_nzpix = num_nzpix;
+% want to use page_op.pix_write_hande
+%file_id_ = page_op.get_write_handle().get_file_id();
+page_op.get_write_handle().get_write_handle().zero_fill_data1(npix_chunks);
 %==========================================================================
 % Run paging
 for i=1:n_chunks % uses the fact that number of pixels must be equal to sum(npix)

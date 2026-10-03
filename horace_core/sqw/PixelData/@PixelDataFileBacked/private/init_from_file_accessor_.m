@@ -13,9 +13,11 @@ if isa(faccessor,'faccess_sqw_v4')
 end
 
 if isa(faccessor,'faccess_sqw_v4_1')
-    myfileid =fopen(faccessor.full_filename,'r');
-    fseek(myfileid,faccessor.pix_position,'bof');
-    AAA = fread(myfileid,[1,1],'single');
+    N_COMPRESSED_PIXEL_FIELDS = faccessor.N_COMPRESSED_PIXEL_FIELDS;
+    obj.sqw_obj = sqw_obj;
+else
+    N_COMPRESSED_PIXEL_FIELDS = 9;
+    obj.sqw_obj = [];
 end
 
 obj.page_num_ = 1;
@@ -29,7 +31,7 @@ if isa(faccessor,'faccess_sqw_v4_1')
     %%{
     format0 = {'single' ,  [    1], 'total_nonzero_signals'; ...
               };
-    format = {'single'   [9 100337],   'data'; ...
+    format = {'single'   [N_COMPRESSED_PIXEL_FIELDS 100337],   'data'; ...
              };
     format2 = {
               'single'   [3 11919],   'data2'; ...
@@ -45,7 +47,7 @@ else
 end
 fmt = cell(7,3);
 fmt{1,1} = 'single'; fmt{1,2} = 1;         fmt{1,3} = 'n_nonzero';
-fmt{2,1} = 'single'; fmt{2,2} = [9 obj.num_pixels];fmt{2,3} = 'data';
+fmt{2,1} = 'single'; fmt{2,2} = [N_COMPRESSED_PIXEL_FIELDS obj.num_pixels];fmt{2,3} = 'data';
 fmt{3,1} = 'single'; fmt{3,2} = 1;         fmt{3,3} = 'separator';
 fmt{4,1} = 'single'; fmt{4,2} = [3 1]; fmt{4,3} = 'data2';
 fmt{5,1} = 'single'; fmt{5,2} = 1;         fmt{5,3} = 'nnpixpages';
@@ -75,7 +77,7 @@ if isa(faccessor,'faccess_sqw_v4_1')
     npx = double(obj.num_pixels);
     fmt = cell(5,3);
     fmt{1,1} = 'single'; fmt{1,2} = 1;         fmt{1,3} = 'n_nonzero';
-    fmt{2,1} = 'single'; fmt{2,2} = [9 npx];fmt{2,3} = 'data';
+    fmt{2,1} = 'single'; fmt{2,2} = [N_COMPRESSED_PIXEL_FIELDS npx];fmt{2,3} = 'data';
     fmt{3,1} = 'single'; fmt{3,2} = 1;         fmt{3,3} = 'separator';
     fmt{4,1} = 'single'; fmt{4,2} = [3 n_nonzero]; fmt{4,3} = 'data2';
     fmt{5,1} = 'single'; fmt{5,2} = 1;         fmt{5,3} = 'nnpixpages';
@@ -87,7 +89,7 @@ if isa(faccessor,'faccess_sqw_v4_1')
     n_filepages = double(mmf.Data.nnpixpages);
     fmt = cell(7,3);
     fmt{1,1} = 'single'; fmt{1,2} = 1;         fmt{1,3} = 'n_nonzero';
-    fmt{2,1} = 'single'; fmt{2,2} = [9 npx];fmt{2,3} = 'data';
+    fmt{2,1} = 'single'; fmt{2,2} = [N_COMPRESSED_PIXEL_FIELDS npx];fmt{2,3} = 'data';
     fmt{3,1} = 'single'; fmt{3,2} = 1;         fmt{3,3} = 'separator';
     fmt{4,1} = 'single'; fmt{4,2} = [3 n_nonzero]; fmt{4,3} = 'data2';
     fmt{5,1} = 'single'; fmt{5,2} = 1;         fmt{5,3} = 'nnpixpages';

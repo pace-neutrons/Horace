@@ -1,4 +1,4 @@
-function pix_out = get_pixels(obj, sqw_struct, varargin)
+function pix_out = get_pixels(obj, num_nzpix, sqw_struct, varargin)
 % Retrieve the raw pixels at the given indices in the full pixel block,
 % return a new PixelData object.
 %
@@ -44,7 +44,11 @@ function pix_out = get_pixels(obj, sqw_struct, varargin)
 [pix_indices,col_pix_idx,ignore_range,raw_data,keep_precision,align] =...
     obj.parse_get_pix_args(true,varargin{:});
 
-pix_data  = obj.get_raw_pix_data(pix_indices,col_pix_idx,sqw_struct);
+if isa(obj,'PixelDataMemory')
+    pix_data  = obj.get_raw_pix_data(pix_indices,col_pix_idx);
+else
+    pix_data  = obj.get_raw_pix_data(pix_indices,col_pix_idx,num_nzpix, sqw_struct);
+end
 
 keep_precision = keep_precision || obj.keep_precision_;
 pix_out = obj.pack_get_pix_result(pix_data,ignore_range,raw_data,keep_precision,align);

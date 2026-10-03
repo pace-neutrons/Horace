@@ -112,6 +112,13 @@ classdef PageOpBase
         pix
     end
 
+    properties
+        % holder for the pixel object which is source and sometimes target
+        % for the operation
+        pix_ = PixelDataMemory();
+        num_nzpix = [];        
+    end
+
     properties(Access=protected)
         % true if operation should not create the copy of a filebacked
         % object
@@ -119,9 +126,6 @@ classdef PageOpBase
         % true if user wants to get only modified dnd object, ignoring
         % changes in pixels
         do_nopix_ = false;
-        % holder for the pixel object which is source and sometimes target
-        % for the operation
-        pix_ = PixelDataMemory();
         % holder for the target image, being modified by the operation(s).
         img_;
         % holder for the underlying sqw object which supports pix_ and img_
@@ -213,6 +217,14 @@ classdef PageOpBase
             obj.pix_idx_start_ = 1;
         end
 
+        function id = get_file_id(obj)
+            id = obj.get_write_handle().file_id_;
+        end
+
+        function wh = get_write_handle(obj)
+            wh = obj.write_handle_;
+        end
+
         function obj = set.sqw_struct(obj,v)
             obj.sqw_struct_ = v;
         end
@@ -275,7 +287,7 @@ classdef PageOpBase
                 pix_idx_end   = obj.pix_idx_start_+npix_in_block-1;
                 sqw_struct = obj.sqw_struct;
                 obj.page_data_ = obj.pix_.get_pixels( ...
-                    sqw_struct, obj.pix_idx_start_:pix_idx_end,'-raw','-align');
+                    obj.num_nzpix, sqw_struct, obj.pix_idx_start_:pix_idx_end,'-raw','-align');
                 obj.pix_idx_start_ = pix_idx_end+1;
             else
                 obj.page_data_    = obj.pix_.data;

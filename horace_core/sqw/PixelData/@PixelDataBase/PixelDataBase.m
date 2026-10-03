@@ -413,7 +413,7 @@ classdef (InferiorClasses = {?DnDBase,?IX_dataset,?sigvar},Abstract) ...
         data  = get_data(obj);
         % common interface to getting pixel data. Class dependent
         % implementation
-        data = get_raw_pix_data(obj,row_idx,col_idx);
+        data = get_raw_pix_data(obj,row_idx,col_idx, varargin);
 
         % setters/getters for serializable interface properties
         obj = set_data_wrap(obj,val);

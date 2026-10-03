@@ -73,6 +73,10 @@ classdef faccess_sqw_v4_1 < binfile_v4_common & sqw_file_interface
     properties
         n_nonzeropixels = 0
     end
+
+    properties(Constant)
+        N_COMPRESSED_PIXEL_FIELDS = 3
+    end
     %======================================================================
     % ACCESSORS & constructor
     methods
@@ -186,6 +190,37 @@ classdef faccess_sqw_v4_1 < binfile_v4_common & sqw_file_interface
             hd =head@binfile_v4_common(obj,varargin{:});
 
             hd = obj.shuffle_fields_form_sqw_head(hd,full_data);
+        end
+
+        function zero_fill_data1(obj, chunk_sizes)
+            n_chunks = numel(chunk_sizes);
+            try
+                fseek(obj.file_id, obj.pix_position,'bof');
+            catch ME
+                error("could not find pix_position");
+            end
+            try
+                fwrite(obj.file_id_, single(0.0),'float32');
+            catch ME
+                error("could not write 0 to no. non-zero signals position");
+            end
+            
+            for ichunk = 1:n_chunks
+                chunk_size = chunk_sizes{ichunk};
+                zero_chunk = zeros(1,4*3*chunk_size);
+                try
+                    fwrite(obj.file_id_, zero_chunk);
+                catch ME
+                    error("could not write zero chunk %d", ichunk);
+                end
+            end
+
+            try
+                fwrite(obj.file_id_, single(0.0),'float32');
+            catch ME
+                error("could not write 0 to no. non-zero signals position");
+            end
+            
         end
 
         % -----------------------------------------------------------------
@@ -304,7 +339,6 @@ classdef faccess_sqw_v4_1 < binfile_v4_common & sqw_file_interface
             [~,mhb] = nfil_bl.get_sqw_block(obj.file_id_);
             obj.num_contrib_files_ = mhb.nfiles;
         end
-
     end
     %======================================================================
     % SERIALIZABLE INTERFACE MAINLY INHERITED FROM binfile_v4_common
