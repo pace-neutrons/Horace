@@ -234,7 +234,7 @@ by inserting the location of the `Horace` folders into these files, and copies t
 This means that all Matlab session including independent parallel workers have access to this path from any location
 where Matlab has been started.  Unfortunately, this requires administrative (root) privileges.
 
-Under some corporate Windows installations, even root privileges are insufficient and your can not modify 
+Under some corporate Windows installations, even root privileges are insufficient and you cannot modify 
 MATLAB's ``pathdef.m`` file located in ``$MATLAB_INSTALLATION_ROOT_folder\toolbox\local`` where ``$MATLAB_INSTALLATION_ROOT_folder``
 is the folder where MATLAB is installed. On Windows by default it is: ``c:\Program Files\MATLAB``. In this case, 
 MATLAB may hung-up while running ``horace_install`` script, as Windows secirty prevents it 
