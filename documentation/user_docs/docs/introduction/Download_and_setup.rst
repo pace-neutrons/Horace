@@ -42,13 +42,13 @@ downloaded release package or checked out `GitHub <https://github.com/pace-neutr
 To install Horace from distribution package:
 
 1. Extract the release archive to your preferred location.
-2. Move to your unpacked folder and run ``horace_install`` command.
+2. Move to your unpacked folder and run ``horace_install`` script from this folder.
 
 If you installing from `GitHub <https://github.com/pace-neutrons/Horace>`__:
 
 1. Checkout the repository to your preferred location.
 2. Open Matlab and change to the ``admin`` folder under that location.
-3. Run ``horace_install`` command. 
+3. Run ``horace_install`` script from this folder. 
    Under Unix, where Matlab GUI may not always run with root privileges
    go to the ``admin`` folder under the package folder and run Matlab
    from the command line as: ``sudo matlab -nosplash -nodesktop -r horace_install``
