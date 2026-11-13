@@ -52,7 +52,7 @@ If you installing from `GitHub <https://github.com/pace-neutrons/Horace>`__:
    Under Unix, where Matlab GUI may not always run with root privileges
    go to the ``admin`` folder under the package folder and run Matlab
    from the command line as: ``sudo matlab -nosplash -nodesktop -r horace_install``
-   Windows repository contains all necessary mex files, while under Unix you may want
+   The Windows repository contains all necessary mex files, while under Unix you may want
    to build ``mex`` files for improved performance. This may be done
    by enabling C++ compiler as described in MATLAB guide and running ``horace_mex`` command
    or using ``cmake`` (see below).
