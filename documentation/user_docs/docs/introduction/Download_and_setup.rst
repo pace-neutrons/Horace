@@ -53,7 +53,7 @@ If you installing from `GitHub <https://github.com/pace-neutrons/Horace>`__:
    go to the ``admin`` folder under the package folder and run Matlab
    from the command line as: ``sudo matlab -nosplash -nodesktop -r horace_install``
    The Windows repository contains all necessary mex files, while under Unix you may want
-   to build ``mex`` files for improved performance. This may be done
+   to build the ``mex`` files for improved performance. This may be done
    by enabling C++ compiler as described in the MATLAB guide and running ``horace_mex`` command
    or using ``cmake`` (see below).
    Horace package may be successfully used without building mex files with some decrease in performance.
