@@ -39,7 +39,7 @@ Standard Matlab install
 To install Horace you should ideally have the administrative rights.
 The installation instructions are slightly different depending on your 
 downloaded release package or checked out `GitHub <https://github.com/pace-neutrons/Horace/>`__ repository. 
-To install Horace from distribution package:
+To install Horace from a distribution package:
 
 1. Extract the release archive to your preferred location.
 2. Move to your unpacked folder and run ``horace_install`` script from this folder.
