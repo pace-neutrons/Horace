@@ -36,16 +36,29 @@ These packages contain pre-compiled `mex` libraries for each OS.
 Standard Matlab install
 -----------------------
 
-To install Horace you should ideally have the administrative rights. To
-install Horace:
+To install Horace you should ideally have the administrative rights.
+The installation instructions are slightly different depending on you 
+downloaded release package or checked out `GitHub <https://github.com/pace-neutrons/Horace/>`__ repository. 
+To install Horace from distribution package:
 
 1. Extract the release archive to your preferred location.
+2. Move to your unpacked folder and run ``horace_install`` command.
+
+If you installing from `GitHub <https://github.com/pace-neutrons/Horace>`__:
+
+1. Checkout the repository to your preferred location.
 2. Open Matlab and change to the ``admin`` folder under that location.
-3. Run ``horace_install``.
+3. Run ``horace_install`` command. 
    Under Unix, where Matlab GUI may not always run with root privileges
    go to the ``admin`` folder under the package folder and run Matlab
    from the command line as: ``sudo matlab -nosplash -nodesktop -r horace_install``
-4. Now you can call ``horace_on`` from anywhere to start using Horace.
+   Windows repository contains all necessary mex files, while under Unix you may want
+   to build ``mex`` files for improved performance. This may be done
+   by enabling C++ compiler as described in MATLAB guide and running ``horace_mex`` command
+   or using ``cmake`` (see below).
+   Horace package may be successfully used without building mex files with some decrease in performance.
+
+Now you can call ``horace_on`` from anywhere to start using Horace.
 
 Optional:
 
@@ -220,6 +233,12 @@ by inserting the location of the `Horace` folders into these files, and copies t
 (``<extracted_folder>/ISIS`` by default) which it adds to the Matlab path by modifying the global ``pathdef.m`` file.
 This means that all Matlab session including independent parallel workers have access to this path from any location
 where Matlab has been started.  Unfortunately, this requires administrative (root) privileges.
+
+Under some corporate Windows installations, even root privileges are insufficient and your can not modify 
+MATLAB's ``pathdef.m`` file located in ``$MATLAB_INSTALLATION_ROOT_folder\toolbox\local`` where ``$MATLAB_INSTALLATION_ROOT_folder``
+is the folder where MATLAB is installed. On Windows by default it is: ``c:\Program Files\MATLAB``. In this case, 
+MATLAB may hung-up while running ``horace_install`` script, as Windows secirty prevents it 
+from executing its ``savepath`` script which modifies default ``pathdef.m`` file.
 
 It is possible to install `Horace` without admin rights, in which case the ``horace_install`` script will create a
 ``pathdef.m`` file in the default `userpath` folder (as defined in the `Matlab documentation for search paths
