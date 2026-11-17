@@ -4,11 +4,11 @@ classdef IX_dataset < data_op_interface & serializable
         %title:  dataset title (will be plotted on a grapth)
         title;
         % signal -- array of signal...
-        signal
+        signal;
         % error  -- array of errors
-        error
+        error;
         % s_axis -- IX_axis class containing signal axis caption
-        s_axis
+        s_axis;
     end
 
 
