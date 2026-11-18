@@ -313,16 +313,32 @@ classdef test_plot_dnd < TestCase
         function test_src_two_obj(obj)
             clear_figures();
             cleanupObj = onCleanup(@clear_figures);
+            % retrieve last used figure number kept due to strange
+            % logic recent Matlab versions (>=2025a) uses in numbering
+            % figures. Delete all figures does not reset number of figures
+            % to 0;
+            fg = figure();
+            n_fig = fg.Number;
+            delete(fg);
+
             plot(obj.data1D);
             plotover(2*obj.data1D);
-            res = src(1);
+            res = src(n_fig);
             assertEqual(res,[obj.data1D,2*obj.data1D]);
         end
         function test_src_one_obj(obj)
             clear_figures();
             cleanupObj = onCleanup(@clear_figures);
+            % retrieve last used figure number kept due to strange
+            % logic recent Matlab versions (>=2025a) uses in numbering
+            % figures. Delete all figures does not reset number of figures
+            % to 0; Numbers are reused.
+            fg = figure();
+            n_fig = fg.Number;
+            delete(fg);
+
             plot(obj.data1D);
-            res = src(1);
+            res = src(n_fig );
             assertEqual(res,obj.data1D);
         end
 
@@ -338,7 +354,10 @@ function clear_figures
 % Delete all existing figures for a clean graphics test
 fig_handles = findobj(0, 'Type', 'figure');
 if ~isempty(fig_handles)
-    delete(fig_handles)
+    for i=1:numel(fig_handles)
+        delete(fig_handles(i))
+    end
+    delete(fig_handles);
 end
 end
 
