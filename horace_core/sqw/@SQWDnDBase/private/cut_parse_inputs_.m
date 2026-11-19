@@ -57,7 +57,7 @@ function [proj, pbin, sym, opt] = ...
 %                                cut integrates the axis over 105-107, the
 %                                second over 109-111 and the third 113-115.
 %
-%   sym          Symmetry operator (or an array of symmetry operators
+%   sym          Symmetry operator (or an cell-array of symmetry operators
 %                  to be applied in the order sym(1), sym(2),...)
 %                  by which a symmetry related cut is to be accumulated.
 %                   Must be a subclass of Symop.
@@ -111,7 +111,7 @@ function [proj, pbin, sym, opt] = ...
 %                               given by 'width'
 %                               If width=0, it is taken to be equal to pstep.
 %
-%  sym              Symop, or array/cell array thereof
+%  sym              Symop, or cell array thereof
 %
 % Output:          Returns the aruments in standard form
 % -------
@@ -389,7 +389,7 @@ if isempty(pbin_given)
     bin_centers = 0.5*(paxis(1:end-1)+paxis(2:end));
     pbin = [bin_centers(1),bin_width,bin_centers(end)];
 
-elseif numel(pbin_given) == 1
+elseif isscalar(pbin_given)
     if abs(pbin_given) < eps('single')
         new_axis = paxis;
     else

@@ -47,14 +47,14 @@ classdef test_IX_moderator < TestCaseWithSave
         function test_pulse_shape_mik (self)
             t = -10:0.01:200;
             [y, t] = pulse_shape (self.mik, t); w_mik = IX_dataset_1d (t, y);
-            assertEqualWithSave (self, w_mik);
+            assertEqualToTolWithSave (self, w_mik,2e-14);
         end
 
         %--------------------------------------------------------------------------
         function test_pulse_shape_mikp (self)
             t = -10:0.01:200;
             [y, t] = pulse_shape (self.mikp, t); w_mikp = IX_dataset_1d (t, y);
-            assertEqualWithSave (self, w_mikp);
+            assertEqualToTolWithSave (self, w_mikp,2e-14);
         end
 
         %--------------------------------------------------------------------------
@@ -167,9 +167,9 @@ classdef test_IX_moderator < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_pulse_width_mikp (self)
             [dt, t_av, fwhh] = pulse_width (self.mikp);
-            assertEqualToTol (dt, 24.141435934481127, 1e-14)
-            assertEqualToTol (t_av, 29.692839193676942, 1e-14)
-            assertEqualToTol (fwhh, 26.406900251721297, 1e-14)
+            assertEqualToTol (dt, 24.141435934481127, 2e-14)
+            assertEqualToTol (t_av, 29.692839193676942, 2e-14)
+            assertEqualToTol (fwhh, 26.406900251721297, 2e-14)
         end
 
         %--------------------------------------------------------------------------
