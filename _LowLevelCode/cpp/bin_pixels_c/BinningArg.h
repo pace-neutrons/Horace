@@ -6,6 +6,7 @@
 #include <map>
 #include <numeric>
 #include <string>
+#include <algorithm>
 #include <utility/version.h>
 
 // enumerate possible types of input/output pixel && coord arguments

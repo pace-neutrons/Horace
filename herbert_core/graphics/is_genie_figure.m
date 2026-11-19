@@ -81,6 +81,6 @@ for i=1:numel(fig_handle)
     end
 end
 
-if numel(fig_handle)==1
+if isscalar(fig_handle)
     name = name{1};     % single name, so extract from a cell array
 end

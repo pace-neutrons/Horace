@@ -313,16 +313,30 @@ classdef test_plot_sqw < TestCase
         function test_src_two_obj(obj)
             clear_figures();
             cleanupObj = onCleanup(@clear_figures);
-            plot(obj.data1D);
+            %
+            fg = plot(obj.data1D);
+            % retrieve last used figure number kept due to strange
+            % logic recent Matlab versions (>=2025a) uses in numbering
+            % figures. Delete all figures does not reset number of figures
+            % to 0; Numbers are reused.
+            n_fig = fg.Number;
+            %
             plotover(2*obj.data1D);
-            res = src(1);
+            res = src(n_fig);
             assertEqual(res,[obj.data1D,2*obj.data1D]);
         end
         function test_src_one_obj(obj)
             clear_figures();
             cleanupObj = onCleanup(@clear_figures);
-            plot(obj.data1D);
-            res = src(1);
+            %
+            fg = plot(obj.data1D);
+            % retrieve last used figure number kept due to strange
+            % logic recent Matlab versions (>=2025a) uses in numbering
+            % figures. Delete all figures does not reset number of figures
+            % to 0; Numbers are reused.
+            n_fig = fg.Number;
+            %
+            res = src(n_fig);
             assertEqual(res,obj.data1D);
         end
         %------------------------------------------------------------------
