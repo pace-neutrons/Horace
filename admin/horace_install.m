@@ -93,14 +93,33 @@ if ~opt.test_mode
     if ~exist(init_folder,'dir')
         mkdir(init_folder);
     end
-    %if use_existing_path path have already been modified. Do not create mess
-    %
+    %if use_existing_path, the path have already been modified. 
+    % Do not create mess. Use old initialization path. Otherwise, 
+    % cheate new path.
     if ~use_old_init_path
         if ~isempty(old_init_folder)
             rmpath(old_init_folder);
         end
         addpath(init_folder);
-        err = savepath();
+        if ispc
+            % issue with savepath have been identified when Admin by
+            % Request does not allow to elevate session and installation
+            % hungs. Try to bypath this issue. 
+            pathdef_pth = which('pathdef');
+            fid = fopen(pathdef_pth,'r+'); % write access possible
+            if fid>0
+                access_granded = true;
+            else
+                access_granded = false;
+            end
+            fclose(fid);            
+        else 
+            access_granded = true; % Other OS (and Win without Admin...) treat 
+            % pathdef in Matlab according to permissions 
+        end
+        if ~access_granded % 
+            err = savepath();
+        end
         if err
             userpath = find_userpath();
             warning('HORACE:installation',...
