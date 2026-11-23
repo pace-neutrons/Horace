@@ -19,10 +19,10 @@ function [init_folder,hor_init_dir,use_old_init_path,modified_hor_on_contents] =
 %                  to be installed. If missing,
 %                  <path to Horace code>/../ISIS folder is selected.
 %                  This folder will be added to Matlab search path.
-% spinW_folder --  key with value, which shows where spinW is located. 
+% spinW_folder --  key with value, which shows where spinW is located.
 %                  Allows to initialize Horace together with spin_w
 %                  For this option to work, spinw_on.m.template file have
-%                  to be available in Horace and spinW package installed and 
+%                  to be available in Horace and spinW package installed and
 %                  be available on filesystem.
 %
 % test_mode   -- if true, do not install Horace but return installation
@@ -93,14 +93,35 @@ if ~opt.test_mode
     if ~exist(init_folder,'dir')
         mkdir(init_folder);
     end
-    %if use_existing_path path have already been modified. Do not create mess
-    %
+    %if use_existing_path, the path have already been modified.
+    % Do not create mess. Use old initialization path. Otherwise,
+    % create new path.
     if ~use_old_init_path
         if ~isempty(old_init_folder)
             rmpath(old_init_folder);
         end
         addpath(init_folder);
-        err = savepath();
+        if ispc
+            % issue with savepath have been identified when Admin by
+            % Request does not allow to elevate session and installation
+            % hangs. Try to bypath this issue.
+            pathdef_pth = which('pathdef');
+            fid = fopen(pathdef_pth,'r+'); % write access possible
+            if fid>0
+                access_granted = true;
+                fclose(fid);
+            else
+                access_granted = false;
+            end
+        else
+            access_granted = true; % Other OS (and Win without Admin...) treat
+            % pathdef in Matlab path according to permissions
+        end
+        if access_granted %
+            err = savepath();
+        else
+            err = true;
+        end
         if err
             userpath = find_userpath();
             warning('HORACE:installation',...
@@ -130,7 +151,7 @@ worker_path = find_file( ...
     {code_root, fullfile(opt.horace_root, 'admin')} ...
     );
 
-% Identify the parameters, necessary for spinW installation or 
+% Identify the parameters, necessary for spinW installation or
 % horace_on only installation
 if isempty(opt.spinW_folder)
     placeholders    = {HORACE_ON_PLACEHOLDER};
