@@ -108,16 +108,16 @@ if ~opt.test_mode
             pathdef_pth = which('pathdef');
             fid = fopen(pathdef_pth,'r+'); % write access possible
             if fid>0
-                access_granded = true;
+                access_granted = true;
                 fclose(fid);
             else
-                access_granded = false;
+                access_granted = false;
             end
         else
-            access_granded = true; % Other OS (and Win without Admin...) treat
+            access_granted = true; % Other OS (and Win without Admin...) treat
             % pathdef in Matlab path according to permissions
         end
-        if access_granded %
+        if access_granted %
             err = savepath();
         else
             err = true;
