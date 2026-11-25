@@ -132,11 +132,17 @@ classdef test_spaghetti_plot_sqw < TestCase
             rlp_coplanar = [0, 0, 0; 1, 0, 0; 1, 1, 0];
             wdisp1 = spaghetti_plot(rlp_coplanar, w_hex, ...
                 'qwidth', [0.1, 0.2], 'noplot');
+            for i=1:numel(wdisp1)
+                assertEqualToTol(wdisp1(i).proj.v,[0,0,1]);
+            end
 
             rlp_coplanar = [0, 0, 0; 1, 0, 0; 1, 1, 0; 0, 0, 0];
             wdisp2 = spaghetti_plot(rlp_coplanar, w_hex, ...
                 'qwidth', [0.1, 0.2], 'noplot');
-
+            for i=1:numel(wdisp2)
+                assertEqualToTol(wdisp2(i).proj.v,[0,0,1]);
+            end
+            
             assertEqualToTol(wdisp1,wdisp2(1:2),'-ignore_str');
         end
 
