@@ -235,8 +235,8 @@ sqw_proj = sqw_in.data.proj;
 plane_normal = [];
 
 if nseg > 1
-    u1rlp = rlp(1, :) - rlp(2, :);
-    u2rlp = rlp(2, :) - rlp(3, :);
+    u1rlp = rlp(2, :) - rlp(1, :);
+    u2rlp = rlp(3, :) - rlp(2, :);
     
     u1crt = sqw_proj.transform_hkl_to_img(u1rlp')';
     u2crt = sqw_proj.transform_hkl_to_img(u2rlp')';
@@ -247,23 +247,23 @@ if nseg > 1
         if abs(sum(normal_vector)) >= min(opt.qbin) / 100
             break
         end
-        u2rlp = rlp(j,:)-rlp(j+1,:);
+        u2rlp = rlp(j+1,:)- rlp(j,:);
         u2crt = sqw_proj.transform_hkl_to_img(u2rlp')';
         normal_vector = cross(u1crt, u2crt);
     end
     plane_normal = normal_vector;
     
     for i = j:nseg
-        u2rlp = rlp(i, :) - rlp(i+1, :);
+        u2rlp = rlp(i+1, :) - rlp(i, :);
         u2crt = sqw_proj.transform_hkl_to_img(u2rlp')';
         normal_vector = cross(u1crt, u2crt);
         
         if abs(sum(cross(normal_vector, plane_normal))) > 1e-5 % and are coplanar.
             plane_normal = [];
             break
-        end
-        
+        end        
     end
+
 end
 if ~isempty(plane_normal)
     fprintf(2,'*** spaghetti_plot: rlp found to lie in the plane perpendicular to (%g %g %g)\n', ...
@@ -299,9 +299,9 @@ for i = 1:nseg
             v_cart = cross(q_dir_cart, astar_cart);
         end
     else
-        v_cart = ortho_vec(q_dir_cart);
+        v_cart = sqw_proj.transform_img_to_pix(plane_normal(:));
     end
-    v_rlu = sqw_proj.transform_pix_to_hkl(v_cart')';
+    v_rlu = sqw_proj.transform_pix_to_hkl(v_cart(:))';
     
     proj = line_proj(q_dir_rlu, ...
         v_rlu, ...
@@ -320,10 +320,12 @@ for i = 1:nseg
     % Make cut, and save to array of d2d
     wdisp_sqw = cut(sqw_in, proj, u1, u2, u3, ebin);
     
+
     if return_cuts
         u1v = u1(1):u1(2):u1(3);
         
         if wdisp_sqw.has_pixels()
+            clObj = set_temporary_config_options(hor_config(),'log_level',-1);                    
             if opt.withpix
                 out_1d_cuts{i} = repmat(sqw,1,numel(u1v)-1);
             else
@@ -332,6 +334,7 @@ for i = 1:nseg
             for j=1:numel(u1v)-1
                 out_1d_cuts{i}(j) = cut(wdisp_sqw, u1v(j:j+1), []);
             end
+            clear clObj;
         else
             out_1d_cuts{i} = repmat(d1d(), 1, numel(u1v)-1);
         end
@@ -354,7 +357,7 @@ for i = 1:nseg
         wdisp(i).title = titlestr;
     else
         binstr = sprintf(['q bin size approximately %f ', char(197), '^{-1}'], opt.qbin);
-        if numel(opt.qwidth)==1 || numel(opt.qwidth) == nseg
+        if isscalar(opt.qwidth) || numel(opt.qwidth) == nseg
             wdisp(i).title=sprintf(['integrated over %f ', char(197), ...
                 '^{-1} in perpendicular q-directions\n%s\n%s'], qwidth(1, i), binstr, titlestr);
         else
