@@ -1,0 +1,188 @@
+function   obj = put_pix(obj,varargin)
+% Save or replace pixels information within binary sqw file
+%
+%Usage:
+%>>obj = obj.put_pix();
+%>>obj = obj.put_pix(sqw_obj);
+%>>obj = obj.put_pix(pix_obj);
+%
+% Optional:
+% '-update' -- update existing data rather then (over)writing new file
+%             (deprecated, ignored, update occurs automatically if proper file is
+%              provided)
+% '-nopix'  -- do not write pixels
+% '-reserve' -- if applied together with nopix, pixel information is not
+%               written but the space dedicated for pixels is filled in with zeros.
+%               If -nopix is not used, the option is ignored.
+% '-hold_pix_place'
+%           -- if present, arrange writing pix_metadata and place for pixel
+%              data but do not write pixels themselves
+%
+[ok,mess,~,nopix,reserve,hold_pix_place,argi] = parse_char_options(varargin,{'-update','-nopix','-reserve','-hold_pix_place'});
+if ~ok
+    error('HORACE:faccess_sqw_v4_1:invalid_argument',...
+        'faccess_sqw_v4_1-put_pix: %s',mess);
+end
+
+if ~obj.is_activated('write')
+    obj = obj.activate('write');
+end
+
+
+if ~isempty(argi) % parse inputs which may or may not contain any
+    % combination of 3 following input parameters:
+    sqw_pos = cellfun(@(x) isa(x,'sqw') || isstruct(x), argi);
+    numeric_pos = cellfun(@(x) isnumeric(x) && ~isempty(x), argi);
+
+    unknown  = ~(sqw_pos|numeric_pos);
+    if any(unknown)
+        if isempty(argi{1})
+            disp('unknown empty input ');
+        else
+            disp(['unknown input: ',argi{unknown}]);
+        end
+        error('SQW_BINFILE_COMMON:invalid_argument',...
+            'put_pixel: the routine accepts only sqw object and/or low and high numbers for pixels to save');
+    end
+
+    if any(sqw_pos)
+        input_obj = argi{sqw_pos};
+    else
+        input_obj = [];
+    end
+
+    if ~isempty(input_obj)
+        if isa(input_obj,'sqw')
+            input_obj = input_obj.pix;
+        end
+    elseif isempty(numeric_pos)
+        input_obj = argi{numeric_pos};
+    else
+        input_obj = obj.sqw_holder_.pix;
+    end
+
+else
+    input_obj = obj.sqw_holder_.pix;
+end
+
+if isnumeric(input_obj)
+    num_pixels = size(input_obj,2);
+else
+    num_pixels = input_obj.num_pixels;
+end
+
+
+if ~(isa(input_obj,'MultipixBase') || (~isnumeric(input_obj) && input_obj.is_filebacked))
+    obj = obj.put_sqw_block('bl_pix_metadata',input_obj);
+    obj = obj.put_sqw_block('bl_pix_data_wrap',input_obj);
+    return;
+end
+metadata = input_obj.metadata;
+if metadata.is_corrected
+    % Data will be written aligned so metadata should also state that
+    % data are aligned. metadata can not grow here, as it will try to place
+    % them behind pixels which have not been written yet. And they should
+    % not grow.
+    metadata.alignment_matr = eye(3);
+    obj = obj.put_sqw_block('bl_pix_metadata',metadata);
+    % Get pixel data block position to place the block in new place
+    % as pixel_metadata probably have changed their size
+    % MATLAB SPECIFIC issue, as it can not write behind end of file unless
+    % you start writing at the last +1 byte position.
+    bat = obj.bat_;
+    pdb = bat.blocks_list{end};
+    fseek(obj.file_id_,0,'eof');
+    real_eof = ftell(obj.file_id_);
+    % block position counted from 0
+    if pdb.position> real_eof % change
+        % position of pixel data block calculated earlier because MATLAB
+        % can not write after current EOF.
+        for i=1:bat.n_blocks
+            bat.blocks_list{i}.locked = true;
+        end
+        pdb.locked = false;
+        bat.blocks_list{end} = pdb;
+        bat = bat.clear_unlocked_blocks();
+        bat = bat.place_undocked_blocks(input_obj,false);
+        bat = bat.put_bat(obj.file_id_);
+        for i=1:bat.n_blocks-1
+            bat.blocks_list{i}.locked = false;
+        end
+        pdb = bat.blocks_list{end};
+        % lock pixel data block in-place not to move it in a future
+        pdb.locked = true;
+        bat.blocks_list{end} = pdb;
+        obj.bat_ = bat;
+    end
+else
+    obj = obj.put_sqw_block('bl_pix_metadata',metadata);
+    % get block responsible for writing pix_data
+    pdb = obj.bat_.blocks_list{end};
+end
+if nopix && ~reserve
+    pdb.npix = 0;
+end
+
+% write pixel data block information; number of dimensions and number of pixels
+pdb.put_data_header(obj.file_id_);
+if hold_pix_place
+    return;
+end
+
+
+% write pixels themselves
+try
+    do_fseek(obj.file_id_,obj.pix_position,'bof');
+catch ME
+    exc = MException('HORACE:put_pix:io_error',...
+        'Error moving to the start of the pixels info');
+    throw(exc.addCause(ME))
+end
+
+if nopix && reserve
+    % size of buffer to hold pixel information
+    block_size= config_store.instance().get_value('hor_config','mem_chunk_size');
+
+    if block_size >= num_pixels
+        res_data = single(zeros(9,num_pixels));
+        fwrite(obj.file_id_,res_data,'float32');
+    else
+        written = 0;
+        res_data = single(zeros(9,block_size));
+        while written < num_pixels
+            fwrite(obj.file_id_,res_data,'float32');
+            written = written+block_size;
+            if written+block_size > num_pixels
+                block_size = num_pixels-written;
+                res_data = single(zeros(9,block_size));
+            end
+        end
+    end
+    clear res_data;
+    return;
+end
+
+if num_pixels == 0
+    return % nothing to do.
+end
+
+if isa(input_obj,'PixelDataBase')  % write pixels stored in other file
+    n_pages = input_obj.num_pages;
+    for i = 1:n_pages
+        input_obj.page_num = i;
+        pix_data = input_obj.data;
+
+        try
+            fwrite(obj.file_id_, single(pix_data), 'float32');
+            obj.check_write_error(obj.file_id_);
+        catch ME
+            exc = MException('HORACE:put_pix:io_error',...
+                sprintf('Error writing input pixels for page N%d out of %d',i,n_pages));
+            throw(exc.addCause(ME))
+        end
+
+    end
+else % pixel data array. As it is in memory, write it as a sigle block
+    fwrite(obj.file_id_, single(input_obj), 'float32');
+    obj.check_write_error(obj.file_id_);
+end
