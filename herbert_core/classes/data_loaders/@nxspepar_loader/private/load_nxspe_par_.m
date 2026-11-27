@@ -57,10 +57,26 @@ else
     par(6,:)= 1:n_det;
     d_pol   = h5read(file_name,[root_folder,'/data/polar_width']);
     d_azim  = h5read(file_name,[root_folder,'/data/azimuthal_width']);
+    
+    % reject powder inputs that are not 1to1 from number of azimuthal width
+    % values
+    AZIMUTHAL_WIDTH_DETECTOR_NUMBER_LIMIT = 3000;
+    if size(d_azim) < AZIMUTHAL_WIDTH_DETECTOR_NUMBER_LIMIT
+        error('HERBERT:load_nxspe_par_:invalid_input', ...
+              'number of azimuthal width values>%d shows nxspe input is not 1to1, so invalid', ...
+              AZIMUTHAL_WIDTH_DETECTOR_NUMBER_LIMIT);
+    end        
 
-
-    par(4,:) = 2*dist.*tand(0.5*d_pol); % get detector's height according to Toby's definition
-    par(5,:) = 2*dist.*sind(polar).*tand(0.5*d_azim); % get detector's width according to Toby's definition
+    % reject powder inputs that are not 1to1 from max azimuthal width
+    AZIMUTHAL_WIDTH_1TO1_LIMIT = 180; % degrees
+    if max(d_azim) > AZIMUTHAL_WIDTH_1TO1_LIMIT
+        error('HERBERT:load_nxspe_par_:invalid_input', ...
+              'azimuthal width>%d shows nxspe input is not 1to1, so invalid', ...
+              AZIMUTHAL_WIDTH_1TO1_LIMIT);
+    end
+    
+    par(4,:) = 2*dist.*tand(0.5*d_pol); % get detector's width according to Toby's definition
+    par(5,:) = 2*dist.*sind(polar).*tand(0.5*d_azim); % get detector's height according to Toby's definition
 
     if get(hor_config,'log_level')>1
         disp(['LOADER_NXSPE:load_par::loaded ' num2str(n_det) ' detector(s)']);
