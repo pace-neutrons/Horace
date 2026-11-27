@@ -15,6 +15,8 @@ classdef pix_write_handle < handle
         % auxiliary property, with keeps information about intentions
         % of PageOp. It is here to simplify PageOp interface.
         move_to_original
+
+        page_number = []
     end
     properties(Dependent)
         % number of pixels written using this write handle
@@ -103,6 +105,10 @@ classdef pix_write_handle < handle
             obj.img_start_post_ = start_pos + numel(img_struc.npix);
         end
 
+        function wh = get_write_handle(obj)
+            wh = obj.write_handle_;
+        end
+
         function save_data(obj,data,start_pos)
             % write block of pixels at the specified location within the
             % binary sqw file.
@@ -116,7 +122,7 @@ classdef pix_write_handle < handle
                 start_pos = obj.npix_written_+1;
             end
             if obj.handle_is_class_
-                obj.write_handle_ = obj.write_handle_.put_raw_pix(data,start_pos);
+                obj.write_handle_ = obj.write_handle_.put_raw_pix(data,obj.page_number,start_pos);
             else
                 fwrite(obj.write_handle_, single(data), 'single');
             end
