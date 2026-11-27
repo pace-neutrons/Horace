@@ -30,6 +30,9 @@ classdef test_sqw_binary_ops < TestCase
             % Load a 1D SQW file and recalculate incorrect data-pix ratio,
             % present in reference the files
             w1 = sqw(obj.test_sqw_file_path,'file_backed',true);
+            w1.save('w2.sqw');
+            w2 = sqw('w2.sqw');
+            
             obj.sqw_with_pages = w1.recompute_bin_data();
 
             w1 = sqw(obj.test_sqw_file_path,'file_backed',false);
